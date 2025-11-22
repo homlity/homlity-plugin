@@ -1,19 +1,21 @@
-=== Plugin Inmobiliario Codwelt ===
+=== InmoPress Listings Inmobiliaria ===
 Contributors: codwelt
 Donate link: https://codwelt.com
 Tags: inmobiliaria, inmuebles, propiedades, real estate, finca raiz, listings, agentes
 Requires at least: 5.8
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 0.2.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Plugin inmobiliario creado por Codwelt para gestionar inmuebles, agentes, monedas y configuraciones multi-país en sitios WordPress para inmobiliarias.
 
+![Icono](icono.png)
+
 == Description ==
 
-**Plugin Inmobiliario Codwelt** es un plugin especializado para el sector inmobiliario, desarrollado por [Codwelt](https://codwelt.com) para crear y gestionar páginas web inmobiliarias profesionales sobre WordPress de forma fácil, rápida y escalable.
+**InmoPress Listings – Plugin inmobiliario para WordPress** es un plugin especializado para el sector inmobiliario, desarrollado por [Codwelt](https://codwelt.com) para crear y gestionar páginas web inmobiliarias profesionales sobre WordPress de forma fácil, rápida y escalable.
 
 Está pensado para inmobiliarias, brokers, agentes independientes y portales inmobiliarios que necesitan administrar inmuebles en diferentes países, manejar múltiples monedas y personalizar al máximo la forma en que muestran sus propiedades.
 
@@ -114,7 +116,7 @@ El plugin es desarrollado y mantenido por **Codwelt** ([https://codwelt.com](htt
 == Changelog ==
 
 = 1.0.0 =
-* Versión inicial del Plugin Inmobiliario Codwelt.
+* Versión inicial del InmoPress Listings – Plugin inmobiliario para WordPress.
 * Gestión básica de inmuebles.
 * Configuración de tipos de inmuebles, tipos de gestión y características.
 * Soporte para múltiples países y múltiples monedas.

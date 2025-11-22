@@ -141,7 +141,10 @@ class SettingsService implements ServiceInterface
     {
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('Ajustes de la plataforma inmobiliaria', 'plugin-inmobiliario'); ?></h1>
+            <h1 style="display:flex;align-items:center;gap:10px;">
+                <img src="<?php echo esc_url(PLUGIN_INMOBILIARIO_URL . 'icono.png'); ?>" alt="" style="width:32px;height:32px;">
+                <span><?php esc_html_e('Ajustes de la plataforma inmobiliaria', 'plugin-inmobiliario'); ?></span>
+            </h1>
             <form method="post" action="options.php">
                 <?php
                 settings_fields($this->optionName);

@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: InmoPress Listings – Plugin inmobiliario para WordPress
- * Description: InmoPress Listings, gestor de inmuebles, asesores y SEO listo para WordPress.
- * Version:     0.2.7
+ * Plugin Name: InmoPress Listings Inmobiliaria
+ * Description: InmoPress Listings Inmobiliaria, gestor de inmuebles, asesores y SEO listo para WordPress.
+ * Version:     0.2.8
  * Author:      Codwelt SAS
  * Plugin URI:  https://codwelt.com
- * Text Domain: plugin-inmobiliario
+ * Text Domain: inmopress-listings-inmobiliaria
  * License:     GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
@@ -16,8 +16,8 @@ if (!defined('ABSPATH')) {
 
 define('PLUGIN_INMOBILIARIO_PATH', plugin_dir_path(__FILE__));
 define('PLUGIN_INMOBILIARIO_URL', plugin_dir_url(__FILE__));
-define('PLUGIN_INMOBILIARIO_VERSION', '0.2.7');
-define('PLUGIN_INMOBILIARIO_SLUG', 'inmopress-listings-plugin-inmobiliario');
+define('PLUGIN_INMOBILIARIO_VERSION', '0.2.8');
+define('PLUGIN_INMOBILIARIO_SLUG', 'inmopress-listings-inmobiliaria');
 
 // Autoload de Composer
 if (file_exists(PLUGIN_INMOBILIARIO_PATH . 'vendor/autoload.php')) {

@@ -15,14 +15,7 @@ class I18nService implements ServiceInterface
 {
     public function register(): void
     {
-        add_action('init', [$this, 'loadTextDomain']);
         add_action('init', [$this, 'registerTranslatableStrings'], 12);
-    }
-
-    public function loadTextDomain(): void
-    {
-        $pluginBasename = plugin_basename(PLUGIN_INMOBILIARIO_PATH . 'plugin-inmobiliario.php');
-        load_plugin_textdomain('plugin-inmobiliario', false, dirname($pluginBasename) . '/languages');
     }
 
     public function registerTranslatableStrings(): void

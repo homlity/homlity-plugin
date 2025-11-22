@@ -29,13 +29,14 @@ class AdminMenuService implements ServiceInterface
 
     private function registerPropertiesMenu(): void
     {
+        $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
         add_menu_page(
             __('Propiedades', 'plugin-inmobiliario'),
             __('Propiedades', 'plugin-inmobiliario'),
             'edit_posts',
             'plugin-inmobiliario',
             '',
-            'dashicons-building',
+            $icon,
             26
         );
 
@@ -74,13 +75,14 @@ class AdminMenuService implements ServiceInterface
 
     private function registerGeoMenu(): void
     {
+        $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
         add_menu_page(
             __('Georeferenciación', 'plugin-inmobiliario'),
             __('Georeferenciación', 'plugin-inmobiliario'),
             'edit_posts',
             'plugin-inmobiliario-geo',
             '',
-            'dashicons-location-alt',
+            $icon,
             27
         );
 
@@ -105,13 +107,14 @@ class AdminMenuService implements ServiceInterface
 
     private function registerManagementMenu(): void
     {
+        $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
         add_menu_page(
             __('Tipos de gestión', 'plugin-inmobiliario'),
             __('Tipos de gestión', 'plugin-inmobiliario'),
             'edit_posts',
             'plugin-inmobiliario-management',
             '',
-            'dashicons-randomize',
+            $icon,
             28
         );
 
@@ -126,13 +129,14 @@ class AdminMenuService implements ServiceInterface
 
     private function registerTypesMenu(): void
     {
+        $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
         add_menu_page(
             __('Tipos de inmuebles', 'plugin-inmobiliario'),
             __('Tipos de inmuebles', 'plugin-inmobiliario'),
             'edit_posts',
             'plugin-inmobiliario-types',
             '',
-            'dashicons-screenoptions',
+            $icon,
             29
         );
 
@@ -155,13 +159,14 @@ class AdminMenuService implements ServiceInterface
 
     private function registerSettingsMenu(): void
     {
+        $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
         add_menu_page(
             __('Configuración del plugin', 'plugin-inmobiliario'),
             __('Configuración', 'plugin-inmobiliario'),
             'manage_options',
             'plugin-inmobiliario-settings',
             [new SettingsService(), 'renderSettingsPage'],
-            'dashicons-admin-generic',
+            $icon,
             30
         );
     }
