@@ -16,7 +16,7 @@ if (!isset($post_id)) {
 $meta = (new PropertyPostType())->metaKeys();
 $currencyService = new CurrencyService();
 
-$settings = get_option('plugin_inmobiliario_settings', [
+$settings = get_option('inmopress_settings', [
     'listing_fields' => ['price', 'excerpt', 'features', 'whatsapp'],
 ]);
 $listingFields = $settings['listing_fields'] ?? ['price', 'excerpt', 'features', 'whatsapp'];
@@ -77,23 +77,23 @@ if ($agentPhoneDigits) {
                     <li><?php echo esc_html($area); ?> m²</li>
                 <?php endif; ?>
                 <?php if ($bedrooms): ?>
-                    <li><?php echo esc_html($bedrooms); ?> <?php esc_html_e('Habitaciones', 'plugin-inmobiliario'); ?></li>
+                    <li><?php echo esc_html($bedrooms); ?> <?php esc_html_e('Habitaciones', 'inmopress-listings-inmobiliaria'); ?></li>
                 <?php endif; ?>
                 <?php if ($bathrooms): ?>
-                    <li><?php echo esc_html($bathrooms); ?> <?php esc_html_e('Baños', 'plugin-inmobiliario'); ?></li>
+                    <li><?php echo esc_html($bathrooms); ?> <?php esc_html_e('Baños', 'inmopress-listings-inmobiliaria'); ?></li>
                 <?php endif; ?>
             </ul>
         <?php endif; ?>
         <?php if ($price && in_array('price', $listingFields, true)): ?>
             <p class="property-card__price">
-                <?php echo esc_html(apply_filters('plugin_inmobiliario_format_price', $price, $currency)); ?>
+                <?php echo esc_html(apply_filters('inmopress_format_price', $price, $currency)); ?>
             </p>
         <?php endif; ?>
     </a>
 
     <?php if ($whatsAppLink && in_array('whatsapp', $listingFields, true)): ?>
         <a class="property-card__whatsapp" href="<?php echo esc_url($whatsAppLink); ?>" target="_blank" rel="noopener noreferrer">
-            <?php esc_html_e('Contactar por WhatsApp', 'plugin-inmobiliario'); ?>
+            <?php esc_html_e('Contactar por WhatsApp', 'inmopress-listings-inmobiliaria'); ?>
         </a>
     <?php endif; ?>
 </article>

@@ -67,9 +67,9 @@ $tags = get_terms([
         <h1><?php post_type_archive_title(); ?></h1>
         <form method="get" class="property-archive__search">
             <input type="search" name="s" value="<?php echo esc_attr(get_search_query()); ?>"
-                   placeholder="<?php esc_attr_e('Buscar inmuebles', 'plugin-inmobiliario'); ?>">
+                   placeholder="<?php esc_attr_e('Buscar inmuebles', 'inmopress-listings-inmobiliaria'); ?>">
             <select name="property_category">
-                <option value=""><?php esc_html_e('Todas las categorías', 'plugin-inmobiliario'); ?></option>
+                <option value=""><?php esc_html_e('Todas las categorías', 'inmopress-listings-inmobiliaria'); ?></option>
                 <?php foreach ($categories as $term): ?>
                     <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($category, $term->slug); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -77,7 +77,7 @@ $tags = get_terms([
                 <?php endforeach; ?>
             </select>
             <select name="property_type">
-                <option value=""><?php esc_html_e('Todos los tipos', 'plugin-inmobiliario'); ?></option>
+                <option value=""><?php esc_html_e('Todos los tipos', 'inmopress-listings-inmobiliaria'); ?></option>
                 <?php foreach ($types as $term): ?>
                     <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($type, $term->slug); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -85,7 +85,7 @@ $tags = get_terms([
                 <?php endforeach; ?>
             </select>
             <select name="property_operation">
-                <option value=""><?php esc_html_e('Todas las gestiones', 'plugin-inmobiliario'); ?></option>
+                <option value=""><?php esc_html_e('Todas las gestiones', 'inmopress-listings-inmobiliaria'); ?></option>
                 <?php foreach ($operations as $term): ?>
                     <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($operation, $term->slug); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -93,7 +93,7 @@ $tags = get_terms([
                 <?php endforeach; ?>
             </select>
             <select name="property_city">
-                <option value=""><?php esc_html_e('Todas las ciudades', 'plugin-inmobiliario'); ?></option>
+                <option value=""><?php esc_html_e('Todas las ciudades', 'inmopress-listings-inmobiliaria'); ?></option>
                 <?php foreach ($cities as $term): ?>
                     <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($city, $term->slug); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -101,7 +101,7 @@ $tags = get_terms([
                 <?php endforeach; ?>
             </select>
             <select name="property_neighborhood">
-                <option value=""><?php esc_html_e('Todos los barrios', 'plugin-inmobiliario'); ?></option>
+                <option value=""><?php esc_html_e('Todos los barrios', 'inmopress-listings-inmobiliaria'); ?></option>
                 <?php foreach ($neighborhoods as $term): ?>
                     <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($neighborhood, $term->slug); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -109,7 +109,7 @@ $tags = get_terms([
                 <?php endforeach; ?>
             </select>
             <select name="property_nearby">
-                <option value=""><?php esc_html_e('Lugares cercanos', 'plugin-inmobiliario'); ?></option>
+                <option value=""><?php esc_html_e('Lugares cercanos', 'inmopress-listings-inmobiliaria'); ?></option>
                 <?php foreach ($nearbyTerms as $term): ?>
                     <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($nearby, $term->slug); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -117,20 +117,20 @@ $tags = get_terms([
                 <?php endforeach; ?>
             </select>
             <select name="property_tag">
-                <option value=""><?php esc_html_e('Etiquetas', 'plugin-inmobiliario'); ?></option>
+                <option value=""><?php esc_html_e('Etiquetas', 'inmopress-listings-inmobiliaria'); ?></option>
                 <?php foreach ($tags as $term): ?>
                     <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($tag, $term->slug); ?>>
                         <?php echo esc_html($term->name); ?>
                     </option>
                 <?php endforeach; ?>
             </select>
-            <input type="number" name="price_min" value="<?php echo esc_attr($priceMin); ?>" placeholder="<?php esc_attr_e('Precio mínimo', 'plugin-inmobiliario'); ?>" step="0.01">
-            <input type="number" name="price_max" value="<?php echo esc_attr($priceMax); ?>" placeholder="<?php esc_attr_e('Precio máximo', 'plugin-inmobiliario'); ?>" step="0.01">
-            <input type="number" name="area_min" value="<?php echo esc_attr($areaMin); ?>" placeholder="<?php esc_attr_e('Área mínima (m²)', 'plugin-inmobiliario'); ?>" step="0.01">
-            <input type="number" name="area_max" value="<?php echo esc_attr($areaMax); ?>" placeholder="<?php esc_attr_e('Área máxima (m²)', 'plugin-inmobiliario'); ?>" step="0.01">
+            <input type="number" name="price_min" value="<?php echo esc_attr($priceMin); ?>" placeholder="<?php esc_attr_e('Precio mínimo', 'inmopress-listings-inmobiliaria'); ?>" step="0.01">
+            <input type="number" name="price_max" value="<?php echo esc_attr($priceMax); ?>" placeholder="<?php esc_attr_e('Precio máximo', 'inmopress-listings-inmobiliaria'); ?>" step="0.01">
+            <input type="number" name="area_min" value="<?php echo esc_attr($areaMin); ?>" placeholder="<?php esc_attr_e('Área mínima (m²)', 'inmopress-listings-inmobiliaria'); ?>" step="0.01">
+            <input type="number" name="area_max" value="<?php echo esc_attr($areaMax); ?>" placeholder="<?php esc_attr_e('Área máxima (m²)', 'inmopress-listings-inmobiliaria'); ?>" step="0.01">
             <input type="date" name="date_from" value="<?php echo esc_attr($dateFrom); ?>">
             <input type="date" name="date_to" value="<?php echo esc_attr($dateTo); ?>">
-            <button type="submit"><?php esc_html_e('Buscar', 'plugin-inmobiliario'); ?></button>
+            <button type="submit"><?php esc_html_e('Buscar', 'inmopress-listings-inmobiliaria'); ?></button>
         </form>
     </header>
 
@@ -144,7 +144,7 @@ $tags = get_terms([
             <?php the_posts_pagination(); ?>
         </div>
     <?php else : ?>
-        <p><?php esc_html_e('No hay inmuebles que coincidan con tu búsqueda.', 'plugin-inmobiliario'); ?></p>
+        <p><?php esc_html_e('No hay inmuebles que coincidan con tu búsqueda.', 'inmopress-listings-inmobiliaria'); ?></p>
     <?php endif; ?>
 </main>
 

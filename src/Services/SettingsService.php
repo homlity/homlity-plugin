@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 
 class SettingsService implements ServiceInterface
 {
-    private string $optionName = 'plugin_inmobiliario_settings';
+    private string $optionName = 'inmopress_settings';
 
     public function register(): void
     {
@@ -30,104 +30,104 @@ class SettingsService implements ServiceInterface
         ]);
 
         add_settings_section(
-            'plugin_inmobiliario_currency',
-            __('Moneda y formato', 'plugin-inmobiliario'),
+            'inmopress_currency',
+            __('Moneda y formato', 'inmopress-listings-inmobiliaria'),
             '__return_empty_string',
             $this->optionName
         );
 
         add_settings_field(
             'base_currency',
-            __('Moneda base', 'plugin-inmobiliario'),
+            __('Moneda base', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderBaseCurrencyField'],
             $this->optionName,
-            'plugin_inmobiliario_currency'
+            'inmopress_currency'
         );
 
         add_settings_section(
-            'plugin_inmobiliario_listing',
-            __('Listado de propiedades', 'plugin-inmobiliario'),
+            'inmopress_listing',
+            __('Listado de propiedades', 'inmopress-listings-inmobiliaria'),
             '__return_empty_string',
             $this->optionName
         );
 
         add_settings_field(
             'listing_fields',
-            __('Campos visibles en listado', 'plugin-inmobiliario'),
+            __('Campos visibles en listado', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderListingFields'],
             $this->optionName,
-            'plugin_inmobiliario_listing'
+            'inmopress_listing'
         );
 
         add_settings_section(
-            'plugin_inmobiliario_info',
-            __('Información del plugin', 'plugin-inmobiliario'),
+            'inmopress_info',
+            __('Información del plugin', 'inmopress-listings-inmobiliaria'),
             '__return_empty_string',
             $this->optionName
         );
 
         add_settings_field(
             'company_name',
-            __('Empresa creadora', 'plugin-inmobiliario'),
+            __('Empresa creadora', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderCompanyName'],
             $this->optionName,
-            'plugin_inmobiliario_info'
+            'inmopress_info'
         );
 
         add_settings_field(
             'company_url',
-            __('Sitio web', 'plugin-inmobiliario'),
+            __('Sitio web', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderCompanyUrl'],
             $this->optionName,
-            'plugin_inmobiliario_info'
+            'inmopress_info'
         );
 
         add_settings_field(
             'support_email',
-            __('Correo de soporte', 'plugin-inmobiliario'),
+            __('Correo de soporte', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderSupportEmail'],
             $this->optionName,
-            'plugin_inmobiliario_info'
+            'inmopress_info'
         );
 
         add_settings_field(
             'default_country',
-            __('País por defecto', 'plugin-inmobiliario'),
+            __('País por defecto', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderDefaultCountry'],
             $this->optionName,
-            'plugin_inmobiliario_info'
+            'inmopress_info'
         );
 
         add_settings_field(
             'default_state',
-            __('Departamento/Provincia por defecto', 'plugin-inmobiliario'),
+            __('Departamento/Provincia por defecto', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderDefaultState'],
             $this->optionName,
-            'plugin_inmobiliario_info'
+            'inmopress_info'
         );
 
         add_settings_field(
             'default_city',
-            __('Ciudad/Municipio por defecto', 'plugin-inmobiliario'),
+            __('Ciudad/Municipio por defecto', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderDefaultCity'],
             $this->optionName,
-            'plugin_inmobiliario_info'
+            'inmopress_info'
         );
 
         add_settings_field(
             'archive_per_page',
-            __('Inmuebles por página (archivo/búsqueda)', 'plugin-inmobiliario'),
+            __('Inmuebles por página (archivo/búsqueda)', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderArchivePerPage'],
             $this->optionName,
-            'plugin_inmobiliario_listing'
+            'inmopress_listing'
         );
 
         add_settings_field(
             'archive_order',
-            __('Orden por defecto', 'plugin-inmobiliario'),
+            __('Orden por defecto', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderArchiveOrder'],
             $this->optionName,
-            'plugin_inmobiliario_listing'
+            'inmopress_listing'
         );
 
     }
@@ -142,8 +142,8 @@ class SettingsService implements ServiceInterface
         ?>
         <div class="wrap">
             <h1 style="display:flex;align-items:center;gap:10px;">
-                <img src="<?php echo esc_url(PLUGIN_INMOBILIARIO_URL . 'icono.png'); ?>" alt="" style="width:32px;height:32px;">
-                <span><?php esc_html_e('Ajustes de la plataforma inmobiliaria', 'plugin-inmobiliario'); ?></span>
+                <img src="<?php echo esc_url(PLUGIN_INMOBILIARIO_URL . 'icono.png'); ?>" alt="inmopress" style="width:32px;height:32px;">
+                <span><?php esc_html_e('Ajustes de la plataforma inmobiliaria', 'inmopress-listings-inmobiliaria'); ?></span>
             </h1>
             <form method="post" action="options.php">
                 <?php
@@ -160,7 +160,7 @@ class SettingsService implements ServiceInterface
     {
         $settings = get_option($this->optionName, $this->defaults());
         $current = $settings['base_currency'] ?? 'USD';
-        $currencies = apply_filters('plugin_inmobiliario_supported_currencies', ['USD', 'EUR', 'GBP', 'COP', 'MXN', 'CLP']);
+        $currencies = apply_filters('inmopress_supported_currencies', ['USD', 'EUR', 'GBP', 'COP', 'MXN', 'CLP']);
         ?>
         <select name="<?php echo esc_attr($this->optionName); ?>[base_currency]">
             <?php foreach ($currencies as $code): ?>
@@ -214,7 +214,7 @@ class SettingsService implements ServiceInterface
             ? strtoupper(sanitize_text_field($values['base_currency']))
             : $this->defaults()['base_currency'];
 
-        $allowed = apply_filters('plugin_inmobiliario_supported_currencies', ['USD']);
+        $allowed = apply_filters('inmopress_supported_currencies', ['USD']);
         $looksLikeCurrency = (bool) preg_match('/^[A-Z]{3,5}$/', $values['base_currency']);
         if (!in_array($values['base_currency'], $allowed, true) && !$looksLikeCurrency) {
             $values['base_currency'] = $this->defaults()['base_currency'];
@@ -244,10 +244,10 @@ class SettingsService implements ServiceInterface
         $settings = get_option($this->optionName, $this->defaults());
         $selected = $settings['listing_fields'] ?? $this->defaults()['listing_fields'];
         $fields = [
-            'price' => __('Precio', 'plugin-inmobiliario'),
-            'excerpt' => __('Descripción corta', 'plugin-inmobiliario'),
-            'features' => __('Características (área, hab, baños)', 'plugin-inmobiliario'),
-            'whatsapp' => __('Botón de WhatsApp', 'plugin-inmobiliario'),
+            'price' => __('Precio', 'inmopress-listings-inmobiliaria'),
+            'excerpt' => __('Descripción corta', 'inmopress-listings-inmobiliaria'),
+            'features' => __('Características (área, hab, baños)', 'inmopress-listings-inmobiliaria'),
+            'whatsapp' => __('Botón de WhatsApp', 'inmopress-listings-inmobiliaria'),
         ];
         foreach ($fields as $key => $label) {
             ?>
@@ -320,8 +320,8 @@ class SettingsService implements ServiceInterface
         $settings = get_option($this->optionName, $this->defaults());
         $current = $settings['archive_order'] ?? 'date_desc';
         $options = [
-            'date_desc' => __('Fecha de creación (más reciente primero)', 'plugin-inmobiliario'),
-            'price_desc' => __('Precio (mayor a menor)', 'plugin-inmobiliario'),
+            'date_desc' => __('Fecha de creación (más reciente primero)', 'inmopress-listings-inmobiliaria'),
+            'price_desc' => __('Precio (mayor a menor)', 'inmopress-listings-inmobiliaria'),
         ];
         ?>
         <select name="<?php echo esc_attr($this->optionName); ?>[archive_order]">

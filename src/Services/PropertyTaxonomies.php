@@ -37,10 +37,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_TYPE,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Tipo de propiedad', 'plugin-inmobiliario'),
+                'label' => __('Tipo de propiedad', 'inmopress-listings-inmobiliaria'),
                 'labels' => [
-                    'name' => __('Tipos de propiedad', 'plugin-inmobiliario'),
-                    'singular_name' => __('Tipo de propiedad', 'plugin-inmobiliario'),
+                    'name' => __('Tipos de propiedad', 'inmopress-listings-inmobiliaria'),
+                    'singular_name' => __('Tipo de propiedad', 'inmopress-listings-inmobiliaria'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -53,10 +53,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_OPERATION,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Gestión', 'plugin-inmobiliario'),
+                'label' => __('Gestión', 'inmopress-listings-inmobiliaria'),
                 'labels' => [
-                    'name' => __('Gestiones', 'plugin-inmobiliario'),
-                    'singular_name' => __('Gestión', 'plugin-inmobiliario'),
+                    'name' => __('Gestiones', 'inmopress-listings-inmobiliaria'),
+                    'singular_name' => __('Gestión', 'inmopress-listings-inmobiliaria'),
                 ],
                 'hierarchical' => false,
                 'show_in_rest' => true,
@@ -70,10 +70,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_LOCATION,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Ubicación', 'plugin-inmobiliario'),
+                'label' => __('Ubicación', 'inmopress-listings-inmobiliaria'),
                 'labels' => [
-                    'name' => __('Ubicaciones', 'plugin-inmobiliario'),
-                    'singular_name' => __('Ubicación', 'plugin-inmobiliario'),
+                    'name' => __('Ubicaciones', 'inmopress-listings-inmobiliaria'),
+                    'singular_name' => __('Ubicación', 'inmopress-listings-inmobiliaria'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -85,10 +85,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_CATEGORY,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Categoría', 'plugin-inmobiliario'),
+                'label' => __('Categoría', 'inmopress-listings-inmobiliaria'),
                 'labels' => [
-                    'name' => __('Categorías', 'plugin-inmobiliario'),
-                    'singular_name' => __('Categoría', 'plugin-inmobiliario'),
+                    'name' => __('Categorías', 'inmopress-listings-inmobiliaria'),
+                    'singular_name' => __('Categoría', 'inmopress-listings-inmobiliaria'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -100,10 +100,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_TAG,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Etiquetas', 'plugin-inmobiliario'),
+                'label' => __('Etiquetas', 'inmopress-listings-inmobiliaria'),
                 'labels' => [
-                    'name' => __('Etiquetas', 'plugin-inmobiliario'),
-                    'singular_name' => __('Etiqueta', 'plugin-inmobiliario'),
+                    'name' => __('Etiquetas', 'inmopress-listings-inmobiliaria'),
+                    'singular_name' => __('Etiqueta', 'inmopress-listings-inmobiliaria'),
                 ],
                 'hierarchical' => false,
                 'show_in_rest' => true,
@@ -115,10 +115,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_FEATURE,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Características', 'plugin-inmobiliario'),
+                'label' => __('Características', 'inmopress-listings-inmobiliaria'),
                 'labels' => [
-                    'name' => __('Características', 'plugin-inmobiliario'),
-                    'singular_name' => __('Característica', 'plugin-inmobiliario'),
+                    'name' => __('Características', 'inmopress-listings-inmobiliaria'),
+                    'singular_name' => __('Característica', 'inmopress-listings-inmobiliaria'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -131,10 +131,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_COUNTRY,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('País', 'plugin-inmobiliario'),
+                'label' => __('País', 'inmopress-listings-inmobiliaria'),
                 'labels' => [
-                    'name' => __('Países', 'plugin-inmobiliario'),
-                    'singular_name' => __('País', 'plugin-inmobiliario'),
+                    'name' => __('Países', 'inmopress-listings-inmobiliaria'),
+                    'singular_name' => __('País', 'inmopress-listings-inmobiliaria'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -147,10 +147,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_STATE,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Departamento / Provincia', 'plugin-inmobiliario'),
+                'label' => __('Departamento / Provincia', 'inmopress-listings-inmobiliaria'),
                 'labels' => [
-                    'name' => __('Departamentos / Provincias', 'plugin-inmobiliario'),
-                    'singular_name' => __('Departamento / Provincia', 'plugin-inmobiliario'),
+                    'name' => __('Departamentos / Provincias', 'inmopress-listings-inmobiliaria'),
+                    'singular_name' => __('Departamento / Provincia', 'inmopress-listings-inmobiliaria'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -163,10 +163,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_CITY,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Ciudad / Municipio', 'plugin-inmobiliario'),
+                'label' => __('Ciudad / Municipio', 'inmopress-listings-inmobiliaria'),
                 'labels' => [
-                    'name' => __('Ciudades / Municipios', 'plugin-inmobiliario'),
-                    'singular_name' => __('Ciudad / Municipio', 'plugin-inmobiliario'),
+                    'name' => __('Ciudades / Municipios', 'inmopress-listings-inmobiliaria'),
+                    'singular_name' => __('Ciudad / Municipio', 'inmopress-listings-inmobiliaria'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -179,10 +179,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_NEIGHBORHOOD,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Barrio', 'plugin-inmobiliario'),
+                'label' => __('Barrio', 'inmopress-listings-inmobiliaria'),
                 'labels' => [
-                    'name' => __('Barrios', 'plugin-inmobiliario'),
-                    'singular_name' => __('Barrio', 'plugin-inmobiliario'),
+                    'name' => __('Barrios', 'inmopress-listings-inmobiliaria'),
+                    'singular_name' => __('Barrio', 'inmopress-listings-inmobiliaria'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -195,10 +195,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_NEARBY,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Lugares cercanos', 'plugin-inmobiliario'),
+                'label' => __('Lugares cercanos', 'inmopress-listings-inmobiliaria'),
                 'labels' => [
-                    'name' => __('Lugares cercanos', 'plugin-inmobiliario'),
-                    'singular_name' => __('Lugar cercano', 'plugin-inmobiliario'),
+                    'name' => __('Lugares cercanos', 'inmopress-listings-inmobiliaria'),
+                    'singular_name' => __('Lugar cercano', 'inmopress-listings-inmobiliaria'),
                 ],
                 'hierarchical' => false,
                 'show_in_rest' => true,

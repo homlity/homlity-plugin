@@ -18,7 +18,7 @@ class PropertyCardWidget extends BasePropertyWidget
 
     public function get_title(): string
     {
-        return __('Tarjeta de inmueble', 'plugin-inmobiliario');
+        return __('Tarjeta de inmueble', 'inmopress-listings-inmobiliaria');
     }
 
     public function get_icon(): string
@@ -28,12 +28,12 @@ class PropertyCardWidget extends BasePropertyWidget
 
     protected function register_controls(): void
     {
-        $this->start_controls_section('content', ['label' => __('Contenido', 'plugin-inmobiliario')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'inmopress-listings-inmobiliaria')]);
         $this->register_property_control();
         $this->add_control(
             'show_excerpt',
             [
-                'label' => __('Mostrar extracto', 'plugin-inmobiliario'),
+                'label' => __('Mostrar extracto', 'inmopress-listings-inmobiliaria'),
                 'type' => Controls_Manager::SWITCHER,
                 'default' => 'yes',
             ]

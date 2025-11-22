@@ -24,9 +24,9 @@ class LocationMetaService implements ServiceInterface
         add_action('rest_api_init', [$this, 'registerRoutes']);
 
         // Add/select parent field when creating/editing terms.
-        $this->hookTermFields(PropertyTaxonomies::TAXONOMY_STATE, PropertyTaxonomies::TAXONOMY_COUNTRY, __('País', 'plugin-inmobiliario'));
-        $this->hookTermFields(PropertyTaxonomies::TAXONOMY_CITY, PropertyTaxonomies::TAXONOMY_STATE, __('Departamento / Provincia', 'plugin-inmobiliario'));
-        $this->hookTermFields(PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD, PropertyTaxonomies::TAXONOMY_CITY, __('Ciudad / Municipio', 'plugin-inmobiliario'));
+        $this->hookTermFields(PropertyTaxonomies::TAXONOMY_STATE, PropertyTaxonomies::TAXONOMY_COUNTRY, __('País', 'inmopress-listings-inmobiliaria'));
+        $this->hookTermFields(PropertyTaxonomies::TAXONOMY_CITY, PropertyTaxonomies::TAXONOMY_STATE, __('Departamento / Provincia', 'inmopress-listings-inmobiliaria'));
+        $this->hookTermFields(PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD, PropertyTaxonomies::TAXONOMY_CITY, __('Ciudad / Municipio', 'inmopress-listings-inmobiliaria'));
     }
 
     private function hookTermFields(string $taxonomy, string $parentTaxonomy, string $parentLabel): void
@@ -79,7 +79,7 @@ class LocationMetaService implements ServiceInterface
         ]);
         ?>
         <select name="parent_<?php echo esc_attr($parentTaxonomy); ?>">
-            <option value="0"><?php echo esc_html(sprintf(__('Selecciona %s', 'plugin-inmobiliario'), $label)); ?></option>
+            <option value="0"><?php echo esc_html(sprintf(__('Selecciona %s', 'inmopress-listings-inmobiliaria'), $label)); ?></option>
             <?php foreach ($terms as $term): ?>
                 <option value="<?php echo esc_attr($term->term_id); ?>" <?php selected($selected, $term->term_id); ?>>
                     <?php echo esc_html($term->name); ?>

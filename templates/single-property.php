@@ -14,9 +14,9 @@ $metaKeys = (new PropertyPostType())->metaKeys();
 $currencyService = new CurrencyService();
 
 $priceFields = [
-    'price_sale' => __('Precio venta', 'plugin-inmobiliario'),
-    'price_rent' => __('Precio arriendo', 'plugin-inmobiliario'),
-    'price_admin' => __('Precio administración', 'plugin-inmobiliario'),
+    'price_sale' => __('Precio venta', 'inmopress-listings-inmobiliaria'),
+    'price_rent' => __('Precio arriendo', 'inmopress-listings-inmobiliaria'),
+    'price_admin' => __('Precio administración', 'inmopress-listings-inmobiliaria'),
 ];
 
 $agentId = (int) get_post_meta(get_the_ID(), $metaKeys['agent_id'], true);
@@ -39,7 +39,7 @@ $agentUser = $agentId ? get_user_by('id', $agentId) : null;
                         ?>
                         <p>
                             <strong><?php echo esc_html($label); ?>:</strong>
-                            <?php echo esc_html(apply_filters('plugin_inmobiliario_format_price', $value, $currency)); ?>
+                            <?php echo esc_html(apply_filters('inmopress_format_price', $value, $currency)); ?>
                         </p>
                     <?php endforeach; ?>
                 </div>

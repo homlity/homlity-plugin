@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 
 class VersionService implements ServiceInterface
 {
-    private string $optionName = 'plugin_inmobiliario_version';
+    private string $optionName = 'inmopress_version';
 
     public function register(): void
     {

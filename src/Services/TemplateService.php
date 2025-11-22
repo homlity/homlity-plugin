@@ -58,7 +58,7 @@ class TemplateService implements ServiceInterface
         if ($query->is_post_type_archive(PropertyPostType::POST_TYPE)) {
             $taxQuery = [];
             $metaQuery = ['relation' => 'AND'];
-            $settings = get_option('plugin_inmobiliario_settings', ['archive_per_page' => 12, 'archive_order' => 'date_desc']);
+            $settings = get_option('inmopress_settings', ['archive_per_page' => 12, 'archive_order' => 'date_desc']);
             $perPage = isset($settings['archive_per_page']) ? (int) $settings['archive_per_page'] : 12;
             if ($perPage > 0) {
                 $query->set('posts_per_page', $perPage);

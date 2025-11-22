@@ -13,13 +13,13 @@ if (!defined('ABSPATH')) {
 
 class CurrencyService implements ServiceInterface
 {
-    private string $settingsOption = 'plugin_inmobiliario_settings';
+    private string $settingsOption = 'inmopress_settings';
 
     public function register(): void
     {
-        add_filter('plugin_inmobiliario_supported_currencies', [$this, 'supportedCurrencies']);
-        add_filter('plugin_inmobiliario_format_price', [$this, 'formatPrice'], 10, 3);
-        add_filter('plugin_inmobiliario_convert_price', [$this, 'convertPrice'], 10, 3);
+        add_filter('inmopress_supported_currencies', [$this, 'supportedCurrencies']);
+        add_filter('inmopress_format_price', [$this, 'formatPrice'], 10, 3);
+        add_filter('inmopress_convert_price', [$this, 'convertPrice'], 10, 3);
     }
 
     public function supportedCurrencies($currencies = []): array
@@ -50,7 +50,7 @@ class CurrencyService implements ServiceInterface
     {
         $settings = get_option($this->settingsOption, ['base_currency' => 'USD']);
         $base = $settings['base_currency'] ?? 'USD';
-        $allowed = apply_filters('plugin_inmobiliario_supported_currencies', []);
+        $allowed = apply_filters('inmopress_supported_currencies', []);
         return in_array($base, $allowed, true) ? $base : 'USD';
     }
 
@@ -84,7 +84,7 @@ class CurrencyService implements ServiceInterface
             return (float) $price;
         }
 
-        $rates = apply_filters('plugin_inmobiliario_exchange_rates', [
+        $rates = apply_filters('inmopress_exchange_rates', [
             'USD' => 1.0,
             'EUR' => 0.92,
             'GBP' => 0.80,

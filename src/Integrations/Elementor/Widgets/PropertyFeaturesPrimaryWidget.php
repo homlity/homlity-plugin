@@ -17,7 +17,7 @@ class PropertyFeaturesPrimaryWidget extends BasePropertyWidget
 
     public function get_title(): string
     {
-        return __('Características principales', 'plugin-inmobiliario');
+        return __('Características principales', 'inmopress-listings-inmobiliaria');
     }
 
     public function get_icon(): string
@@ -27,7 +27,7 @@ class PropertyFeaturesPrimaryWidget extends BasePropertyWidget
 
     protected function register_controls(): void
     {
-        $this->start_controls_section('content', ['label' => __('Contenido', 'plugin-inmobiliario')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'inmopress-listings-inmobiliaria')]);
         $this->register_property_control();
         $this->end_controls_section();
     }

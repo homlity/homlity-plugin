@@ -79,7 +79,7 @@ if (!$related->have_posts()) {
 }
 ?>
 <section class="property-related">
-    <h2><?php esc_html_e('Propiedades relacionadas', 'plugin-inmobiliario'); ?></h2>
+    <h2><?php esc_html_e('Propiedades relacionadas', 'inmopress-listings-inmobiliaria'); ?></h2>
     <div class="property-related__grid">
         <?php while ($related->have_posts()) : $related->the_post(); ?>
             <?php TemplateService::includeComponent('property-card.php', ['post_id' => get_the_ID()]); ?>

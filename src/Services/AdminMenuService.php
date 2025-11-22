@@ -31,43 +31,43 @@ class AdminMenuService implements ServiceInterface
     {
         $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
         add_menu_page(
-            __('Propiedades', 'plugin-inmobiliario'),
-            __('Propiedades', 'plugin-inmobiliario'),
+            __('Propiedades', 'inmopress-listings-inmobiliaria'),
+            __('Propiedades', 'inmopress-listings-inmobiliaria'),
             'edit_posts',
-            'plugin-inmobiliario',
+            'inmopress-listings-inmobiliaria',
             '',
             $icon,
             26
         );
 
         add_submenu_page(
-            'plugin-inmobiliario',
-            __('Todas las propiedades', 'plugin-inmobiliario'),
-            __('Todas las propiedades', 'plugin-inmobiliario'),
+            'inmopress-listings-inmobiliaria',
+            __('Todas las propiedades', 'inmopress-listings-inmobiliaria'),
+            __('Todas las propiedades', 'inmopress-listings-inmobiliaria'),
             'edit_posts',
             'edit.php?post_type=property'
         );
 
         add_submenu_page(
-            'plugin-inmobiliario',
-            __('Añadir nueva', 'plugin-inmobiliario'),
-            __('Añadir nueva', 'plugin-inmobiliario'),
+            'inmopress-listings-inmobiliaria',
+            __('Añadir nueva', 'inmopress-listings-inmobiliaria'),
+            __('Añadir nueva', 'inmopress-listings-inmobiliaria'),
             'edit_posts',
             'post-new.php?post_type=property'
         );
 
         add_submenu_page(
-            'plugin-inmobiliario',
-            __('Características', 'plugin-inmobiliario'),
-            __('Características', 'plugin-inmobiliario'),
+            'inmopress-listings-inmobiliaria',
+            __('Características', 'inmopress-listings-inmobiliaria'),
+            __('Características', 'inmopress-listings-inmobiliaria'),
             'edit_posts',
             'edit-tags.php?taxonomy=' . PropertyTaxonomies::TAXONOMY_FEATURE . '&post_type=property'
         );
 
         add_submenu_page(
-            'plugin-inmobiliario',
-            __('Lugares cercanos', 'plugin-inmobiliario'),
-            __('Lugares cercanos', 'plugin-inmobiliario'),
+            'inmopress-listings-inmobiliaria',
+            __('Lugares cercanos', 'inmopress-listings-inmobiliaria'),
+            __('Lugares cercanos', 'inmopress-listings-inmobiliaria'),
             'edit_posts',
             'edit-tags.php?taxonomy=' . PropertyTaxonomies::TAXONOMY_NEARBY . '&post_type=property'
         );
@@ -77,8 +77,8 @@ class AdminMenuService implements ServiceInterface
     {
         $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
         add_menu_page(
-            __('Georeferenciación', 'plugin-inmobiliario'),
-            __('Georeferenciación', 'plugin-inmobiliario'),
+            __('Georeferenciación', 'inmopress-listings-inmobiliaria'),
+            __('Georeferenciación', 'inmopress-listings-inmobiliaria'),
             'edit_posts',
             'plugin-inmobiliario-geo',
             '',
@@ -87,11 +87,11 @@ class AdminMenuService implements ServiceInterface
         );
 
         $geoTax = [
-            PropertyTaxonomies::TAXONOMY_COUNTRY => __('Países', 'plugin-inmobiliario'),
-            PropertyTaxonomies::TAXONOMY_STATE => __('Departamentos / Provincias', 'plugin-inmobiliario'),
-            PropertyTaxonomies::TAXONOMY_CITY => __('Ciudades / Municipios', 'plugin-inmobiliario'),
-            PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD => __('Barrios', 'plugin-inmobiliario'),
-            PropertyTaxonomies::TAXONOMY_LOCATION => __('Zonas', 'plugin-inmobiliario'),
+            PropertyTaxonomies::TAXONOMY_COUNTRY => __('Países', 'inmopress-listings-inmobiliaria'),
+            PropertyTaxonomies::TAXONOMY_STATE => __('Departamentos / Provincias', 'inmopress-listings-inmobiliaria'),
+            PropertyTaxonomies::TAXONOMY_CITY => __('Ciudades / Municipios', 'inmopress-listings-inmobiliaria'),
+            PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD => __('Barrios', 'inmopress-listings-inmobiliaria'),
+            PropertyTaxonomies::TAXONOMY_LOCATION => __('Zonas', 'inmopress-listings-inmobiliaria'),
         ];
 
         foreach ($geoTax as $tax => $label) {
@@ -109,8 +109,8 @@ class AdminMenuService implements ServiceInterface
     {
         $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
         add_menu_page(
-            __('Tipos de gestión', 'plugin-inmobiliario'),
-            __('Tipos de gestión', 'plugin-inmobiliario'),
+            __('Tipos de gestión', 'inmopress-listings-inmobiliaria'),
+            __('Tipos de gestión', 'inmopress-listings-inmobiliaria'),
             'edit_posts',
             'plugin-inmobiliario-management',
             '',
@@ -120,8 +120,8 @@ class AdminMenuService implements ServiceInterface
 
         add_submenu_page(
             'plugin-inmobiliario-management',
-            __('Gestiones', 'plugin-inmobiliario'),
-            __('Gestiones', 'plugin-inmobiliario'),
+            __('Gestiones', 'inmopress-listings-inmobiliaria'),
+            __('Gestiones', 'inmopress-listings-inmobiliaria'),
             'edit_posts',
             'edit-tags.php?taxonomy=' . PropertyTaxonomies::TAXONOMY_OPERATION . '&post_type=property'
         );
@@ -131,8 +131,8 @@ class AdminMenuService implements ServiceInterface
     {
         $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
         add_menu_page(
-            __('Tipos de inmuebles', 'plugin-inmobiliario'),
-            __('Tipos de inmuebles', 'plugin-inmobiliario'),
+            __('Tipos de inmuebles', 'inmopress-listings-inmobiliaria'),
+            __('Tipos de inmuebles', 'inmopress-listings-inmobiliaria'),
             'edit_posts',
             'plugin-inmobiliario-types',
             '',
@@ -141,9 +141,9 @@ class AdminMenuService implements ServiceInterface
         );
 
         $typeTax = [
-            PropertyTaxonomies::TAXONOMY_TYPE => __('Tipos de inmueble', 'plugin-inmobiliario'),
-            PropertyTaxonomies::TAXONOMY_CATEGORY => __('Categorías', 'plugin-inmobiliario'),
-            PropertyTaxonomies::TAXONOMY_TAG => __('Etiquetas', 'plugin-inmobiliario'),
+            PropertyTaxonomies::TAXONOMY_TYPE => __('Tipos de inmueble', 'inmopress-listings-inmobiliaria'),
+            PropertyTaxonomies::TAXONOMY_CATEGORY => __('Categorías', 'inmopress-listings-inmobiliaria'),
+            PropertyTaxonomies::TAXONOMY_TAG => __('Etiquetas', 'inmopress-listings-inmobiliaria'),
         ];
 
         foreach ($typeTax as $tax => $label) {
@@ -161,8 +161,8 @@ class AdminMenuService implements ServiceInterface
     {
         $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
         add_menu_page(
-            __('Configuración del plugin', 'plugin-inmobiliario'),
-            __('Configuración', 'plugin-inmobiliario'),
+            __('Configuración del plugin', 'inmopress-listings-inmobiliaria'),
+            __('Configuración', 'inmopress-listings-inmobiliaria'),
             'manage_options',
             'plugin-inmobiliario-settings',
             [new SettingsService(), 'renderSettingsPage'],

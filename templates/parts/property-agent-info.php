@@ -36,7 +36,7 @@ $whatsApp = $phoneDigits
     : '';
 ?>
 <aside class="property-agent-block">
-    <h2><?php esc_html_e('Asesor comercial', 'plugin-inmobiliario'); ?></h2>
+    <h2><?php esc_html_e('Asesor comercial', 'inmopress-listings-inmobiliaria'); ?></h2>
     <div class="property-agent-block__card">
         <div class="property-agent-block__avatar">
             <?php echo get_avatar($agentUser->ID, 96); ?>
@@ -56,11 +56,11 @@ $whatsApp = $phoneDigits
             <div class="property-agent-block__actions">
                 <?php if ($whatsApp): ?>
                     <a class="property-agent-block__whatsapp" href="<?php echo esc_url($whatsApp); ?>" target="_blank" rel="noopener noreferrer">
-                        <?php esc_html_e('Contactar por WhatsApp', 'plugin-inmobiliario'); ?>
+                        <?php esc_html_e('Contactar por WhatsApp', 'inmopress-listings-inmobiliaria'); ?>
                     </a>
                 <?php endif; ?>
                 <a class="property-agent-block__profile" href="<?php echo esc_url(home_url('/property-agent/' . $agentUser->user_nicename)); ?>">
-                    <?php esc_html_e('Ver perfil del asesor', 'plugin-inmobiliario'); ?>
+                    <?php esc_html_e('Ver perfil del asesor', 'inmopress-listings-inmobiliaria'); ?>
                 </a>
             </div>
         </div>

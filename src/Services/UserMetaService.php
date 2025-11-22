@@ -33,14 +33,14 @@ class UserMetaService implements ServiceInterface
             $value = get_user_meta($user->ID, $this->phoneMeta, true);
         }
         ?>
-        <h2><?php esc_html_e('Información de contacto', 'plugin-inmobiliario'); ?></h2>
+        <h2><?php esc_html_e('Información de contacto', 'inmopress-listings-inmobiliaria'); ?></h2>
         <table class="form-table">
             <tr>
-                <th><label for="plugin_inmobiliario_phone"><?php esc_html_e('Teléfono móvil', 'plugin-inmobiliario'); ?></label></th>
+                <th><label for="plugin_inmobiliario_phone"><?php esc_html_e('Teléfono móvil', 'inmopress-listings-inmobiliaria'); ?></label></th>
                 <td>
                     <input type="text" name="plugin_inmobiliario_phone" id="plugin_inmobiliario_phone"
                            value="<?php echo esc_attr($value); ?>" class="regular-text" />
-                    <p class="description"><?php esc_html_e('Número de celular para contacto en inmuebles.', 'plugin-inmobiliario'); ?></p>
+                    <p class="description"><?php esc_html_e('Número de celular para contacto en inmuebles.', 'inmopress-listings-inmobiliaria'); ?></p>
                 </td>
             </tr>
         </table>
@@ -52,7 +52,7 @@ class UserMetaService implements ServiceInterface
         if (!current_user_can('edit_user', $userId)) {
             return;
         }
-        $value = isset($_POST['plugin_inmobiliario_phone']) ? sanitize_text_field($_POST['plugin_inmobiliario_phone']) : '';
+        $value = isset($_POST['inmopress_phone']) ? sanitize_text_field($_POST['inmopress_phone']) : '';
         update_user_meta($userId, $this->phoneMeta, $value);
     }
 }

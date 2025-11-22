@@ -24,14 +24,14 @@ $mapUrl = 'https://maps.google.com/maps?q=' . rawurlencode($lat . ',' . $lng) . 
 $streetViewUrl = 'https://maps.google.com/?cbll=' . rawurlencode($lat . ',' . $lng) . '&layer=c';
 ?>
 <section class="property-map">
-    <h2><?php esc_html_e('Ubicación', 'plugin-inmobiliario'); ?></h2>
+    <h2><?php esc_html_e('Ubicación', 'inmopress-listings-inmobiliaria'); ?></h2>
     <div class="property-map__frame">
         <iframe src="<?php echo esc_url($mapUrl); ?>" width="100%" height="360" style="border:0;" loading="lazy"
-                allowfullscreen title="<?php esc_attr_e('Mapa de la propiedad', 'plugin-inmobiliario'); ?>"></iframe>
+                allowfullscreen title="<?php esc_attr_e('Mapa de la propiedad', 'inmopress-listings-inmobiliaria'); ?>"></iframe>
     </div>
     <p class="property-map__actions">
         <a href="<?php echo esc_url($streetViewUrl); ?>" target="_blank" rel="noopener noreferrer">
-            <?php esc_html_e('Ver Street View', 'plugin-inmobiliario'); ?>
+            <?php esc_html_e('Ver Street View', 'inmopress-listings-inmobiliaria'); ?>
         </a>
     </p>
 </section>

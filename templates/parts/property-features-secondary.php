@@ -42,27 +42,27 @@ if ($features && !is_wp_error($features)) {
 }
 ?>
 <section class="property-features property-features--secondary">
-    <h3><?php esc_html_e('Características secundarias', 'plugin-inmobiliario'); ?></h3>
+    <h3><?php esc_html_e('Características secundarias', 'inmopress-listings-inmobiliaria'); ?></h3>
     <ul>
         <?php if ($lat && $lng): ?>
-            <li><strong><?php esc_html_e('Coordenadas', 'plugin-inmobiliario'); ?>:</strong> <?php echo esc_html($lat . ', ' . $lng); ?></li>
+            <li><strong><?php esc_html_e('Coordenadas', 'inmopress-listings-inmobiliaria'); ?>:</strong> <?php echo esc_html($lat . ', ' . $lng); ?></li>
         <?php endif; ?>
         <?php
 $terms = get_the_terms($post_id, \Codwelt\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_OPERATION);
 if ($terms && !is_wp_error($terms)): ?>
-            <li><strong><?php esc_html_e('Gestión', 'plugin-inmobiliario'); ?>:</strong> <?php echo esc_html(join(', ', wp_list_pluck($terms, 'name'))); ?></li>
+            <li><strong><?php esc_html_e('Gestión', 'inmopress-listings-inmobiliaria'); ?>:</strong> <?php echo esc_html(join(', ', wp_list_pluck($terms, 'name'))); ?></li>
 <?php endif; ?>
         <?php if ($featureGroups['interior']): ?>
-            <li><strong><?php esc_html_e('Características interiores', 'plugin-inmobiliario'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['interior'])); ?></li>
+            <li><strong><?php esc_html_e('Características interiores', 'inmopress-listings-inmobiliaria'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['interior'])); ?></li>
         <?php endif; ?>
         <?php if ($featureGroups['exterior']): ?>
-            <li><strong><?php esc_html_e('Características exteriores', 'plugin-inmobiliario'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['exterior'])); ?></li>
+            <li><strong><?php esc_html_e('Características exteriores', 'inmopress-listings-inmobiliaria'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['exterior'])); ?></li>
         <?php endif; ?>
         <?php if ($featureGroups['other']): ?>
-            <li><strong><?php esc_html_e('Otras características', 'plugin-inmobiliario'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['other'])); ?></li>
+            <li><strong><?php esc_html_e('Otras características', 'inmopress-listings-inmobiliaria'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['other'])); ?></li>
         <?php endif; ?>
         <?php if ($nearby && !is_wp_error($nearby)): ?>
-            <li><strong><?php esc_html_e('Lugares cercanos', 'plugin-inmobiliario'); ?>:</strong> <?php echo esc_html(join(', ', wp_list_pluck($nearby, 'name'))); ?></li>
+            <li><strong><?php esc_html_e('Lugares cercanos', 'inmopress-listings-inmobiliaria'); ?>:</strong> <?php echo esc_html(join(', ', wp_list_pluck($nearby, 'name'))); ?></li>
         <?php endif; ?>
     </ul>
 </section>

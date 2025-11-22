@@ -19,7 +19,7 @@ abstract class BasePropertyWidget extends Widget_Base
         $this->add_control(
             'property_id',
             [
-                'label' => __('ID de la propiedad', 'plugin-inmobiliario'),
+                'label' => __('ID de la propiedad', 'inmopress-listings-inmobiliaria'),
                 'type' => Controls_Manager::NUMBER,
                 'default' => get_queried_object_id(),
             ]
@@ -35,6 +35,6 @@ abstract class BasePropertyWidget extends Widget_Base
 
     public function get_categories(): array
     {
-        return ['plugin-inmobiliario'];
+        return ['inmopress-listings-inmobiliaria'];
     }
 }

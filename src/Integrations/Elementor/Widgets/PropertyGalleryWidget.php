@@ -18,7 +18,7 @@ class PropertyGalleryWidget extends BasePropertyWidget
 
     public function get_title(): string
     {
-        return __('Galería de inmueble', 'plugin-inmobiliario');
+        return __('Galería de inmueble', 'inmopress-listings-inmobiliaria');
     }
 
     public function get_icon(): string
@@ -28,7 +28,7 @@ class PropertyGalleryWidget extends BasePropertyWidget
 
     protected function register_controls(): void
     {
-        $this->start_controls_section('content', ['label' => __('Contenido', 'plugin-inmobiliario')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'inmopress-listings-inmobiliaria')]);
         $this->register_property_control();
         $this->end_controls_section();
     }

@@ -14,10 +14,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('PLUGIN_INMOBILIARIO_PATH', plugin_dir_path(__FILE__));
-define('PLUGIN_INMOBILIARIO_URL', plugin_dir_url(__FILE__));
-define('PLUGIN_INMOBILIARIO_VERSION', '0.2.8');
-define('PLUGIN_INMOBILIARIO_SLUG', 'inmopress-listings-inmobiliaria');
+define('inmopress_PATH', plugin_dir_path(__FILE__));
+define('inmopress_URL', plugin_dir_url(__FILE__));
+define('inmopress_VERSION', '0.2.8');
+define('inmopress_SLUG', 'inmopress-listings-inmobiliaria');
 
 // Autoload de Composer
 if (file_exists(PLUGIN_INMOBILIARIO_PATH . 'vendor/autoload.php')) {

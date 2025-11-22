@@ -26,7 +26,7 @@ get_header();
             <?php the_posts_pagination(); ?>
         </div>
     <?php else : ?>
-        <p><?php esc_html_e('No hay inmuebles en esta categoría.', 'plugin-inmobiliario'); ?></p>
+        <p><?php esc_html_e('No hay inmuebles en esta categoría.', 'inmopress-listings-inmobiliaria'); ?></p>
     <?php endif; ?>
 </main>
 

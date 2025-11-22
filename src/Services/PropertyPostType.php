@@ -64,16 +64,16 @@ class PropertyPostType implements ServiceInterface
     public function registerPostType(): void
     {
         $labels = [
-            'name' => __('Propiedades', 'plugin-inmobiliario'),
-            'singular_name' => __('Propiedad', 'plugin-inmobiliario'),
-            'add_new' => __('Añadir nueva', 'plugin-inmobiliario'),
-            'add_new_item' => __('Añadir propiedad', 'plugin-inmobiliario'),
-            'edit_item' => __('Editar propiedad', 'plugin-inmobiliario'),
-            'new_item' => __('Nueva propiedad', 'plugin-inmobiliario'),
-            'view_item' => __('Ver propiedad', 'plugin-inmobiliario'),
-            'search_items' => __('Buscar propiedades', 'plugin-inmobiliario'),
-            'not_found' => __('No se encontraron propiedades', 'plugin-inmobiliario'),
-            'menu_name' => __('Propiedades', 'plugin-inmobiliario'),
+            'name' => __('Propiedades', 'inmopress-listings-inmobiliaria'),
+            'singular_name' => __('Propiedad', 'inmopress-listings-inmobiliaria'),
+            'add_new' => __('Añadir nueva', 'inmopress-listings-inmobiliaria'),
+            'add_new_item' => __('Añadir propiedad', 'inmopress-listings-inmobiliaria'),
+            'edit_item' => __('Editar propiedad', 'inmopress-listings-inmobiliaria'),
+            'new_item' => __('Nueva propiedad', 'inmopress-listings-inmobiliaria'),
+            'view_item' => __('Ver propiedad', 'inmopress-listings-inmobiliaria'),
+            'search_items' => __('Buscar propiedades', 'inmopress-listings-inmobiliaria'),
+            'not_found' => __('No se encontraron propiedades', 'inmopress-listings-inmobiliaria'),
+            'menu_name' => __('Propiedades', 'inmopress-listings-inmobiliaria'),
         ];
 
         $args = [
@@ -117,7 +117,7 @@ class PropertyPostType implements ServiceInterface
     {
         add_meta_box(
             'property-pricing',
-            __('Precio y moneda', 'plugin-inmobiliario'),
+            __('Precio y moneda', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderPricingMetabox'],
             self::POST_TYPE,
             'side'
@@ -125,7 +125,7 @@ class PropertyPostType implements ServiceInterface
 
         add_meta_box(
             'property-details',
-            __('Detalles', 'plugin-inmobiliario'),
+            __('Detalles', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderDetailsMetabox'],
             self::POST_TYPE,
             'normal',
@@ -134,7 +134,7 @@ class PropertyPostType implements ServiceInterface
 
         add_meta_box(
             'property-gallery',
-            __('Galería de imágenes', 'plugin-inmobiliario'),
+            __('Galería de imágenes', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderGalleryMetabox'],
             self::POST_TYPE,
             'normal',
@@ -143,7 +143,7 @@ class PropertyPostType implements ServiceInterface
 
         add_meta_box(
             'property-operation',
-            __('Gestión', 'plugin-inmobiliario'),
+            __('Gestión', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderOperationMetabox'],
             self::POST_TYPE,
             'side',
@@ -152,7 +152,7 @@ class PropertyPostType implements ServiceInterface
 
         add_meta_box(
             'property-type',
-            __('Tipo de inmueble', 'plugin-inmobiliario'),
+            __('Tipo de inmueble', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderTypeMetabox'],
             self::POST_TYPE,
             'side',
@@ -161,7 +161,7 @@ class PropertyPostType implements ServiceInterface
 
         add_meta_box(
             'property-agent',
-            __('Asesor comercial', 'plugin-inmobiliario'),
+            __('Asesor comercial', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderAgentMetabox'],
             self::POST_TYPE,
             'side',
@@ -170,7 +170,7 @@ class PropertyPostType implements ServiceInterface
 
         add_meta_box(
             'property-flags',
-            __('Opciones', 'plugin-inmobiliario'),
+            __('Opciones', 'inmopress-listings-inmobiliaria'),
             [$this, 'renderFlagsMetabox'],
             self::POST_TYPE,
             'side',
@@ -185,12 +185,12 @@ class PropertyPostType implements ServiceInterface
         $currencies = $currencyService->supportedCurrencies();
 
         $fields = [
-            'sale' => __('Precio venta', 'plugin-inmobiliario'),
-            'rent' => __('Precio arriendo', 'plugin-inmobiliario'),
-            'admin' => __('Precio administración', 'plugin-inmobiliario'),
+            'sale' => __('Precio venta', 'inmopress-listings-inmobiliaria'),
+            'rent' => __('Precio arriendo', 'inmopress-listings-inmobiliaria'),
+            'admin' => __('Precio administración', 'inmopress-listings-inmobiliaria'),
         ];
         ?>
-        <p><?php esc_html_e('Admite cualquier moneda, escribe el código si no aparece en la lista.', 'plugin-inmobiliario'); ?></p>
+        <p><?php esc_html_e('Admite cualquier moneda, escribe el código si no aparece en la lista.', 'inmopress-listings-inmobiliaria'); ?></p>
         <?php foreach ($fields as $key => $label): ?>
             <?php
             $price = get_post_meta($post->ID, $this->metaKeys['price_' . $key], true);
@@ -204,7 +204,7 @@ class PropertyPostType implements ServiceInterface
                            value="<?php echo esc_attr($price); ?>" class="widefat">
                 </p>
                 <p>
-                    <label for="property_currency_<?php echo esc_attr($key); ?>"><?php esc_html_e('Moneda', 'plugin-inmobiliario'); ?></label>
+                    <label for="property_currency_<?php echo esc_attr($key); ?>"><?php esc_html_e('Moneda', 'inmopress-listings-inmobiliaria'); ?></label>
                     <select id="property_currency_<?php echo esc_attr($key); ?>"
                             name="property_currency_<?php echo esc_attr($key); ?>"
                             class="widefat">
@@ -222,7 +222,7 @@ class PropertyPostType implements ServiceInterface
                     <p>
                         <label>
                             <input type="checkbox" name="property_admin_included" value="1" <?php checked((bool) get_post_meta($post->ID, $this->metaKeys['admin_included'], true)); ?>>
-                            <?php esc_html_e('Administración incluida en el arriendo', 'plugin-inmobiliario'); ?>
+                            <?php esc_html_e('Administración incluida en el arriendo', 'inmopress-listings-inmobiliaria'); ?>
                         </label>
                     </p>
                 <?php endif; ?>
@@ -247,8 +247,8 @@ class PropertyPostType implements ServiceInterface
         ?>
         <div id="property-gallery-wrapper">
             <p>
-                <button type="button" class="button" id="property_gallery_add"><?php esc_html_e('Agregar/editar galería', 'plugin-inmobiliario'); ?></button>
-                <button type="button" class="button link-button" id="property_gallery_clear"><?php esc_html_e('Limpiar galería', 'plugin-inmobiliario'); ?></button>
+                <button type="button" class="button" id="property_gallery_add"><?php esc_html_e('Agregar/editar galería', 'inmopress-listings-inmobiliaria'); ?></button>
+                <button type="button" class="button link-button" id="property_gallery_clear"><?php esc_html_e('Limpiar galería', 'inmopress-listings-inmobiliaria'); ?></button>
             </p>
             <ul id="property_gallery_list" class="property-gallery-list" style="display:flex;gap:8px;flex-wrap:wrap;padding:0;">
                 <?php foreach ($items as $item): ?>
@@ -258,7 +258,7 @@ class PropertyPostType implements ServiceInterface
                 <?php endforeach; ?>
             </ul>
             <input type="hidden" id="property_gallery" name="property_gallery" value="<?php echo esc_attr(implode(',', $ids)); ?>">
-            <p class="description"><?php esc_html_e('Arrastra para reordenar. La primera imagen será la principal.', 'plugin-inmobiliario'); ?></p>
+            <p class="description"><?php esc_html_e('Arrastra para reordenar. La primera imagen será la principal.', 'inmopress-listings-inmobiliaria'); ?></p>
         </div>
         <?php
     }
@@ -267,19 +267,19 @@ class PropertyPostType implements ServiceInterface
     {
         wp_nonce_field('property_details_nonce', 'property_details_nonce_field');
         $fields = [
-            'area' => __('Área total (m²)', 'plugin-inmobiliario'),
-            'area_lot' => __('Área de lote (m²)', 'plugin-inmobiliario'),
-            'area_private' => __('Área privada (m²)', 'plugin-inmobiliario'),
-            'area_built' => __('Área construida (m²)', 'plugin-inmobiliario'),
-            'bedrooms' => __('Habitaciones', 'plugin-inmobiliario'),
-            'bathrooms' => __('Baños', 'plugin-inmobiliario'),
-            'parking' => __('Parqueaderos', 'plugin-inmobiliario'),
-            'condition' => __('Estado', 'plugin-inmobiliario'),
-            'age' => __('Edad (años)', 'plugin-inmobiliario'),
-            'code' => __('Código de la propiedad', 'plugin-inmobiliario'),
-            'address' => __('Dirección', 'plugin-inmobiliario'),
-            'latitude' => __('Latitud', 'plugin-inmobiliario'),
-            'longitude' => __('Longitud', 'plugin-inmobiliario'),
+            'area' => __('Área total (m²)', 'inmopress-listings-inmobiliaria'),
+            'area_lot' => __('Área de lote (m²)', 'inmopress-listings-inmobiliaria'),
+            'area_private' => __('Área privada (m²)', 'inmopress-listings-inmobiliaria'),
+            'area_built' => __('Área construida (m²)', 'inmopress-listings-inmobiliaria'),
+            'bedrooms' => __('Habitaciones', 'inmopress-listings-inmobiliaria'),
+            'bathrooms' => __('Baños', 'inmopress-listings-inmobiliaria'),
+            'parking' => __('Parqueaderos', 'inmopress-listings-inmobiliaria'),
+            'condition' => __('Estado', 'inmopress-listings-inmobiliaria'),
+            'age' => __('Edad (años)', 'inmopress-listings-inmobiliaria'),
+            'code' => __('Código de la propiedad', 'inmopress-listings-inmobiliaria'),
+            'address' => __('Dirección', 'inmopress-listings-inmobiliaria'),
+            'latitude' => __('Latitud', 'inmopress-listings-inmobiliaria'),
+            'longitude' => __('Longitud', 'inmopress-listings-inmobiliaria'),
         ];
         ?>
         <table class="form-table">
@@ -296,42 +296,42 @@ class PropertyPostType implements ServiceInterface
                 </tr>
             <?php endforeach; ?>
             <tr>
-                <th scope="row"><?php esc_html_e('Mapa', 'plugin-inmobiliario'); ?></th>
+                <th scope="row"><?php esc_html_e('Mapa', 'inmopress-listings-inmobiliaria'); ?></th>
                 <td>
                     <div id="property_map_preview" style="width:100%;height:320px;background:#eef1f5;border:1px solid #ccd0d4;border-radius:4px;"></div>
-                    <p class="description"><?php esc_html_e('El mapa se actualiza según la dirección y la latitud/longitud.', 'plugin-inmobiliario'); ?></p>
+                    <p class="description"><?php esc_html_e('El mapa se actualiza según la dirección y la latitud/longitud.', 'inmopress-listings-inmobiliaria'); ?></p>
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="property_country"><?php esc_html_e('País', 'plugin-inmobiliario'); ?></label></th>
+                <th scope="row"><label for="property_country"><?php esc_html_e('País', 'inmopress-listings-inmobiliaria'); ?></label></th>
                 <td>
                     <select id="property_country" name="property_country" class="property-location-select" data-taxonomy="<?php echo esc_attr($this->locationTaxonomies['country']); ?>">
-                        <option value=""><?php esc_html_e('Selecciona país', 'plugin-inmobiliario'); ?></option>
+                        <option value=""><?php esc_html_e('Selecciona país', 'inmopress-listings-inmobiliaria'); ?></option>
                         <?php echo $this->renderLocationOptions($post->ID, 'country'); ?>
                     </select>
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="property_state"><?php esc_html_e('Departamento / Provincia', 'plugin-inmobiliario'); ?></label></th>
+                <th scope="row"><label for="property_state"><?php esc_html_e('Departamento / Provincia', 'inmopress-listings-inmobiliaria'); ?></label></th>
                 <td>
                     <select id="property_state" name="property_state" class="property-location-select" data-taxonomy="<?php echo esc_attr($this->locationTaxonomies['state']); ?>" data-parent="country">
-                        <option value=""><?php esc_html_e('Selecciona departamento / provincia', 'plugin-inmobiliario'); ?></option>
+                        <option value=""><?php esc_html_e('Selecciona departamento / provincia', 'inmopress-listings-inmobiliaria'); ?></option>
                     </select>
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="property_city"><?php esc_html_e('Ciudad / Municipio', 'plugin-inmobiliario'); ?></label></th>
+                <th scope="row"><label for="property_city"><?php esc_html_e('Ciudad / Municipio', 'inmopress-listings-inmobiliaria'); ?></label></th>
                 <td>
                     <select id="property_city" name="property_city" class="property-location-select" data-taxonomy="<?php echo esc_attr($this->locationTaxonomies['city']); ?>" data-parent="state">
-                        <option value=""><?php esc_html_e('Selecciona ciudad / municipio', 'plugin-inmobiliario'); ?></option>
+                        <option value=""><?php esc_html_e('Selecciona ciudad / municipio', 'inmopress-listings-inmobiliaria'); ?></option>
                     </select>
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="property_neighborhood"><?php esc_html_e('Barrio', 'plugin-inmobiliario'); ?></label></th>
+                <th scope="row"><label for="property_neighborhood"><?php esc_html_e('Barrio', 'inmopress-listings-inmobiliaria'); ?></label></th>
                 <td>
                     <select id="property_neighborhood" name="property_neighborhood" class="property-location-select" data-taxonomy="<?php echo esc_attr($this->locationTaxonomies['neighborhood']); ?>" data-parent="city">
-                        <option value=""><?php esc_html_e('Selecciona barrio', 'plugin-inmobiliario'); ?></option>
+                        <option value=""><?php esc_html_e('Selecciona barrio', 'inmopress-listings-inmobiliaria'); ?></option>
                     </select>
                 </td>
             </tr>
@@ -352,9 +352,9 @@ class PropertyPostType implements ServiceInterface
         $current = $assigned ? $assigned[0] : 0;
         ?>
         <p>
-            <label for="property_operation"><?php esc_html_e('Selecciona la gestión principal', 'plugin-inmobiliario'); ?></label>
+            <label for="property_operation"><?php esc_html_e('Selecciona la gestión principal', 'inmopress-listings-inmobiliaria'); ?></label>
             <select id="property_operation" name="property_operation" class="widefat">
-                <option value=""><?php esc_html_e('Elige una gestión', 'plugin-inmobiliario'); ?></option>
+                <option value=""><?php esc_html_e('Elige una gestión', 'inmopress-listings-inmobiliaria'); ?></option>
                 <?php foreach ($terms as $term): ?>
                     <option value="<?php echo esc_attr($term->term_id); ?>" data-slug="<?php echo esc_attr($term->slug); ?>" <?php selected($current, $term->term_id); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -377,9 +377,9 @@ class PropertyPostType implements ServiceInterface
         $current = $assigned ? $assigned[0] : 0;
         ?>
         <p>
-            <label for="property_type"><?php esc_html_e('Selecciona el tipo de inmueble', 'plugin-inmobiliario'); ?></label>
+            <label for="property_type"><?php esc_html_e('Selecciona el tipo de inmueble', 'inmopress-listings-inmobiliaria'); ?></label>
             <select id="property_type" name="property_type" class="widefat">
-                <option value=""><?php esc_html_e('Elige un tipo', 'plugin-inmobiliario'); ?></option>
+                <option value=""><?php esc_html_e('Elige un tipo', 'inmopress-listings-inmobiliaria'); ?></option>
                 <?php foreach ($terms as $term): ?>
                     <option value="<?php echo esc_attr($term->term_id); ?>" <?php selected($current, $term->term_id); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -469,7 +469,7 @@ class PropertyPostType implements ServiceInterface
             $selected[$key] = $terms ? $terms[0] : 0;
         }
 
-        $settings = get_option('plugin_inmobiliario_settings', []);
+        $settings = get_option('inmopress_settings', []);
         $selected['country'] = $selected['country'] ?: absint($settings['default_country'] ?? 0);
         $selected['state'] = $selected['state'] ?: absint($settings['default_state'] ?? 0);
         $selected['city'] = $selected['city'] ?: absint($settings['default_city'] ?? 0);
@@ -501,7 +501,7 @@ class PropertyPostType implements ServiceInterface
         <p>
             <label for="property_featured">
                 <input type="checkbox" id="property_featured" name="property_featured" value="1" <?php checked($featured); ?>>
-                <?php esc_html_e('Propiedad destacada', 'plugin-inmobiliario'); ?>
+                <?php esc_html_e('Propiedad destacada', 'inmopress-listings-inmobiliaria'); ?>
             </label>
         </p>
         <?php
@@ -519,9 +519,9 @@ class PropertyPostType implements ServiceInterface
         ]);
         ?>
         <p>
-            <label for="property_agent_id"><?php esc_html_e('Usuario/asesor', 'plugin-inmobiliario'); ?></label>
+            <label for="property_agent_id"><?php esc_html_e('Usuario/asesor', 'inmopress-listings-inmobiliaria'); ?></label>
             <select id="property_agent_id" name="property_agent_id" class="widefat">
-                <option value=""><?php esc_html_e('Sin asignar', 'plugin-inmobiliario'); ?></option>
+                <option value=""><?php esc_html_e('Sin asignar', 'inmopress-listings-inmobiliaria'); ?></option>
                 <?php foreach ($users as $user): ?>
                     <option value="<?php echo esc_attr($user->ID); ?>" <?php selected($currentAgent, $user->ID); ?>>
                         <?php echo esc_html($user->display_name . ' (' . $user->user_email . ')'); ?>
@@ -530,7 +530,7 @@ class PropertyPostType implements ServiceInterface
             </select>
         </p>
         <p class="description">
-            <?php esc_html_e('Se usará la foto, correo y teléfono que tenga el usuario en su perfil.', 'plugin-inmobiliario'); ?>
+            <?php esc_html_e('Se usará la foto, correo y teléfono que tenga el usuario en su perfil.', 'inmopress-listings-inmobiliaria'); ?>
         </p>
         <?php
     }
@@ -699,7 +699,7 @@ class PropertyPostType implements ServiceInterface
             return '';
         }
 
-        $settings = get_option('plugin_inmobiliario_settings', []);
+        $settings = get_option('inmopress_settings', []);
         $defaultMap = [
             'country' => $settings['default_country'] ?? 0,
             'state' => $settings['default_state'] ?? 0,

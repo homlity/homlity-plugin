@@ -79,7 +79,7 @@ class SeoService implements ServiceInterface
         /**
          * Allow other plugins/themes to adjust the schema.
          */
-        $schema = apply_filters('plugin_inmobiliario_schema', $schema, $post);
+        $schema = apply_filters('inmopress_schema', $schema, $post);
 
         echo '<script type="application/ld+json">' . wp_json_encode($schema) . '</script>';
     }

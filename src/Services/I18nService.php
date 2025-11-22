@@ -21,18 +21,18 @@ class I18nService implements ServiceInterface
     public function registerTranslatableStrings(): void
     {
         $strings = [
-            'property' => __('Propiedad', 'plugin-inmobiliario'),
-            'properties' => __('Propiedades', 'plugin-inmobiliario'),
-            'base_currency' => __('Moneda base', 'plugin-inmobiliario'),
-            'price_label' => __('Precio', 'plugin-inmobiliario'),
+            'property' => __('Propiedad', 'inmopress-listings-inmobiliaria'),
+            'properties' => __('Propiedades', 'inmopress-listings-inmobiliaria'),
+            'base_currency' => __('Moneda base', 'inmopress-listings-inmobiliaria'),
+            'price_label' => __('Precio', 'inmopress-listings-inmobiliaria'),
         ];
 
         foreach ($strings as $key => $string) {
             if (function_exists('pll_register_string')) {
-                pll_register_string($key, $string, 'plugin-inmobiliario');
+                pll_register_string($key, $string, 'inmopress-listings-inmobiliaria');
             }
             if (function_exists('icl_register_string')) {
-                icl_register_string('plugin-inmobiliario', $key, $string);
+                icl_register_string('inmopress-listings-inmobiliaria', $key, $string);
             }
         }
     }
