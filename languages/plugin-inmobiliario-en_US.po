@@ -1,0 +1,412 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin-inmobiliario 0.1.0\n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: Codwelt\n"
+"Language-Team: Codwelt\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Codex\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/Services/PropertyPostType.php
+msgid "Propiedades"
+msgstr "Properties"
+
+msgid "Propiedad"
+msgstr "Property"
+
+msgid "Añadir nueva"
+msgstr "Add New"
+
+msgid "Añadir propiedad"
+msgstr "Add Property"
+
+msgid "Editar propiedad"
+msgstr "Edit Property"
+
+msgid "Nueva propiedad"
+msgstr "New Property"
+
+msgid "Ver propiedad"
+msgstr "View Property"
+
+msgid "Buscar propiedades"
+msgstr "Search Properties"
+
+msgid "No se encontraron propiedades"
+msgstr "No properties found"
+
+msgid "Precio y moneda"
+msgstr "Price and currency"
+
+msgid "Precio venta"
+msgstr "Sale price"
+
+msgid "Precio arriendo"
+msgstr "Rent price"
+
+msgid "Precio administración"
+msgstr "Administration fee"
+
+msgid "Admite cualquier moneda, escribe el código si no aparece en la lista."
+msgstr "Any currency is allowed; type the code if it is not in the list."
+
+#: src/Services/SettingsService.php
+msgid "Listado de propiedades"
+msgstr "Property listing"
+
+msgid "Campos visibles en listado"
+msgstr "Visible fields in listing"
+
+msgid "Información del plugin"
+msgstr "Plugin information"
+
+msgid "Empresa creadora"
+msgstr "Company"
+
+msgid "Sitio web"
+msgstr "Website"
+
+msgid "Correo de soporte"
+msgstr "Support email"
+
+msgid "País por defecto"
+msgstr "Default country"
+
+msgid "Departamento/Provincia por defecto"
+msgstr "Default state/province"
+
+msgid "Ciudad/Municipio por defecto"
+msgstr "Default city/municipality"
+
+msgid "Inmuebles por página (archivo/búsqueda)"
+msgstr "Listings per page (archive/search)"
+
+msgid "Orden por defecto"
+msgstr "Default ordering"
+
+msgid "Fecha de creación (más reciente primero)"
+msgstr "Creation date (newest first)"
+
+msgid "Precio (mayor a menor)"
+msgstr "Price (high to low)"
+
+#: src/Services/UserMetaService.php
+msgid "Información de contacto"
+msgstr "Contact information"
+
+msgid "Teléfono móvil"
+msgstr "Mobile phone"
+
+msgid "Número de celular para contacto en inmuebles."
+msgstr "Mobile number for property contact."
+
+msgid "Moneda"
+msgstr "Currency"
+
+msgid "Detalles"
+msgstr "Details"
+
+msgid "Área (m²)"
+msgstr "Area (m²)"
+
+msgid "Área total (m²)"
+msgstr "Total area (m²)"
+
+msgid "Área de lote (m²)"
+msgstr "Lot area (m²)"
+
+msgid "Área privada (m²)"
+msgstr "Private area (m²)"
+
+msgid "Área construida (m²)"
+msgstr "Built area (m²)"
+
+msgid "Parqueaderos"
+msgstr "Parking spaces"
+
+msgid "Estado"
+msgstr "Condition"
+
+msgid "Edad (años)"
+msgstr "Age (years)"
+
+msgid "Código de la propiedad"
+msgstr "Property code"
+
+msgid "Habitaciones"
+msgstr "Bedrooms"
+
+msgid "Baños"
+msgstr "Bathrooms"
+
+msgid "Dirección"
+msgstr "Address"
+
+msgid "Latitud"
+msgstr "Latitude"
+
+msgid "Longitud"
+msgstr "Longitude"
+
+#: src/Services/PropertyTaxonomies.php
+msgid "Tipo de propiedad"
+msgstr "Property Type"
+
+msgid "Tipos de propiedad"
+msgstr "Property Types"
+
+msgid "Operación"
+msgstr "Operation"
+
+msgid "Operaciones"
+msgstr "Operations"
+
+msgid "Ubicación"
+msgstr "Location"
+
+msgid "Ubicaciones"
+msgstr "Locations"
+
+msgid "Categoría"
+msgstr "Category"
+
+msgid "Categorías"
+msgstr "Categories"
+
+msgid "Asesor comercial"
+msgstr "Sales agent"
+
+msgid "Usuario/asesor"
+msgstr "User/agent"
+
+msgid "Sin asignar"
+msgstr "Unassigned"
+
+msgid "Teléfono del asesor"
+msgstr "Agent phone"
+
+msgid "Correo del asesor"
+msgstr "Agent email"
+
+msgid "Se usará la foto, correo y teléfono que tenga el usuario en su perfil."
+msgstr "The user profile photo, email, and phone will be used."
+
+msgid "Buscar inmuebles"
+msgstr "Search properties"
+
+msgid "Todas las categorías"
+msgstr "All categories"
+
+msgid "Todos los tipos"
+msgstr "All types"
+
+msgid "Todas las gestiones"
+msgstr "All management types"
+
+msgid "Todas las ciudades"
+msgstr "All cities"
+
+msgid "Todos los barrios"
+msgstr "All neighborhoods"
+
+msgid "Lugares cercanos"
+msgstr "Nearby places"
+
+msgid "Etiquetas"
+msgstr "Tags"
+
+msgid "Precio mínimo"
+msgstr "Minimum price"
+
+msgid "Precio máximo"
+msgstr "Maximum price"
+
+msgid "Área mínima (m²)"
+msgstr "Minimum area (m²)"
+
+msgid "Área máxima (m²)"
+msgstr "Maximum area (m²)"
+
+msgid "Buscar"
+msgstr "Search"
+
+msgid "No hay inmuebles que coincidan con tu búsqueda."
+msgstr "No properties match your search."
+
+msgid "No hay inmuebles en esta categoría."
+msgstr "No properties in this category."
+
+msgid "Asesor no encontrado."
+msgstr "Agent not found."
+
+msgid "Inmuebles del asesor"
+msgstr "Agent listings"
+
+msgid "No hay inmuebles publicados por este asesor."
+msgstr "This agent has no published listings."
+
+msgid "Contactar por WhatsApp"
+msgstr "Contact via WhatsApp"
+
+msgid "Características principales"
+msgstr "Key features"
+
+msgid "Características secundarias"
+msgstr "Secondary features"
+
+msgid "Coordenadas"
+msgstr "Coordinates"
+
+msgid "Operación"
+msgstr "Operation"
+
+msgid "Ubicación"
+msgstr "Location"
+
+msgid "Mapa de la propiedad"
+msgstr "Property map"
+
+msgid "Ver Street View"
+msgstr "View Street View"
+
+msgid "Propiedades relacionadas"
+msgstr "Related properties"
+
+msgid "Ver perfil del asesor"
+msgstr "View agent profile"
+
+msgid "Opciones"
+msgstr "Options"
+
+msgid "Propiedad destacada"
+msgstr "Featured property"
+
+msgid "Etiquetas"
+msgstr "Tags"
+
+msgid "Etiqueta"
+msgstr "Tag"
+
+msgid "Características"
+msgstr "Features"
+
+msgid "Característica"
+msgstr "Feature"
+
+msgid "País"
+msgstr "Country"
+
+msgid "Países"
+msgstr "Countries"
+
+msgid "Departamento / Provincia"
+msgstr "State / Province"
+
+msgid "Departamentos / Provincias"
+msgstr "States / Provinces"
+
+msgid "Ciudad / Municipio"
+msgstr "City / Municipality"
+
+msgid "Ciudades / Municipios"
+msgstr "Cities / Municipalities"
+
+msgid "Barrio"
+msgstr "Neighborhood"
+
+msgid "Barrios"
+msgstr "Neighborhoods"
+
+msgid "Lugares cercanos"
+msgstr "Nearby places"
+
+msgid "Lugar cercano"
+msgstr "Nearby place"
+
+msgid "Características interiores"
+msgstr "Interior features"
+
+msgid "Características exteriores"
+msgstr "Exterior features"
+
+msgid "Otras características"
+msgstr "Other features"
+
+msgid "Todas las propiedades"
+msgstr "All properties"
+
+msgid "Añadir nueva"
+msgstr "Add new"
+
+msgid "Geolocalización"
+msgstr "Geolocation"
+
+msgid "Departamentos / Provincias"
+msgstr "States / Provinces"
+
+msgid "Ciudades / Municipios"
+msgstr "Cities / Municipalities"
+
+msgid "Zonas"
+msgstr "Zones"
+
+msgid "Gestiones"
+msgstr "Management types"
+
+msgid "Tipos de inmueble"
+msgstr "Property types"
+
+#: src/Services/PropertyPostType.php
+msgid "Gestión"
+msgstr "Management"
+
+msgid "Selecciona la gestión principal"
+msgstr "Select the main management type"
+
+msgid "Elige una gestión"
+msgstr "Choose a management type"
+
+#: src/Services/PropertyPostType.php
+msgid "Selecciona el tipo de inmueble"
+msgstr "Select the property type"
+
+msgid "Elige un tipo"
+msgstr "Choose a type"
+
+#: src/Services/PropertyPostType.php
+msgid "Galería de imágenes"
+msgstr "Image gallery"
+
+msgid "Agregar/editar galería"
+msgstr "Add/edit gallery"
+
+msgid "Limpiar galería"
+msgstr "Clear gallery"
+
+msgid "Arrastra para reordenar. La primera imagen será la principal."
+msgstr "Drag to reorder. The first image will be the main one."
+
+#: src/Services/PropertyPostType.php
+msgid "Administración incluida en el arriendo"
+msgstr "Administration included in rent"
+
+#: src/Services/SettingsService.php
+msgid "Moneda y formato"
+msgstr "Currency and format"
+
+msgid "Moneda base"
+msgstr "Base currency"
+
+msgid "Ajustes Inmobiliario"
+msgstr "Real Estate Settings"
+
+msgid "Ajustes"
+msgstr "Settings"
+
+msgid "Ajustes de la plataforma inmobiliaria"
+msgstr "Real estate platform settings"

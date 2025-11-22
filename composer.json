@@ -1,0 +1,16 @@
+{
+  "name": "codwelt/plugin-inmobiliario",
+  "description": "Plugin inmobiliario modular para WordPress con integraciones y SEO.",
+  "type": "wordpress-plugin",
+  "license": "proprietary",
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=8.0",
+    "guzzlehttp/guzzle": "^7.10"
+  },
+  "autoload": {
+    "psr-4": {
+      "Codwelt\\PluginInmobiliario\\": "src/"
+    }
+  }
+}

@@ -1,0 +1,412 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin-inmobiliario 0.1.0\n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: Codwelt\n"
+"Language-Team: Codwelt\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Codex\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/Services/PropertyPostType.php
+msgid "Propiedades"
+msgstr "Propiedades"
+
+msgid "Propiedad"
+msgstr "Propiedad"
+
+msgid "Añadir nueva"
+msgstr "Añadir nueva"
+
+msgid "Añadir propiedad"
+msgstr "Añadir propiedad"
+
+msgid "Editar propiedad"
+msgstr "Editar propiedad"
+
+msgid "Nueva propiedad"
+msgstr "Nueva propiedad"
+
+msgid "Ver propiedad"
+msgstr "Ver propiedad"
+
+msgid "Buscar propiedades"
+msgstr "Buscar propiedades"
+
+msgid "No se encontraron propiedades"
+msgstr "No se encontraron propiedades"
+
+msgid "Precio y moneda"
+msgstr "Precio y moneda"
+
+msgid "Precio venta"
+msgstr "Precio venta"
+
+msgid "Precio arriendo"
+msgstr "Precio arriendo"
+
+msgid "Precio administración"
+msgstr "Precio administración"
+
+msgid "Admite cualquier moneda, escribe el código si no aparece en la lista."
+msgstr "Admite cualquier moneda, escribe el código si no aparece en la lista."
+
+#: src/Services/SettingsService.php
+msgid "Listado de propiedades"
+msgstr "Listado de propiedades"
+
+msgid "Campos visibles en listado"
+msgstr "Campos visibles en listado"
+
+msgid "Información del plugin"
+msgstr "Información del plugin"
+
+msgid "Empresa creadora"
+msgstr "Empresa creadora"
+
+msgid "Sitio web"
+msgstr "Sitio web"
+
+msgid "Correo de soporte"
+msgstr "Correo de soporte"
+
+msgid "País por defecto"
+msgstr "País por defecto"
+
+msgid "Departamento/Provincia por defecto"
+msgstr "Departamento/Provincia por defecto"
+
+msgid "Ciudad/Municipio por defecto"
+msgstr "Ciudad/Municipio por defecto"
+
+msgid "Inmuebles por página (archivo/búsqueda)"
+msgstr "Inmuebles por página (archivo/búsqueda)"
+
+msgid "Orden por defecto"
+msgstr "Orden por defecto"
+
+msgid "Fecha de creación (más reciente primero)"
+msgstr "Fecha de creación (más reciente primero)"
+
+msgid "Precio (mayor a menor)"
+msgstr "Precio (mayor a menor)"
+
+#: src/Services/UserMetaService.php
+msgid "Información de contacto"
+msgstr "Información de contacto"
+
+msgid "Teléfono móvil"
+msgstr "Teléfono móvil"
+
+msgid "Número de celular para contacto en inmuebles."
+msgstr "Número de celular para contacto en inmuebles."
+
+msgid "Moneda"
+msgstr "Moneda"
+
+msgid "Detalles"
+msgstr "Detalles"
+
+msgid "Área (m²)"
+msgstr "Área (m²)"
+
+msgid "Área total (m²)"
+msgstr "Área total (m²)"
+
+msgid "Área de lote (m²)"
+msgstr "Área de lote (m²)"
+
+msgid "Área privada (m²)"
+msgstr "Área privada (m²)"
+
+msgid "Área construida (m²)"
+msgstr "Área construida (m²)"
+
+msgid "Parqueaderos"
+msgstr "Parqueaderos"
+
+msgid "Estado"
+msgstr "Estado"
+
+msgid "Edad (años)"
+msgstr "Edad (años)"
+
+msgid "Código de la propiedad"
+msgstr "Código de la propiedad"
+
+msgid "Habitaciones"
+msgstr "Habitaciones"
+
+msgid "Baños"
+msgstr "Baños"
+
+msgid "Dirección"
+msgstr "Dirección"
+
+msgid "Latitud"
+msgstr "Latitud"
+
+msgid "Longitud"
+msgstr "Longitud"
+
+#: src/Services/PropertyTaxonomies.php
+msgid "Tipo de propiedad"
+msgstr "Tipo de propiedad"
+
+msgid "Tipos de propiedad"
+msgstr "Tipos de propiedad"
+
+msgid "Operación"
+msgstr "Operación"
+
+msgid "Operaciones"
+msgstr "Operaciones"
+
+msgid "Ubicación"
+msgstr "Ubicación"
+
+msgid "Ubicaciones"
+msgstr "Ubicaciones"
+
+msgid "Categoría"
+msgstr "Categoría"
+
+msgid "Categorías"
+msgstr "Categorías"
+
+msgid "Asesor comercial"
+msgstr "Asesor comercial"
+
+msgid "Usuario/asesor"
+msgstr "Usuario/asesor"
+
+msgid "Sin asignar"
+msgstr "Sin asignar"
+
+msgid "Teléfono del asesor"
+msgstr "Teléfono del asesor"
+
+msgid "Correo del asesor"
+msgstr "Correo del asesor"
+
+msgid "Se usará la foto, correo y teléfono que tenga el usuario en su perfil."
+msgstr "Se usará la foto, correo y teléfono que tenga el usuario en su perfil."
+
+msgid "Buscar inmuebles"
+msgstr "Buscar inmuebles"
+
+msgid "Todas las categorías"
+msgstr "Todas las categorías"
+
+msgid "Todos los tipos"
+msgstr "Todos los tipos"
+
+msgid "Todas las gestiones"
+msgstr "Todas las gestiones"
+
+msgid "Todas las ciudades"
+msgstr "Todas las ciudades"
+
+msgid "Todos los barrios"
+msgstr "Todos los barrios"
+
+msgid "Lugares cercanos"
+msgstr "Lugares cercanos"
+
+msgid "Etiquetas"
+msgstr "Etiquetas"
+
+msgid "Precio mínimo"
+msgstr "Precio mínimo"
+
+msgid "Precio máximo"
+msgstr "Precio máximo"
+
+msgid "Área mínima (m²)"
+msgstr "Área mínima (m²)"
+
+msgid "Área máxima (m²)"
+msgstr "Área máxima (m²)"
+
+msgid "Buscar"
+msgstr "Buscar"
+
+msgid "No hay inmuebles que coincidan con tu búsqueda."
+msgstr "No hay inmuebles que coincidan con tu búsqueda."
+
+msgid "No hay inmuebles en esta categoría."
+msgstr "No hay inmuebles en esta categoría."
+
+msgid "Asesor no encontrado."
+msgstr "Asesor no encontrado."
+
+msgid "Inmuebles del asesor"
+msgstr "Inmuebles del asesor"
+
+msgid "No hay inmuebles publicados por este asesor."
+msgstr "No hay inmuebles publicados por este asesor."
+
+msgid "Contactar por WhatsApp"
+msgstr "Contactar por WhatsApp"
+
+msgid "Características principales"
+msgstr "Características principales"
+
+msgid "Características secundarias"
+msgstr "Características secundarias"
+
+msgid "Coordenadas"
+msgstr "Coordenadas"
+
+msgid "Operación"
+msgstr "Operación"
+
+msgid "Ubicación"
+msgstr "Ubicación"
+
+msgid "Mapa de la propiedad"
+msgstr "Mapa de la propiedad"
+
+msgid "Ver Street View"
+msgstr "Ver Street View"
+
+msgid "Propiedades relacionadas"
+msgstr "Propiedades relacionadas"
+
+msgid "Ver perfil del asesor"
+msgstr "Ver perfil del asesor"
+
+msgid "Opciones"
+msgstr "Opciones"
+
+msgid "Propiedad destacada"
+msgstr "Propiedad destacada"
+
+msgid "Etiquetas"
+msgstr "Etiquetas"
+
+msgid "Etiqueta"
+msgstr "Etiqueta"
+
+msgid "Características"
+msgstr "Características"
+
+msgid "Característica"
+msgstr "Característica"
+
+msgid "País"
+msgstr "País"
+
+msgid "Países"
+msgstr "Países"
+
+msgid "Departamento / Provincia"
+msgstr "Departamento / Provincia"
+
+msgid "Departamentos / Provincias"
+msgstr "Departamentos / Provincias"
+
+msgid "Ciudad / Municipio"
+msgstr "Ciudad / Municipio"
+
+msgid "Ciudades / Municipios"
+msgstr "Ciudades / Municipios"
+
+msgid "Barrio"
+msgstr "Barrio"
+
+msgid "Barrios"
+msgstr "Barrios"
+
+msgid "Lugares cercanos"
+msgstr "Lugares cercanos"
+
+msgid "Lugar cercano"
+msgstr "Lugar cercano"
+
+msgid "Características interiores"
+msgstr "Características interiores"
+
+msgid "Características exteriores"
+msgstr "Características exteriores"
+
+msgid "Otras características"
+msgstr "Otras características"
+
+msgid "Todas las propiedades"
+msgstr "Todas las propiedades"
+
+msgid "Añadir nueva"
+msgstr "Añadir nueva"
+
+msgid "Geolocalización"
+msgstr "Geolocalización"
+
+msgid "Departamentos / Provincias"
+msgstr "Departamentos / Provincias"
+
+msgid "Ciudades / Municipios"
+msgstr "Ciudades / Municipios"
+
+msgid "Zonas"
+msgstr "Zonas"
+
+msgid "Gestiones"
+msgstr "Gestiones"
+
+msgid "Tipos de inmueble"
+msgstr "Tipos de inmueble"
+
+#: src/Services/PropertyPostType.php
+msgid "Gestión"
+msgstr "Gestión"
+
+msgid "Selecciona la gestión principal"
+msgstr "Selecciona la gestión principal"
+
+msgid "Elige una gestión"
+msgstr "Elige una gestión"
+
+#: src/Services/PropertyPostType.php
+msgid "Selecciona el tipo de inmueble"
+msgstr "Selecciona el tipo de inmueble"
+
+msgid "Elige un tipo"
+msgstr "Elige un tipo"
+
+#: src/Services/PropertyPostType.php
+msgid "Galería de imágenes"
+msgstr "Galería de imágenes"
+
+msgid "Agregar/editar galería"
+msgstr "Agregar/editar galería"
+
+msgid "Limpiar galería"
+msgstr "Limpiar galería"
+
+msgid "Arrastra para reordenar. La primera imagen será la principal."
+msgstr "Arrastra para reordenar. La primera imagen será la principal."
+
+#: src/Services/PropertyPostType.php
+msgid "Administración incluida en el arriendo"
+msgstr "Administración incluida en el arriendo"
+
+#: src/Services/SettingsService.php
+msgid "Moneda y formato"
+msgstr "Moneda y formato"
+
+msgid "Moneda base"
+msgstr "Moneda base"
+
+msgid "Ajustes Inmobiliario"
+msgstr "Ajustes Inmobiliario"
+
+msgid "Ajustes"
+msgstr "Ajustes"
+
+msgid "Ajustes de la plataforma inmobiliaria"
+msgstr "Ajustes de la plataforma inmobiliaria"
