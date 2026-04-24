@@ -1,8 +1,8 @@
 <?php
 
-namespace Codwelt\PluginInmobiliario\Integrations\Elementor\Widgets;
+namespace Homlity\PluginInmobiliario\Integrations\Elementor\Widgets;
 
-use Codwelt\PluginInmobiliario\Services\TemplateService;
+use Homlity\PluginInmobiliario\Services\TemplateService;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -17,7 +17,7 @@ class PropertyFeaturesSecondaryWidget extends BasePropertyWidget
 
     public function get_title(): string
     {
-        return __('Características secundarias', 'inmopress-listings-inmobiliaria');
+        return __('Características secundarias', 'homlity-plugin');
     }
 
     public function get_icon(): string
@@ -27,7 +27,7 @@ class PropertyFeaturesSecondaryWidget extends BasePropertyWidget
 
     protected function register_controls(): void
     {
-        $this->start_controls_section('content', ['label' => __('Contenido', 'inmopress-listings-inmobiliaria')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-plugin')]);
         $this->register_property_control();
         $this->end_controls_section();
     }

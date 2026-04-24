@@ -3,9 +3,9 @@
  * Currency helpers for formatting and conversion.
  */
 
-namespace Codwelt\PluginInmobiliario\Services;
+namespace Homlity\PluginInmobiliario\Services;
 
-use Codwelt\PluginInmobiliario\Core\Contracts\ServiceInterface;
+use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -13,13 +13,13 @@ if (!defined('ABSPATH')) {
 
 class CurrencyService implements ServiceInterface
 {
-    private string $settingsOption = 'inmopress_settings';
+    private string $settingsOption = HOMLITY_PLUGIN_SETTINGS_OPTION;
 
     public function register(): void
     {
-        add_filter('inmopress_supported_currencies', [$this, 'supportedCurrencies']);
-        add_filter('inmopress_format_price', [$this, 'formatPrice'], 10, 3);
-        add_filter('inmopress_convert_price', [$this, 'convertPrice'], 10, 3);
+        add_filter('homlity_plugin_supported_currencies', [$this, 'supportedCurrencies']);
+        add_filter('homlity_plugin_format_price', [$this, 'formatPrice'], 10, 3);
+        add_filter('homlity_plugin_convert_price', [$this, 'convertPrice'], 10, 3);
     }
 
     public function supportedCurrencies($currencies = []): array
@@ -49,9 +49,10 @@ class CurrencyService implements ServiceInterface
     public function baseCurrency(): string
     {
         $settings = get_option($this->settingsOption, ['base_currency' => 'USD']);
-        $base = $settings['base_currency'] ?? 'USD';
-        $allowed = apply_filters('inmopress_supported_currencies', []);
-        return in_array($base, $allowed, true) ? $base : 'USD';
+        $base = strtoupper(sanitize_text_field($settings['base_currency'] ?? 'USD'));
+        $allowed = \homlity_plugin_apply_filters('homlity_plugin_supported_currencies', null, []);
+        $looksLikeCurrency = (bool) preg_match('/^[A-Z]{3,5}$/', $base);
+        return (in_array($base, $allowed, true) || $looksLikeCurrency) ? $base : 'USD';
     }
 
     public function formatPrice($price, ?string $currency = null, ?string $locale = null): string
@@ -84,7 +85,7 @@ class CurrencyService implements ServiceInterface
             return (float) $price;
         }
 
-        $rates = apply_filters('inmopress_exchange_rates', [
+        $rates = \homlity_plugin_apply_filters('homlity_plugin_exchange_rates', null, [
             'USD' => 1.0,
             'EUR' => 0.92,
             'GBP' => 0.80,

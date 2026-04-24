@@ -1,11 +1,11 @@
 <?php
 /**
  * Agent profile page, reachable via /property-agent/{user_nicename}.
- * Can be overridden in theme at plugin-inmobiliario/property-agent.php
+ * Can be overridden in theme at homlity-plugin/property-agent.php
  */
 
-use Codwelt\PluginInmobiliario\Services\PropertyPostType;
-use Codwelt\PluginInmobiliario\Services\TemplateService;
+use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\TemplateService;
 
 get_header();
 
@@ -13,7 +13,7 @@ $agentSlug = get_query_var('property_agent');
 $agent = $agentSlug ? get_user_by('slug', $agentSlug) : null;
 
 if (!$agent) {
-    echo '<main class="property-agent"><p>' . esc_html__('Asesor no encontrado.', 'inmopress-listings-inmobiliaria') . '</p></main>';
+    echo '<main class="property-agent"><p>' . esc_html__('Asesor no encontrado.', 'homlity-plugin') . '</p></main>';
     get_footer();
     return;
 }
@@ -42,7 +42,7 @@ $agent_query = new WP_Query([
     </header>
 
     <?php if ($agent_query->have_posts()) : ?>
-        <h2><?php esc_html_e('Inmuebles del asesor', 'inmopress-listings-inmobiliaria'); ?></h2>
+        <h2><?php esc_html_e('Inmuebles del asesor', 'homlity-plugin'); ?></h2>
         <div class="property-agent__grid">
             <?php while ($agent_query->have_posts()) : $agent_query->the_post(); ?>
                 <?php TemplateService::includeComponent('property-card.php', ['post_id' => get_the_ID()]); ?>
@@ -57,7 +57,7 @@ $agent_query = new WP_Query([
         </div>
         <?php wp_reset_postdata(); ?>
     <?php else : ?>
-        <p><?php esc_html_e('No hay inmuebles publicados por este asesor.', 'inmopress-listings-inmobiliaria'); ?></p>
+        <p><?php esc_html_e('No hay inmuebles publicados por este asesor.', 'homlity-plugin'); ?></p>
     <?php endif; ?>
 </main>
 

@@ -3,23 +3,23 @@
  * Main plugin bootstrap.
  */
 
-namespace Codwelt\PluginInmobiliario\Core;
+namespace Homlity\PluginInmobiliario\Core;
 
-use Codwelt\PluginInmobiliario\Core\Contracts\ServiceInterface;
-use Codwelt\PluginInmobiliario\Services\CurrencyService;
-use Codwelt\PluginInmobiliario\Services\I18nService;
-use Codwelt\PluginInmobiliario\Services\PropertyPostType;
-use Codwelt\PluginInmobiliario\Services\PropertyTaxonomies;
-use Codwelt\PluginInmobiliario\Services\SeoService;
-use Codwelt\PluginInmobiliario\Services\SeoIntegrationService;
-use Codwelt\PluginInmobiliario\Services\SettingsService;
-use Codwelt\PluginInmobiliario\Services\TemplateService;
-use Codwelt\PluginInmobiliario\Services\ElementorIntegrationService;
-use Codwelt\PluginInmobiliario\Services\VersionService;
-use Codwelt\PluginInmobiliario\Services\AdminMenuService;
-use Codwelt\PluginInmobiliario\Services\CapabilityService;
-use Codwelt\PluginInmobiliario\Services\LocationMetaService;
-use Codwelt\PluginInmobiliario\Services\UserMetaService;
+use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
+use Homlity\PluginInmobiliario\Services\CurrencyService;
+use Homlity\PluginInmobiliario\Services\I18nService;
+use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
+use Homlity\PluginInmobiliario\Services\SeoService;
+use Homlity\PluginInmobiliario\Services\SeoIntegrationService;
+use Homlity\PluginInmobiliario\Services\SettingsService;
+use Homlity\PluginInmobiliario\Services\TemplateService;
+use Homlity\PluginInmobiliario\Services\ElementorIntegrationService;
+use Homlity\PluginInmobiliario\Services\VersionService;
+use Homlity\PluginInmobiliario\Services\AdminMenuService;
+use Homlity\PluginInmobiliario\Services\CapabilityService;
+use Homlity\PluginInmobiliario\Services\LocationMetaService;
+use Homlity\PluginInmobiliario\Services\UserMetaService;
 
 if (!defined('ABSPATH')) {
     exit;

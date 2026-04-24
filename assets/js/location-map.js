@@ -9,8 +9,8 @@ const pinIcon = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof pluginInmobiliarioMap === 'undefined') return;
-    const { defaultLat, defaultLng } = pluginInmobiliarioMap;
+    if (typeof homlityPluginMap === 'undefined') return;
+    const { defaultLat, defaultLng } = homlityPluginMap;
     const mapContainer = document.getElementById('property_map_preview');
     if (!mapContainer || typeof L === 'undefined') return;
 

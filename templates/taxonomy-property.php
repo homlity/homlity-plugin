@@ -1,10 +1,10 @@
 <?php
 /**
  * Generic template for property taxonomies (category, type, operation, location).
- * Can be overridden in theme at plugin-inmobiliario/taxonomy-property.php
+ * Can be overridden in theme at homlity-plugin/taxonomy-property.php
  */
 
-use Codwelt\PluginInmobiliario\Services\TemplateService;
+use Homlity\PluginInmobiliario\Services\TemplateService;
 
 get_header();
 ?>
@@ -26,7 +26,7 @@ get_header();
             <?php the_posts_pagination(); ?>
         </div>
     <?php else : ?>
-        <p><?php esc_html_e('No hay inmuebles en esta categoría.', 'inmopress-listings-inmobiliaria'); ?></p>
+        <p><?php esc_html_e('No hay inmuebles en esta categoría.', 'homlity-plugin'); ?></p>
     <?php endif; ?>
 </main>
 

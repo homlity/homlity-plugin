@@ -1,12 +1,12 @@
 <?php
 /**
  * Agent info component.
- * Overridable at plugin-inmobiliario/parts/property-agent-info.php
+ * Overridable at homlity-plugin/parts/property-agent-info.php
  *
  * Expected args: $post_id (int)
  */
 
-use Codwelt\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\PropertyPostType;
 
 if (!isset($post_id)) {
     $post_id = get_the_ID();
@@ -36,7 +36,7 @@ $whatsApp = $phoneDigits
     : '';
 ?>
 <aside class="property-agent-block">
-    <h2><?php esc_html_e('Asesor comercial', 'inmopress-listings-inmobiliaria'); ?></h2>
+    <h2><?php esc_html_e('Asesor comercial', 'homlity-plugin'); ?></h2>
     <div class="property-agent-block__card">
         <div class="property-agent-block__avatar">
             <?php echo get_avatar($agentUser->ID, 96); ?>
@@ -56,11 +56,11 @@ $whatsApp = $phoneDigits
             <div class="property-agent-block__actions">
                 <?php if ($whatsApp): ?>
                     <a class="property-agent-block__whatsapp" href="<?php echo esc_url($whatsApp); ?>" target="_blank" rel="noopener noreferrer">
-                        <?php esc_html_e('Contactar por WhatsApp', 'inmopress-listings-inmobiliaria'); ?>
+                        <?php esc_html_e('Contactar por WhatsApp', 'homlity-plugin'); ?>
                     </a>
                 <?php endif; ?>
                 <a class="property-agent-block__profile" href="<?php echo esc_url(home_url('/property-agent/' . $agentUser->user_nicename)); ?>">
-                    <?php esc_html_e('Ver perfil del asesor', 'inmopress-listings-inmobiliaria'); ?>
+                    <?php esc_html_e('Ver perfil del asesor', 'homlity-plugin'); ?>
                 </a>
             </div>
         </div>

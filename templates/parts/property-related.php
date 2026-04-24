@@ -1,14 +1,14 @@
 <?php
 /**
  * Related properties component.
- * Overridable at plugin-inmobiliario/parts/property-related.php
+ * Overridable at homlity-plugin/parts/property-related.php
  *
  * Expected args: $post_id (int)
  */
 
-use Codwelt\PluginInmobiliario\Services\PropertyPostType;
-use Codwelt\PluginInmobiliario\Services\PropertyTaxonomies;
-use Codwelt\PluginInmobiliario\Services\TemplateService;
+use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
+use Homlity\PluginInmobiliario\Services\TemplateService;
 
 if (!isset($post_id)) {
     $post_id = get_the_ID();
@@ -79,7 +79,7 @@ if (!$related->have_posts()) {
 }
 ?>
 <section class="property-related">
-    <h2><?php esc_html_e('Propiedades relacionadas', 'inmopress-listings-inmobiliaria'); ?></h2>
+    <h2><?php esc_html_e('Propiedades relacionadas', 'homlity-plugin'); ?></h2>
     <div class="property-related__grid">
         <?php while ($related->have_posts()) : $related->the_post(); ?>
             <?php TemplateService::includeComponent('property-card.php', ['post_id' => get_the_ID()]); ?>

@@ -1,0 +1,578 @@
+(function () {
+    const config = window.homlityPluginSettingsApp;
+    if (!config) {
+        return;
+    }
+
+    const apiFetch = window.wp && window.wp.apiFetch;
+    const element = window.wp && window.wp.element;
+    const i18n = window.wp && window.wp.i18n;
+
+    if (!apiFetch || !element) {
+        return;
+    }
+
+    const { createElement: el, Fragment, useEffect, useState } = element;
+    const __ = i18n && i18n.__ ? i18n.__ : (value) => value;
+
+    if (config.nonce && typeof apiFetch.createNonceMiddleware === 'function') {
+        apiFetch.use(apiFetch.createNonceMiddleware(config.nonce));
+    }
+
+    const root = document.getElementById('homlity-plugin-settings-app');
+    if (!root) {
+        return;
+    }
+
+    const optionOrder = (config.listingFieldOptions || []).map((option) => option.value);
+    const locationTaxonomies = config.locationTaxonomies || {};
+
+    function normalizeSettings(values) {
+        const defaults = config.defaults || {};
+        const merged = Object.assign({}, defaults, values || {});
+
+        merged.listing_fields = Array.isArray(merged.listing_fields) ? merged.listing_fields.slice() : [];
+        merged.listing_fields = optionOrder.filter((value) => merged.listing_fields.includes(value));
+
+        ['default_country', 'default_state', 'default_city', 'default_neighborhood', 'archive_per_page'].forEach((key) => {
+            if (merged[key] === '' || merged[key] === null || typeof merged[key] === 'undefined') {
+                merged[key] = key === 'archive_per_page' ? defaults.archive_per_page : 0;
+                return;
+            }
+
+            const numeric = parseInt(merged[key], 10);
+            merged[key] = Number.isNaN(numeric) ? 0 : numeric;
+        });
+
+        return merged;
+    }
+
+    function classNames() {
+        return Array.prototype.slice.call(arguments).filter(Boolean).join(' ');
+    }
+
+    function Field(props) {
+        return el(
+            'label',
+            { className: 'homlity-settings__field' },
+            [
+                el('span', { key: 'label', className: 'homlity-settings__field-label' }, props.label),
+                props.hint ? el('span', { key: 'hint', className: 'homlity-settings__field-hint' }, props.hint) : null,
+                el(Fragment, { key: 'control' }, props.children),
+            ]
+        );
+    }
+
+    function Input(props) {
+        return el(Field, {
+            label: props.label,
+            hint: props.hint,
+            children: el('input', {
+                className: 'homlity-settings__input',
+                type: props.type || 'text',
+                value: props.value,
+                min: props.min,
+                placeholder: props.placeholder,
+                onChange: props.onChange,
+            }),
+        });
+    }
+
+    function Select(props) {
+        return el(Field, {
+            label: props.label,
+            hint: props.hint,
+            children: el(
+                'select',
+                {
+                    className: 'homlity-settings__input homlity-settings__select',
+                    value: props.value,
+                    onChange: props.onChange,
+                    disabled: !!props.disabled,
+                },
+                (props.options || []).map((option) =>
+                    el('option', { key: option.value, value: option.value }, option.label)
+                )
+            ),
+        });
+    }
+
+    function ColorField(props) {
+        const pickerValue = /^#[0-9a-fA-F]{6}$/.test(props.value) ? props.value : '#ff6752';
+
+        return el(Field, {
+            label: props.label,
+            hint: props.hint,
+            children: el(
+                'div',
+                { className: 'homlity-settings__color-row' },
+                [
+                    el('input', {
+                        key: 'picker',
+                        className: 'homlity-settings__color-picker',
+                        type: 'color',
+                        value: pickerValue,
+                        onChange: props.onChange,
+                    }),
+                    el('input', {
+                        key: 'hex',
+                        className: 'homlity-settings__input',
+                        type: 'text',
+                        value: props.value,
+                        placeholder: '#ff6752',
+                        onChange: props.onChange,
+                    }),
+                ]
+            ),
+        });
+    }
+
+    function Section(props) {
+        return el(
+            'section',
+            { className: classNames('homlity-settings__section', props.className) },
+            [
+                el(
+                    'div',
+                    { key: 'header', className: 'homlity-settings__section-header' },
+                    [
+                        el('span', { key: 'eyebrow', className: 'homlity-settings__eyebrow' }, props.eyebrow),
+                        el('h2', { key: 'title', className: 'homlity-settings__section-title' }, props.title),
+                        props.description
+                            ? el('p', { key: 'description', className: 'homlity-settings__section-description' }, props.description)
+                            : null,
+                    ]
+                ),
+                el('div', { key: 'content', className: 'homlity-settings__section-content' }, props.children),
+            ]
+        );
+    }
+
+    function ListingOption(props) {
+        return el(
+            'button',
+            {
+                type: 'button',
+                className: classNames('homlity-settings__toggle-card', props.active && 'is-active'),
+                onClick: props.onClick,
+            },
+            [
+                el('span', { key: 'dot', className: 'homlity-settings__toggle-dot' }),
+                el(
+                    'div',
+                    { key: 'copy', className: 'homlity-settings__toggle-copy' },
+                    [
+                        el('strong', { key: 'label' }, props.label),
+                        el('span', { key: 'description' }, props.description),
+                    ]
+                ),
+            ]
+        );
+    }
+
+    function LocationSelect(props) {
+        return el(Select, {
+            label: props.label,
+            hint: props.hint,
+            value: props.value ? String(props.value) : '',
+            disabled: props.disabled,
+            options: [{ value: '', label: props.placeholder }].concat(
+                (props.options || []).map((option) => ({
+                    value: String(option.id),
+                    label: option.name,
+                }))
+            ),
+            onChange: props.onChange,
+        });
+    }
+
+    function App() {
+        const initial = normalizeSettings(config.settings);
+        const [settings, setSettings] = useState(initial);
+        const [baseline, setBaseline] = useState(JSON.stringify(initial));
+        const [status, setStatus] = useState('idle');
+        const [message, setMessage] = useState('');
+        const [locationOptions, setLocationOptions] = useState({
+            country: [],
+            state: [],
+            city: [],
+            neighborhood: [],
+        });
+
+        const normalized = normalizeSettings(settings);
+        const serialized = JSON.stringify(normalized);
+        const isDirty = serialized !== baseline;
+
+        function fetchLocationTerms(level, parentId) {
+            const taxonomy = locationTaxonomies[level];
+            if (!taxonomy) {
+                return Promise.resolve([]);
+            }
+
+            const path = config.locationTermsPath + '?taxonomy=' + encodeURIComponent(taxonomy) + '&parent=' + encodeURIComponent(parentId || 0);
+
+            return apiFetch({ path }).then((response) => (Array.isArray(response) ? response : []));
+        }
+
+        useEffect(() => {
+            fetchLocationTerms('country', 0).then((terms) => {
+                setLocationOptions((current) => Object.assign({}, current, { country: terms }));
+            });
+        }, []);
+
+        useEffect(() => {
+            if (!normalized.default_country) {
+                setLocationOptions((current) => Object.assign({}, current, {
+                    state: [],
+                    city: [],
+                    neighborhood: [],
+                }));
+                return;
+            }
+
+            fetchLocationTerms('state', normalized.default_country).then((terms) => {
+                setLocationOptions((current) => Object.assign({}, current, { state: terms }));
+            });
+        }, [normalized.default_country]);
+
+        useEffect(() => {
+            if (!normalized.default_state) {
+                setLocationOptions((current) => Object.assign({}, current, {
+                    city: [],
+                    neighborhood: [],
+                }));
+                return;
+            }
+
+            fetchLocationTerms('city', normalized.default_state).then((terms) => {
+                setLocationOptions((current) => Object.assign({}, current, { city: terms }));
+            });
+        }, [normalized.default_state]);
+
+        useEffect(() => {
+            if (!normalized.default_city) {
+                setLocationOptions((current) => Object.assign({}, current, {
+                    neighborhood: [],
+                }));
+                return;
+            }
+
+            fetchLocationTerms('neighborhood', normalized.default_city).then((terms) => {
+                setLocationOptions((current) => Object.assign({}, current, { neighborhood: terms }));
+            });
+        }, [normalized.default_city]);
+
+        function updateField(key, value) {
+            setSettings((current) => Object.assign({}, current, { [key]: value }));
+        }
+
+        function updateNumberField(key, value) {
+            updateField(key, value === '' ? '' : parseInt(value, 10) || 0);
+        }
+
+        function updateLocationField(level, value) {
+            const numericValue = value === '' ? 0 : parseInt(value, 10) || 0;
+
+            setSettings((current) => {
+                const next = Object.assign({}, current);
+
+                if (level === 'country') {
+                    next.default_country = numericValue;
+                    next.default_state = 0;
+                    next.default_city = 0;
+                    next.default_neighborhood = 0;
+                } else if (level === 'state') {
+                    next.default_state = numericValue;
+                    next.default_city = 0;
+                    next.default_neighborhood = 0;
+                } else if (level === 'city') {
+                    next.default_city = numericValue;
+                    next.default_neighborhood = 0;
+                } else if (level === 'neighborhood') {
+                    next.default_neighborhood = numericValue;
+                }
+
+                return next;
+            });
+        }
+
+        function toggleListingField(value) {
+            setSettings((current) => {
+                const active = Array.isArray(current.listing_fields) ? current.listing_fields.slice() : [];
+                const next = active.includes(value)
+                    ? active.filter((item) => item !== value)
+                    : active.concat(value);
+
+                return Object.assign({}, current, {
+                    listing_fields: optionOrder.filter((item) => next.includes(item)),
+                });
+            });
+        }
+
+        function resetToDefaults() {
+            const next = normalizeSettings(config.defaults);
+            setSettings(next);
+            setStatus('idle');
+            setMessage(__('Valores restablecidos localmente. Guarda para aplicar los cambios.', 'homlity-plugin'));
+        }
+
+        function saveSettings() {
+            setStatus('saving');
+            setMessage(__('Guardando configuración…', 'homlity-plugin'));
+
+            apiFetch({
+                path: config.savePath,
+                method: 'POST',
+                data: { settings: normalized },
+            }).then((response) => {
+                const next = normalizeSettings(response.settings);
+                setSettings(next);
+                setBaseline(JSON.stringify(next));
+                setStatus('saved');
+                setMessage(response.message || __('Configuración guardada correctamente.', 'homlity-plugin'));
+            }).catch((error) => {
+                setStatus('error');
+                setMessage((error && error.message) || __('No fue posible guardar la configuración.', 'homlity-plugin'));
+            });
+        }
+
+        return el(
+            'div',
+            {
+                className: 'homlity-settings-page',
+                style: {
+                    '--homlity-settings-preview-color': normalized.primary_color || '#ff6752',
+                },
+            },
+            [
+                el(
+                    'div',
+                    { key: 'toolbar', className: 'homlity-settings__toolbar' },
+                    [
+                        el(
+                            'div',
+                            { key: 'copy', className: 'homlity-settings__toolbar-copy' },
+                            [
+                                el('h1', { key: 'title', className: 'homlity-settings__toolbar-title' }, config.pageTitle),
+                                el(
+                                    'div',
+                                    { key: 'meta', className: 'homlity-settings__toolbar-meta' },
+                                    [
+                                        el('span', {
+                                            key: 'badge',
+                                            className: classNames(
+                                                'homlity-settings__status',
+                                                status === 'saved' && 'is-saved',
+                                                status === 'error' && 'is-error',
+                                                status === 'saving' && 'is-saving',
+                                                isDirty && status !== 'saving' && status !== 'error' && 'is-dirty'
+                                            ),
+                                        }, status === 'saving'
+                                            ? __('Guardando…', 'homlity-plugin')
+                                            : status === 'saved'
+                                                ? __('Sincronizado', 'homlity-plugin')
+                                                : status === 'error'
+                                                    ? __('Error', 'homlity-plugin')
+                                                    : isDirty
+                                                        ? __('Cambios pendientes', 'homlity-plugin')
+                                                        : __('Estable', 'homlity-plugin')),
+                                        el('div', { key: 'swatch', className: 'homlity-settings__preview-swatch homlity-settings__preview-swatch--inline' }, [
+                                            el('span', { key: 'label' }, __('Color activo', 'homlity-plugin')),
+                                            el('strong', { key: 'value' }, normalized.primary_color),
+                                        ]),
+                                    ]
+                                ),
+                            ]
+                        ),
+                        el(
+                            'div',
+                            { key: 'actions', className: 'homlity-settings__actions homlity-settings__actions--toolbar' },
+                            [
+                                el(
+                                    'button',
+                                    {
+                                        key: 'save',
+                                        type: 'button',
+                                        className: 'homlity-settings__button homlity-settings__button--primary',
+                                        onClick: saveSettings,
+                                        disabled: status === 'saving',
+                                    },
+                                    status === 'saving' ? __('Guardando…', 'homlity-plugin') : config.saveLabel
+                                ),
+                                el(
+                                    'button',
+                                    {
+                                        key: 'reset',
+                                        type: 'button',
+                                        className: 'homlity-settings__button homlity-settings__button--ghost',
+                                        onClick: resetToDefaults,
+                                        disabled: status === 'saving',
+                                    },
+                                    config.resetLabel
+                                ),
+                            ]
+                        ),
+                    ]
+                ),
+
+                message
+                    ? el(
+                        'div',
+                        { key: 'notice', className: classNames('homlity-settings__notice', status === 'error' && 'is-error', status === 'saved' && 'is-success') },
+                        message
+                    )
+                    : null,
+
+                el(
+                    'div',
+                    { key: 'grid', className: 'homlity-settings__grid' },
+                    [
+                        el(
+                            Section,
+                            {
+                                key: 'experience',
+                                eyebrow: __('General', 'homlity-plugin'),
+                                title: __('Configuración principal', 'homlity-plugin'),
+                            },
+                            el(
+                                'div',
+                                { className: 'homlity-settings__field-grid homlity-settings__field-grid--four' },
+                                [
+                                    el(ColorField, {
+                                        key: 'primary_color',
+                                        label: __('Color principal de la inmobiliaria', 'homlity-plugin'),
+                                        value: normalized.primary_color,
+                                        onChange: (event) => updateField('primary_color', event.target.value),
+                                    }),
+                                    el(Select, {
+                                        key: 'currency',
+                                        label: __('Moneda por defecto', 'homlity-plugin'),
+                                        value: normalized.base_currency,
+                                        options: (config.currencies || []).map((currency) => ({ value: currency, label: currency })),
+                                        onChange: (event) => updateField('base_currency', event.target.value),
+                                    }),
+                                    el(Select, {
+                                        key: 'map_provider',
+                                        label: __('Mapa por defecto', 'homlity-plugin'),
+                                        value: normalized.default_map_provider,
+                                        options: config.mapProviderOptions || [],
+                                        onChange: (event) => updateField('default_map_provider', event.target.value),
+                                    }),
+                                    el(Select, {
+                                        key: 'gallery_mode',
+                                        label: __('Slider detalle inmueble', 'homlity-plugin'),
+                                        value: normalized.detail_gallery_mode,
+                                        options: config.galleryModeOptions || [],
+                                        onChange: (event) => updateField('detail_gallery_mode', event.target.value),
+                                    }),
+                                ]
+                            )
+                        ),
+
+                        el(
+                            Section,
+                            {
+                                key: 'location',
+                                eyebrow: __('Geografía', 'homlity-plugin'),
+                                title: __('Ubicación base', 'homlity-plugin'),
+                            },
+                            el(
+                                'div',
+                                { className: 'homlity-settings__field-grid homlity-settings__field-grid--four' },
+                                [
+                                    el(LocationSelect, {
+                                        key: 'country',
+                                        label: __('País', 'homlity-plugin'),
+                                        value: normalized.default_country,
+                                        options: locationOptions.country,
+                                        placeholder: __('Selecciona país', 'homlity-plugin'),
+                                        onChange: (event) => updateLocationField('country', event.target.value),
+                                    }),
+                                    el(LocationSelect, {
+                                        key: 'state',
+                                        label: __('Departamento / Provincia', 'homlity-plugin'),
+                                        value: normalized.default_state,
+                                        options: locationOptions.state,
+                                        placeholder: __('Selecciona departamento / provincia', 'homlity-plugin'),
+                                        disabled: !normalized.default_country,
+                                        onChange: (event) => updateLocationField('state', event.target.value),
+                                    }),
+                                    el(LocationSelect, {
+                                        key: 'city',
+                                        label: __('Ciudad / Municipio', 'homlity-plugin'),
+                                        value: normalized.default_city,
+                                        options: locationOptions.city,
+                                        placeholder: __('Selecciona ciudad / municipio', 'homlity-plugin'),
+                                        disabled: !normalized.default_state,
+                                        onChange: (event) => updateLocationField('city', event.target.value),
+                                    }),
+                                    el(LocationSelect, {
+                                        key: 'neighborhood',
+                                        label: __('Barrio', 'homlity-plugin'),
+                                        value: normalized.default_neighborhood,
+                                        options: locationOptions.neighborhood,
+                                        placeholder: __('Selecciona barrio', 'homlity-plugin'),
+                                        disabled: !normalized.default_city,
+                                        onChange: (event) => updateLocationField('neighborhood', event.target.value),
+                                    }),
+                                ]
+                            )
+                        ),
+
+                        el(
+                            Section,
+                            {
+                                key: 'listing',
+                                eyebrow: __('Catálogo', 'homlity-plugin'),
+                                title: __('Configuración del catálogo', 'homlity-plugin'),
+                            },
+                            [
+                                el(
+                                    'div',
+                                    { key: 'fields', className: 'homlity-settings__field-grid homlity-settings__field-grid--two' },
+                                    [
+                                        el(Input, {
+                                            key: 'per-page',
+                                            label: __('Inmuebles por página', 'homlity-plugin'),
+                                            type: 'number',
+                                            min: 1,
+                                            value: normalized.archive_per_page,
+                                            onChange: (event) => updateNumberField('archive_per_page', event.target.value),
+                                        }),
+                                        el(Select, {
+                                            key: 'order',
+                                            label: __('Orden por defecto', 'homlity-plugin'),
+                                            value: normalized.archive_order,
+                                            options: config.archiveOrderOptions || [],
+                                            onChange: (event) => updateField('archive_order', event.target.value),
+                                        }),
+                                    ]
+                                ),
+                                el(
+                                    'div',
+                                    { key: 'toggles', className: 'homlity-settings__toggle-grid' },
+                                    (config.listingFieldOptions || []).map((option) =>
+                                        el(ListingOption, {
+                                            key: option.value,
+                                            label: option.label,
+                                            description: option.description,
+                                            active: normalized.listing_fields.includes(option.value),
+                                            onClick: () => toggleListingField(option.value),
+                                        })
+                                    )
+                                ),
+                            ]
+                        ),
+                    ]
+                ),
+            ]
+        );
+    }
+
+    const app = el(App);
+    if (typeof element.createRoot === 'function') {
+        element.createRoot(root).render(app);
+    } else if (typeof element.render === 'function') {
+        element.render(app, root);
+    }
+}());

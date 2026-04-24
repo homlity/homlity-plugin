@@ -3,7 +3,7 @@
  * Seeds default terms and data on activation.
  */
 
-namespace Codwelt\PluginInmobiliario\Services;
+namespace Homlity\PluginInmobiliario\Services;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -13,6 +13,7 @@ class DataSeederService
 {
     public function seed(): void
     {
+        $this->seedPages();
         $this->seedTaxonomy(PropertyTaxonomies::TAXONOMY_TYPE, [
             'Casa',
             'Apartamento',
@@ -148,5 +149,34 @@ class DataSeederService
             PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD => '_parent_city',
             default => null,
         };
+    }
+
+    public function seedPages(): void
+    {
+        $this->seedArchivePage();
+    }
+
+    private function seedArchivePage(): void
+    {
+        $optionKey = 'homlity_plugin_archive_page_id';
+        $pageId    = (int) get_option($optionKey, 0);
+
+        if ($pageId > 0 && 'publish' === get_post_status($pageId)) {
+            return;
+        }
+
+        $pageId = wp_insert_post([
+            'post_title'     => __('Resultados de inmuebles', 'homlity-plugin'),
+            'post_name'      => 'propiedades',
+            'post_content'   => '',
+            'post_status'    => 'publish',
+            'post_type'      => 'page',
+            'comment_status' => 'closed',
+            'ping_status'    => 'closed',
+        ]);
+
+        if (!is_wp_error($pageId) && $pageId > 0) {
+            update_option($optionKey, $pageId);
+        }
     }
 }

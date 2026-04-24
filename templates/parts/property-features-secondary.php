@@ -1,13 +1,13 @@
 <?php
 /**
  * Secondary features component.
- * Overridable at plugin-inmobiliario/parts/property-features-secondary.php
+ * Overridable at homlity-plugin/parts/property-features-secondary.php
  *
  * Expected args: $post_id (int)
  */
 
-use Codwelt\PluginInmobiliario\Services\PropertyPostType;
-use Codwelt\PluginInmobiliario\Services\PropertyTaxonomies;
+use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 
 if (!isset($post_id)) {
     $post_id = get_the_ID();
@@ -42,27 +42,27 @@ if ($features && !is_wp_error($features)) {
 }
 ?>
 <section class="property-features property-features--secondary">
-    <h3><?php esc_html_e('Características secundarias', 'inmopress-listings-inmobiliaria'); ?></h3>
+    <h3><?php esc_html_e('Características secundarias', 'homlity-plugin'); ?></h3>
     <ul>
         <?php if ($lat && $lng): ?>
-            <li><strong><?php esc_html_e('Coordenadas', 'inmopress-listings-inmobiliaria'); ?>:</strong> <?php echo esc_html($lat . ', ' . $lng); ?></li>
+            <li><strong><?php esc_html_e('Coordenadas', 'homlity-plugin'); ?>:</strong> <?php echo esc_html($lat . ', ' . $lng); ?></li>
         <?php endif; ?>
         <?php
-$terms = get_the_terms($post_id, \Codwelt\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_OPERATION);
+$terms = get_the_terms($post_id, \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_OPERATION);
 if ($terms && !is_wp_error($terms)): ?>
-            <li><strong><?php esc_html_e('Gestión', 'inmopress-listings-inmobiliaria'); ?>:</strong> <?php echo esc_html(join(', ', wp_list_pluck($terms, 'name'))); ?></li>
+            <li><strong><?php esc_html_e('Gestión', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(join(', ', wp_list_pluck($terms, 'name'))); ?></li>
 <?php endif; ?>
         <?php if ($featureGroups['interior']): ?>
-            <li><strong><?php esc_html_e('Características interiores', 'inmopress-listings-inmobiliaria'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['interior'])); ?></li>
+            <li><strong><?php esc_html_e('Características interiores', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['interior'])); ?></li>
         <?php endif; ?>
         <?php if ($featureGroups['exterior']): ?>
-            <li><strong><?php esc_html_e('Características exteriores', 'inmopress-listings-inmobiliaria'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['exterior'])); ?></li>
+            <li><strong><?php esc_html_e('Características exteriores', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['exterior'])); ?></li>
         <?php endif; ?>
         <?php if ($featureGroups['other']): ?>
-            <li><strong><?php esc_html_e('Otras características', 'inmopress-listings-inmobiliaria'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['other'])); ?></li>
+            <li><strong><?php esc_html_e('Otras características', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['other'])); ?></li>
         <?php endif; ?>
         <?php if ($nearby && !is_wp_error($nearby)): ?>
-            <li><strong><?php esc_html_e('Lugares cercanos', 'inmopress-listings-inmobiliaria'); ?>:</strong> <?php echo esc_html(join(', ', wp_list_pluck($nearby, 'name'))); ?></li>
+            <li><strong><?php esc_html_e('Lugares cercanos', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(join(', ', wp_list_pluck($nearby, 'name'))); ?></li>
         <?php endif; ?>
     </ul>
 </section>

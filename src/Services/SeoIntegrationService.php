@@ -3,9 +3,9 @@
  * Integrates CPT and taxonomies into Yoast SEO and Rank Math sitemaps.
  */
 
-namespace Codwelt\PluginInmobiliario\Services;
+namespace Homlity\PluginInmobiliario\Services;
 
-use Codwelt\PluginInmobiliario\Core\Contracts\ServiceInterface;
+use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 
 if (!defined('ABSPATH')) {
     exit;

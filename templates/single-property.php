@@ -1,12 +1,12 @@
 <?php
 /**
  * Single property template.
- * Can be overridden in theme at plugin-inmobiliario/single-property.php
+ * Can be overridden in theme at homlity-plugin/single-property.php
  */
 
-use Codwelt\PluginInmobiliario\Services\CurrencyService;
-use Codwelt\PluginInmobiliario\Services\PropertyPostType;
-use Codwelt\PluginInmobiliario\Services\TemplateService;
+use Homlity\PluginInmobiliario\Services\CurrencyService;
+use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\TemplateService;
 
 get_header();
 
@@ -14,9 +14,9 @@ $metaKeys = (new PropertyPostType())->metaKeys();
 $currencyService = new CurrencyService();
 
 $priceFields = [
-    'price_sale' => __('Precio venta', 'inmopress-listings-inmobiliaria'),
-    'price_rent' => __('Precio arriendo', 'inmopress-listings-inmobiliaria'),
-    'price_admin' => __('Precio administración', 'inmopress-listings-inmobiliaria'),
+    'price_sale' => __('Precio venta', 'homlity-plugin'),
+    'price_rent' => __('Precio arriendo', 'homlity-plugin'),
+    'price_admin' => __('Precio administración', 'homlity-plugin'),
 ];
 
 $agentId = (int) get_post_meta(get_the_ID(), $metaKeys['agent_id'], true);
@@ -39,17 +39,17 @@ $agentUser = $agentId ? get_user_by('id', $agentId) : null;
                         ?>
                         <p>
                             <strong><?php echo esc_html($label); ?>:</strong>
-                            <?php echo esc_html(apply_filters('inmopress_format_price', $value, $currency)); ?>
+                            <?php echo esc_html(\homlity_plugin_apply_filters('homlity_plugin_format_price', null, $value, $currency)); ?>
                         </p>
                     <?php endforeach; ?>
                 </div>
                 <div class="property-single__taxonomies">
                     <?php
                     $taxonomies = [
-                        'category' => \Codwelt\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_CATEGORY,
-                        'type' => \Codwelt\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_TYPE,
-                        'location' => \Codwelt\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_LOCATION,
-                        'operation' => \Codwelt\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_OPERATION,
+                        'category' => \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_CATEGORY,
+                        'type' => \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_TYPE,
+                        'location' => \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_LOCATION,
+                        'operation' => \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_OPERATION,
                     ];
                     foreach ($taxonomies as $tax) {
                         the_terms(get_the_ID(), $tax, '<span class="property-single__terms">', ', ', '</span>');

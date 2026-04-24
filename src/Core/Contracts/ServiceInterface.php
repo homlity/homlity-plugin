@@ -3,7 +3,7 @@
  * Base contract for services bootstrapped by the plugin.
  */
 
-namespace Codwelt\PluginInmobiliario\Core\Contracts;
+namespace Homlity\PluginInmobiliario\Core\Contracts;
 
 if (!defined('ABSPATH')) {
     exit;

@@ -1,6 +1,5 @@
-=== InmoPress Listings Inmobiliaria ===
-Contributors: codwelt
-Donate link: https://codwelt.com
+=== Homlity Plugin ===
+Contributors: homlity
 Tags: inmobiliaria, inmuebles, propiedades, real estate, finca raiz, listings, agentes
 Requires at least: 5.8
 Tested up to: 6.8
@@ -9,13 +8,13 @@ Stable tag: 0.2.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Plugin inmobiliario creado por Codwelt para gestionar inmuebles, agentes, monedas y configuraciones multi-país en sitios WordPress para inmobiliarias.
+Plugin inmobiliario creado por Ecosistema Inmobiliario Homlity para gestionar inmuebles, agentes, monedas y configuraciones multi-país en sitios WordPress para inmobiliarias.
 
-![Icono](icono.png)
+![Icono](FAVICON.ico)
 
 == Description ==
 
-**InmoPress Listings – Plugin inmobiliario para WordPress** es un plugin especializado para el sector inmobiliario, desarrollado por [Codwelt](https://codwelt.com) para crear y gestionar páginas web inmobiliarias profesionales sobre WordPress de forma fácil, rápida y escalable.
+**Homlity Plugin** es un plugin especializado para el sector inmobiliario, desarrollado por **Ecosistema Inmobiliario Homlity** para crear y gestionar páginas web inmobiliarias profesionales sobre WordPress de forma fácil, rápida y escalable.
 
 Está pensado para inmobiliarias, brokers, agentes independientes y portales inmobiliarios que necesitan administrar inmuebles en diferentes países, manejar múltiples monedas y personalizar al máximo la forma en que muestran sus propiedades.
 
@@ -55,9 +54,9 @@ El plugin nace con el objetivo de **mejorar el ecosistema de WordPress en el mer
 - Reducir tiempos de implementación y mantenimiento técnico.
 - Contar con un plugin creado específicamente para el **mercado inmobiliario hispano**.
 
-### Acerca de Codwelt
+### Acerca de Ecosistema Inmobiliario Homlity
 
-[Codwelt SAS](https://codwelt.com) es una empresa de desarrollo web con base en Bogotá, Colombia, especializada en:
+Ecosistema Inmobiliario Homlity es una iniciativa enfocada en soluciones digitales para el sector inmobiliario, especializada en:
 
 - Desarrollo de páginas web inmobiliarias.
 - Tiendas virtuales.
@@ -103,7 +102,7 @@ El plugin está preparado para ser traducido mediante los mecanismos estándar d
 
 = ¿Quién desarrolla y mantiene este plugin? =
 
-El plugin es desarrollado y mantenido por **Codwelt** ([https://codwelt.com](https://codwelt.com)), una empresa especializada en páginas web inmobiliarias y soluciones digitales para el sector.
+El plugin es desarrollado y mantenido por **Ecosistema Inmobiliario Homlity**, una iniciativa especializada en páginas web inmobiliarias y soluciones digitales para el sector.
 
 == Screenshots ==
 
@@ -116,7 +115,7 @@ El plugin es desarrollado y mantenido por **Codwelt** ([https://codwelt.com](htt
 == Changelog ==
 
 = 1.0.0 =
-* Versión inicial del InmoPress Listings – Plugin inmobiliario para WordPress.
+* Versión inicial del Homlity Plugin.
 * Gestión básica de inmuebles.
 * Configuración de tipos de inmuebles, tipos de gestión y características.
 * Soporte para múltiples países y múltiples monedas.
@@ -125,4 +124,4 @@ El plugin es desarrollado y mantenido por **Codwelt** ([https://codwelt.com](htt
 == Upgrade Notice ==
 
 = 1.0.0 =
-Versión inicial del plugin inmobiliario de Codwelt para la gestión de inmuebles en sitios WordPress.
+Versión inicial del plugin inmobiliario de Ecosistema Inmobiliario Homlity para la gestión de inmuebles en sitios WordPress.

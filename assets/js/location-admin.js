@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     const selects = document.querySelectorAll('.property-location-select');
-    if (!selects.length || typeof pluginInmobiliarioLocation === 'undefined') {
+    if (!selects.length || typeof homlityPluginLocation === 'undefined') {
         return;
     }
 
-    const data = pluginInmobiliarioLocation;
+    const data = homlityPluginLocation;
     const restUrl = data.restUrl;
     const nonce = data.nonce;
     const selected = data.selected || {};
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     async function fetchTerms(taxonomy, parentId) {
-        const url = new URL(restUrl + 'plugin-inmobiliario/v1/location-terms');
+        const url = new URL(restUrl + 'homlity-plugin/v1/location-terms');
         url.searchParams.set('taxonomy', taxonomy);
         url.searchParams.set('parent', parentId || 0);
 

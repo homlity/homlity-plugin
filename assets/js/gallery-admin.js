@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const data = window.pluginInmobiliarioGallery || {};
+    const data = window.homlityPluginGallery || {};
     const list = document.getElementById('property_gallery_list');
     const input = document.getElementById('property_gallery');
     const addBtn = document.getElementById('property_gallery_add');

@@ -3,7 +3,7 @@
  * Base widget helpers.
  */
 
-namespace Codwelt\PluginInmobiliario\Integrations\Elementor\Widgets;
+namespace Homlity\PluginInmobiliario\Integrations\Elementor\Widgets;
 
 use Elementor\Controls_Manager;
 use Elementor\Widget_Base;
@@ -19,7 +19,7 @@ abstract class BasePropertyWidget extends Widget_Base
         $this->add_control(
             'property_id',
             [
-                'label' => __('ID de la propiedad', 'inmopress-listings-inmobiliaria'),
+                'label' => __('ID de la propiedad', 'homlity-plugin'),
                 'type' => Controls_Manager::NUMBER,
                 'default' => get_queried_object_id(),
             ]
@@ -35,6 +35,6 @@ abstract class BasePropertyWidget extends Widget_Base
 
     public function get_categories(): array
     {
-        return ['inmopress-listings-inmobiliaria'];
+        return ['homlity-plugin'];
     }
 }

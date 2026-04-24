@@ -1,5 +1,5 @@
 {
-  "name": "codwelt/plugin-inmobiliario",
+  "name": "homlity/homlity-plugin",
   "description": "Plugin inmobiliario modular para WordPress con integraciones y SEO.",
   "type": "wordpress-plugin",
   "license": "proprietary",
@@ -10,7 +10,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Codwelt\\PluginInmobiliario\\": "src/"
+      "Homlity\\PluginInmobiliario\\": "src/"
     }
   }
 }

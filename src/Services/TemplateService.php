@@ -3,9 +3,9 @@
  * Front templates for properties, taxonomies, search and agent profiles.
  */
 
-namespace Codwelt\PluginInmobiliario\Services;
+namespace Homlity\PluginInmobiliario\Services;
 
-use Codwelt\PluginInmobiliario\Core\Contracts\ServiceInterface;
+use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -13,12 +13,15 @@ if (!defined('ABSPATH')) {
 
 class TemplateService implements ServiceInterface
 {
+    private bool $isArchivePage = false;
+
     public function register(): void
     {
         add_filter('query_vars', [$this, 'registerQueryVars']);
         add_action('init', [$this, 'addRewriteRules']);
         add_filter('template_include', [$this, 'maybeLoadTemplate']);
         add_action('pre_get_posts', [$this, 'filterArchiveQuery']);
+        add_action('wp_enqueue_scripts', [$this, 'enqueuePublicAssets']);
     }
 
     public function registerQueryVars(array $vars): array
@@ -47,6 +50,12 @@ class TemplateService implements ServiceInterface
             'index.php?property_agent=$matches[1]',
             'top'
         );
+
+        add_rewrite_rule(
+            '^property-type/?$',
+            'index.php?post_type=' . PropertyPostType::POST_TYPE,
+            'top'
+        );
     }
 
     public function filterArchiveQuery($query): void
@@ -55,10 +64,24 @@ class TemplateService implements ServiceInterface
             return;
         }
 
-        if ($query->is_post_type_archive(PropertyPostType::POST_TYPE)) {
+        $archivePageId = (int) get_option('homlity_plugin_archive_page_id', 0);
+        $isArchivePage = $archivePageId > 0 && $query->is_page($archivePageId);
+
+        if ($isArchivePage) {
+            $this->isArchivePage = true;
+            $query->set('post_type', PropertyPostType::POST_TYPE);
+            $query->set('page_id', '');
+            $query->set('pagename', '');
+            $query->is_page     = false;
+            $query->is_singular = false;
+            $query->is_archive  = true;
+            $query->is_post_type_archive = [PropertyPostType::POST_TYPE];
+        }
+
+        if ($query->is_post_type_archive(PropertyPostType::POST_TYPE) || $isArchivePage) {
             $taxQuery = [];
             $metaQuery = ['relation' => 'AND'];
-            $settings = get_option('inmopress_settings', ['archive_per_page' => 12, 'archive_order' => 'date_desc']);
+            $settings = get_option(HOMLITY_PLUGIN_SETTINGS_OPTION, ['archive_per_page' => 12, 'archive_order' => 'created_desc']);
             $perPage = isset($settings['archive_per_page']) ? (int) $settings['archive_per_page'] : 12;
             if ($perPage > 0) {
                 $query->set('posts_per_page', $perPage);
@@ -151,14 +174,23 @@ class TemplateService implements ServiceInterface
                 $query->set('date_query', [$dateQuery]);
             }
 
-            $order = $settings['archive_order'] ?? 'date_desc';
-            if ($order === 'price_desc') {
+            $order = sanitize_key((string) ($settings['archive_order'] ?? 'created_desc'));
+            if ($order === 'date_desc') {
+                $order = 'created_desc';
+            } elseif ($order === 'date_asc') {
+                $order = 'created_asc';
+            }
+
+            if ($order === 'price_desc' || $order === 'price_asc') {
                 $query->set('meta_key', '_property_price_sale');
                 $query->set('orderby', 'meta_value_num');
-                $query->set('order', 'DESC');
+                $query->set('order', $order === 'price_asc' ? 'ASC' : 'DESC');
+            } elseif ($order === 'modified_desc' || $order === 'modified_asc') {
+                $query->set('orderby', 'modified');
+                $query->set('order', $order === 'modified_asc' ? 'ASC' : 'DESC');
             } else {
                 $query->set('orderby', 'date');
-                $query->set('order', 'DESC');
+                $query->set('order', $order === 'created_asc' ? 'ASC' : 'DESC');
             }
         }
     }
@@ -173,7 +205,7 @@ class TemplateService implements ServiceInterface
             return self::locateTemplate('single-property.php', $template);
         }
 
-        if (is_post_type_archive(PropertyPostType::POST_TYPE)) {
+        if (is_post_type_archive(PropertyPostType::POST_TYPE) || $this->isArchivePage) {
             return self::locateTemplate('archive-property.php', $template);
         }
 
@@ -196,9 +228,116 @@ class TemplateService implements ServiceInterface
         return $template;
     }
 
+    public function enqueuePublicAssets(): void
+    {
+        if (!$this->shouldEnqueuePublicAssets()) {
+            return;
+        }
+
+        $settings = $this->publicSettings();
+
+        wp_enqueue_style(
+            'homlity-plugin-front-components',
+            HOMLITY_PLUGIN_URL . 'assets/css/front-components.css',
+            [],
+            HOMLITY_PLUGIN_VERSION
+        );
+
+        $inlineCss = $this->buildPrimaryColorCss($settings['primary_color']);
+        if ($inlineCss !== '') {
+            wp_add_inline_style('homlity-plugin-front-components', $inlineCss);
+        }
+
+        if (!is_singular(PropertyPostType::POST_TYPE)) {
+            return;
+        }
+
+        if ($settings['default_map_provider'] === 'leaflet_map') {
+            wp_enqueue_style(
+                'homlity-plugin-leaflet-front',
+                'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+                [],
+                '1.9.4'
+            );
+
+            wp_enqueue_script(
+                'homlity-plugin-leaflet-front',
+                'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+                [],
+                '1.9.4',
+                true
+            );
+
+            wp_enqueue_script(
+                'homlity-plugin-front-map',
+                HOMLITY_PLUGIN_URL . 'assets/js/front-map.js',
+                ['homlity-plugin-leaflet-front'],
+                HOMLITY_PLUGIN_VERSION,
+                true
+            );
+        }
+
+        $galleryDeps = [];
+        if ($settings['detail_gallery_mode'] === 'owl_gallery') {
+            wp_enqueue_style(
+                'homlity-plugin-owl-carousel',
+                'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css',
+                [],
+                '2.3.4'
+            );
+
+            wp_enqueue_style(
+                'homlity-plugin-owl-carousel-theme',
+                'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css',
+                ['homlity-plugin-owl-carousel'],
+                '2.3.4'
+            );
+
+            wp_enqueue_script(
+                'homlity-plugin-owl-carousel',
+                'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js',
+                ['jquery'],
+                '2.3.4',
+                true
+            );
+
+            $galleryDeps = ['jquery', 'homlity-plugin-owl-carousel'];
+        } else {
+            wp_enqueue_style(
+                'homlity-plugin-lightgallery',
+                'https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.8.3/css/lightgallery-bundle.min.css',
+                [],
+                '2.8.3'
+            );
+
+            wp_enqueue_script(
+                'homlity-plugin-lightgallery',
+                'https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.8.3/lightgallery.min.js',
+                [],
+                '2.8.3',
+                true
+            );
+
+            $galleryDeps = ['homlity-plugin-lightgallery'];
+        }
+
+        wp_enqueue_script(
+            'homlity-plugin-front-gallery',
+            HOMLITY_PLUGIN_URL . 'assets/js/front-gallery.js',
+            $galleryDeps,
+            HOMLITY_PLUGIN_VERSION,
+            true
+        );
+
+        wp_localize_script('homlity-plugin-front-gallery', 'homlityPluginFrontGallery', [
+            'mode' => $settings['detail_gallery_mode'],
+        ]);
+    }
+
     public static function locateTemplate(string $filename, string $fallback = ''): string
     {
         $candidates = [
+            'homlity-plugin/' . $filename,
             'plugin-inmobiliario/' . $filename,
             $filename,
         ];
@@ -208,7 +347,7 @@ class TemplateService implements ServiceInterface
             return $themeFile;
         }
 
-        $pluginFile = PLUGIN_INMOBILIARIO_PATH . 'templates/' . $filename;
+        $pluginFile = HOMLITY_PLUGIN_PATH . 'templates/' . $filename;
         if (file_exists($pluginFile)) {
             return $pluginFile;
         }
@@ -219,7 +358,7 @@ class TemplateService implements ServiceInterface
     public static function includeComponent(string $component, array $args = []): void
     {
         $filename = 'parts/' . $component;
-        $path = self::locateTemplate($filename, PLUGIN_INMOBILIARIO_PATH . 'templates/' . $filename);
+        $path = self::locateTemplate($filename, HOMLITY_PLUGIN_PATH . 'templates/' . $filename);
 
         if (!file_exists($path)) {
             return;
@@ -230,5 +369,92 @@ class TemplateService implements ServiceInterface
         }
 
         include $path;
+    }
+
+    private function shouldEnqueuePublicAssets(): bool
+    {
+        if (is_singular(PropertyPostType::POST_TYPE) || is_post_type_archive(PropertyPostType::POST_TYPE) || $this->isArchivePage) {
+            return true;
+        }
+
+        if (get_query_var('property_agent')) {
+            return true;
+        }
+
+        return is_tax([
+            PropertyTaxonomies::TAXONOMY_TYPE,
+            PropertyTaxonomies::TAXONOMY_OPERATION,
+            PropertyTaxonomies::TAXONOMY_LOCATION,
+            PropertyTaxonomies::TAXONOMY_CATEGORY,
+            PropertyTaxonomies::TAXONOMY_TAG,
+            PropertyTaxonomies::TAXONOMY_FEATURE,
+            PropertyTaxonomies::TAXONOMY_COUNTRY,
+            PropertyTaxonomies::TAXONOMY_STATE,
+            PropertyTaxonomies::TAXONOMY_CITY,
+            PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD,
+            PropertyTaxonomies::TAXONOMY_NEARBY,
+        ]);
+    }
+
+    private function publicSettings(): array
+    {
+        $defaults = [
+            'primary_color' => '#ff6752',
+            'default_map_provider' => 'leaflet_map',
+            'detail_gallery_mode' => 'light_gallery',
+        ];
+
+        $settings = get_option(HOMLITY_PLUGIN_SETTINGS_OPTION, []);
+        if (!is_array($settings)) {
+            $settings = [];
+        }
+
+        $settings = array_merge($defaults, $settings);
+        if (($settings['primary_color'] ?? '') === '#2490ff') {
+            $settings['primary_color'] = '#ff6752';
+        }
+        $settings['primary_color'] = sanitize_hex_color($settings['primary_color'] ?? '') ?: $defaults['primary_color'];
+        $settings['default_map_provider'] = in_array($settings['default_map_provider'], ['leaflet_map', 'google_map'], true)
+            ? $settings['default_map_provider']
+            : $defaults['default_map_provider'];
+        $settings['detail_gallery_mode'] = in_array($settings['detail_gallery_mode'], ['light_gallery', 'owl_gallery'], true)
+            ? $settings['detail_gallery_mode']
+            : $defaults['detail_gallery_mode'];
+
+        return $settings;
+    }
+
+    private function buildPrimaryColorCss(string $color): string
+    {
+        $rgb = $this->hexToRgb($color);
+        if ($rgb === null) {
+            return '';
+        }
+
+        return sprintf(
+            'body{--homlity-primary-color:%1$s;--homlity-primary-color-rgb:%2$d,%3$d,%4$d;--homlity-primary-color-soft:rgba(%2$d,%3$d,%4$d,0.12);--homlity-primary-color-strong:rgba(%2$d,%3$d,%4$d,0.18);}',
+            $color,
+            $rgb[0],
+            $rgb[1],
+            $rgb[2]
+        );
+    }
+
+    private function hexToRgb(string $color): ?array
+    {
+        $normalized = ltrim($color, '#');
+        if (strlen($normalized) === 3) {
+            $normalized = preg_replace('/(.)/', '$1$1', $normalized);
+        }
+
+        if (strlen($normalized) !== 6 || !ctype_xdigit($normalized)) {
+            return null;
+        }
+
+        return [
+            hexdec(substr($normalized, 0, 2)),
+            hexdec(substr($normalized, 2, 2)),
+            hexdec(substr($normalized, 4, 2)),
+        ];
     }
 }

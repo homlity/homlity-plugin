@@ -3,9 +3,9 @@
  * Handles versioning and upgrade routines.
  */
 
-namespace Codwelt\PluginInmobiliario\Services;
+namespace Homlity\PluginInmobiliario\Services;
 
-use Codwelt\PluginInmobiliario\Core\Contracts\ServiceInterface;
+use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -13,17 +13,17 @@ if (!defined('ABSPATH')) {
 
 class VersionService implements ServiceInterface
 {
-    private string $optionName = 'inmopress_version';
+    private string $optionName = HOMLITY_PLUGIN_VERSION_OPTION;
 
     public function register(): void
     {
-        add_action('plugins_loaded', [$this, 'maybeUpgrade'], 1);
+        add_action('init', [$this, 'maybeUpgrade'], 99);
     }
 
     public function maybeUpgrade(): void
     {
-        $current = get_option($this->optionName);
-        $target = PLUGIN_INMOBILIARIO_VERSION;
+        $current = get_option($this->optionName, null);
+        $target = HOMLITY_PLUGIN_VERSION;
 
         if ($current === $target) {
             return;

@@ -3,9 +3,9 @@
  * Outputs basic structured data for property pages and SEO helpers.
  */
 
-namespace Codwelt\PluginInmobiliario\Services;
+namespace Homlity\PluginInmobiliario\Services;
 
-use Codwelt\PluginInmobiliario\Core\Contracts\ServiceInterface;
+use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -79,7 +79,7 @@ class SeoService implements ServiceInterface
         /**
          * Allow other plugins/themes to adjust the schema.
          */
-        $schema = apply_filters('inmopress_schema', $schema, $post);
+        $schema = \homlity_plugin_apply_filters('homlity_plugin_schema', null, $schema, $post);
 
         echo '<script type="application/ld+json">' . wp_json_encode($schema) . '</script>';
     }

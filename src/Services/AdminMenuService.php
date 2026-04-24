@@ -3,9 +3,9 @@
  * Custom admin menu organization for the plugin.
  */
 
-namespace Codwelt\PluginInmobiliario\Services;
+namespace Homlity\PluginInmobiliario\Services;
 
-use Codwelt\PluginInmobiliario\Core\Contracts\ServiceInterface;
+use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -29,45 +29,45 @@ class AdminMenuService implements ServiceInterface
 
     private function registerPropertiesMenu(): void
     {
-        $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
+        $icon = HOMLITY_PLUGIN_URL . 'FAVICON.ico';
         add_menu_page(
-            __('Propiedades', 'inmopress-listings-inmobiliaria'),
-            __('Propiedades', 'inmopress-listings-inmobiliaria'),
+            __('Propiedades', 'homlity-plugin'),
+            __('Propiedades', 'homlity-plugin'),
             'edit_posts',
-            'inmopress-listings-inmobiliaria',
-            '',
+            'homlity-plugin',
+            [$this, 'redirectToPropertiesPage'],
             $icon,
             26
         );
 
         add_submenu_page(
-            'inmopress-listings-inmobiliaria',
-            __('Todas las propiedades', 'inmopress-listings-inmobiliaria'),
-            __('Todas las propiedades', 'inmopress-listings-inmobiliaria'),
+            'homlity-plugin',
+            __('Todas las propiedades', 'homlity-plugin'),
+            __('Todas las propiedades', 'homlity-plugin'),
             'edit_posts',
             'edit.php?post_type=property'
         );
 
         add_submenu_page(
-            'inmopress-listings-inmobiliaria',
-            __('Añadir nueva', 'inmopress-listings-inmobiliaria'),
-            __('Añadir nueva', 'inmopress-listings-inmobiliaria'),
+            'homlity-plugin',
+            __('Añadir nueva', 'homlity-plugin'),
+            __('Añadir nueva', 'homlity-plugin'),
             'edit_posts',
             'post-new.php?post_type=property'
         );
 
         add_submenu_page(
-            'inmopress-listings-inmobiliaria',
-            __('Características', 'inmopress-listings-inmobiliaria'),
-            __('Características', 'inmopress-listings-inmobiliaria'),
+            'homlity-plugin',
+            __('Características', 'homlity-plugin'),
+            __('Características', 'homlity-plugin'),
             'edit_posts',
             'edit-tags.php?taxonomy=' . PropertyTaxonomies::TAXONOMY_FEATURE . '&post_type=property'
         );
 
         add_submenu_page(
-            'inmopress-listings-inmobiliaria',
-            __('Lugares cercanos', 'inmopress-listings-inmobiliaria'),
-            __('Lugares cercanos', 'inmopress-listings-inmobiliaria'),
+            'homlity-plugin',
+            __('Lugares cercanos', 'homlity-plugin'),
+            __('Lugares cercanos', 'homlity-plugin'),
             'edit_posts',
             'edit-tags.php?taxonomy=' . PropertyTaxonomies::TAXONOMY_NEARBY . '&post_type=property'
         );
@@ -75,28 +75,28 @@ class AdminMenuService implements ServiceInterface
 
     private function registerGeoMenu(): void
     {
-        $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
+        $icon = HOMLITY_PLUGIN_URL . 'FAVICON.ico';
         add_menu_page(
-            __('Georeferenciación', 'inmopress-listings-inmobiliaria'),
-            __('Georeferenciación', 'inmopress-listings-inmobiliaria'),
+            __('Georeferenciación', 'homlity-plugin'),
+            __('Georeferenciación', 'homlity-plugin'),
             'edit_posts',
-            'plugin-inmobiliario-geo',
-            '',
+            'homlity-plugin-geo',
+            [$this, 'redirectToGeoPage'],
             $icon,
             27
         );
 
         $geoTax = [
-            PropertyTaxonomies::TAXONOMY_COUNTRY => __('Países', 'inmopress-listings-inmobiliaria'),
-            PropertyTaxonomies::TAXONOMY_STATE => __('Departamentos / Provincias', 'inmopress-listings-inmobiliaria'),
-            PropertyTaxonomies::TAXONOMY_CITY => __('Ciudades / Municipios', 'inmopress-listings-inmobiliaria'),
-            PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD => __('Barrios', 'inmopress-listings-inmobiliaria'),
-            PropertyTaxonomies::TAXONOMY_LOCATION => __('Zonas', 'inmopress-listings-inmobiliaria'),
+            PropertyTaxonomies::TAXONOMY_COUNTRY => __('Países', 'homlity-plugin'),
+            PropertyTaxonomies::TAXONOMY_STATE => __('Departamentos / Provincias', 'homlity-plugin'),
+            PropertyTaxonomies::TAXONOMY_CITY => __('Ciudades / Municipios', 'homlity-plugin'),
+            PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD => __('Barrios', 'homlity-plugin'),
+            PropertyTaxonomies::TAXONOMY_LOCATION => __('Zonas', 'homlity-plugin'),
         ];
 
         foreach ($geoTax as $tax => $label) {
             add_submenu_page(
-                'plugin-inmobiliario-geo',
+                'homlity-plugin-geo',
                 $label,
                 $label,
                 'edit_posts',
@@ -107,21 +107,21 @@ class AdminMenuService implements ServiceInterface
 
     private function registerManagementMenu(): void
     {
-        $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
+        $icon = HOMLITY_PLUGIN_URL . 'FAVICON.ico';
         add_menu_page(
-            __('Tipos de gestión', 'inmopress-listings-inmobiliaria'),
-            __('Tipos de gestión', 'inmopress-listings-inmobiliaria'),
+            __('Tipos de gestión', 'homlity-plugin'),
+            __('Tipos de gestión', 'homlity-plugin'),
             'edit_posts',
-            'plugin-inmobiliario-management',
-            '',
+            'homlity-plugin-management',
+            [$this, 'redirectToManagementPage'],
             $icon,
             28
         );
 
         add_submenu_page(
-            'plugin-inmobiliario-management',
-            __('Gestiones', 'inmopress-listings-inmobiliaria'),
-            __('Gestiones', 'inmopress-listings-inmobiliaria'),
+            'homlity-plugin-management',
+            __('Gestiones', 'homlity-plugin'),
+            __('Gestiones', 'homlity-plugin'),
             'edit_posts',
             'edit-tags.php?taxonomy=' . PropertyTaxonomies::TAXONOMY_OPERATION . '&post_type=property'
         );
@@ -129,45 +129,73 @@ class AdminMenuService implements ServiceInterface
 
     private function registerTypesMenu(): void
     {
-        $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
+        $icon = HOMLITY_PLUGIN_URL . 'FAVICON.ico';
         add_menu_page(
-            __('Tipos de inmuebles', 'inmopress-listings-inmobiliaria'),
-            __('Tipos de inmuebles', 'inmopress-listings-inmobiliaria'),
+            __('Tipos de inmuebles', 'homlity-plugin'),
+            __('Tipos de inmuebles', 'homlity-plugin'),
             'edit_posts',
-            'plugin-inmobiliario-types',
-            '',
+            'homlity-plugin-types',
+            [$this, 'redirectToTypesPage'],
             $icon,
             29
         );
 
         $typeTax = [
-            PropertyTaxonomies::TAXONOMY_TYPE => __('Tipos de inmueble', 'inmopress-listings-inmobiliaria'),
-            PropertyTaxonomies::TAXONOMY_CATEGORY => __('Categorías', 'inmopress-listings-inmobiliaria'),
-            PropertyTaxonomies::TAXONOMY_TAG => __('Etiquetas', 'inmopress-listings-inmobiliaria'),
+            PropertyTaxonomies::TAXONOMY_TYPE => __('Tipos de inmueble', 'homlity-plugin'),
+            PropertyTaxonomies::TAXONOMY_CATEGORY => __('Categorías', 'homlity-plugin'),
+            PropertyTaxonomies::TAXONOMY_TAG => __('Etiquetas', 'homlity-plugin'),
         ];
 
         foreach ($typeTax as $tax => $label) {
             add_submenu_page(
-                'plugin-inmobiliario-types',
+                'homlity-plugin-types',
                 $label,
                 $label,
                 'edit_posts',
                 'edit-tags.php?taxonomy=' . $tax . '&post_type=property'
             );
         }
+
+        remove_submenu_page('homlity-plugin-types', 'homlity-plugin-types');
     }
 
     private function registerSettingsMenu(): void
     {
-        $icon = PLUGIN_INMOBILIARIO_URL . 'icono.png';
+        $icon = HOMLITY_PLUGIN_URL . 'FAVICON.ico';
         add_menu_page(
-            __('Configuración del plugin', 'inmopress-listings-inmobiliaria'),
-            __('Configuración', 'inmopress-listings-inmobiliaria'),
+            __('Configuración del plugin', 'homlity-plugin'),
+            __('Configuración', 'homlity-plugin'),
             'manage_options',
-            'plugin-inmobiliario-settings',
+            'homlity-plugin-settings',
             [new SettingsService(), 'renderSettingsPage'],
             $icon,
             30
         );
+    }
+
+    public function redirectToPropertiesPage(): void
+    {
+        $this->redirectToAdminPath('edit.php?post_type=property');
+    }
+
+    public function redirectToGeoPage(): void
+    {
+        $this->redirectToAdminPath('edit-tags.php?taxonomy=' . PropertyTaxonomies::TAXONOMY_COUNTRY . '&post_type=property');
+    }
+
+    public function redirectToManagementPage(): void
+    {
+        $this->redirectToAdminPath('edit-tags.php?taxonomy=' . PropertyTaxonomies::TAXONOMY_OPERATION . '&post_type=property');
+    }
+
+    public function redirectToTypesPage(): void
+    {
+        $this->redirectToAdminPath('edit-tags.php?taxonomy=' . PropertyTaxonomies::TAXONOMY_TYPE . '&post_type=property');
+    }
+
+    private function redirectToAdminPath(string $path): void
+    {
+        wp_safe_redirect(admin_url($path));
+        exit;
     }
 }

@@ -1,13 +1,13 @@
 <?php
 /**
  * Property card component.
- * Overridable at plugin-inmobiliario/parts/property-card.php inside theme or child theme.
+ * Overridable at homlity-plugin/parts/property-card.php inside theme or child theme.
  *
  * Expected args: $post_id (int)
  */
 
-use Codwelt\PluginInmobiliario\Services\CurrencyService;
-use Codwelt\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\CurrencyService;
+use Homlity\PluginInmobiliario\Services\PropertyPostType;
 
 if (!isset($post_id)) {
     $post_id = get_the_ID();
@@ -16,7 +16,7 @@ if (!isset($post_id)) {
 $meta = (new PropertyPostType())->metaKeys();
 $currencyService = new CurrencyService();
 
-$settings = get_option('inmopress_settings', [
+$settings = get_option(HOMLITY_PLUGIN_SETTINGS_OPTION, [
     'listing_fields' => ['price', 'excerpt', 'features', 'whatsapp'],
 ]);
 $listingFields = $settings['listing_fields'] ?? ['price', 'excerpt', 'features', 'whatsapp'];
@@ -77,23 +77,23 @@ if ($agentPhoneDigits) {
                     <li><?php echo esc_html($area); ?> m²</li>
                 <?php endif; ?>
                 <?php if ($bedrooms): ?>
-                    <li><?php echo esc_html($bedrooms); ?> <?php esc_html_e('Habitaciones', 'inmopress-listings-inmobiliaria'); ?></li>
+                    <li><?php echo esc_html($bedrooms); ?> <?php esc_html_e('Habitaciones', 'homlity-plugin'); ?></li>
                 <?php endif; ?>
                 <?php if ($bathrooms): ?>
-                    <li><?php echo esc_html($bathrooms); ?> <?php esc_html_e('Baños', 'inmopress-listings-inmobiliaria'); ?></li>
+                    <li><?php echo esc_html($bathrooms); ?> <?php esc_html_e('Baños', 'homlity-plugin'); ?></li>
                 <?php endif; ?>
             </ul>
         <?php endif; ?>
         <?php if ($price && in_array('price', $listingFields, true)): ?>
             <p class="property-card__price">
-                <?php echo esc_html(apply_filters('inmopress_format_price', $price, $currency)); ?>
+                <?php echo esc_html(\homlity_plugin_apply_filters('homlity_plugin_format_price', null, $price, $currency)); ?>
             </p>
         <?php endif; ?>
     </a>
 
     <?php if ($whatsAppLink && in_array('whatsapp', $listingFields, true)): ?>
         <a class="property-card__whatsapp" href="<?php echo esc_url($whatsAppLink); ?>" target="_blank" rel="noopener noreferrer">
-            <?php esc_html_e('Contactar por WhatsApp', 'inmopress-listings-inmobiliaria'); ?>
+            <?php esc_html_e('Contactar por WhatsApp', 'homlity-plugin'); ?>
         </a>
     <?php endif; ?>
 </article>

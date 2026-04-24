@@ -3,9 +3,9 @@
  * Handles role capabilities for the property post type.
  */
 
-namespace Codwelt\PluginInmobiliario\Services;
+namespace Homlity\PluginInmobiliario\Services;
 
-use Codwelt\PluginInmobiliario\Core\Contracts\ServiceInterface;
+use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -57,7 +57,7 @@ class CapabilityService implements ServiceInterface
 
         $assessor = get_role(self::ROLE_ASSESSOR);
         if (!$assessor) {
-            $assessor = add_role(self::ROLE_ASSESSOR, __('Asesor Comercial', 'inmopress-listings-inmobiliaria'));
+            $assessor = add_role(self::ROLE_ASSESSOR, __('Asesor Comercial', 'homlity-plugin'));
         }
         if ($assessor) {
             $assessorCaps = [
@@ -83,7 +83,7 @@ class CapabilityService implements ServiceInterface
     private function ensureRole(): void
     {
         if (!get_role(self::ROLE_ASSESSOR)) {
-            add_role(self::ROLE_ASSESSOR, __('Asesor Comercial', 'inmopress-listings-inmobiliaria'));
+            add_role(self::ROLE_ASSESSOR, __('Asesor Comercial', 'homlity-plugin'));
         }
     }
 }
