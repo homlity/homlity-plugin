@@ -79,9 +79,11 @@ class PropertyPostType implements ServiceInterface
         $args = [
             'labels' => $labels,
             'public' => true,
+            'show_ui' => true,
+            'show_in_admin_bar' => true,
             'show_in_rest' => true,
-            'has_archive' => true,
-            'rewrite' => ['slug' => 'properties', 'with_front' => false],
+            'has_archive' => false,
+            'rewrite' => ['slug' => 'inmueble', 'with_front' => false],
             'supports' => ['title', 'editor', 'excerpt', 'thumbnail', 'revisions'],
             'menu_icon' => 'dashicons-building',
             'capability_type' => [self::POST_TYPE, self::POST_TYPE . 's'],

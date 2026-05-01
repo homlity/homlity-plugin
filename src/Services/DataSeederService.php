@@ -97,6 +97,8 @@ class DataSeederService
             'Transporte público',
             'Universidades',
         ]);
+
+        $this->seedElementorTemplates();
     }
 
     private function seedTaxonomy(string $taxonomy, array $terms): void
@@ -156,18 +158,35 @@ class DataSeederService
         $this->seedArchivePage();
     }
 
+    public function seedElementorTemplates(): void
+    {
+        if (!post_type_exists('elementor_library') && !class_exists('\Elementor\Plugin') && !defined('ELEMENTOR_VERSION')) {
+            return;
+        }
+
+        $this->seedArchiveElementorPage();
+        $this->seedSingleElementorTemplate();
+    }
+
     private function seedArchivePage(): void
     {
         $optionKey = 'homlity_plugin_archive_page_id';
         $pageId    = (int) get_option($optionKey, 0);
 
         if ($pageId > 0 && 'publish' === get_post_status($pageId)) {
+            if (get_post_field('post_name', $pageId) !== 'inmuebles') {
+                wp_update_post([
+                    'ID' => $pageId,
+                    'post_name' => 'inmuebles',
+                ]);
+            }
+
             return;
         }
 
         $pageId = wp_insert_post([
             'post_title'     => __('Resultados de inmuebles', 'homlity-plugin'),
-            'post_name'      => 'propiedades',
+            'post_name'      => 'inmuebles',
             'post_content'   => '',
             'post_status'    => 'publish',
             'post_type'      => 'page',
@@ -178,5 +197,141 @@ class DataSeederService
         if (!is_wp_error($pageId) && $pageId > 0) {
             update_option($optionKey, $pageId);
         }
+    }
+
+    private function seedArchiveElementorPage(): void
+    {
+        $pageId = (int) get_option('homlity_plugin_archive_page_id', 0);
+        if (!$pageId || get_post_status($pageId) !== 'publish') {
+            return;
+        }
+
+        if (
+            (int) get_option('homlity_plugin_archive_elementor_page_id', 0) === $pageId &&
+            get_post_meta($pageId, '_elementor_edit_mode', true) === 'builder'
+        ) {
+            return;
+        }
+
+        $data = [
+            $this->elementorSection([
+                $this->elementorWidget('heading', [
+                    'title' => __('Resultados de inmuebles', 'homlity-plugin'),
+                    'header_size' => 'h1',
+                ]),
+                $this->elementorWidget('property_filter', [
+                    'target_page_id' => (string) $pageId,
+                    'show_keyword' => 'yes',
+                    'show_operation' => 'yes',
+                    'show_type' => 'yes',
+                    'show_city' => 'yes',
+                    'show_price' => 'yes',
+                    'show_reset' => 'yes',
+                    'submit_label' => __('Buscar', 'homlity-plugin'),
+                    'reset_label' => __('Limpiar', 'homlity-plugin'),
+                ]),
+                $this->elementorWidget('property_listing', [
+                    'template' => 'default',
+                    'query_mode' => 'current',
+                    'default_view' => 'grid',
+                    'show_view_toggle' => 'yes',
+                    'columns' => '3',
+                    'posts_per_page' => 12,
+                    'default_orderby' => 'date',
+                    'show_sort' => 'yes',
+                    'map_height' => ['unit' => 'px', 'size' => 500, 'sizes' => []],
+                    'map_zoom' => 12,
+                ]),
+            ]),
+        ];
+
+        $this->saveElementorData($pageId, $data, 'wp-page');
+        update_option('homlity_plugin_archive_elementor_page_id', $pageId);
+    }
+
+    private function seedSingleElementorTemplate(): void
+    {
+        $optionKey = 'homlity_plugin_single_template_id';
+        $templateId = (int) get_option($optionKey, 0);
+
+        if ($templateId > 0 && get_post_status($templateId)) {
+            return;
+        }
+
+        $templateId = wp_insert_post([
+            'post_title' => __('Detalle de inmueble', 'homlity-plugin'),
+            'post_name' => 'homlity-detalle-inmueble',
+            'post_status' => 'publish',
+            'post_type' => 'elementor_library',
+            'comment_status' => 'closed',
+            'ping_status' => 'closed',
+        ]);
+
+        if (is_wp_error($templateId) || !$templateId) {
+            return;
+        }
+
+        $data = [
+            $this->elementorSection([
+                $this->elementorWidget('property_summary'),
+                $this->elementorWidget('property_gallery'),
+                $this->elementorWidget('property_features_primary'),
+                $this->elementorWidget('property_features_secondary'),
+                $this->elementorWidget('property_map'),
+                $this->elementorWidget('property_agent'),
+                $this->elementorWidget('property_related'),
+            ]),
+        ];
+
+        $this->saveElementorData((int) $templateId, $data, 'single');
+
+        if (taxonomy_exists('elementor_library_type')) {
+            wp_set_object_terms((int) $templateId, 'single', 'elementor_library_type');
+        }
+
+        update_option($optionKey, (int) $templateId);
+    }
+
+    private function saveElementorData(int $postId, array $data, string $templateType): void
+    {
+        update_post_meta($postId, '_elementor_edit_mode', 'builder');
+        update_post_meta($postId, '_elementor_template_type', $templateType);
+        update_post_meta($postId, '_elementor_version', defined('ELEMENTOR_VERSION') ? ELEMENTOR_VERSION : '3.0.0');
+        update_post_meta($postId, '_elementor_data', wp_slash(wp_json_encode($data)));
+    }
+
+    private function elementorSection(array $widgets): array
+    {
+        return [
+            'id' => $this->elementorId(),
+            'elType' => 'section',
+            'settings' => [],
+            'elements' => [
+                [
+                    'id' => $this->elementorId(),
+                    'elType' => 'column',
+                    'settings' => ['_column_size' => 100, '_inline_size' => null],
+                    'elements' => $widgets,
+                    'isInner' => false,
+                ],
+            ],
+            'isInner' => false,
+        ];
+    }
+
+    private function elementorWidget(string $widgetType, array $settings = []): array
+    {
+        return [
+            'id' => $this->elementorId(),
+            'elType' => 'widget',
+            'settings' => $settings,
+            'elements' => [],
+            'widgetType' => $widgetType,
+        ];
+    }
+
+    private function elementorId(): string
+    {
+        return substr(md5(uniqid('', true)), 0, 7);
     }
 }

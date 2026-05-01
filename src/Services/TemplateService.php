@@ -21,7 +21,9 @@ class TemplateService implements ServiceInterface
         add_action('init', [$this, 'addRewriteRules']);
         add_filter('template_include', [$this, 'maybeLoadTemplate']);
         add_action('pre_get_posts', [$this, 'filterArchiveQuery']);
+        add_action('template_redirect', [$this, 'redirectLegacyEnglishUrls']);
         add_action('wp_enqueue_scripts', [$this, 'enqueuePublicAssets']);
+        add_filter('elementor/frontend/admin_bar/settings', [$this, 'injectElementorAdminBarLinks'], 600);
     }
 
     public function registerQueryVars(array $vars): array
@@ -52,10 +54,31 @@ class TemplateService implements ServiceInterface
         );
 
         add_rewrite_rule(
-            '^property-type/?$',
-            'index.php?post_type=' . PropertyPostType::POST_TYPE,
+            '^properties/([^/]+)/?$',
+            'index.php?' . PropertyPostType::POST_TYPE . '=$matches[1]',
             'top'
         );
+    }
+
+    public function redirectLegacyEnglishUrls(): void
+    {
+        if (is_admin()) {
+            return;
+        }
+
+        $requestPath = trim((string) wp_parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
+
+        if (in_array($requestPath, ['properties', 'propiedades'], true)) {
+            $archivePageId = (int) get_option('homlity_plugin_archive_page_id', 0);
+            $target = $archivePageId ? get_permalink($archivePageId) : home_url('/inmuebles/');
+            wp_safe_redirect($target, 301);
+            exit;
+        }
+
+        if (is_singular(PropertyPostType::POST_TYPE) && strpos($requestPath, 'properties/') === 0) {
+            wp_safe_redirect(get_permalink(get_queried_object_id()), 301);
+            exit;
+        }
     }
 
     public function filterArchiveQuery($query): void
@@ -68,6 +91,10 @@ class TemplateService implements ServiceInterface
         $isArchivePage = $archivePageId > 0 && $query->is_page($archivePageId);
 
         if ($isArchivePage) {
+            if (get_post_meta($archivePageId, '_elementor_edit_mode', true) === 'builder') {
+                return;
+            }
+
             $this->isArchivePage = true;
             $query->set('post_type', PropertyPostType::POST_TYPE);
             $query->set('page_id', '');
@@ -334,6 +361,96 @@ class TemplateService implements ServiceInterface
         ]);
     }
 
+    public function injectElementorAdminBarLinks(array $settings): array
+    {
+        if (
+            !is_admin_bar_showing() ||
+            !is_singular(PropertyPostType::POST_TYPE) ||
+            !isset($settings['elementor_edit_page'])
+        ) {
+            return $settings;
+        }
+
+        $postId = get_queried_object_id();
+        if (!$postId || !current_user_can('edit_post', $postId)) {
+            return $settings;
+        }
+
+        $templateEditUrl = $this->findPropertySingleTemplateEditUrl($settings['elementor_edit_page']['children'] ?? []);
+        $themeBuilderUrl = admin_url('edit.php?post_type=elementor_library&tabs_group=theme');
+        $targetUrl = $templateEditUrl ?: $themeBuilderUrl;
+
+        $settings['elementor_edit_page']['href'] = $targetUrl;
+
+        if (!isset($settings['elementor_edit_page']['children']) || !is_array($settings['elementor_edit_page']['children'])) {
+            $settings['elementor_edit_page']['children'] = [];
+        }
+
+        $settings['elementor_edit_page']['children'][] = [
+            'id' => 'homlity_edit_property_single_template',
+            'title' => __('Editar plantilla detalle inmueble', 'homlity-plugin'),
+            'sub_title' => __('Template global', 'homlity-plugin'),
+            'href' => $targetUrl,
+        ];
+
+        if (current_user_can('edit_theme_options')) {
+            $settings['elementor_edit_page']['children'][] = [
+                'id' => 'homlity_edit_property_single_templates',
+                'title' => __('Plantillas detalle inmuebles', 'homlity-plugin'),
+                'sub_title' => __('Theme Builder', 'homlity-plugin'),
+                'href' => admin_url('edit.php?post_type=elementor_library&tabs_group=theme'),
+            ];
+        }
+
+        return $settings;
+    }
+
+    private function findPropertySingleTemplateEditUrl(array $adminBarChildren): string
+    {
+        $templateId = (int) get_option('homlity_plugin_single_template_id', 0);
+        if ($templateId > 0 && get_post_status($templateId)) {
+            return admin_url('post.php?post=' . $templateId . '&action=elementor');
+        }
+
+        foreach ($adminBarChildren as $child) {
+            $id = isset($child['id']) ? (string) $child['id'] : '';
+            $title = isset($child['title']) ? strtolower((string) $child['title']) : '';
+            $href = isset($child['href']) ? (string) $child['href'] : '';
+
+            if ($href === '' || strpos($id, 'elementor_edit_doc_') !== 0) {
+                continue;
+            }
+
+            if (in_array($title, ['header', 'footer'], true)) {
+                continue;
+            }
+
+            return $href;
+        }
+
+        $templates = get_posts([
+            'post_type' => 'elementor_library',
+            'post_status' => ['publish', 'draft', 'private'],
+            'posts_per_page' => 1,
+            'orderby' => 'modified',
+            'order' => 'DESC',
+            'meta_query' => [
+                [
+                    'key' => '_elementor_template_type',
+                    'value' => ['single', 'single-post'],
+                    'compare' => 'IN',
+                ],
+            ],
+            'suppress_filters' => false,
+        ]);
+
+        if (!$templates) {
+            return '';
+        }
+
+        return admin_url('post.php?post=' . (int) $templates[0]->ID . '&action=elementor');
+    }
+
     public static function locateTemplate(string $filename, string $fallback = ''): string
     {
         $candidates = [
@@ -374,6 +491,11 @@ class TemplateService implements ServiceInterface
     private function shouldEnqueuePublicAssets(): bool
     {
         if (is_singular(PropertyPostType::POST_TYPE) || is_post_type_archive(PropertyPostType::POST_TYPE) || $this->isArchivePage) {
+            return true;
+        }
+
+        $archivePageId = (int) get_option('homlity_plugin_archive_page_id', 0);
+        if ($archivePageId > 0 && is_page($archivePageId)) {
             return true;
         }
 

@@ -10,6 +10,22 @@ use Homlity\PluginInmobiliario\Services\TemplateService;
 
 get_header();
 
+if (function_exists('elementor_theme_do_location') && elementor_theme_do_location('single')) {
+    get_footer();
+    return;
+}
+
+$homlityElementorTemplateId = (int) get_option('homlity_plugin_single_template_id', 0);
+if (
+    $homlityElementorTemplateId > 0 &&
+    get_post_status($homlityElementorTemplateId) &&
+    class_exists('\Elementor\Plugin')
+) {
+    echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($homlityElementorTemplateId);
+    get_footer();
+    return;
+}
+
 $metaKeys = (new PropertyPostType())->metaKeys();
 $currencyService = new CurrencyService();
 

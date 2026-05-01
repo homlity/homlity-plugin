@@ -9,10 +9,14 @@ use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyAgentWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFeaturesPrimaryWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFeaturesSecondaryWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFilterWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyGalleryWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyListingWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyMapWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyRelatedWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyCardWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertySummaryWidget;
+use Homlity\PluginInmobiliario\Services\PropertyPostType;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -20,17 +24,55 @@ if (!defined('ABSPATH')) {
 
 class ElementorIntegrationService implements ServiceInterface
 {
+    private bool $initialized = false;
+    private bool $widgetsRegistered = false;
+
     public function register(): void
     {
+        if (did_action('elementor/loaded')) {
+            $this->init();
+            return;
+        }
+
         add_action('elementor/loaded', [$this, 'init']);
     }
 
     public function init(): void
     {
+        if ($this->initialized) {
+            return;
+        }
+
+        $this->initialized = true;
+
+        (new DataSeederService())->seedElementorTemplates();
+
         add_action('elementor/elements/categories_registered', [$this, 'registerCategory']);
         add_action('elementor/widgets/register', [$this, 'registerWidgets']);
+        add_action('elementor/widgets/widgets_registered', [$this, 'registerLegacyWidgets']);
         add_action('elementor/theme/register_locations', [$this, 'registerThemeLocations']);
         add_action('elementor/preview/enqueue_styles', [$this, 'enqueuePreviewAssets']);
+
+        if (did_action('init')) {
+            $this->registerPropertyElementorSupport();
+        } else {
+            add_action('init', [$this, 'registerPropertyElementorSupport'], 20);
+        }
+    }
+
+    public function registerPropertyElementorSupport(): void
+    {
+        add_post_type_support(PropertyPostType::POST_TYPE, 'elementor');
+
+        $supportedPostTypes = get_option('elementor_cpt_support', ['page', 'post']);
+        if (!is_array($supportedPostTypes)) {
+            $supportedPostTypes = ['page', 'post'];
+        }
+
+        if (!in_array(PropertyPostType::POST_TYPE, $supportedPostTypes, true)) {
+            $supportedPostTypes[] = PropertyPostType::POST_TYPE;
+            update_option('elementor_cpt_support', array_values($supportedPostTypes));
+        }
     }
 
     public function registerCategory($elementsManager): void
@@ -43,11 +85,22 @@ class ElementorIntegrationService implements ServiceInterface
 
     public function registerWidgets($widgetsManager): void
     {
+        if ($this->widgetsRegistered) {
+            return;
+        }
+
         if (!class_exists('\Elementor\Widget_Base')) {
             return;
         }
 
+        if (!method_exists($widgetsManager, 'register') && !method_exists($widgetsManager, 'register_widget_type')) {
+            return;
+        }
+
         $widgets = [
+            PropertyFilterWidget::class,
+            PropertyListingWidget::class,
+            PropertySummaryWidget::class,
             PropertyGalleryWidget::class,
             PropertyFeaturesPrimaryWidget::class,
             PropertyFeaturesSecondaryWidget::class,
@@ -58,8 +111,24 @@ class ElementorIntegrationService implements ServiceInterface
         ];
 
         foreach ($widgets as $widgetClass) {
-            $widgetsManager->register(new $widgetClass());
+            $widget = new $widgetClass();
+            if (method_exists($widgetsManager, 'register')) {
+                $widgetsManager->register($widget);
+            } else {
+                $widgetsManager->register_widget_type($widget);
+            }
         }
+
+        $this->widgetsRegistered = true;
+    }
+
+    public function registerLegacyWidgets(): void
+    {
+        if (!class_exists('\Elementor\Plugin')) {
+            return;
+        }
+
+        $this->registerWidgets(\Elementor\Plugin::instance()->widgets_manager);
     }
 
     /**
@@ -81,6 +150,36 @@ class ElementorIntegrationService implements ServiceInterface
             HOMLITY_PLUGIN_URL . 'assets/css/front-components.css',
             [],
             HOMLITY_PLUGIN_VERSION
+        );
+
+        wp_enqueue_style(
+            'homlity-plugin-listing',
+            HOMLITY_PLUGIN_URL . 'assets/css/property-listing.css',
+            ['homlity-plugin-front-components'],
+            HOMLITY_PLUGIN_VERSION
+        );
+
+        wp_enqueue_style(
+            'homlity-plugin-leaflet',
+            'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+            [],
+            '1.9.4'
+        );
+
+        wp_enqueue_script(
+            'homlity-plugin-leaflet',
+            'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+            [],
+            '1.9.4',
+            true
+        );
+
+        wp_enqueue_script(
+            'homlity-plugin-listing',
+            HOMLITY_PLUGIN_URL . 'assets/js/property-listing.js',
+            ['homlity-plugin-leaflet'],
+            HOMLITY_PLUGIN_VERSION,
+            true
         );
     }
 }
