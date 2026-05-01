@@ -36,6 +36,10 @@ class TemplateService implements ServiceInterface
         $vars[] = 'property_neighborhood';
         $vars[] = 'property_nearby';
         $vars[] = 'property_tag';
+        $vars[] = 'gestion';
+        $vars[] = 'tipo';
+        $vars[] = 'ciudad';
+        $vars[] = 'barrios';
         $vars[] = 'price_min';
         $vars[] = 'price_max';
         $vars[] = 'area_min';
@@ -56,6 +60,12 @@ class TemplateService implements ServiceInterface
         add_rewrite_rule(
             '^properties/([^/]+)/?$',
             'index.php?' . PropertyPostType::POST_TYPE . '=$matches[1]',
+            'top'
+        );
+
+        add_rewrite_rule(
+            '^inmuebles(?:/gestion/([^/]+))?(?:/tipo/([^/]+))?(?:/ciudad/([^/]+))?(?:/barrios/([^/]+))?/?$',
+            'index.php?post_type=' . PropertyPostType::POST_TYPE . '&gestion=$matches[1]&tipo=$matches[2]&ciudad=$matches[3]&barrios=$matches[4]',
             'top'
         );
     }

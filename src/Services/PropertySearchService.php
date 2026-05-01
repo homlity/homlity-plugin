@@ -54,12 +54,12 @@ class PropertySearchService implements ServiceInterface
 
         // User filter terms
         foreach ($taxMap as $key => $taxonomy) {
-            $termId = absint($params[$key] ?? 0);
-            if ($termId) {
+            $termIds = $this->extractTermIds($params[$key] ?? null);
+            if ($termIds) {
                 $args['tax_query'][] = [
                     'taxonomy' => $taxonomy,
                     'field'    => 'term_id',
-                    'terms'    => [$termId],
+                    'terms'    => $termIds,
                 ];
             }
         }
@@ -131,6 +131,33 @@ class PropertySearchService implements ServiceInterface
             ];
         }
 
+        $parking = absint($params['parking'] ?? 0);
+        if ($parking) {
+            $args['meta_query'][] = [
+                'key'     => '_property_parking',
+                'value'   => $parking,
+                'type'    => 'NUMERIC',
+                'compare' => '>=',
+            ];
+        }
+
+        $areaMin = absint($params['area_min'] ?? 0);
+        $areaMax = absint($params['area_max'] ?? 0);
+        if ($areaMin || $areaMax) {
+            $areaQuery = ['key' => '_property_area', 'type' => 'NUMERIC'];
+            if ($areaMin && $areaMax) {
+                $areaQuery['compare'] = 'BETWEEN';
+                $areaQuery['value'] = [$areaMin, $areaMax];
+            } elseif ($areaMin) {
+                $areaQuery['compare'] = '>=';
+                $areaQuery['value'] = $areaMin;
+            } else {
+                $areaQuery['compare'] = '<=';
+                $areaQuery['value'] = $areaMax;
+            }
+            $args['meta_query'][] = $areaQuery;
+        }
+
         $lat = is_numeric($params['geo_latitude'] ?? null) ? (float) $params['geo_latitude'] : null;
         $lng = is_numeric($params['geo_longitude'] ?? null) ? (float) $params['geo_longitude'] : null;
         $radiusKm = max(0, (float) ($params['geo_radius_km'] ?? 0));
@@ -183,8 +210,26 @@ class PropertySearchService implements ServiceInterface
             $params['search'] = get_search_query();
         }
 
-        if (!empty($_GET['s'])) {
+        if (!empty($_GET['q'])) {
+            $params['search'] = sanitize_text_field(wp_unslash($_GET['q']));
+        } elseif (!empty($_GET['s'])) {
             $params['search'] = sanitize_text_field(wp_unslash($_GET['s']));
+        }
+
+        foreach ([
+            'gestion' => 'operation',
+            'tipo' => 'type',
+            'ciudad' => 'city',
+            'barrios' => 'neighborhood',
+        ] as $qv => $paramKey) {
+            $qvValue = get_query_var($qv, '');
+            if (!$qvValue) {
+                continue;
+            }
+            if (!isset($collected[$paramKey])) {
+                $collected[$paramKey] = [];
+            }
+            $collected[$paramKey][] = sanitize_text_field((string) $qvValue);
         }
 
         $queried = get_queried_object();
@@ -207,38 +252,100 @@ class PropertySearchService implements ServiceInterface
             }
         }
 
-        foreach ([
+        $requestToParam = [
+            'categoria' => 'category',
             'property_category' => 'category',
+            'gestion' => 'operation',
             'property_operation' => 'operation',
+            'tipo' => 'type',
             'property_type' => 'type',
+            'etiquetas' => 'tag',
             'property_tag' => 'tag',
+            'caracteristica' => 'feature',
             'property_feature' => 'feature',
+            'pais' => 'country',
             'property_country' => 'country',
+            'departamento' => 'state',
             'property_state' => 'state',
+            'ciudad' => 'city',
             'property_city' => 'city',
+            'barrios' => 'neighborhood',
             'property_neighborhood' => 'neighborhood',
+            'cercanias' => 'nearby',
             'property_nearby' => 'nearby',
-        ] as $requestKey => $paramKey) {
-            $value = isset($_GET[$requestKey]) ? sanitize_text_field(wp_unslash($_GET[$requestKey])) : '';
-            if ($value === '') {
+        ];
+
+        $collected = isset($collected) && is_array($collected) ? $collected : [];
+        foreach ($requestToParam as $requestKey => $paramKey) {
+            $raw = $_GET[$requestKey] ?? null;
+            if ($raw === null) {
+                continue;
+            }
+            $values = is_array($raw)
+                ? array_values(array_filter(array_map('sanitize_text_field', wp_unslash($raw)), static fn ($item) => $item !== ''))
+                : [sanitize_text_field(wp_unslash($raw))];
+            $expandedValues = [];
+            foreach ($values as $valueItem) {
+                $parts = array_map('trim', explode(',', (string) $valueItem));
+                foreach ($parts as $part) {
+                    if ($part !== '') {
+                        $expandedValues[] = $part;
+                    }
+                }
+            }
+            $values = $expandedValues;
+            $values = array_values(array_filter($values, static fn ($item) => $item !== ''));
+            if (!$values) {
                 continue;
             }
 
-            if (is_numeric($value)) {
-                $params[$paramKey] = absint($value);
+            if (!isset($collected[$paramKey])) {
+                $collected[$paramKey] = [];
+            }
+            $collected[$paramKey] = array_merge($collected[$paramKey], $values);
+        }
+
+        foreach ($collected as $paramKey => $values) {
+            $values = array_values(array_unique(array_filter($values, static fn ($item) => $item !== '')));
+            if (!$values) {
                 continue;
             }
 
             $taxonomy = $this->taxonomyForParam($paramKey);
-            $term = $taxonomy ? get_term_by('slug', $value, $taxonomy) : false;
-            if ($term instanceof \WP_Term) {
-                $params[$paramKey] = (int) $term->term_id;
+            $termIds = [];
+            foreach ($values as $value) {
+                if (is_numeric($value)) {
+                    $termIds[] = absint($value);
+                    continue;
+                }
+                $term = $taxonomy ? get_term_by('slug', $value, $taxonomy) : false;
+                if ($term instanceof \WP_Term) {
+                    $termIds[] = (int) $term->term_id;
+                }
+            }
+            $termIds = array_values(array_unique(array_filter($termIds)));
+            if ($termIds) {
+                $params[$paramKey] = count($termIds) === 1 ? $termIds[0] : $termIds;
             }
         }
 
-        foreach (['price_min', 'price_max', 'bedrooms', 'bathrooms'] as $key) {
-            if (isset($_GET[$key]) && $_GET[$key] !== '') {
-                $params[$key] = absint($_GET[$key]);
+        $numericMap = [
+            'precio_min' => 'price_min',
+            'price_min' => 'price_min',
+            'precio_max' => 'price_max',
+            'price_max' => 'price_max',
+            'alcobas' => 'bedrooms',
+            'bedrooms' => 'bedrooms',
+            'banos' => 'bathrooms',
+            'bathrooms' => 'bathrooms',
+            'garajes' => 'parking',
+            'parking' => 'parking',
+            'area_min' => 'area_min',
+            'area_max' => 'area_max',
+        ];
+        foreach ($numericMap as $requestKey => $paramKey) {
+            if (isset($_GET[$requestKey]) && $_GET[$requestKey] !== '') {
+                $params[$paramKey] = absint($_GET[$requestKey]);
             }
         }
 
@@ -260,6 +367,24 @@ class PropertySearchService implements ServiceInterface
             'nearby' => PropertyTaxonomies::TAXONOMY_NEARBY,
             default => null,
         };
+    }
+
+    private function extractTermIds($raw): array
+    {
+        if ($raw === null || $raw === '') {
+            return [];
+        }
+
+        $values = is_array($raw) ? $raw : explode(',', (string) $raw);
+        $ids = [];
+        foreach ($values as $value) {
+            $id = absint($value);
+            if ($id) {
+                $ids[] = $id;
+            }
+        }
+
+        return array_values(array_unique($ids));
     }
 
     public function getMapData(\WP_Query $query): array

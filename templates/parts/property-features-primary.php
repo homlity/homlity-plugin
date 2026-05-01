@@ -3,7 +3,7 @@
  * Primary features component.
  * Overridable at homlity-plugin/parts/property-features-primary.php
  *
- * Expected args: $post_id (int)
+ * Expected args: $post_id (int), $settings (array, optional — Elementor widget settings)
  */
 
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
@@ -13,20 +13,41 @@ if (!isset($post_id)) {
 }
 
 $meta = (new PropertyPostType())->metaKeys();
+$s    = $settings ?? [];
+
+$features = [
+    'area'         => ['label' => __('Área total',      'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['area'],         true), 'suffix' => ' m²'],
+    'area_lot'     => ['label' => __('Área de lote',    'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['area_lot'],     true), 'suffix' => ' m²'],
+    'area_private' => ['label' => __('Área privada',    'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['area_private'], true), 'suffix' => ' m²'],
+    'area_built'   => ['label' => __('Área construida', 'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['area_built'],   true), 'suffix' => ' m²'],
+    'bedrooms'     => ['label' => __('Habitaciones',    'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['bedrooms'],     true), 'suffix' => ''],
+    'bathrooms'    => ['label' => __('Baños',           'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['bathrooms'],    true), 'suffix' => ''],
+    'parking'      => ['label' => __('Parqueaderos',    'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['parking'],      true), 'suffix' => ''],
+    'condition'    => ['label' => __('Estado',          'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['condition'],    true), 'suffix' => ''],
+    'age'          => ['label' => __('Edad (años)',     'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['age'],          true), 'suffix' => ''],
+    'code'         => ['label' => __('Código',          'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['code'],         true), 'suffix' => ''],
+    'address'      => ['label' => __('Dirección',       'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['address'],      true), 'suffix' => ''],
+];
 ?>
-<section class="property-features property-features--primary">
-    <h2><?php esc_html_e('Características principales', 'homlity-plugin'); ?></h2>
-    <ul>
-        <li><strong><?php esc_html_e('Área total', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(get_post_meta($post_id, $meta['area'], true)); ?> m²</li>
-        <li><strong><?php esc_html_e('Área de lote', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(get_post_meta($post_id, $meta['area_lot'], true)); ?> m²</li>
-        <li><strong><?php esc_html_e('Área privada', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(get_post_meta($post_id, $meta['area_private'], true)); ?> m²</li>
-        <li><strong><?php esc_html_e('Área construida', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(get_post_meta($post_id, $meta['area_built'], true)); ?> m²</li>
-        <li><strong><?php esc_html_e('Habitaciones', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(get_post_meta($post_id, $meta['bedrooms'], true)); ?></li>
-        <li><strong><?php esc_html_e('Baños', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(get_post_meta($post_id, $meta['bathrooms'], true)); ?></li>
-        <li><strong><?php esc_html_e('Parqueaderos', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(get_post_meta($post_id, $meta['parking'], true)); ?></li>
-        <li><strong><?php esc_html_e('Estado', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(get_post_meta($post_id, $meta['condition'], true)); ?></li>
-        <li><strong><?php esc_html_e('Edad (años)', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(get_post_meta($post_id, $meta['age'], true)); ?></li>
-        <li><strong><?php esc_html_e('Código de la propiedad', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(get_post_meta($post_id, $meta['code'], true)); ?></li>
-        <li><strong><?php esc_html_e('Dirección', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(get_post_meta($post_id, $meta['address'], true)); ?></li>
-    </ul>
-</section>
+<ul class="property-features property-features--primary">
+    <?php foreach ($features as $key => $feature): ?>
+        <?php
+        if (($s['show_' . $key] ?? 'yes') !== 'yes') {
+            continue;
+        }
+        if ($feature['value'] === '' || $feature['value'] === null || $feature['value'] === false) {
+            continue;
+        }
+        $icon = $s['icon_' . $key] ?? [];
+        ?>
+        <li class="property-features__item">
+            <?php if (!empty($icon['value']) && class_exists('\Elementor\Icons_Manager')): ?>
+                <span class="property-features__icon">
+                    <?php \Elementor\Icons_Manager::render_icon($icon, ['aria-hidden' => 'true']); ?>
+                </span>
+            <?php endif; ?>
+            <span class="property-features__name"><?php echo esc_html($feature['label']); ?></span>
+            <span class="property-features__value"><?php echo esc_html($feature['value'] . $feature['suffix']); ?></span>
+        </li>
+    <?php endforeach; ?>
+</ul>

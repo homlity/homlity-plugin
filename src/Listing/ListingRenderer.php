@@ -33,7 +33,51 @@ class ListingRenderer
         self::enqueueAssets();
 
         $params = $config->toQueryParams();
-        if (($params['query_mode'] ?? '') === 'current') {
+        $requestFilterKeys = [
+            'q',
+            's',
+            'categoria',
+            'property_category',
+            'gestion',
+            'property_operation',
+            'tipo',
+            'property_type',
+            'etiquetas',
+            'property_tag',
+            'caracteristica',
+            'property_feature',
+            'pais',
+            'property_country',
+            'departamento',
+            'property_state',
+            'ciudad',
+            'property_city',
+            'barrios',
+            'property_neighborhood',
+            'cercanias',
+            'property_nearby',
+            'precio_min',
+            'price_min',
+            'precio_max',
+            'price_max',
+            'alcobas',
+            'bedrooms',
+            'banos',
+            'bathrooms',
+            'garajes',
+            'parking',
+            'area_min',
+            'area_max',
+        ];
+        $hasRequestFilters = false;
+        foreach ($requestFilterKeys as $requestKey) {
+            if (isset($_GET[$requestKey]) && wp_unslash($_GET[$requestKey]) !== '') {
+                $hasRequestFilters = true;
+                break;
+            }
+        }
+
+        if (($params['query_mode'] ?? '') === 'current' || $hasRequestFilters) {
             $currentParams = $this->search->currentQueryParams();
             foreach ($currentParams as $key => $value) {
                 if ($key === 'search') {
@@ -41,7 +85,12 @@ class ListingRenderer
                     continue;
                 }
 
-                if (in_array($key, ['price_min', 'price_max', 'bedrooms', 'bathrooms'], true)) {
+                if (in_array($key, ['price_min', 'price_max', 'bedrooms', 'bathrooms', 'parking', 'area_min', 'area_max'], true)) {
+                    $params[$key] = $value;
+                    continue;
+                }
+
+                if (in_array($key, ['category', 'operation', 'type', 'tag', 'feature', 'country', 'state', 'city', 'neighborhood', 'nearby'], true)) {
                     $params[$key] = $value;
                     continue;
                 }
@@ -80,6 +129,7 @@ class ListingRenderer
                 $query->the_post();
                 TemplateService::includeComponent($config->cardTemplate(), [
                     'post_id' => get_the_ID(),
+                    'card_options' => $config->cardOptions(),
                 ]);
             }
             wp_reset_postdata();
@@ -132,7 +182,7 @@ class ListingRenderer
         );
 
         wp_localize_script('homlity-plugin-listing', 'homlityListingI18n', [
-            'noResults' => __('No se encontraron inmuebles.', 'homlity-plugin'),
+            'noResults' => __('No se han encontrado inmuebles para esta consulta.', 'homlity-plugin'),
             'loading'   => __('Cargando...', 'homlity-plugin'),
         ]);
     }

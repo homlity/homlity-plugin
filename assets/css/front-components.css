@@ -243,3 +243,91 @@
         height: 340px;
     }
 }
+
+.property-gallery--swiper .swiper {
+  width: 100%;
+  --homlity-gallery-gap: 12px;
+}
+
+.property-gallery--swiper .swiper-slide {
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.property-gallery--swiper .swiper-slide img {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  display: block;
+}
+
+.property-gallery__thumbs {
+  margin-top: 12px;
+}
+
+.property-gallery__thumbs .swiper {
+  --homlity-thumb-gap: 10px;
+}
+
+.property-gallery__thumbs .swiper-wrapper {
+  gap: var(--homlity-thumb-gap);
+}
+
+.property-gallery__thumbs .swiper-slide {
+  border: 2px solid rgba(55, 56, 74, 0.14);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.72;
+}
+
+.property-gallery__thumbs .swiper-slide-thumb-active {
+  border-color: var(--homlity-primary-color);
+  opacity: 1;
+}
+
+.property-gallery__thumbs .swiper-slide img {
+  width: 100%;
+  height: 86px;
+  object-fit: cover;
+  display: block;
+}
+
+.property-gallery--swiper-masonry .swiper-slide.is-masonry-1 img,
+.property-gallery--swiper-masonry .swiper-slide.is-masonry-4 img {
+  height: 420px;
+}
+
+.property-gallery--swiper-masonry .swiper-slide.is-masonry-2 img,
+.property-gallery--swiper-masonry .swiper-slide.is-masonry-5 img {
+  height: 260px;
+}
+
+.property-gallery--swiper-masonry .swiper-slide.is-masonry-3 img,
+.property-gallery--swiper-masonry .swiper-slide.is-masonry-6 img {
+  height: 340px;
+}
+
+.property-gallery--preset-minimal .swiper-slide,
+.property-gallery--preset-minimal .property-gallery__item--light {
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.property-gallery--preset-rounded .swiper-slide,
+.property-gallery--preset-rounded .property-gallery__item--light {
+  border-radius: 26px;
+}
+
+.property-gallery--preset-shadow_card {
+  background: #fff;
+  padding: 12px;
+  border-radius: 20px;
+  box-shadow: 0 14px 36px rgba(16, 24, 40, 0.12);
+}
+
+.property-gallery--preset-shadow_card .swiper-slide,
+.property-gallery--preset-shadow_card .property-gallery__item--light {
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.16);
+}

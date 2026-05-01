@@ -16,6 +16,10 @@ use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyMapWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyRelatedWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyCardWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertySummaryWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyContentWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyOperationPriceWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyShareWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyTitleWidget;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 
 if (!defined('ABSPATH')) {
@@ -100,12 +104,16 @@ class ElementorIntegrationService implements ServiceInterface
         $widgets = [
             PropertyFilterWidget::class,
             PropertyListingWidget::class,
+            PropertyTitleWidget::class,
+            PropertyOperationPriceWidget::class,
+            PropertyContentWidget::class,
             PropertySummaryWidget::class,
             PropertyGalleryWidget::class,
             PropertyFeaturesPrimaryWidget::class,
             PropertyFeaturesSecondaryWidget::class,
             PropertyMapWidget::class,
             PropertyAgentWidget::class,
+            PropertyShareWidget::class,
             PropertyRelatedWidget::class,
             PropertyCardWidget::class,
         ];

@@ -353,6 +353,137 @@
     transition: opacity 0.2s;
 }
 
+/* ─── Card media options ──────────────────────────────────────────────────── */
+.property-card__gallery > img {
+    display: block;
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+}
+
+.property-card__gallery-slider {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+.property-card__gallery-slider > img {
+    width: 100%;
+    min-width: 100%;
+    height: 210px;
+    object-fit: cover;
+    scroll-snap-align: start;
+}
+
+.property-card__gallery-slider--bootstrap {
+    gap: 0;
+}
+
+.property-card__operation {
+    color: var(--homlity-text-soft);
+    font-size: 0.85rem;
+    margin: 8px 0 0;
+}
+
+/* ─── Property filter multiselect ─────────────────────────────────────────── */
+.hpf-multi {
+    position: relative;
+}
+
+.hpf-multi__trigger {
+    align-items: center;
+    background: #fff;
+    border: 2px solid #d10606;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    gap: 8px;
+    min-height: 52px;
+    padding: 8px 12px;
+    width: 100%;
+}
+
+.hpf-multi__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    text-align: left;
+}
+
+.hpf-multi__placeholder {
+    color: #7a7a7a;
+    font-size: 0.9rem;
+}
+
+.hpf-multi__chip {
+    align-items: center;
+    border: 2px solid #ea6b66;
+    border-radius: 999px;
+    color: #d22d24;
+    display: inline-flex;
+    font-size: 0.9rem;
+    gap: 8px;
+    line-height: 1;
+    padding: 7px 11px;
+}
+
+.hpf-multi__chip-remove {
+    background: #ea6b66;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    height: 18px;
+    line-height: 18px;
+    padding: 0;
+    width: 18px;
+}
+
+.hpf-multi__arrow {
+    color: #777;
+    font-size: 14px;
+    margin-left: auto;
+}
+
+.hpf-multi__menu {
+    background: #fff;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    display: none;
+    left: 0;
+    margin-top: 4px;
+    max-height: 340px;
+    overflow: auto;
+    position: absolute;
+    right: 0;
+    z-index: 25;
+}
+
+.hpf-multi.is-open .hpf-multi__menu {
+    display: block;
+}
+
+.hpf-multi__item {
+    background: #fff;
+    border: none;
+    color: #2c2c2c;
+    cursor: pointer;
+    display: block;
+    font-size: 1rem;
+    padding: 14px 16px;
+    text-align: left;
+    width: 100%;
+}
+
+.hpf-multi__item:hover,
+.hpf-multi__item.is-selected {
+    background: #f3e0e0;
+}
+
 .property-listing--loading .property-listing__overlay {
     opacity: 1;
     pointer-events: auto;

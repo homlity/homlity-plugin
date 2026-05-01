@@ -3,7 +3,7 @@
  * Secondary features component.
  * Overridable at homlity-plugin/parts/property-features-secondary.php
  *
- * Expected args: $post_id (int)
+ * Expected args: $post_id (int), $item_icon_html (string, optional)
  */
 
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
@@ -13,17 +13,14 @@ if (!isset($post_id)) {
     $post_id = get_the_ID();
 }
 
-$meta = (new PropertyPostType())->metaKeys();
-$lat = get_post_meta($post_id, $meta['latitude'], true);
-$lng = get_post_meta($post_id, $meta['longitude'], true);
-$features = wp_get_post_terms($post_id, PropertyTaxonomies::TAXONOMY_FEATURE);
-$nearby = wp_get_post_terms($post_id, PropertyTaxonomies::TAXONOMY_NEARBY);
+$meta       = (new PropertyPostType())->metaKeys();
+$iconHtml   = $item_icon_html ?? '';
+$lat        = get_post_meta($post_id, $meta['latitude'],  true);
+$lng        = get_post_meta($post_id, $meta['longitude'], true);
+$features   = wp_get_post_terms($post_id, PropertyTaxonomies::TAXONOMY_FEATURE);
+$nearby     = wp_get_post_terms($post_id, PropertyTaxonomies::TAXONOMY_NEARBY);
 
-$featureGroups = [
-    'interior' => [],
-    'exterior' => [],
-    'other' => [],
-];
+$featureGroups = ['interior' => [], 'exterior' => [], 'other' => []];
 
 if ($features && !is_wp_error($features)) {
     foreach ($features as $feature) {
@@ -31,38 +28,54 @@ if ($features && !is_wp_error($features)) {
         $bucket = 'other';
         if ($parent) {
             $slug = sanitize_title($parent->name);
-            if (in_array($slug, ['interior'], true)) {
+            if ($slug === 'interior') {
                 $bucket = 'interior';
-            } elseif (in_array($slug, ['exterior'], true)) {
+            } elseif ($slug === 'exterior') {
                 $bucket = 'exterior';
             }
         }
         $featureGroups[$bucket][] = $feature->name;
     }
 }
+
+$items = [];
+
+if ($lat && $lng) {
+    $items[] = ['label' => __('Coordenadas', 'homlity-plugin'), 'value' => $lat . ', ' . $lng];
+}
+
+$operationTerms = get_the_terms($post_id, PropertyTaxonomies::TAXONOMY_OPERATION);
+if ($operationTerms && !is_wp_error($operationTerms)) {
+    $items[] = ['label' => __('Gestión', 'homlity-plugin'), 'value' => implode(', ', wp_list_pluck($operationTerms, 'name'))];
+}
+
+if ($featureGroups['interior']) {
+    $items[] = ['label' => __('Características interiores', 'homlity-plugin'), 'value' => implode(', ', $featureGroups['interior'])];
+}
+if ($featureGroups['exterior']) {
+    $items[] = ['label' => __('Características exteriores', 'homlity-plugin'), 'value' => implode(', ', $featureGroups['exterior'])];
+}
+if ($featureGroups['other']) {
+    $items[] = ['label' => __('Otras características', 'homlity-plugin'), 'value' => implode(', ', $featureGroups['other'])];
+}
+if ($nearby && !is_wp_error($nearby)) {
+    $items[] = ['label' => __('Lugares cercanos', 'homlity-plugin'), 'value' => implode(', ', wp_list_pluck($nearby, 'name'))];
+}
+
+if (empty($items)) {
+    return;
+}
 ?>
-<section class="property-features property-features--secondary">
-    <h3><?php esc_html_e('Características secundarias', 'homlity-plugin'); ?></h3>
-    <ul>
-        <?php if ($lat && $lng): ?>
-            <li><strong><?php esc_html_e('Coordenadas', 'homlity-plugin'); ?>:</strong> <?php echo esc_html($lat . ', ' . $lng); ?></li>
-        <?php endif; ?>
-        <?php
-$terms = get_the_terms($post_id, \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_OPERATION);
-if ($terms && !is_wp_error($terms)): ?>
-            <li><strong><?php esc_html_e('Gestión', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(join(', ', wp_list_pluck($terms, 'name'))); ?></li>
-<?php endif; ?>
-        <?php if ($featureGroups['interior']): ?>
-            <li><strong><?php esc_html_e('Características interiores', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['interior'])); ?></li>
-        <?php endif; ?>
-        <?php if ($featureGroups['exterior']): ?>
-            <li><strong><?php esc_html_e('Características exteriores', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['exterior'])); ?></li>
-        <?php endif; ?>
-        <?php if ($featureGroups['other']): ?>
-            <li><strong><?php esc_html_e('Otras características', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(join(', ', $featureGroups['other'])); ?></li>
-        <?php endif; ?>
-        <?php if ($nearby && !is_wp_error($nearby)): ?>
-            <li><strong><?php esc_html_e('Lugares cercanos', 'homlity-plugin'); ?>:</strong> <?php echo esc_html(join(', ', wp_list_pluck($nearby, 'name'))); ?></li>
-        <?php endif; ?>
-    </ul>
-</section>
+<ul class="property-features property-features--secondary">
+    <?php foreach ($items as $item): ?>
+        <li class="property-features__item">
+            <?php if ($iconHtml !== ''): ?>
+                <span class="property-features__icon"><?php echo $iconHtml; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+            <?php endif; ?>
+            <span class="property-features__text">
+                <strong class="property-features__label"><?php echo esc_html($item['label']); ?>:</strong>
+                <?php echo esc_html($item['value']); ?>
+            </span>
+        </li>
+    <?php endforeach; ?>
+</ul>

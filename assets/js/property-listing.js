@@ -32,6 +32,39 @@
         this.priceMax         = el.dataset.priceMax || '';
         this.bedrooms         = el.dataset.bedrooms || '';
         this.bathrooms        = el.dataset.bathrooms || '';
+        this.parking          = el.dataset.parking || '';
+        this.areaMin          = el.dataset.areaMin || '';
+        this.areaMax          = el.dataset.areaMax || '';
+        this.category         = el.dataset.category || '';
+        this.operation        = el.dataset.operation || '';
+        this.type             = el.dataset.type || '';
+        this.tag              = el.dataset.tag || '';
+        this.feature          = el.dataset.feature || '';
+        this.country          = el.dataset.country || '';
+        this.state            = el.dataset.state || '';
+        this.city             = el.dataset.city || '';
+        this.neighborhood     = el.dataset.neighborhood || '';
+        this.nearby           = el.dataset.nearby || '';
+        this.cardMediaMode    = el.dataset.cardMediaMode || 'single';
+        this.cardShowTitle    = el.dataset.cardShowTitle || '1';
+        this.cardShowExcerpt  = el.dataset.cardShowExcerpt || '1';
+        this.cardShowOperation = el.dataset.cardShowOperation || '1';
+        this.cardShowPrice    = el.dataset.cardShowPrice || '1';
+        this.cardShowFeatures = el.dataset.cardShowFeatures || '1';
+        this.cardShowWhatsapp = el.dataset.cardShowWhatsapp || '1';
+        this.cardWhatsappLabel = el.dataset.cardWhatsappLabel || '';
+        this.cardFeatureArea = el.dataset.cardFeatureArea || '1';
+        this.cardFeatureBedrooms = el.dataset.cardFeatureBedrooms || '1';
+        this.cardFeatureBathrooms = el.dataset.cardFeatureBathrooms || '1';
+        this.cardFeatureParking = el.dataset.cardFeatureParking || '1';
+        this.cardFeatureAreaLot = el.dataset.cardFeatureAreaLot || '1';
+        this.cardFeatureAreaPrivate = el.dataset.cardFeatureAreaPrivate || '1';
+        this.cardFeatureAreaBuilt = el.dataset.cardFeatureAreaBuilt || '1';
+        this.cardFeatureAge = el.dataset.cardFeatureAge || '1';
+        this.cardFeatureCondition = el.dataset.cardFeatureCondition || '1';
+        this.cardFeatureCode = el.dataset.cardFeatureCode || '1';
+        this.listTabId        = el.dataset.listTabId || '';
+        this.mapTabId         = el.dataset.mapTabId || '';
         this.currentPage      = 1;
         this.view             = el.dataset.view || 'grid';
         this.mapInstance      = null;
@@ -45,6 +78,10 @@
 
         this.grid        = el.querySelector('.property-listing__grid');
         this.mapContainer = el.querySelector('.property-listing__map-container');
+        this.gridContainers = Array.prototype.slice.call(el.querySelectorAll('.property-listing__grid'));
+        this.mapContainers = Array.prototype.slice.call(el.querySelectorAll('.property-listing__map-container'));
+        this.listTab     = this.listTabId ? el.querySelector('#' + this.listTabId) : null;
+        this.mapTab      = this.mapTabId ? el.querySelector('#' + this.mapTabId) : null;
         this.mapEl       = el.querySelector('[id$="-map"]');
         this.countEl     = el.querySelector('.property-listing__count-number');
         this.pagination  = el.querySelector('.property-listing__pagination');
@@ -60,6 +97,17 @@
             this._initMap(this.mapData);
         }
     }
+
+    PropertyListing.prototype._setElementVisible = function (el, visible) {
+        if (!el) return;
+        if (visible) {
+            el.removeAttribute('hidden');
+            el.style.display = '';
+        } else {
+            el.setAttribute('hidden', '');
+            el.style.display = 'none';
+        }
+    };
 
     PropertyListing.prototype._bindEvents = function () {
         var self = this;
@@ -115,15 +163,34 @@
 
         var gridBtn = this.el.querySelector('.property-listing__view-btn--grid');
         var mapBtn  = this.el.querySelector('.property-listing__view-btn--map');
+        var isBootstrapTabs = !!(this.listTab && this.mapTab);
 
         if (view === 'grid') {
-            if (this.grid)         this.grid.removeAttribute('hidden');
-            if (this.mapContainer) this.mapContainer.setAttribute('hidden', '');
+            if (isBootstrapTabs) {
+                this.listTab.classList.add('show', 'active');
+                this.mapTab.classList.remove('show', 'active');
+            } else {
+                this.gridContainers.forEach(function (node) {
+                    this._setElementVisible(node, true);
+                }, this);
+                this.mapContainers.forEach(function (node) {
+                    this._setElementVisible(node, false);
+                }, this);
+            }
             if (gridBtn) gridBtn.classList.add('is-active');
             if (mapBtn)  mapBtn.classList.remove('is-active');
         } else {
-            if (this.grid)         this.grid.setAttribute('hidden', '');
-            if (this.mapContainer) this.mapContainer.removeAttribute('hidden');
+            if (isBootstrapTabs) {
+                this.mapTab.classList.add('show', 'active');
+                this.listTab.classList.remove('show', 'active');
+            } else {
+                this.gridContainers.forEach(function (node) {
+                    this._setElementVisible(node, false);
+                }, this);
+                this.mapContainers.forEach(function (node) {
+                    this._setElementVisible(node, true);
+                }, this);
+            }
             if (gridBtn) gridBtn.classList.remove('is-active');
             if (mapBtn)  mapBtn.classList.add('is-active');
 
@@ -180,6 +247,37 @@
             price_max:         this.priceMax,
             bedrooms:          this.bedrooms,
             bathrooms:         this.bathrooms,
+            parking:           this.parking,
+            area_min:          this.areaMin,
+            area_max:          this.areaMax,
+            category:          this.category,
+            operation:         this.operation,
+            type:              this.type,
+            tag:               this.tag,
+            feature:           this.feature,
+            country:           this.country,
+            state:             this.state,
+            city:              this.city,
+            neighborhood:      this.neighborhood,
+            nearby:            this.nearby,
+            card_media_mode:   this.cardMediaMode,
+            card_show_title:   this.cardShowTitle,
+            card_show_excerpt: this.cardShowExcerpt,
+            card_show_operation: this.cardShowOperation,
+            card_show_price:   this.cardShowPrice,
+            card_show_features: this.cardShowFeatures,
+            card_show_whatsapp: this.cardShowWhatsapp,
+            card_whatsapp_label: this.cardWhatsappLabel,
+            card_feature_area: this.cardFeatureArea,
+            card_feature_bedrooms: this.cardFeatureBedrooms,
+            card_feature_bathrooms: this.cardFeatureBathrooms,
+            card_feature_parking: this.cardFeatureParking,
+            card_feature_area_lot: this.cardFeatureAreaLot,
+            card_feature_area_private: this.cardFeatureAreaPrivate,
+            card_feature_area_built: this.cardFeatureAreaBuilt,
+            card_feature_age: this.cardFeatureAge,
+            card_feature_condition: this.cardFeatureCondition,
+            card_feature_code: this.cardFeatureCode,
         }, formParams));
 
         this._setLoading(true);
@@ -196,7 +294,7 @@
 
                 if (self.grid) {
                     self.grid.innerHTML = d.html ||
-                        '<p class="property-listing__empty">' + (i18n.noResults || 'No se encontraron inmuebles.') + '</p>';
+                        '<p class="property-listing__empty">' + (i18n.noResults || 'No se han encontrado inmuebles para esta consulta.') + '</p>';
                 }
 
                 if (self.countEl) {

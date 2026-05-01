@@ -40,16 +40,30 @@ class ListingConfig
         'geo_latitude'           => '',
         'geo_longitude'          => '',
         'geo_radius_km'          => 0,
-        'show_filters'           => true,
-        'show_filter_operation'  => true,
-        'show_filter_type'       => true,
-        'show_filter_city'       => true,
-        'show_filter_price'      => true,
-        'show_filter_bedrooms'   => true,
         'show_sort'              => true,
+        'show_results_count'     => true,
+        'show_pagination'        => true,
         'map_height'             => 500,
         'map_zoom'               => 12,
         'template'               => 'default', // 'default' | 'bootstrap'
+        'card_media_mode'        => 'single', // 'single' | 'slider'
+        'card_show_title'        => true,
+        'card_show_excerpt'      => true,
+        'card_show_operation'    => true,
+        'card_show_price'        => true,
+        'card_show_features'     => true,
+        'card_show_whatsapp'     => true,
+        'card_whatsapp_label'    => '',
+        'card_feature_area'      => true,
+        'card_feature_bedrooms'  => true,
+        'card_feature_bathrooms' => true,
+        'card_feature_parking'   => true,
+        'card_feature_area_lot'  => true,
+        'card_feature_area_private' => true,
+        'card_feature_area_built' => true,
+        'card_feature_age'       => true,
+        'card_feature_condition' => true,
+        'card_feature_code'      => true,
     ];
 
     // ── Private constructor – use static factories ────────────────────────────
@@ -99,16 +113,30 @@ class ListingConfig
             'geo_latitude'          => sanitize_text_field($settings['geo_latitude'] ?? ''),
             'geo_longitude'         => sanitize_text_field($settings['geo_longitude'] ?? ''),
             'geo_radius_km'         => max(0, (float) ($settings['geo_radius_km'] ?? 0)),
-            'show_filters'          => !empty($settings['show_filters']),
-            'show_filter_operation' => !empty($settings['show_filter_operation']),
-            'show_filter_type'      => !empty($settings['show_filter_type']),
-            'show_filter_city'      => !empty($settings['show_filter_city']),
-            'show_filter_price'     => !empty($settings['show_filter_price']),
-            'show_filter_bedrooms'  => !empty($settings['show_filter_bedrooms']),
             'show_sort'             => !empty($settings['show_sort']),
+            'show_results_count'    => !empty($settings['show_results_count']),
+            'show_pagination'       => !empty($settings['show_pagination']),
             'map_height'            => max(200, (int) ($settings['map_height']['size'] ?? 500)),
             'map_zoom'              => max(1, (int) ($settings['map_zoom'] ?? 12)),
             'template'              => self::sanitizeTemplate($settings['template'] ?? 'default'),
+            'card_media_mode'       => self::sanitizeMediaMode($settings['card_media_mode'] ?? 'single'),
+            'card_show_title'       => !empty($settings['card_show_title']),
+            'card_show_excerpt'     => !empty($settings['card_show_excerpt']),
+            'card_show_operation'   => !empty($settings['card_show_operation']),
+            'card_show_price'       => !empty($settings['card_show_price']),
+            'card_show_features'    => !empty($settings['card_show_features']),
+            'card_show_whatsapp'    => !empty($settings['card_show_whatsapp']),
+            'card_whatsapp_label'   => sanitize_text_field($settings['card_whatsapp_label'] ?? ''),
+            'card_feature_area'      => !empty($settings['card_feature_area']),
+            'card_feature_bedrooms'  => !empty($settings['card_feature_bedrooms']),
+            'card_feature_bathrooms' => !empty($settings['card_feature_bathrooms']),
+            'card_feature_parking'   => !empty($settings['card_feature_parking']),
+            'card_feature_area_lot'  => !empty($settings['card_feature_area_lot']),
+            'card_feature_area_private' => !empty($settings['card_feature_area_private']),
+            'card_feature_area_built' => !empty($settings['card_feature_area_built']),
+            'card_feature_age'       => !empty($settings['card_feature_age']),
+            'card_feature_condition' => !empty($settings['card_feature_condition']),
+            'card_feature_code'      => !empty($settings['card_feature_code']),
         ]);
     }
 
@@ -151,16 +179,30 @@ class ListingConfig
             'geo_latitude'          => sanitize_text_field($atts['lat'] ?? ''),
             'geo_longitude'         => sanitize_text_field($atts['lng'] ?? ''),
             'geo_radius_km'         => max(0, (float) ($atts['radius_km'] ?? 0)),
-            'show_filters'          => $bool($atts['filters'] ?? null, true),
-            'show_filter_operation' => $bool($atts['filter_operation'] ?? null, true),
-            'show_filter_type'      => $bool($atts['filter_type'] ?? null, true),
-            'show_filter_city'      => $bool($atts['filter_city'] ?? null, true),
-            'show_filter_price'     => $bool($atts['filter_price'] ?? null, true),
-            'show_filter_bedrooms'  => $bool($atts['filter_bedrooms'] ?? null, true),
             'show_sort'             => $bool($atts['sort'] ?? null, true),
+            'show_results_count'    => $bool($atts['results_count'] ?? null, true),
+            'show_pagination'       => $bool($atts['pagination'] ?? null, true),
             'map_height'            => max(200, (int) ($atts['map_height'] ?? 500)),
             'map_zoom'              => max(1, (int) ($atts['map_zoom'] ?? 12)),
             'template'              => self::sanitizeTemplate($atts['template'] ?? 'default'),
+            'card_media_mode'       => self::sanitizeMediaMode($atts['card_media'] ?? 'single'),
+            'card_show_title'       => $bool($atts['card_title'] ?? null, true),
+            'card_show_excerpt'     => $bool($atts['card_excerpt'] ?? null, true),
+            'card_show_operation'   => $bool($atts['card_operation'] ?? null, true),
+            'card_show_price'       => $bool($atts['card_price'] ?? null, true),
+            'card_show_features'    => $bool($atts['card_features'] ?? null, true),
+            'card_show_whatsapp'    => $bool($atts['card_whatsapp'] ?? null, true),
+            'card_whatsapp_label'   => sanitize_text_field($atts['card_whatsapp_label'] ?? ''),
+            'card_feature_area'      => $bool($atts['card_area'] ?? null, true),
+            'card_feature_bedrooms'  => $bool($atts['card_bedrooms'] ?? null, true),
+            'card_feature_bathrooms' => $bool($atts['card_bathrooms'] ?? null, true),
+            'card_feature_parking'   => $bool($atts['card_parking'] ?? null, true),
+            'card_feature_area_lot'  => $bool($atts['card_area_lot'] ?? null, true),
+            'card_feature_area_private' => $bool($atts['card_area_private'] ?? null, true),
+            'card_feature_area_built' => $bool($atts['card_area_built'] ?? null, true),
+            'card_feature_age'       => $bool($atts['card_age'] ?? null, true),
+            'card_feature_condition' => $bool($atts['card_condition'] ?? null, true),
+            'card_feature_code'      => $bool($atts['card_code'] ?? null, true),
         ]);
     }
 
@@ -187,16 +229,32 @@ class ListingConfig
     public function geoLatitude(): string  { return (string) $this->data['geo_latitude']; }
     public function geoLongitude(): string { return (string) $this->data['geo_longitude']; }
     public function geoRadiusKm(): float   { return (float)  $this->data['geo_radius_km']; }
-    public function showFilters(): bool    { return (bool)   $this->data['show_filters']; }
-    public function showFilterOperation(): bool { return (bool) $this->data['show_filter_operation']; }
-    public function showFilterType(): bool      { return (bool) $this->data['show_filter_type']; }
-    public function showFilterCity(): bool      { return (bool) $this->data['show_filter_city']; }
-    public function showFilterPrice(): bool     { return (bool) $this->data['show_filter_price']; }
-    public function showFilterBedrooms(): bool  { return (bool) $this->data['show_filter_bedrooms']; }
     public function showSort(): bool       { return (bool)   $this->data['show_sort']; }
+    public function showResultsCount(): bool { return (bool) $this->data['show_results_count']; }
+    public function showPagination(): bool { return (bool)   $this->data['show_pagination']; }
     public function mapHeight(): int       { return (int)    $this->data['map_height']; }
     public function mapZoom(): int         { return (int)    $this->data['map_zoom']; }
     public function template(): string     { return (string) $this->data['template']; }
+    public function cardOptions(): array   { return [
+        'media_mode' => (string) $this->data['card_media_mode'],
+        'show_title' => (bool) $this->data['card_show_title'],
+        'show_excerpt' => (bool) $this->data['card_show_excerpt'],
+        'show_operation' => (bool) $this->data['card_show_operation'],
+        'show_price' => (bool) $this->data['card_show_price'],
+        'show_features' => (bool) $this->data['card_show_features'],
+        'show_whatsapp' => (bool) $this->data['card_show_whatsapp'],
+        'whatsapp_label' => (string) $this->data['card_whatsapp_label'],
+        'feature_area' => (bool) $this->data['card_feature_area'],
+        'feature_bedrooms' => (bool) $this->data['card_feature_bedrooms'],
+        'feature_bathrooms' => (bool) $this->data['card_feature_bathrooms'],
+        'feature_parking' => (bool) $this->data['card_feature_parking'],
+        'feature_area_lot' => (bool) $this->data['card_feature_area_lot'],
+        'feature_area_private' => (bool) $this->data['card_feature_area_private'],
+        'feature_area_built' => (bool) $this->data['card_feature_area_built'],
+        'feature_age' => (bool) $this->data['card_feature_age'],
+        'feature_condition' => (bool) $this->data['card_feature_condition'],
+        'feature_code' => (bool) $this->data['card_feature_code'],
+    ]; }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -251,5 +309,10 @@ class ListingConfig
     private static function sanitizeTemplate(string $value): string
     {
         return in_array($value, ['default', 'bootstrap'], true) ? $value : 'default';
+    }
+
+    private static function sanitizeMediaMode(string $value): string
+    {
+        return in_array($value, ['single', 'slider'], true) ? $value : 'single';
     }
 }

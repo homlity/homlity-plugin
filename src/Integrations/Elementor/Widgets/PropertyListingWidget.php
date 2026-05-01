@@ -9,6 +9,9 @@
 namespace Homlity\PluginInmobiliario\Integrations\Elementor\Widgets;
 
 use Elementor\Controls_Manager;
+use Elementor\Group_Control_Border;
+use Elementor\Group_Control_Box_Shadow;
+use Elementor\Group_Control_Typography;
 use Elementor\Widget_Base;
 use Homlity\PluginInmobiliario\Listing\ListingConfig;
 use Homlity\PluginInmobiliario\Listing\ListingRenderer;
@@ -66,6 +69,62 @@ class PropertyListingWidget extends Widget_Base
             'options' => ['1' => '1', '2' => '2', '3' => '3', '4' => '4'],
             'default' => '3',
         ]);
+
+        $this->end_controls_section();
+
+        $this->start_controls_section('card_content', ['label' => __('Contenido de la tarjeta', 'homlity-plugin')]);
+
+        $this->add_control('card_media_mode', [
+            'label' => __('Galería de fotos', 'homlity-plugin'),
+            'type' => Controls_Manager::SELECT,
+            'options' => [
+                'single' => __('Imagen principal', 'homlity-plugin'),
+                'slider' => __('Slider de fotos', 'homlity-plugin'),
+            ],
+            'default' => 'single',
+        ]);
+
+        foreach ([
+            'card_show_title' => __('Mostrar título', 'homlity-plugin'),
+            'card_show_excerpt' => __('Mostrar descripción corta', 'homlity-plugin'),
+            'card_show_operation' => __('Mostrar gestión (venta/arriendo)', 'homlity-plugin'),
+            'card_show_price' => __('Mostrar valor de gestión', 'homlity-plugin'),
+            'card_show_features' => __('Mostrar características', 'homlity-plugin'),
+            'card_show_whatsapp' => __('Mostrar botón WhatsApp asesor', 'homlity-plugin'),
+        ] as $key => $label) {
+            $this->add_control($key, [
+                'label' => $label,
+                'type' => Controls_Manager::SWITCHER,
+                'default' => 'yes',
+            ]);
+        }
+
+        $this->add_control('card_whatsapp_label', [
+            'label' => __('Texto botón WhatsApp', 'homlity-plugin'),
+            'type' => Controls_Manager::TEXT,
+            'default' => __('Hablar por WhatsApp', 'homlity-plugin'),
+            'condition' => ['card_show_whatsapp' => 'yes'],
+        ]);
+
+        foreach ([
+            'card_feature_area' => __('Área', 'homlity-plugin'),
+            'card_feature_bedrooms' => __('Alcobas', 'homlity-plugin'),
+            'card_feature_bathrooms' => __('Baños', 'homlity-plugin'),
+            'card_feature_parking' => __('Garajes', 'homlity-plugin'),
+            'card_feature_area_lot' => __('Área de lote', 'homlity-plugin'),
+            'card_feature_area_private' => __('Área privada', 'homlity-plugin'),
+            'card_feature_area_built' => __('Área construida', 'homlity-plugin'),
+            'card_feature_age' => __('Edad inmueble', 'homlity-plugin'),
+            'card_feature_condition' => __('Estado inmueble', 'homlity-plugin'),
+            'card_feature_code' => __('Código inmueble', 'homlity-plugin'),
+        ] as $key => $label) {
+            $this->add_control($key, [
+                'label' => $label,
+                'type' => Controls_Manager::SWITCHER,
+                'default' => 'yes',
+                'condition' => ['card_show_features' => 'yes'],
+            ]);
+        }
 
         $this->end_controls_section();
 
@@ -218,8 +277,20 @@ class PropertyListingWidget extends Widget_Base
 
         $this->start_controls_section('toolbar', ['label' => __('Barra de resultados', 'homlity-plugin')]);
 
+        $this->add_control('show_results_count', [
+            'label'   => __('Mostrar cantidad de resultados', 'homlity-plugin'),
+            'type'    => Controls_Manager::SWITCHER,
+            'default' => 'yes',
+        ]);
+
         $this->add_control('show_sort', [
             'label'   => __('Mostrar selector de orden', 'homlity-plugin'),
+            'type'    => Controls_Manager::SWITCHER,
+            'default' => 'yes',
+        ]);
+
+        $this->add_control('show_pagination', [
+            'label'   => __('Mostrar paginación', 'homlity-plugin'),
             'type'    => Controls_Manager::SWITCHER,
             'default' => 'yes',
         ]);
@@ -246,6 +317,205 @@ class PropertyListingWidget extends Widget_Base
             'min'     => 1,
             'max'     => 18,
             'default' => 12,
+        ]);
+
+        $this->end_controls_section();
+
+        $this->start_controls_section('style_card', [
+            'label' => __('Tarjeta', 'homlity-plugin'),
+            'tab' => Controls_Manager::TAB_STYLE,
+        ]);
+
+        $this->add_control('card_bg_color', [
+            'label' => __('Fondo', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-card, {{WRAPPER}} .property-card-bs' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_group_control(Group_Control_Border::get_type(), [
+            'name' => 'card_border',
+            'selector' => '{{WRAPPER}} .property-card, {{WRAPPER}} .property-card-bs',
+        ]);
+
+        $this->add_responsive_control('card_radius', [
+            'label' => __('Radio de borde', 'homlity-plugin'),
+            'type' => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range' => ['px' => ['min' => 0, 'max' => 40]],
+            'selectors' => [
+                '{{WRAPPER}} .property-card, {{WRAPPER}} .property-card-bs' => 'border-radius: {{SIZE}}{{UNIT}}; overflow: hidden;',
+            ],
+        ]);
+
+        $this->add_group_control(Group_Control_Box_Shadow::get_type(), [
+            'name' => 'card_shadow',
+            'selector' => '{{WRAPPER}} .property-card, {{WRAPPER}} .property-card-bs',
+        ]);
+
+        $this->add_responsive_control('card_padding', [
+            'label' => __('Padding interno', 'homlity-plugin'),
+            'type' => Controls_Manager::DIMENSIONS,
+            'size_units' => ['px', '%', 'em'],
+            'selectors' => [
+                '{{WRAPPER}} .property-card > a' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                '{{WRAPPER}} .property-card-bs .card-body' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+            ],
+        ]);
+
+        $this->end_controls_section();
+
+        $this->start_controls_section('style_card_image', [
+            'label' => __('Imagen', 'homlity-plugin'),
+            'tab' => Controls_Manager::TAB_STYLE,
+        ]);
+
+        $this->add_responsive_control('card_image_height', [
+            'label' => __('Altura', 'homlity-plugin'),
+            'type' => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range' => ['px' => ['min' => 120, 'max' => 520]],
+            'selectors' => [
+                '{{WRAPPER}} .property-card__gallery > img, {{WRAPPER}} .property-card__gallery-slider > img, {{WRAPPER}} .property-card-bs .card-img-top' => 'height: {{SIZE}}{{UNIT}};',
+            ],
+        ]);
+
+        $this->add_responsive_control('card_image_radius', [
+            'label' => __('Radio de borde imagen', 'homlity-plugin'),
+            'type' => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range' => ['px' => ['min' => 0, 'max' => 40]],
+            'selectors' => [
+                '{{WRAPPER}} .property-card__gallery > img, {{WRAPPER}} .property-card__gallery-slider > img, {{WRAPPER}} .property-card-bs .card-img-top' => 'border-radius: {{SIZE}}{{UNIT}};',
+            ],
+        ]);
+
+        $this->end_controls_section();
+
+        $this->start_controls_section('style_card_text', [
+            'label' => __('Título y Texto', 'homlity-plugin'),
+            'tab' => Controls_Manager::TAB_STYLE,
+        ]);
+
+        $this->add_group_control(Group_Control_Typography::get_type(), [
+            'name' => 'card_title_typography',
+            'label' => __('Tipografía título', 'homlity-plugin'),
+            'selector' => '{{WRAPPER}} .property-card__title, {{WRAPPER}} .property-card-bs .card-title',
+        ]);
+
+        $this->add_control('card_title_color', [
+            'label' => __('Color título', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-card__title, {{WRAPPER}} .property-card-bs .card-title' => 'color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_group_control(Group_Control_Typography::get_type(), [
+            'name' => 'card_excerpt_typography',
+            'label' => __('Tipografía descripción', 'homlity-plugin'),
+            'selector' => '{{WRAPPER}} .property-card__excerpt, {{WRAPPER}} .property-card-bs .property-card__excerpt',
+        ]);
+
+        $this->add_control('card_excerpt_color', [
+            'label' => __('Color descripción', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-card__excerpt, {{WRAPPER}} .property-card-bs .property-card__excerpt' => 'color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_group_control(Group_Control_Typography::get_type(), [
+            'name' => 'card_operation_typography',
+            'label' => __('Tipografía gestión', 'homlity-plugin'),
+            'selector' => '{{WRAPPER}} .property-card__operation',
+        ]);
+
+        $this->add_control('card_operation_color', [
+            'label' => __('Color gestión', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-card__operation' => 'color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->end_controls_section();
+
+        $this->start_controls_section('style_card_meta', [
+            'label' => __('Precio y Características', 'homlity-plugin'),
+            'tab' => Controls_Manager::TAB_STYLE,
+        ]);
+
+        $this->add_group_control(Group_Control_Typography::get_type(), [
+            'name' => 'card_price_typography',
+            'label' => __('Tipografía precio', 'homlity-plugin'),
+            'selector' => '{{WRAPPER}} .property-card__price, {{WRAPPER}} .property-card-bs [itemprop="price"]',
+        ]);
+
+        $this->add_control('card_price_color', [
+            'label' => __('Color precio', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-card__price, {{WRAPPER}} .property-card-bs [itemprop="price"]' => 'color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_group_control(Group_Control_Typography::get_type(), [
+            'name' => 'card_features_typography',
+            'label' => __('Tipografía características', 'homlity-plugin'),
+            'selector' => '{{WRAPPER}} .property-card__features, {{WRAPPER}} .property-card-bs .property-card__features',
+        ]);
+
+        $this->add_control('card_features_color', [
+            'label' => __('Color características', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-card__features, {{WRAPPER}} .property-card-bs .property-card__features' => 'color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->end_controls_section();
+
+        $this->start_controls_section('style_card_whatsapp', [
+            'label' => __('Botón WhatsApp', 'homlity-plugin'),
+            'tab' => Controls_Manager::TAB_STYLE,
+        ]);
+
+        $this->add_group_control(Group_Control_Typography::get_type(), [
+            'name' => 'card_whatsapp_typography',
+            'selector' => '{{WRAPPER}} .property-card__whatsapp',
+        ]);
+
+        $this->add_control('card_whatsapp_text_color', [
+            'label' => __('Color texto', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-card__whatsapp' => 'color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('card_whatsapp_bg_color', [
+            'label' => __('Color fondo', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-card__whatsapp' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_group_control(Group_Control_Border::get_type(), [
+            'name' => 'card_whatsapp_border',
+            'selector' => '{{WRAPPER}} .property-card__whatsapp',
+        ]);
+
+        $this->add_responsive_control('card_whatsapp_radius', [
+            'label' => __('Radio de borde', 'homlity-plugin'),
+            'type' => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range' => ['px' => ['min' => 0, 'max' => 30]],
+            'selectors' => [
+                '{{WRAPPER}} .property-card__whatsapp' => 'border-radius: {{SIZE}}{{UNIT}};',
+            ],
         ]);
 
         $this->end_controls_section();

@@ -251,20 +251,40 @@ class DataSeederService
 
     private function seedSingleElementorTemplate(): void
     {
-        $optionKey = 'homlity_plugin_single_template_id';
+        $optionKey  = 'homlity_plugin_single_template_id';
         $templateId = (int) get_option($optionKey, 0);
 
-        if ($templateId > 0 && get_post_status($templateId)) {
+        // Fast path: option exists and post is live.
+        if ($templateId > 0 && in_array(get_post_status($templateId), ['publish', 'draft', 'pending'], true)) {
             return;
         }
 
+        // Secondary check by slug — handles reactivations where the option was lost
+        // but the post was never deleted.
+        $existing = get_posts([
+            'name'           => 'homlity-detalle-inmueble',
+            'post_type'      => 'elementor_library',
+            'post_status'    => ['publish', 'draft', 'pending'],
+            'posts_per_page' => 1,
+            'no_found_rows'  => true,
+            'fields'         => 'ids',
+        ]);
+
+        if (!empty($existing)) {
+            $templateId = (int) $existing[0];
+            update_option($optionKey, $templateId);
+            $this->removeSingleTemplateDuplicates($templateId);
+            return;
+        }
+
+        // Nothing found — create the template for the first time.
         $templateId = wp_insert_post([
-            'post_title' => __('Detalle de inmueble', 'homlity-plugin'),
-            'post_name' => 'homlity-detalle-inmueble',
-            'post_status' => 'publish',
-            'post_type' => 'elementor_library',
+            'post_title'     => __('Detalle de inmueble', 'homlity-plugin'),
+            'post_name'      => 'homlity-detalle-inmueble',
+            'post_status'    => 'publish',
+            'post_type'      => 'elementor_library',
             'comment_status' => 'closed',
-            'ping_status' => 'closed',
+            'ping_status'    => 'closed',
         ]);
 
         if (is_wp_error($templateId) || !$templateId) {
@@ -290,6 +310,28 @@ class DataSeederService
         }
 
         update_option($optionKey, (int) $templateId);
+    }
+
+    private function removeSingleTemplateDuplicates(int $keepId): void
+    {
+        global $wpdb;
+
+        $duplicateIds = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT ID FROM {$wpdb->posts}
+                 WHERE post_type   = 'elementor_library'
+                   AND post_name   LIKE %s
+                   AND post_status NOT IN ('trash', 'auto-draft')
+                   AND ID          != %d
+                 LIMIT 50",
+                'homlity-detalle-inmueble%',
+                $keepId
+            )
+        );
+
+        foreach ($duplicateIds as $id) {
+            wp_trash_post((int) $id);
+        }
     }
 
     private function saveElementorData(int $postId, array $data, string $templateType): void

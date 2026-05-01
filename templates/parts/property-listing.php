@@ -11,7 +11,6 @@
  */
 
 use Homlity\PluginInmobiliario\Listing\ListingConfig;
-use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -20,23 +19,15 @@ if (!defined('ABSPATH')) {
 /** @var ListingConfig $config */
 $uniqueId = 'hpl-' . substr(md5(uniqid('', true)), 0, 8);
 $params = isset($params) && is_array($params) ? $params : [];
-
-$showFilterOp   = $config->showFilters() && $config->showFilterOperation() && !$config->presetOperation();
-$showFilterType = $config->showFilters() && $config->showFilterType()      && !$config->presetType();
-$showFilterCity = $config->showFilters() && $config->showFilterCity();
-$showFilterPx   = $config->showFilters() && $config->showFilterPrice();
-$showFilterBed  = $config->showFilters() && $config->showFilterBedrooms();
-$hasAnyFilter   = $showFilterOp || $showFilterType || $showFilterCity || $showFilterPx || $showFilterBed;
-
-$operationTerms = $showFilterOp   ? get_terms(['taxonomy' => PropertyTaxonomies::TAXONOMY_OPERATION, 'hide_empty' => true]) : [];
-$typeTerms      = $showFilterType ? get_terms(['taxonomy' => PropertyTaxonomies::TAXONOMY_TYPE,      'hide_empty' => true]) : [];
-$cityTerms      = $showFilterCity ? get_terms(['taxonomy' => PropertyTaxonomies::TAXONOMY_CITY,      'hide_empty' => true]) : [];
-
-$operationTerms = is_wp_error($operationTerms) ? [] : $operationTerms;
-$typeTerms      = is_wp_error($typeTerms)      ? [] : $typeTerms;
-$cityTerms      = is_wp_error($cityTerms)      ? [] : $cityTerms;
+$paramToAttr = static function ($value): string {
+    if (is_array($value)) {
+        return implode(',', array_map('strval', $value));
+    }
+    return (string) $value;
+};
 
 $mapData     = $search->getMapData($query);
+$cardOptions = $config->cardOptions();
 $sortOptions = [
     'date'       => __('Más recientes',        'homlity-plugin'),
     'price_asc'  => __('Precio: menor a mayor','homlity-plugin'),
@@ -71,93 +62,48 @@ $sortOptions = [
      data-price-max="<?php echo esc_attr($params['price_max'] ?? ''); ?>"
      data-bedrooms="<?php echo esc_attr($params['bedrooms'] ?? ''); ?>"
      data-bathrooms="<?php echo esc_attr($params['bathrooms'] ?? ''); ?>"
+     data-parking="<?php echo esc_attr($params['parking'] ?? ''); ?>"
+     data-area-min="<?php echo esc_attr($params['area_min'] ?? ''); ?>"
+     data-area-max="<?php echo esc_attr($params['area_max'] ?? ''); ?>"
+     data-category="<?php echo esc_attr($paramToAttr($params['category'] ?? '')); ?>"
+     data-operation="<?php echo esc_attr($paramToAttr($params['operation'] ?? '')); ?>"
+     data-type="<?php echo esc_attr($paramToAttr($params['type'] ?? '')); ?>"
+     data-tag="<?php echo esc_attr($paramToAttr($params['tag'] ?? '')); ?>"
+     data-feature="<?php echo esc_attr($paramToAttr($params['feature'] ?? '')); ?>"
+     data-country="<?php echo esc_attr($paramToAttr($params['country'] ?? '')); ?>"
+     data-state="<?php echo esc_attr($paramToAttr($params['state'] ?? '')); ?>"
+     data-city="<?php echo esc_attr($paramToAttr($params['city'] ?? '')); ?>"
+     data-neighborhood="<?php echo esc_attr($paramToAttr($params['neighborhood'] ?? '')); ?>"
+     data-nearby="<?php echo esc_attr($paramToAttr($params['nearby'] ?? '')); ?>"
+     data-card-media-mode="<?php echo esc_attr($cardOptions['media_mode'] ?? 'single'); ?>"
+     data-card-show-title="<?php echo esc_attr(!empty($cardOptions['show_title']) ? '1' : '0'); ?>"
+     data-card-show-excerpt="<?php echo esc_attr(!empty($cardOptions['show_excerpt']) ? '1' : '0'); ?>"
+     data-card-show-operation="<?php echo esc_attr(!empty($cardOptions['show_operation']) ? '1' : '0'); ?>"
+     data-card-show-price="<?php echo esc_attr(!empty($cardOptions['show_price']) ? '1' : '0'); ?>"
+     data-card-show-features="<?php echo esc_attr(!empty($cardOptions['show_features']) ? '1' : '0'); ?>"
+     data-card-show-whatsapp="<?php echo esc_attr(!empty($cardOptions['show_whatsapp']) ? '1' : '0'); ?>"
+     data-card-whatsapp-label="<?php echo esc_attr($cardOptions['whatsapp_label'] ?? ''); ?>"
+     data-card-feature-area="<?php echo esc_attr(!empty($cardOptions['feature_area']) ? '1' : '0'); ?>"
+     data-card-feature-bedrooms="<?php echo esc_attr(!empty($cardOptions['feature_bedrooms']) ? '1' : '0'); ?>"
+     data-card-feature-bathrooms="<?php echo esc_attr(!empty($cardOptions['feature_bathrooms']) ? '1' : '0'); ?>"
+     data-card-feature-parking="<?php echo esc_attr(!empty($cardOptions['feature_parking']) ? '1' : '0'); ?>"
+     data-card-feature-area-lot="<?php echo esc_attr(!empty($cardOptions['feature_area_lot']) ? '1' : '0'); ?>"
+     data-card-feature-area-private="<?php echo esc_attr(!empty($cardOptions['feature_area_private']) ? '1' : '0'); ?>"
+     data-card-feature-area-built="<?php echo esc_attr(!empty($cardOptions['feature_area_built']) ? '1' : '0'); ?>"
+     data-card-feature-age="<?php echo esc_attr(!empty($cardOptions['feature_age']) ? '1' : '0'); ?>"
+     data-card-feature-condition="<?php echo esc_attr(!empty($cardOptions['feature_condition']) ? '1' : '0'); ?>"
+     data-card-feature-code="<?php echo esc_attr(!empty($cardOptions['feature_code']) ? '1' : '0'); ?>"
      data-nonce="<?php echo esc_attr(wp_create_nonce('homlity_listing_nonce')); ?>"
      data-ajax-url="<?php echo esc_url(admin_url('admin-ajax.php')); ?>"
      data-map-data="<?php echo esc_attr(wp_json_encode($mapData)); ?>">
 
-    <?php if ($config->showFilters() && $hasAnyFilter) : ?>
-    <form class="property-listing__filters" novalidate>
-        <div class="property-listing__filters-row">
-
-            <?php if ($showFilterOp && $operationTerms) : ?>
-            <div class="property-listing__filter-group">
-                <label class="property-listing__filter-label"><?php esc_html_e('Gestión', 'homlity-plugin'); ?></label>
-                <select name="operation" class="property-listing__filter-select">
-                    <option value=""><?php esc_html_e('Todas', 'homlity-plugin'); ?></option>
-                    <?php foreach ($operationTerms as $term) : ?>
-                        <option value="<?php echo esc_attr($term->term_id); ?>"><?php echo esc_html($term->name); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <?php endif; ?>
-
-            <?php if ($showFilterType && $typeTerms) : ?>
-            <div class="property-listing__filter-group">
-                <label class="property-listing__filter-label"><?php esc_html_e('Tipo', 'homlity-plugin'); ?></label>
-                <select name="type" class="property-listing__filter-select">
-                    <option value=""><?php esc_html_e('Todos', 'homlity-plugin'); ?></option>
-                    <?php foreach ($typeTerms as $term) : ?>
-                        <option value="<?php echo esc_attr($term->term_id); ?>"><?php echo esc_html($term->name); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <?php endif; ?>
-
-            <?php if ($showFilterCity && $cityTerms) : ?>
-            <div class="property-listing__filter-group">
-                <label class="property-listing__filter-label"><?php esc_html_e('Ciudad', 'homlity-plugin'); ?></label>
-                <select name="city" class="property-listing__filter-select">
-                    <option value=""><?php esc_html_e('Todas', 'homlity-plugin'); ?></option>
-                    <?php foreach ($cityTerms as $term) : ?>
-                        <option value="<?php echo esc_attr($term->term_id); ?>"><?php echo esc_html($term->name); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <?php endif; ?>
-
-            <?php if ($showFilterPx) : ?>
-            <div class="property-listing__filter-group property-listing__filter-group--price">
-                <label class="property-listing__filter-label"><?php esc_html_e('Precio', 'homlity-plugin'); ?></label>
-                <div class="property-listing__price-range">
-                    <input type="number" name="price_min" class="property-listing__filter-input"
-                           placeholder="<?php esc_attr_e('Mín.', 'homlity-plugin'); ?>" min="0" step="1000">
-                    <span class="property-listing__price-sep">–</span>
-                    <input type="number" name="price_max" class="property-listing__filter-input"
-                           placeholder="<?php esc_attr_e('Máx.', 'homlity-plugin'); ?>" min="0" step="1000">
-                </div>
-            </div>
-            <?php endif; ?>
-
-            <?php if ($showFilterBed) : ?>
-            <div class="property-listing__filter-group">
-                <label class="property-listing__filter-label"><?php esc_html_e('Habitaciones', 'homlity-plugin'); ?></label>
-                <select name="bedrooms" class="property-listing__filter-select">
-                    <option value=""><?php esc_html_e('Cualquiera', 'homlity-plugin'); ?></option>
-                    <?php foreach ([1, 2, 3, 4, 5] as $n) : ?>
-                        <option value="<?php echo esc_attr($n); ?>"><?php echo esc_html($n); ?>+</option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <?php endif; ?>
-
-            <div class="property-listing__filter-actions">
-                <button type="submit" class="property-listing__btn property-listing__btn--primary">
-                    <?php esc_html_e('Buscar', 'homlity-plugin'); ?>
-                </button>
-                <button type="button" class="property-listing__btn property-listing__btn--ghost property-listing__filter-reset">
-                    <?php esc_html_e('Limpiar', 'homlity-plugin'); ?>
-                </button>
-            </div>
-
-        </div>
-    </form>
-    <?php endif; ?>
-
     <div class="property-listing__toolbar">
+        <?php if ($config->showResultsCount()) : ?>
         <p class="property-listing__count">
             <strong class="property-listing__count-number"><?php echo esc_html($query->found_posts); ?></strong>
             <?php esc_html_e('inmuebles encontrados', 'homlity-plugin'); ?>
         </p>
+        <?php endif; ?>
         <div class="property-listing__toolbar-right">
             <?php if ($config->showSort()) : ?>
             <select class="property-listing__sort" aria-label="<?php esc_attr_e('Ordenar por', 'homlity-plugin'); ?>">
@@ -203,12 +149,15 @@ $sortOptions = [
                     $query->the_post();
                     \Homlity\PluginInmobiliario\Services\TemplateService::includeComponent(
                         'property-card.php',
-                        ['post_id' => get_the_ID()]
+                        [
+                            'post_id' => get_the_ID(),
+                            'card_options' => $config->cardOptions(),
+                        ]
                     );
                 }
                 wp_reset_postdata();
             } else {
-                echo '<p class="property-listing__empty">' . esc_html__('No se encontraron inmuebles.', 'homlity-plugin') . '</p>';
+                echo '<p class="property-listing__empty">' . esc_html__('No se han encontrado inmuebles para esta consulta.', 'homlity-plugin') . '</p>';
             }
             ?>
         </div>
@@ -220,7 +169,7 @@ $sortOptions = [
         </div>
     </div>
 
-    <?php if ($query->max_num_pages > 1) : ?>
+    <?php if ($config->showPagination() && $query->max_num_pages > 1) : ?>
     <div class="property-listing__pagination" data-current="1" data-pages="<?php echo esc_attr($query->max_num_pages); ?>">
         <?php for ($i = 1; $i <= $query->max_num_pages; $i++) : ?>
         <button type="button"
