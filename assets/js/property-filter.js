@@ -105,72 +105,97 @@
         renderMenu();
     }
 
-    function init() {
-        document.querySelectorAll('.property-filter-multiselect').forEach(createMultiSelect);
+    function bindFormSubmit(form) {
+        if (!form || form.dataset.hpfBound === '1') {
+            return;
+        }
+        form.dataset.hpfBound = '1';
 
-        document.querySelectorAll('.property-filter-widget form').forEach(function (form) {
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
 
-                var data = new FormData(form);
-                var values = {};
+            var data = new FormData(form);
+            var values = {};
 
-                data.forEach(function (value, key) {
-                    var normalizedKey = key.replace(/\[\]$/, '');
-                    if (!values[normalizedKey]) {
-                        values[normalizedKey] = [];
-                    }
-                    if (value !== '') {
-                        values[normalizedKey].push(String(value));
-                    }
-                });
-
-                var action = form.getAttribute('action') || window.location.pathname;
-                action = action.split('?')[0].replace(/\/+$/, '');
-
-                function firstOf(key) {
-                    return values[key] && values[key].length ? values[key][0] : '';
+            data.forEach(function (value, key) {
+                var normalizedKey = key.replace(/\[\]$/, '');
+                if (!values[normalizedKey]) {
+                    values[normalizedKey] = [];
                 }
+                if (value !== '') {
+                    values[normalizedKey].push(String(value));
+                }
+            });
 
-                var pathParts = [];
-                var gestion = firstOf('gestion');
-                var tipo = firstOf('tipo');
-                var ciudad = firstOf('ciudad');
-                var barrios = firstOf('barrios');
+            var action = form.getAttribute('action') || window.location.pathname;
+            action = action.split('?')[0].replace(/\/+$/, '');
 
-                if (gestion) { pathParts.push('gestion', encodeURIComponent(gestion)); }
-                if (tipo) { pathParts.push('tipo', encodeURIComponent(tipo)); }
-                if (ciudad) { pathParts.push('ciudad', encodeURIComponent(ciudad)); }
-                if (barrios) { pathParts.push('barrios', encodeURIComponent(barrios)); }
+            function firstOf(key) {
+                return values[key] && values[key].length ? values[key][0] : '';
+            }
 
-                var url = action + (pathParts.length ? '/' + pathParts.join('/') : '') + '/';
+            var pathParts = [];
+            var gestion = firstOf('gestion');
+            var tipo = firstOf('tipo');
+            var ciudad = firstOf('ciudad');
+            var barrios = firstOf('barrios');
 
-                var params = new URLSearchParams();
-                Object.keys(values).forEach(function (key) {
-                    if (!values[key] || !values[key].length) return;
-                    if (key === 'gestion' || key === 'tipo' || key === 'ciudad' || key === 'barrios') {
-                        if (values[key].length > 1) {
-                            params.set(key, values[key].join(','));
-                        }
-                        return;
-                    }
+            if (gestion) { pathParts.push('gestion', encodeURIComponent(gestion)); }
+            if (tipo) { pathParts.push('tipo', encodeURIComponent(tipo)); }
+            if (ciudad) { pathParts.push('ciudad', encodeURIComponent(ciudad)); }
+            if (barrios) { pathParts.push('barrios', encodeURIComponent(barrios)); }
 
-                    if (values[key].length === 1) {
-                        params.set(key, values[key][0]);
-                    } else {
+            var url = action + (pathParts.length ? '/' + pathParts.join('/') : '') + '/';
+
+            var params = new URLSearchParams();
+            Object.keys(values).forEach(function (key) {
+                if (!values[key] || !values[key].length) return;
+                if (key === 'gestion' || key === 'tipo' || key === 'ciudad' || key === 'barrios') {
+                    if (values[key].length > 1) {
                         params.set(key, values[key].join(','));
                     }
-                });
+                    return;
+                }
 
-                var qs = params.toString();
-                window.location.href = qs ? (url + '?' + qs) : url;
+                if (values[key].length === 1) {
+                    params.set(key, values[key][0]);
+                } else {
+                    params.set(key, values[key].join(','));
+                }
             });
+
+            var qs = params.toString();
+            window.location.href = qs ? (url + '?' + qs) : url;
+        });
+    }
+
+    function init(context) {
+        var root = context && context.querySelectorAll ? context : document;
+
+        root.querySelectorAll('.property-filter-multiselect').forEach(createMultiSelect);
+
+        root.querySelectorAll('.property-filter-widget form').forEach(bindFormSubmit);
+    }
+
+    function bindElementorHooks() {
+        if (typeof window.elementorFrontend === 'undefined' || !window.elementorFrontend.hooks) {
+            return;
+        }
+
+        window.elementorFrontend.hooks.addAction('frontend/element_ready/global', function ($scope) {
+            if ($scope && $scope[0]) {
+                init($scope[0]);
+            }
         });
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', function () {
+            init(document);
+            bindElementorHooks();
+        });
     } else {
-        init();
+        init(document);
+        bindElementorHooks();
     }
 })();

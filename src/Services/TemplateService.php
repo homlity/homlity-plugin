@@ -18,6 +18,7 @@ class TemplateService implements ServiceInterface
     public function register(): void
     {
         add_filter('query_vars', [$this, 'registerQueryVars']);
+        add_filter('request', [$this, 'normalizeSeoArchiveRequest'], 1);
         add_action('init', [$this, 'addRewriteRules']);
         add_filter('template_include', [$this, 'maybeLoadTemplate']);
         add_action('pre_get_posts', [$this, 'filterArchiveQuery']);
@@ -46,11 +47,72 @@ class TemplateService implements ServiceInterface
         $vars[] = 'area_max';
         $vars[] = 'date_from';
         $vars[] = 'date_to';
+        $vars[] = 'homlity_property_archive';
         return $vars;
+    }
+
+    public function normalizeSeoArchiveRequest(array $queryVars): array
+    {
+        if (is_admin()) {
+            return $queryVars;
+        }
+
+        if ($this->isElementorEditorRequest()) {
+            return $queryVars;
+        }
+
+        $requestUri = (string) ($_SERVER['REQUEST_URI'] ?? '');
+        $path = trim((string) wp_parse_url($requestUri, PHP_URL_PATH), '/');
+        if ($path === '') {
+            return $queryVars;
+        }
+
+        $parts = explode('/', $path);
+        if (($parts[0] ?? '') !== 'inmuebles') {
+            return $queryVars;
+        }
+
+        $queryVars['homlity_property_archive'] = '1';
+        $hasArchivePageContext = !empty($queryVars['page_id']) || !empty($queryVars['pagename']);
+        if (!$hasArchivePageContext && (!isset($queryVars['post_type']) || $queryVars['post_type'] === '')) {
+            $queryVars['post_type'] = PropertyPostType::POST_TYPE;
+            unset($queryVars['name'], $queryVars['pagename'], $queryVars['page_id'], $queryVars['attachment']);
+        }
+
+        if (count($parts) < 2) {
+            return $queryVars;
+        }
+
+        for ($i = 1; $i < count($parts); $i += 2) {
+            $key = sanitize_key((string) ($parts[$i] ?? ''));
+            $rawValue = (string) ($parts[$i + 1] ?? '');
+            if ($key === '' || $rawValue === '') {
+                continue;
+            }
+
+            $value = sanitize_title(rawurldecode($rawValue));
+            if ($value === '') {
+                continue;
+            }
+
+            if ($key === 'gestion') {
+                $queryVars['gestion'] = $value;
+            } elseif ($key === 'tipo') {
+                $queryVars['tipo'] = $value;
+            } elseif ($key === 'ciudad') {
+                $queryVars['ciudad'] = $value;
+            } elseif ($key === 'barrios') {
+                $queryVars['barrios'] = $value;
+            }
+        }
+
+        return $queryVars;
     }
 
     public function addRewriteRules(): void
     {
+        $archivePageId = (int) get_option('homlity_plugin_archive_page_id', 0);
+
         add_rewrite_rule(
             '^property-agent/([^/]+)/?$',
             'index.php?property_agent=$matches[1]',
@@ -63,11 +125,19 @@ class TemplateService implements ServiceInterface
             'top'
         );
 
-        add_rewrite_rule(
-            '^inmuebles(?:/gestion/([^/]+))?(?:/tipo/([^/]+))?(?:/ciudad/([^/]+))?(?:/barrios/([^/]+))?/?$',
-            'index.php?post_type=' . PropertyPostType::POST_TYPE . '&gestion=$matches[1]&tipo=$matches[2]&ciudad=$matches[3]&barrios=$matches[4]',
-            'top'
-        );
+        if ($archivePageId > 0) {
+            add_rewrite_rule(
+                '^inmuebles(?:/gestion/([^/]+))?(?:/tipo/([^/]+))?(?:/ciudad/([^/]+))?(?:/barrios/([^/]+))?/?$',
+                'index.php?page_id=' . $archivePageId . '&homlity_property_archive=1&gestion=$matches[1]&tipo=$matches[2]&ciudad=$matches[3]&barrios=$matches[4]',
+                'top'
+            );
+        } else {
+            add_rewrite_rule(
+                '^inmuebles(?:/gestion/([^/]+))?(?:/tipo/([^/]+))?(?:/ciudad/([^/]+))?(?:/barrios/([^/]+))?/?$',
+                'index.php?post_type=' . PropertyPostType::POST_TYPE . '&homlity_property_archive=1&gestion=$matches[1]&tipo=$matches[2]&ciudad=$matches[3]&barrios=$matches[4]',
+                'top'
+            );
+        }
     }
 
     public function redirectLegacyEnglishUrls(): void
@@ -97,11 +167,23 @@ class TemplateService implements ServiceInterface
             return;
         }
 
+        if ($this->isElementorEditorRequest()) {
+            return;
+        }
+
         $archivePageId = (int) get_option('homlity_plugin_archive_page_id', 0);
+        $isSeoArchiveRequest = ((string) get_query_var('homlity_property_archive', '') === '1');
         $isArchivePage = $archivePageId > 0 && $query->is_page($archivePageId);
 
-        if ($isArchivePage) {
-            if (get_post_meta($archivePageId, '_elementor_edit_mode', true) === 'builder') {
+        // Keep Elementor page rendering for /inmuebles/ and SEO-friendly filtered routes
+        // like /inmuebles/gestion/... when an archive page is configured.
+        if ($archivePageId > 0 && ($isArchivePage || $isSeoArchiveRequest)) {
+            $this->isArchivePage = true;
+            return;
+        }
+
+        if ($isArchivePage || $isSeoArchiveRequest) {
+            if ($isArchivePage && get_post_meta($archivePageId, '_elementor_edit_mode', true) === 'builder') {
                 return;
             }
 
@@ -115,7 +197,7 @@ class TemplateService implements ServiceInterface
             $query->is_post_type_archive = [PropertyPostType::POST_TYPE];
         }
 
-        if ($query->is_post_type_archive(PropertyPostType::POST_TYPE) || $isArchivePage) {
+        if ($query->is_post_type_archive(PropertyPostType::POST_TYPE) || $isArchivePage || $isSeoArchiveRequest) {
             $taxQuery = [];
             $metaQuery = ['relation' => 'AND'];
             $settings = get_option(HOMLITY_PLUGIN_SETTINGS_OPTION, ['archive_per_page' => 12, 'archive_order' => 'created_desc']);
@@ -142,6 +224,24 @@ class TemplateService implements ServiceInterface
                         'terms' => array_map('sanitize_text_field', (array) $_GET[$param]),
                     ];
                 }
+            }
+
+            $seoTaxMap = [
+                'gestion' => PropertyTaxonomies::TAXONOMY_OPERATION,
+                'tipo' => PropertyTaxonomies::TAXONOMY_TYPE,
+                'ciudad' => PropertyTaxonomies::TAXONOMY_CITY,
+                'barrios' => PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD,
+            ];
+            foreach ($seoTaxMap as $qv => $taxonomy) {
+                $qvValue = (string) get_query_var($qv, '');
+                if ($qvValue === '') {
+                    continue;
+                }
+                $taxQuery[] = [
+                    'taxonomy' => $taxonomy,
+                    'field' => 'slug',
+                    'terms' => [sanitize_title($qvValue)],
+                ];
             }
 
             $priceMin = isset($_GET['price_min']) ? (float) $_GET['price_min'] : null;
@@ -234,6 +334,10 @@ class TemplateService implements ServiceInterface
 
     public function maybeLoadTemplate(string $template): string
     {
+        if ($this->isElementorEditorRequest()) {
+            return $template;
+        }
+
         if (get_query_var('property_agent')) {
             return self::locateTemplate('property-agent.php', $template);
         }
@@ -242,7 +346,22 @@ class TemplateService implements ServiceInterface
             return self::locateTemplate('single-property.php', $template);
         }
 
-        if (is_post_type_archive(PropertyPostType::POST_TYPE) || $this->isArchivePage) {
+        // For SEO archive routes, keep the configured archive page template (Elementor),
+        // do not override it with archive-property.php.
+        $archivePageId = (int) get_option('homlity_plugin_archive_page_id', 0);
+        $isSeoArchiveRequest = ((string) get_query_var('homlity_property_archive', '') === '1');
+        if ($archivePageId > 0 && $isSeoArchiveRequest) {
+            $queriedObjectId = (int) get_queried_object_id();
+            if ($queriedObjectId === $archivePageId || is_page($archivePageId)) {
+                return $template;
+            }
+        }
+
+        if (
+            is_post_type_archive(PropertyPostType::POST_TYPE)
+            || $this->isArchivePage
+            || $isSeoArchiveRequest
+        ) {
             return self::locateTemplate('archive-property.php', $template);
         }
 
@@ -373,11 +492,20 @@ class TemplateService implements ServiceInterface
 
     public function injectElementorAdminBarLinks(array $settings): array
     {
-        if (
-            !is_admin_bar_showing() ||
-            !is_singular(PropertyPostType::POST_TYPE) ||
-            !isset($settings['elementor_edit_page'])
-        ) {
+        if (!is_admin_bar_showing() || !isset($settings['elementor_edit_page'])) {
+            return $settings;
+        }
+
+        $isSeoArchiveRequest = ((string) get_query_var('homlity_property_archive', '') === '1');
+        if ($isSeoArchiveRequest || is_post_type_archive(PropertyPostType::POST_TYPE)) {
+            $archivePageId = (int) get_option('homlity_plugin_archive_page_id', 0);
+            if ($archivePageId > 0 && current_user_can('edit_post', $archivePageId)) {
+                $settings['elementor_edit_page']['href'] = admin_url('post.php?post=' . $archivePageId . '&action=elementor');
+            }
+            return $settings;
+        }
+
+        if (!is_singular(PropertyPostType::POST_TYPE)) {
             return $settings;
         }
 
@@ -588,5 +716,26 @@ class TemplateService implements ServiceInterface
             hexdec(substr($normalized, 2, 2)),
             hexdec(substr($normalized, 4, 2)),
         ];
+    }
+
+    private function isElementorEditorRequest(): bool
+    {
+        if (is_admin()) {
+            return true;
+        }
+
+        if (isset($_GET['action']) && sanitize_key((string) $_GET['action']) === 'elementor') {
+            return true;
+        }
+
+        if (isset($_GET['elementor-preview']) || isset($_GET['elementor_library'])) {
+            return true;
+        }
+
+        if (isset($_GET['preview']) && (string) $_GET['preview'] === 'true') {
+            return true;
+        }
+
+        return false;
     }
 }

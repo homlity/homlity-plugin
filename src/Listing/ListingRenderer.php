@@ -77,6 +77,15 @@ class ListingRenderer
             }
         }
 
+        if (!$hasRequestFilters) {
+            foreach (['gestion', 'tipo', 'ciudad', 'barrios'] as $seoVar) {
+                if ((string) get_query_var($seoVar, '') !== '') {
+                    $hasRequestFilters = true;
+                    break;
+                }
+            }
+        }
+
         if (($params['query_mode'] ?? '') === 'current' || $hasRequestFilters) {
             $currentParams = $this->search->currentQueryParams();
             foreach ($currentParams as $key => $value) {
@@ -159,6 +168,13 @@ class ListingRenderer
         );
 
         wp_enqueue_style(
+            'homlity-plugin-swiper',
+            'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css',
+            [],
+            '11.1.4'
+        );
+
+        wp_enqueue_style(
             'homlity-plugin-leaflet',
             'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
             [],
@@ -174,9 +190,17 @@ class ListingRenderer
         );
 
         wp_enqueue_script(
+            'homlity-plugin-swiper',
+            'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js',
+            [],
+            '11.1.4',
+            true
+        );
+
+        wp_enqueue_script(
             'homlity-plugin-listing',
             HOMLITY_PLUGIN_URL . 'assets/js/property-listing.js',
-            ['homlity-plugin-leaflet'],
+            ['homlity-plugin-leaflet', 'homlity-plugin-swiper'],
             HOMLITY_PLUGIN_VERSION,
             true
         );

@@ -11,8 +11,11 @@ use Homlity\PluginInmobiliario\Integrations\Shortcode\ShortcodeIntegrationServic
 use Homlity\PluginInmobiliario\Integrations\WPBakery\WPBakeryIntegrationService;
 use Homlity\PluginInmobiliario\Services\AdminMenuService;
 use Homlity\PluginInmobiliario\Services\CapabilityService;
+use Homlity\PluginInmobiliario\Services\CrmIntegrationService;
+use Homlity\PluginInmobiliario\Services\CrmAdminService;
 use Homlity\PluginInmobiliario\Services\CurrencyService;
 use Homlity\PluginInmobiliario\Services\ElementorIntegrationService;
+use Homlity\PluginInmobiliario\Services\CrmInfrastructureService;
 use Homlity\PluginInmobiliario\Services\I18nService;
 use Homlity\PluginInmobiliario\Services\LocationMetaService;
 use Homlity\PluginInmobiliario\Services\PropertyAjaxService;
@@ -50,6 +53,9 @@ class PluginBootstrap
             new CurrencyService(),
             new SeoService(),
             new SeoIntegrationService(),
+            new CrmInfrastructureService(),
+            new CrmIntegrationService(),
+            new CrmAdminService(),
             new TemplateService(),
 
             // Listing AJAX handler (shared by all page-builder adapters)

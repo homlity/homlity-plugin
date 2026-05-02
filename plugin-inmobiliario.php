@@ -123,9 +123,17 @@ if (file_exists(HOMLITY_PLUGIN_PATH . 'vendor/autoload.php')) {
 
 // Bootstrap principal del plugin
 add_action('plugins_loaded', static function () {
+    load_plugin_textdomain(
+        HOMLITY_PLUGIN_TEXT_DOMAIN,
+        false,
+        dirname(plugin_basename(HOMLITY_PLUGIN_FILE)) . '/languages'
+    );
+}, 1);
+
+add_action('plugins_loaded', static function () {
     $plugin = new Homlity\PluginInmobiliario\Core\PluginBootstrap();
     $plugin->init();
-});
+}, 20);
 
 register_activation_hook(__FILE__, static function () {
     // Ensure CPT and taxonomies exist before seeding terms.

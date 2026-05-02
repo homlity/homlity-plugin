@@ -84,6 +84,17 @@ class PropertyListingWidget extends Widget_Base
             'default' => 'single',
         ]);
 
+        $this->add_control('card_visual_preset', [
+            'label' => __('Preset visual tarjeta', 'homlity-plugin'),
+            'type' => Controls_Manager::SELECT,
+            'options' => [
+                'default' => __('Clásico', 'homlity-plugin'),
+                'cover_overlay' => __('Portada con overlay', 'homlity-plugin'),
+                'minimal_light' => __('Minimal claro', 'homlity-plugin'),
+            ],
+            'default' => 'default',
+        ]);
+
         foreach ([
             'card_show_title' => __('Mostrar título', 'homlity-plugin'),
             'card_show_excerpt' => __('Mostrar descripción corta', 'homlity-plugin'),
@@ -359,7 +370,7 @@ class PropertyListingWidget extends Widget_Base
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%', 'em'],
             'selectors' => [
-                '{{WRAPPER}} .property-card > a' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                '{{WRAPPER}} .property-card__content' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 '{{WRAPPER}} .property-card-bs .card-body' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
             ],
         ]);
@@ -401,42 +412,42 @@ class PropertyListingWidget extends Widget_Base
         $this->add_group_control(Group_Control_Typography::get_type(), [
             'name' => 'card_title_typography',
             'label' => __('Tipografía título', 'homlity-plugin'),
-            'selector' => '{{WRAPPER}} .property-card__title, {{WRAPPER}} .property-card-bs .card-title',
+            'selector' => '{{WRAPPER}} .property-card__title, {{WRAPPER}} .property-card-bs .card-title, {{WRAPPER}} .property-card__overlay-title',
         ]);
 
         $this->add_control('card_title_color', [
             'label' => __('Color título', 'homlity-plugin'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-card__title, {{WRAPPER}} .property-card-bs .card-title' => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-card__title, {{WRAPPER}} .property-card-bs .card-title, {{WRAPPER}} .property-card__overlay-title' => 'color: {{VALUE}};',
             ],
         ]);
 
         $this->add_group_control(Group_Control_Typography::get_type(), [
             'name' => 'card_excerpt_typography',
             'label' => __('Tipografía descripción', 'homlity-plugin'),
-            'selector' => '{{WRAPPER}} .property-card__excerpt, {{WRAPPER}} .property-card-bs .property-card__excerpt',
+            'selector' => '{{WRAPPER}} .property-card__excerpt, {{WRAPPER}} .property-card-bs .property-card__excerpt, {{WRAPPER}} .property-card__overlay-location',
         ]);
 
         $this->add_control('card_excerpt_color', [
             'label' => __('Color descripción', 'homlity-plugin'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-card__excerpt, {{WRAPPER}} .property-card-bs .property-card__excerpt' => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-card__excerpt, {{WRAPPER}} .property-card-bs .property-card__excerpt, {{WRAPPER}} .property-card__overlay-location' => 'color: {{VALUE}};',
             ],
         ]);
 
         $this->add_group_control(Group_Control_Typography::get_type(), [
             'name' => 'card_operation_typography',
             'label' => __('Tipografía gestión', 'homlity-plugin'),
-            'selector' => '{{WRAPPER}} .property-card__operation',
+            'selector' => '{{WRAPPER}} .property-card__operation, {{WRAPPER}} .property-card__overlay-operation',
         ]);
 
         $this->add_control('card_operation_color', [
             'label' => __('Color gestión', 'homlity-plugin'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-card__operation' => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-card__operation, {{WRAPPER}} .property-card__overlay-operation' => 'color: {{VALUE}};',
             ],
         ]);
 
@@ -450,14 +461,14 @@ class PropertyListingWidget extends Widget_Base
         $this->add_group_control(Group_Control_Typography::get_type(), [
             'name' => 'card_price_typography',
             'label' => __('Tipografía precio', 'homlity-plugin'),
-            'selector' => '{{WRAPPER}} .property-card__price, {{WRAPPER}} .property-card-bs [itemprop="price"]',
+            'selector' => '{{WRAPPER}} .property-card__price, {{WRAPPER}} .property-card-bs [itemprop="price"], {{WRAPPER}} .property-card__overlay-price',
         ]);
 
         $this->add_control('card_price_color', [
             'label' => __('Color precio', 'homlity-plugin'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-card__price, {{WRAPPER}} .property-card-bs [itemprop="price"]' => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-card__price, {{WRAPPER}} .property-card-bs [itemprop="price"], {{WRAPPER}} .property-card__overlay-price' => 'color: {{VALUE}};',
             ],
         ]);
 

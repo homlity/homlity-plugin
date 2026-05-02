@@ -55,6 +55,7 @@ class PropertyAjaxService implements ServiceInterface
             'geo_radius_km'    => (float) ($_POST['geo_radius_km'] ?? 0),
             'template'         => sanitize_key($_POST['template']   ?? 'default'),
             'card_media_mode'  => sanitize_key($_POST['card_media_mode'] ?? 'single'),
+            'card_visual_preset' => sanitize_key($_POST['card_visual_preset'] ?? 'default'),
             'card_show_title'  => !empty($_POST['card_show_title']),
             'card_show_excerpt' => !empty($_POST['card_show_excerpt']),
             'card_show_operation' => !empty($_POST['card_show_operation']),

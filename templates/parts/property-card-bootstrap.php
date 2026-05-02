@@ -66,6 +66,12 @@ $code      = get_post_meta($post_id, $meta['code'], true);
 // Agent / contact
 $agentId       = (int) get_post_meta($post_id, $meta['agent_id'], true);
 $agentPhone    = get_post_meta($post_id, $meta['agent_phone'], true);
+if (!$agentPhone && $agentId > 0) {
+    $agentPhone = (string) get_user_meta($agentId, 'homlity_plugin_phone', true);
+    if (!$agentPhone) {
+        $agentPhone = (string) get_user_meta($agentId, 'billing_phone', true);
+    }
+}
 $featured      = (bool) get_post_meta($post_id, $meta['featured'], true);
 $agentDigits   = $agentPhone ? preg_replace('/\D+/', '', $agentPhone) : '';
 
@@ -74,11 +80,13 @@ $operationTerms = wp_get_object_terms($post_id, PropertyTaxonomies::TAXONOMY_OPE
 $typeTerms      = wp_get_object_terms($post_id, PropertyTaxonomies::TAXONOMY_TYPE,      ['fields' => 'names']);
 $cityTerms      = wp_get_object_terms($post_id, PropertyTaxonomies::TAXONOMY_CITY,      ['fields' => 'names']);
 $neighborhood   = wp_get_object_terms($post_id, PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD, ['fields' => 'names']);
+$tagTerms       = wp_get_object_terms($post_id, PropertyTaxonomies::TAXONOMY_TAG, ['fields' => 'names']);
 
 $operationLabel = (!is_wp_error($operationTerms) && $operationTerms) ? $operationTerms[0] : '';
 $typeLabel      = (!is_wp_error($typeTerms)      && $typeTerms)      ? $typeTerms[0]      : '';
 $cityLabel      = (!is_wp_error($cityTerms)      && $cityTerms)      ? $cityTerms[0]      : '';
 $neighborLabel  = (!is_wp_error($neighborhood)   && $neighborhood)   ? $neighborhood[0]   : '';
+$tagTerms       = (!is_wp_error($tagTerms) && is_array($tagTerms)) ? array_slice($tagTerms, 0, 4) : [];
 
 // Cover image
 $coverImg = get_the_post_thumbnail_url($post_id, 'large') ?: '';
@@ -101,7 +109,7 @@ if ($cardOptions['media_mode'] === 'slider') {
 
 // WhatsApp link
 $whatsAppLink = '';
-if ($agentDigits && !empty($cardOptions['show_whatsapp']) && in_array('whatsapp', $listingFields, true)) {
+if ($agentDigits && !empty($cardOptions['show_whatsapp'])) {
     $msg          = rawurlencode(get_the_title($post_id) . ' – ' . get_permalink($post_id));
     $whatsAppLink = 'https://wa.me/' . $agentDigits . '?text=' . $msg;
 }
@@ -114,9 +122,12 @@ if ($priceSale) {
     $displayPrice = homlity_plugin_apply_filters('homlity_plugin_format_price', null, $priceRent, $currencyRent);
 }
 $showPrice = !empty($cardOptions['show_price']) && in_array('price', $listingFields, true);
+$visualPreset = (string) ($cardOptions['visual_preset'] ?? 'default');
+$isCoverOverlayPreset = ($visualPreset === 'cover_overlay');
+$presetClass = $visualPreset !== 'default' ? ' property-card--preset-' . sanitize_html_class(str_replace('_', '-', $visualPreset)) : '';
 ?>
 <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb-3">
-    <article class="card h-100 shadow-sm border-0 property-card-bs"
+    <article class="card h-100 shadow-sm border-0 property-card-bs<?php echo esc_attr($presetClass); ?>"
              itemscope itemtype="https://schema.org/Product"
              style="border-radius:16px;overflow:hidden;">
 
@@ -128,15 +139,29 @@ $showPrice = !empty($cardOptions['show_price']) && in_array('price', $listingFie
         <?php endif; ?>
 
         <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="text-decoration-none">
-            <?php if ($cardOptions['media_mode'] === 'slider' && count($galleryImages) > 1): ?>
-                <div class="property-card__gallery-slider property-card__gallery-slider--bootstrap">
-                    <?php foreach ($galleryImages as $img): ?>
-                        <img src="<?php echo esc_url($img); ?>"
-                             alt="<?php echo esc_attr(get_the_title($post_id)); ?>"
-                             itemprop="image"
-                             class="card-img-top"
-                             style="height:220px;object-fit:cover;">
+            <?php if (!empty($tagTerms)): ?>
+                <div class="property-card__media-tags">
+                    <?php foreach ($tagTerms as $tagName): ?>
+                        <span class="property-card__media-tag"><?php echo esc_html($tagName); ?></span>
                     <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            <?php if ($cardOptions['media_mode'] === 'slider' && count($galleryImages) > 1): ?>
+                <div class="property-card__gallery-slider property-card__gallery-slider--bootstrap swiper" data-homlity-card-swiper="1">
+                    <div class="swiper-wrapper">
+                        <?php foreach ($galleryImages as $img): ?>
+                            <div class="swiper-slide">
+                                <img src="<?php echo esc_url($img); ?>"
+                                     alt="<?php echo esc_attr(get_the_title($post_id)); ?>"
+                                     itemprop="image"
+                                     class="card-img-top"
+                                     style="height:220px;object-fit:cover;">
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="swiper-pagination"></div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
                 </div>
             <?php else: ?>
                 <img src="<?php echo esc_url($coverImg); ?>"
@@ -146,11 +171,46 @@ $showPrice = !empty($cardOptions['show_price']) && in_array('price', $listingFie
                      style="height:220px;object-fit:cover;"
                      onerror="this.style.display='none'">
             <?php endif; ?>
+
+            <?php if ($isCoverOverlayPreset): ?>
+                <div class="property-card__overlay">
+                    <?php if ($displayPrice && $showPrice) : ?>
+                        <p class="property-card__overlay-price"><?php echo esc_html($displayPrice); ?></p>
+                    <?php endif; ?>
+                    <?php if (!empty($cardOptions['show_title'])) : ?>
+                        <h2 class="property-card__overlay-title"><?php echo esc_html(get_the_title($post_id)); ?></h2>
+                    <?php endif; ?>
+                    <?php if (!empty($cardOptions['show_operation']) && ($typeLabel || $operationLabel)) : ?>
+                        <p class="property-card__overlay-operation">
+                            <?php echo esc_html(implode(' ', array_filter([$typeLabel, $operationLabel ? __('en', 'homlity-plugin') . ' ' . $operationLabel : '']))); ?>
+                            <?php if ($displayPrice && $showPrice): ?>
+                                <span class="property-card__operation-price"><?php echo esc_html($displayPrice); ?></span>
+                            <?php endif; ?>
+                        </p>
+                    <?php endif; ?>
+                    <?php if (!empty($cardOptions['show_features'])) : ?>
+                        <div class="property-card__overlay-features">
+                            <?php if (!empty($cardOptions['feature_area']) && $area) : ?>
+                                <span class="property-card__overlay-chip"><?php echo esc_html($area); ?> m²</span>
+                            <?php endif; ?>
+                            <?php if (!empty($cardOptions['feature_bedrooms']) && $bedrooms) : ?>
+                                <span class="property-card__overlay-chip"><?php echo esc_html($bedrooms); ?></span>
+                            <?php endif; ?>
+                            <?php if (!empty($cardOptions['feature_bathrooms']) && $bathrooms) : ?>
+                                <span class="property-card__overlay-chip"><?php echo esc_html($bathrooms); ?></span>
+                            <?php endif; ?>
+                            <?php if (!empty($cardOptions['feature_parking']) && $parking) : ?>
+                                <span class="property-card__overlay-chip"><?php echo esc_html($parking); ?></span>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
         </a>
 
         <div class="card-body d-flex flex-column gap-2 p-3">
 
-            <?php if ($displayPrice && $showPrice) : ?>
+            <?php if (!$isCoverOverlayPreset && $displayPrice && $showPrice && empty($cardOptions['show_operation'])) : ?>
             <p class="mb-0 fw-bold fs-5 text-primary" itemprop="price">
                 <?php echo esc_html($displayPrice); ?>
                 <?php if ($priceRent && $priceAdmin && !$adminIncluded) : ?>
@@ -162,7 +222,7 @@ $showPrice = !empty($cardOptions['show_price']) && in_array('price', $listingFie
             </p>
             <?php endif; ?>
 
-            <?php if (!empty($cardOptions['show_title'])) : ?>
+            <?php if (!$isCoverOverlayPreset && !empty($cardOptions['show_title'])) : ?>
                 <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="text-decoration-none text-dark">
                     <h2 class="card-title fs-6 mb-0 fw-semibold" itemprop="name">
                         <?php echo esc_html(get_the_title($post_id)); ?>
@@ -170,9 +230,12 @@ $showPrice = !empty($cardOptions['show_price']) && in_array('price', $listingFie
                 </a>
             <?php endif; ?>
 
-            <?php if (!empty($cardOptions['show_operation']) && ($typeLabel || $operationLabel)) : ?>
+            <?php if (!$isCoverOverlayPreset && !empty($cardOptions['show_operation']) && ($typeLabel || $operationLabel)) : ?>
             <p class="mb-0 small text-muted property-card__operation">
                 <?php echo esc_html(implode(' ', array_filter([$typeLabel, $operationLabel ? __('en', 'homlity-plugin') . ' ' . $operationLabel : '']))); ?>
+                <?php if ($displayPrice && $showPrice): ?>
+                    <span class="property-card__operation-price"><?php echo esc_html($displayPrice); ?></span>
+                <?php endif; ?>
             </p>
             <?php endif; ?>
 
@@ -187,55 +250,73 @@ $showPrice = !empty($cardOptions['show_price']) && in_array('price', $listingFie
             </p>
             <?php endif; ?>
 
-            <?php if (!empty($cardOptions['show_excerpt']) && in_array('excerpt', $listingFields, true)) : ?>
+            <?php if (!$isCoverOverlayPreset && !empty($cardOptions['show_excerpt']) && in_array('excerpt', $listingFields, true)) : ?>
             <p class="card-text small text-muted mb-0 property-card__excerpt" itemprop="description">
                 <?php echo esc_html(wp_trim_words(get_the_excerpt($post_id), 18)); ?>
             </p>
             <?php endif; ?>
 
-            <?php if (!empty($cardOptions['show_features']) && in_array('features', $listingFields, true)) : ?>
+            <?php if (!$isCoverOverlayPreset && !empty($cardOptions['show_features'])) : ?>
             <ul class="list-inline mb-0 small d-flex flex-wrap gap-2 property-card__features">
                 <?php if (!empty($cardOptions['feature_area']) && $area) : ?>
-                <li class="list-inline-item text-muted">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 1h6v6H1zm8 0h6v6H9zM1 9h6v6H1zm8 0h6v6H9z"/></svg>
-                    <?php echo esc_html($area); ?> m²
+                <li class="list-inline-item text-muted property-card__feature-item" title="<?php esc_attr_e('Área', 'homlity-plugin'); ?>">
+                    <span class="property-card__feature-icon" aria-hidden="true">▦</span>
+                    <span class="property-card__feature-value"><?php echo esc_html($area); ?> m²</span>
                 </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_bedrooms']) && $bedrooms) : ?>
-                <li class="list-inline-item text-muted">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2a1 1 0 0 0-1 1v10a1 1 0 0 0 2 0V3a1 1 0 0 0-1-1zm10 0a1 1 0 0 0-1 1v4H4V3a1 1 0 0 0-2 0v10a1 1 0 0 0 2 0v-2h8v2a1 1 0 0 0 2 0V3a1 1 0 0 0-1-1z"/></svg>
-                    <?php echo esc_html($bedrooms); ?>
+                <li class="list-inline-item text-muted property-card__feature-item" title="<?php esc_attr_e('Alcobas', 'homlity-plugin'); ?>">
+                    <span class="property-card__feature-icon" aria-hidden="true">🛏</span>
+                    <span class="property-card__feature-value"><?php echo esc_html($bedrooms); ?></span>
                 </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_bathrooms']) && $bathrooms) : ?>
-                <li class="list-inline-item text-muted">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 3a1 1 0 0 0-2 0v3H2a1 1 0 0 0-1 1v1a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4V7a1 1 0 0 0-1-1h-1V3z"/></svg>
-                    <?php echo esc_html($bathrooms); ?>
+                <li class="list-inline-item text-muted property-card__feature-item" title="<?php esc_attr_e('Baños', 'homlity-plugin'); ?>">
+                    <span class="property-card__feature-icon" aria-hidden="true">🛁</span>
+                    <span class="property-card__feature-value"><?php echo esc_html($bathrooms); ?></span>
                 </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_parking']) && $parking) : ?>
-                <li class="list-inline-item text-muted">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm1 3v6h1.5V9H7a2 2 0 0 0 0-4H5zm1.5 1H7a.5.5 0 0 1 0 1H6.5V6z"/></svg>
-                    <?php echo esc_html($parking); ?>
+                <li class="list-inline-item text-muted property-card__feature-item" title="<?php esc_attr_e('Garajes', 'homlity-plugin'); ?>">
+                    <span class="property-card__feature-icon" aria-hidden="true">🚗</span>
+                    <span class="property-card__feature-value"><?php echo esc_html($parking); ?></span>
                 </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_area_lot']) && $areaLot) : ?>
-                <li class="list-inline-item text-muted"><?php echo esc_html($areaLot); ?> m² <?php esc_html_e('lote', 'homlity-plugin'); ?></li>
+                <li class="list-inline-item text-muted property-card__feature-item" title="<?php esc_attr_e('Área lote', 'homlity-plugin'); ?>">
+                    <span class="property-card__feature-icon" aria-hidden="true">▣</span>
+                    <span class="property-card__feature-value"><?php echo esc_html($areaLot); ?> m²</span>
+                </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_area_private']) && $areaPrivate) : ?>
-                <li class="list-inline-item text-muted"><?php echo esc_html($areaPrivate); ?> m² <?php esc_html_e('privada', 'homlity-plugin'); ?></li>
+                <li class="list-inline-item text-muted property-card__feature-item" title="<?php esc_attr_e('Área privada', 'homlity-plugin'); ?>">
+                    <span class="property-card__feature-icon" aria-hidden="true">◫</span>
+                    <span class="property-card__feature-value"><?php echo esc_html($areaPrivate); ?> m²</span>
+                </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_area_built']) && $areaBuilt) : ?>
-                <li class="list-inline-item text-muted"><?php echo esc_html($areaBuilt); ?> m² <?php esc_html_e('construida', 'homlity-plugin'); ?></li>
+                <li class="list-inline-item text-muted property-card__feature-item" title="<?php esc_attr_e('Área construida', 'homlity-plugin'); ?>">
+                    <span class="property-card__feature-icon" aria-hidden="true">◧</span>
+                    <span class="property-card__feature-value"><?php echo esc_html($areaBuilt); ?> m²</span>
+                </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_age']) && $age) : ?>
-                <li class="list-inline-item text-muted"><?php echo esc_html($age); ?> <?php esc_html_e('años', 'homlity-plugin'); ?></li>
+                <li class="list-inline-item text-muted property-card__feature-item" title="<?php esc_attr_e('Año/Edad', 'homlity-plugin'); ?>">
+                    <span class="property-card__feature-icon" aria-hidden="true">◷</span>
+                    <span class="property-card__feature-value"><?php echo esc_html($age); ?></span>
+                </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_condition']) && $condition) : ?>
-                <li class="list-inline-item text-muted"><?php echo esc_html($condition); ?></li>
+                <li class="list-inline-item text-muted property-card__feature-item" title="<?php esc_attr_e('Estado', 'homlity-plugin'); ?>">
+                    <span class="property-card__feature-icon" aria-hidden="true">◆</span>
+                    <span class="property-card__feature-value"><?php echo esc_html($condition); ?></span>
+                </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_code']) && $code) : ?>
-                <li class="list-inline-item text-muted">#<?php echo esc_html($code); ?></li>
+                <li class="list-inline-item text-muted property-card__feature-item" title="<?php esc_attr_e('Código', 'homlity-plugin'); ?>">
+                    <span class="property-card__feature-icon" aria-hidden="true">#</span>
+                    <span class="property-card__feature-value"><?php echo esc_html($code); ?></span>
+                </li>
                 <?php endif; ?>
             </ul>
             <?php endif; ?>

@@ -47,6 +47,7 @@ class ListingConfig
         'map_zoom'               => 12,
         'template'               => 'default', // 'default' | 'bootstrap'
         'card_media_mode'        => 'single', // 'single' | 'slider'
+        'card_visual_preset'     => 'default', // 'default' | 'cover_overlay' | 'minimal_light'
         'card_show_title'        => true,
         'card_show_excerpt'      => true,
         'card_show_operation'    => true,
@@ -120,6 +121,7 @@ class ListingConfig
             'map_zoom'              => max(1, (int) ($settings['map_zoom'] ?? 12)),
             'template'              => self::sanitizeTemplate($settings['template'] ?? 'default'),
             'card_media_mode'       => self::sanitizeMediaMode($settings['card_media_mode'] ?? 'single'),
+            'card_visual_preset'    => self::sanitizeCardPreset($settings['card_visual_preset'] ?? 'default'),
             'card_show_title'       => !empty($settings['card_show_title']),
             'card_show_excerpt'     => !empty($settings['card_show_excerpt']),
             'card_show_operation'   => !empty($settings['card_show_operation']),
@@ -186,6 +188,7 @@ class ListingConfig
             'map_zoom'              => max(1, (int) ($atts['map_zoom'] ?? 12)),
             'template'              => self::sanitizeTemplate($atts['template'] ?? 'default'),
             'card_media_mode'       => self::sanitizeMediaMode($atts['card_media'] ?? 'single'),
+            'card_visual_preset'    => self::sanitizeCardPreset($atts['card_preset'] ?? 'default'),
             'card_show_title'       => $bool($atts['card_title'] ?? null, true),
             'card_show_excerpt'     => $bool($atts['card_excerpt'] ?? null, true),
             'card_show_operation'   => $bool($atts['card_operation'] ?? null, true),
@@ -237,6 +240,7 @@ class ListingConfig
     public function template(): string     { return (string) $this->data['template']; }
     public function cardOptions(): array   { return [
         'media_mode' => (string) $this->data['card_media_mode'],
+        'visual_preset' => (string) $this->data['card_visual_preset'],
         'show_title' => (bool) $this->data['card_show_title'],
         'show_excerpt' => (bool) $this->data['card_show_excerpt'],
         'show_operation' => (bool) $this->data['card_show_operation'],
@@ -314,5 +318,10 @@ class ListingConfig
     private static function sanitizeMediaMode(string $value): string
     {
         return in_array($value, ['single', 'slider'], true) ? $value : 'single';
+    }
+
+    private static function sanitizeCardPreset(string $value): string
+    {
+        return in_array($value, ['default', 'cover_overlay', 'minimal_light'], true) ? $value : 'default';
     }
 }

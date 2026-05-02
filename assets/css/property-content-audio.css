@@ -1,0 +1,31 @@
+.property-content-audio {
+  margin-top: 14px;
+  border: 1px solid #d0d5dd;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+
+.property-content-audio__title {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.property-content-audio__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.property-content-audio__controls button,
+.property-content-audio__controls select,
+.property-content-audio__controls input[type="range"] {
+  min-height: 34px;
+}
+
+.property-content-audio__controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

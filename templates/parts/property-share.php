@@ -14,8 +14,65 @@ $s     = $settings ?? [];
 $url   = get_permalink($post_id) ?: '';
 $title = get_the_title($post_id) ?: '';
 
-$shareTextTpl = $s['share_text'] ?? __('Mira este inmueble: {title}', 'homlity-plugin');
-$shareText    = str_replace(['{title}', '{url}'], [$title, $url], $shareTextTpl);
+$bedrooms = get_post_meta($post_id, '_property_bedrooms', true);
+$bathrooms = get_post_meta($post_id, '_property_bathrooms', true);
+$parking = get_post_meta($post_id, '_property_parking', true);
+$area = get_post_meta($post_id, '_property_area', true);
+$priceSale = get_post_meta($post_id, '_property_price_sale', true);
+$priceRent = get_post_meta($post_id, '_property_price_rent', true);
+
+$formatNumber = static function ($value): string {
+    if ($value === '' || $value === null) {
+        return '';
+    }
+    $number = (float) preg_replace('/[^0-9\.\-]/', '', (string) $value);
+    if ($number <= 0) {
+        return '';
+    }
+    return number_format_i18n($number, 0);
+};
+
+$displayPrice = $formatNumber($priceSale);
+if ($displayPrice === '') {
+    $displayPrice = $formatNumber($priceRent);
+}
+
+$summaryParts = [];
+if ($title !== '') {
+    $summaryParts[] = $title;
+}
+if ($bedrooms !== '') {
+    $summaryParts[] = sprintf(__('alcobas: %s', 'homlity-plugin'), $bedrooms);
+}
+if ($bathrooms !== '') {
+    $summaryParts[] = sprintf(__('baños: %s', 'homlity-plugin'), $bathrooms);
+}
+if ($parking !== '') {
+    $summaryParts[] = sprintf(__('parqueaderos: %s', 'homlity-plugin'), $parking);
+}
+if ($area !== '') {
+    $summaryParts[] = sprintf(__('área: %sm2', 'homlity-plugin'), $area);
+}
+if ($displayPrice !== '') {
+    $summaryParts[] = sprintf(__('valor: %s', 'homlity-plugin'), $displayPrice);
+}
+
+$propertySummary = trim(implode(' | ', $summaryParts));
+if ($propertySummary === '') {
+    $propertySummary = $title;
+}
+
+$shareTextTpl = $s['share_text'] ?? '{summary} {url}';
+$shareText    = str_replace(
+    ['{title}', '{url}', '{summary}', '{bedrooms}', '{bathrooms}', '{parking}', '{area}', '{price}'],
+    [$title, $url, $propertySummary, (string) $bedrooms, (string) $bathrooms, (string) $parking, (string) $area, (string) $displayPrice],
+    $shareTextTpl
+);
+$shareText = trim((string) $shareText);
+if ($shareText === '') {
+    $shareText = trim($propertySummary . ' ' . $url);
+}
+$headingText  = trim((string) ($s['heading_text'] ?? __('Compartir en:', 'homlity-plugin')));
 
 $platforms = [
     'whatsapp'  => [
@@ -65,37 +122,46 @@ $platforms = [
     ],
 ];
 
-$hasCopy = ($s['show_copy'] ?? 'yes') === 'yes';
 ?>
-<ul class="property-share-widget">
-    <?php foreach ($platforms as $key => $platform): ?>
-        <?php
-        if (($s['show_' . $key] ?? 'yes') !== 'yes') {
-            continue;
-        }
-        $icon = $s['icon_' . $key] ?? [];
-        ?>
-        <li class="property-share__item">
-            <a
-                class="property-share__link<?php echo $platform['copy'] ? ' property-share__copy' : ''; ?>"
-                href="<?php echo esc_url($platform['href']); ?>"
-                <?php if (!$platform['copy']): ?>
-                    target="_blank"
-                    rel="noopener noreferrer"
-                <?php else: ?>
-                    data-copy-url="<?php echo esc_url($url); ?>"
-                    onclick="event.preventDefault(); if(navigator.clipboard){navigator.clipboard.writeText(this.dataset.copyUrl).then(function(){var el=this;},function(){});} var l=this.querySelector('.property-share__value');if(l){var orig=l.textContent;l.textContent='<?php echo esc_js(__('¡Copiado!', 'homlity-plugin')); ?>';setTimeout(function(){l.textContent=orig;},2000);}"
-                <?php endif; ?>
-                title="<?php echo esc_attr($platform['label']); ?>"
-            >
-                <?php if (!empty($icon['value']) && class_exists('\Elementor\Icons_Manager')): ?>
-                    <span class="property-share__icon">
-                        <?php \Elementor\Icons_Manager::render_icon($icon, ['aria-hidden' => 'true']); ?>
-                    </span>
-                <?php endif; ?>
-                <span class="property-share__label"><?php echo esc_html($platform['label']); ?></span>
-                <span class="property-share__value"><?php echo esc_html($platform['copy'] ? $url : $shareText); ?></span>
-            </a>
-        </li>
-    <?php endforeach; ?>
-</ul>
+<div class="property-share-widget property-share-widget--inline">
+    <?php if ($headingText !== ''): ?>
+        <p class="property-share-widget__heading"><?php echo esc_html($headingText); ?></p>
+    <?php endif; ?>
+    <ul class="property-share-widget__list">
+        <?php foreach ($platforms as $key => $platform): ?>
+            <?php
+            if (($s['show_' . $key] ?? 'yes') !== 'yes') {
+                continue;
+            }
+            $icon = $s['icon_' . $key] ?? [];
+            if (is_string($icon) && $icon !== '') {
+                $icon = ['value' => $icon, 'library' => 'fa-solid'];
+            }
+            ?>
+            <li class="property-share__item">
+                <a
+                    class="property-share__link<?php echo $platform['copy'] ? ' property-share__copy' : ''; ?>"
+                    href="<?php echo esc_url($platform['href']); ?>"
+                    <?php if (!$platform['copy']): ?>
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    <?php else: ?>
+                        data-copy-url="<?php echo esc_url($url); ?>"
+                        onclick="event.preventDefault(); if(navigator.clipboard){navigator.clipboard.writeText(this.dataset.copyUrl).then(function(){},function(){});} this.classList.add('is-copied'); setTimeout(()=>this.classList.remove('is-copied'),1600);"
+                    <?php endif; ?>
+                    title="<?php echo esc_attr($platform['label']); ?>"
+                    aria-label="<?php echo esc_attr($platform['label']); ?>"
+                >
+                    <?php if (!empty($icon['value']) && class_exists('\Elementor\Icons_Manager')): ?>
+                        <span class="property-share__icon">
+                            <?php \Elementor\Icons_Manager::render_icon($icon, ['aria-hidden' => 'true']); ?>
+                        </span>
+                    <?php else: ?>
+                        <span class="property-share__icon" aria-hidden="true">•</span>
+                    <?php endif; ?>
+                    <span class="screen-reader-text"><?php echo esc_html($platform['label']); ?></span>
+                </a>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+</div>

@@ -46,6 +46,7 @@
         this.neighborhood     = el.dataset.neighborhood || '';
         this.nearby           = el.dataset.nearby || '';
         this.cardMediaMode    = el.dataset.cardMediaMode || 'single';
+        this.cardVisualPreset = el.dataset.cardVisualPreset || 'default';
         this.cardShowTitle    = el.dataset.cardShowTitle || '1';
         this.cardShowExcerpt  = el.dataset.cardShowExcerpt || '1';
         this.cardShowOperation = el.dataset.cardShowOperation || '1';
@@ -92,6 +93,7 @@
         this.overlay     = el.querySelector('.property-listing__overlay');
 
         this._bindEvents();
+        this._initCardSwipers();
 
         if (this.view === 'map') {
             this._initMap(this.mapData);
@@ -107,6 +109,34 @@
             el.setAttribute('hidden', '');
             el.style.display = 'none';
         }
+    };
+
+    PropertyListing.prototype._initCardSwipers = function () {
+        if (typeof window.Swiper === 'undefined') {
+            return;
+        }
+
+        var sliders = this.el.querySelectorAll('[data-homlity-card-swiper="1"]');
+        sliders.forEach(function (sliderNode) {
+            if (sliderNode.dataset.swiperReady === '1') {
+                return;
+            }
+
+            var paginationEl = sliderNode.querySelector('.swiper-pagination');
+            var nextEl = sliderNode.querySelector('.swiper-button-next');
+            var prevEl = sliderNode.querySelector('.swiper-button-prev');
+
+            new window.Swiper(sliderNode, {
+                slidesPerView: 1,
+                spaceBetween: 0,
+                loop: true,
+                speed: 420,
+                pagination: paginationEl ? { el: paginationEl, clickable: true } : undefined,
+                navigation: (nextEl && prevEl) ? { nextEl: nextEl, prevEl: prevEl } : undefined
+            });
+
+            sliderNode.dataset.swiperReady = '1';
+        });
     };
 
     PropertyListing.prototype._bindEvents = function () {
@@ -261,6 +291,7 @@
             neighborhood:      this.neighborhood,
             nearby:            this.nearby,
             card_media_mode:   this.cardMediaMode,
+            card_visual_preset: this.cardVisualPreset,
             card_show_title:   this.cardShowTitle,
             card_show_excerpt: this.cardShowExcerpt,
             card_show_operation: this.cardShowOperation,
@@ -295,6 +326,7 @@
                 if (self.grid) {
                     self.grid.innerHTML = d.html ||
                         '<p class="property-listing__empty">' + (i18n.noResults || 'No se han encontrado inmuebles para esta consulta.') + '</p>';
+                    self._initCardSwipers();
                 }
 
                 if (self.countEl) {

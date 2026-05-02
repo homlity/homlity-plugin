@@ -454,6 +454,14 @@ class PropertyPostType implements ServiceInterface
 
     public function enqueueAdminAssets(string $hook): void
     {
+        if (isset($_GET['action']) && sanitize_key((string) $_GET['action']) === 'elementor') {
+            return;
+        }
+
+        if (isset($_GET['elementor-preview']) || isset($_GET['elementor_library'])) {
+            return;
+        }
+
         $screen = function_exists('get_current_screen') ? get_current_screen() : null;
         $postType = $screen->post_type ?? ($_GET['post_type'] ?? '');
         if ($hook !== 'post.php' && $hook !== 'post-new.php') {

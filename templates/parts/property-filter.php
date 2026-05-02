@@ -24,24 +24,60 @@ $resetLabel = $settings['reset_label'] ?? __('Limpiar', 'homlity-plugin');
 
 $current = static function ($keys) {
     $keys = is_array($keys) ? $keys : [$keys];
+
+    $normalize = static function ($raw) {
+        if (is_array($raw)) {
+            $items = $raw;
+        } else {
+            $items = explode(',', (string) $raw);
+        }
+
+        $clean = [];
+        foreach ($items as $item) {
+            $value = sanitize_text_field((string) $item);
+            if ($value === '') {
+                continue;
+            }
+            $clean[] = $value;
+        }
+
+        return array_values(array_unique($clean));
+    };
+
     foreach ($keys as $key) {
-        if (!isset($_GET[$key])) {
-            continue;
+        if (isset($_GET[$key])) {
+            $values = $normalize(wp_unslash($_GET[$key]));
+            if (count($values) > 1) {
+                return $values;
+            }
+            return $values[0] ?? '';
         }
 
-        $value = wp_unslash($_GET[$key]);
-        if (is_array($value)) {
-            return array_values(array_filter(array_map('sanitize_text_field', $value), static fn($item) => $item !== ''));
+        $queryValue = get_query_var($key, null);
+        if ($queryValue !== null && $queryValue !== '') {
+            $values = $normalize($queryValue);
+            if (count($values) > 1) {
+                return $values;
+            }
+            return $values[0] ?? '';
         }
-
-        return sanitize_text_field($value);
     }
 
     return '';
 };
 
 $termSelect = static function (string $name, string $taxonomy, string $label, $currentValue, bool $multiple = false): void {
-    $terms = get_terms(['taxonomy' => $taxonomy, 'hide_empty' => false]);
+    $onlyPublishedOptions = [
+        PropertyTaxonomies::TAXONOMY_OPERATION,
+        PropertyTaxonomies::TAXONOMY_TYPE,
+        PropertyTaxonomies::TAXONOMY_CITY,
+        PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD,
+    ];
+
+    $terms = get_terms([
+        'taxonomy' => $taxonomy,
+        'hide_empty' => in_array($taxonomy, $onlyPublishedOptions, true),
+    ]);
     if (is_wp_error($terms) || !$terms) {
         return;
     }

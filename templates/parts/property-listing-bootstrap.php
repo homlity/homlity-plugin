@@ -90,6 +90,7 @@ $paramToAttr = static function ($value): string {
      data-neighborhood="<?php echo esc_attr($paramToAttr($params['neighborhood'] ?? '')); ?>"
      data-nearby="<?php echo esc_attr($paramToAttr($params['nearby'] ?? '')); ?>"
      data-card-media-mode="<?php echo esc_attr($cardOptions['media_mode'] ?? 'single'); ?>"
+     data-card-visual-preset="<?php echo esc_attr($cardOptions['visual_preset'] ?? 'default'); ?>"
      data-card-show-title="<?php echo esc_attr(!empty($cardOptions['show_title']) ? '1' : '0'); ?>"
      data-card-show-excerpt="<?php echo esc_attr(!empty($cardOptions['show_excerpt']) ? '1' : '0'); ?>"
      data-card-show-operation="<?php echo esc_attr(!empty($cardOptions['show_operation']) ? '1' : '0'); ?>"

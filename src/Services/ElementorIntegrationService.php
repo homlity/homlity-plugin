@@ -14,6 +14,7 @@ use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyGalleryWid
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyListingWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyMapWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyRelatedWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyResultsTitleWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyCardWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertySummaryWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyContentWidget;
@@ -49,7 +50,13 @@ class ElementorIntegrationService implements ServiceInterface
 
         $this->initialized = true;
 
-        (new DataSeederService())->seedElementorTemplates();
+        if (did_action('init')) {
+            (new DataSeederService())->seedElementorTemplates();
+        } else {
+            add_action('init', static function () {
+                (new DataSeederService())->seedElementorTemplates();
+            }, 11);
+        }
 
         add_action('elementor/elements/categories_registered', [$this, 'registerCategory']);
         add_action('elementor/widgets/register', [$this, 'registerWidgets']);
@@ -104,6 +111,7 @@ class ElementorIntegrationService implements ServiceInterface
         $widgets = [
             PropertyFilterWidget::class,
             PropertyListingWidget::class,
+            PropertyResultsTitleWidget::class,
             PropertyTitleWidget::class,
             PropertyOperationPriceWidget::class,
             PropertyContentWidget::class,

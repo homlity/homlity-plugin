@@ -40,6 +40,31 @@ class PropertyContentWidget extends BasePropertyWidget
                 'div' => 'DIV', 'section' => 'SECTION', 'article' => 'ARTICLE', 'p' => 'P',
             ],
         ]);
+        $this->add_control('show_audio_player', [
+            'label' => __('Mostrar reproductor de audio', 'homlity-plugin'),
+            'type' => Controls_Manager::SWITCHER,
+            'default' => 'no',
+        ]);
+        $this->add_control('audio_player_label', [
+            'label' => __('Texto del reproductor', 'homlity-plugin'),
+            'type' => Controls_Manager::TEXT,
+            'default' => __('Escuchar descripción', 'homlity-plugin'),
+            'condition' => ['show_audio_player' => 'yes'],
+        ]);
+        $this->add_control('audio_default_rate', [
+            'label' => __('Velocidad inicial', 'homlity-plugin'),
+            'type' => Controls_Manager::SELECT,
+            'default' => '1',
+            'options' => [
+                '0.75' => '0.75x',
+                '1' => '1x',
+                '1.25' => '1.25x',
+                '1.5' => '1.5x',
+                '1.75' => '1.75x',
+                '2' => '2x',
+            ],
+            'condition' => ['show_audio_player' => 'yes'],
+        ]);
         $this->end_controls_section();
 
         $this->start_controls_section('style_content', [
@@ -104,9 +129,30 @@ class PropertyContentWidget extends BasePropertyWidget
     protected function render(): void
     {
         $settings = $this->get_settings_for_display();
+
+        $showAudio = ($settings['show_audio_player'] ?? 'no') === 'yes';
+        if ($showAudio) {
+            wp_enqueue_script(
+                'homlity-plugin-property-content-audio',
+                HOMLITY_PLUGIN_URL . 'assets/js/property-content-audio.js',
+                [],
+                HOMLITY_PLUGIN_VERSION,
+                true
+            );
+            wp_enqueue_style(
+                'homlity-plugin-property-content-audio',
+                HOMLITY_PLUGIN_URL . 'assets/css/property-content-audio.css',
+                [],
+                HOMLITY_PLUGIN_VERSION
+            );
+        }
+
         TemplateService::includeComponent('property-content.php', [
             'post_id' => $this->current_property_id(),
             'content_tag' => $settings['content_tag'] ?? 'div',
+            'show_audio_player' => $showAudio,
+            'audio_player_label' => (string) ($settings['audio_player_label'] ?? __('Escuchar descripción', 'homlity-plugin')),
+            'audio_default_rate' => (float) ($settings['audio_default_rate'] ?? 1),
         ]);
     }
 }

@@ -171,6 +171,26 @@ class AdminMenuService implements ServiceInterface
             $icon,
             30
         );
+
+        add_submenu_page(
+            'homlity-plugin-settings',
+            __('Integraciones CRM', 'homlity-plugin'),
+            __('Integraciones CRM', 'homlity-plugin'),
+            'manage_options',
+            'homlity-plugin-crm',
+            [new CrmAdminService(), 'renderPage']
+        );
+
+        /**
+         * Permite que plugins externos (integraciones) registren subpáginas
+         * bajo el menú de configuración de homlity-plugin.
+         *
+         * Uso en un plugin externo:
+         *   add_action('homlity_plugin_register_integration_submenus', function(string $parentSlug) {
+         *       add_submenu_page($parentSlug, 'Mi integración', 'Mi integración', 'manage_options', 'mi-slug', 'mi_callback');
+         *   });
+         */
+        do_action('homlity_plugin_register_integration_submenus', 'homlity-plugin-settings');
     }
 
     public function redirectToPropertiesPage(): void

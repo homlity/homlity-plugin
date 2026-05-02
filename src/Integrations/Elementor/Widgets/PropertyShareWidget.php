@@ -52,9 +52,14 @@ class PropertyShareWidget extends BasePropertyWidget
         $this->add_control('share_text', [
             'label'       => __('Texto a compartir', 'homlity-plugin'),
             'type'        => Controls_Manager::TEXTAREA,
-            'default'     => __('Mira este inmueble: {title}', 'homlity-plugin'),
-            'description' => __('Usa {title} para el nombre y {url} para el enlace.', 'homlity-plugin'),
+            'default'     => '{summary} {url}',
+            'description' => __('Placeholders: {summary}, {title}, {url}, {bedrooms}, {bathrooms}, {parking}, {area}, {price}', 'homlity-plugin'),
             'separator'   => 'before',
+        ]);
+        $this->add_control('heading_text', [
+            'label' => __('Título del bloque', 'homlity-plugin'),
+            'type' => Controls_Manager::TEXT,
+            'default' => __('Compartir en:', 'homlity-plugin'),
         ]);
 
         foreach ($this->platformsConfig() as $key => $platform) {
@@ -98,7 +103,7 @@ class PropertyShareWidget extends BasePropertyWidget
             'mobile_default' => '1',
             'options'        => ['1'=>'1','2'=>'2','3'=>'3','4'=>'4','5'=>'5','6'=>'6','7'=>'7','8'=>'8','9'=>'9'],
             'selectors'      => [
-                '{{WRAPPER}} .property-share-widget' => 'display: grid; grid-template-columns: repeat({{VALUE}}, 1fr);',
+                '{{WRAPPER}} .property-share-widget__list' => 'display: grid; grid-template-columns: repeat({{VALUE}}, 1fr);',
             ],
         ]);
         $this->add_responsive_control('list_gap', [
@@ -108,7 +113,7 @@ class PropertyShareWidget extends BasePropertyWidget
             'range'      => ['px' => ['min' => 0, 'max' => 60]],
             'default'    => ['unit' => 'px', 'size' => 8],
             'selectors'  => [
-                '{{WRAPPER}} .property-share-widget' => 'gap: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-share-widget__list' => 'gap: {{SIZE}}{{UNIT}};',
             ],
         ]);
 
@@ -251,7 +256,7 @@ class PropertyShareWidget extends BasePropertyWidget
         $this->add_group_control(Group_Control_Text_Shadow::get_type(), [
             'name'      => 'share_shadow',
             'separator' => 'before',
-            'selector'  => '{{WRAPPER}} .property-share-widget',
+            'selector'  => '{{WRAPPER}} .property-share-widget, {{WRAPPER}} .property-share-widget__heading, {{WRAPPER}} .property-share__icon',
         ]);
 
         $this->end_controls_section();
@@ -259,6 +264,10 @@ class PropertyShareWidget extends BasePropertyWidget
 
     protected function render(): void
     {
+        if (class_exists('\Elementor\Icons_Manager')) {
+            \Elementor\Icons_Manager::enqueue_shim();
+        }
+
         $settings = $this->get_settings_for_display();
         TemplateService::includeComponent('property-share.php', [
             'post_id'  => $this->current_property_id(),
