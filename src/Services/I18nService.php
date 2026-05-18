@@ -21,24 +21,24 @@ class I18nService implements ServiceInterface
 
     public function loadTextDomain(): void
     {
-        load_plugin_textdomain(HOMLITY_PLUGIN_TEXT_DOMAIN, false, dirname(plugin_basename(HOMLITY_PLUGIN_FILE)) . '/languages');
+        load_plugin_textdomain('homlity-plugin', false, dirname(plugin_basename(HOMLITY_PLUGIN_FILE)) . '/languages');
     }
 
     public function registerTranslatableStrings(): void
     {
         $strings = [
-            'property' => __('Propiedad', HOMLITY_PLUGIN_TEXT_DOMAIN),
-            'properties' => __('Propiedades', HOMLITY_PLUGIN_TEXT_DOMAIN),
-            'base_currency' => __('Moneda base', HOMLITY_PLUGIN_TEXT_DOMAIN),
-            'price_label' => __('Precio', HOMLITY_PLUGIN_TEXT_DOMAIN),
+            'property' => __('Propiedad', 'homlity-plugin'),
+            'properties' => __('Propiedades', 'homlity-plugin'),
+            'base_currency' => __('Moneda base', 'homlity-plugin'),
+            'price_label' => __('Precio', 'homlity-plugin'),
         ];
 
         foreach ($strings as $key => $string) {
             if (function_exists('pll_register_string')) {
-                pll_register_string($key, $string, HOMLITY_PLUGIN_TEXT_DOMAIN);
+                pll_register_string($key, $string, 'homlity-plugin');
             }
             if (function_exists('icl_register_string')) {
-                icl_register_string(HOMLITY_PLUGIN_TEXT_DOMAIN, $key, $string);
+                icl_register_string('homlity-plugin', $key, $string);
             }
         }
     }

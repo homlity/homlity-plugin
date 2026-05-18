@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <div class="clearfix mb-3 visualinmu-search-header ">
                 <div class="float-start d-flex">
                     <a class="btn btn-primary" id="vi-btn-filtros" data-bs-toggle="offcanvas" href="#offcanvasWithBothOptions" role="button"
@@ -12,7 +13,7 @@
                                         'origin': 'search',
                                         'label': 'Mostrar Listado inmuebles'                                        
                                     });">
-                                <i class="icon-homlity icon-uniE911"></i> <?php echo __("Inmuebles en Listado", "visualinmueble"); ?>
+                                <i class="icon-homlity icon-uniE911"></i> <?php echo esc_html__( "Inmuebles en Listado", "homlity-plugin" ); ?>
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -22,7 +23,7 @@
                                         'origin': 'search',
                                         'label': 'Mostrar Mapas inmuebles'                                        
                                     });">
-                                <i class="icon-homlity icon-uniE9C1"></i> <?php echo __("Inmuebles en Mapa", "visualinmueble"); ?>
+                                <i class="icon-homlity icon-uniE9C1"></i> <?php echo esc_html__( "Inmuebles en Mapa", "homlity-plugin" ); ?>
                             </a>
                         </li>
                     </ul>
@@ -33,18 +34,18 @@
                     if (isset($paginador) && !is_null($paginador)):
                         ?>
                         <div class="mx-2 fst-italic text-muted">
-                            <small><?php echo number_format($paginador->getTotalItems(), 0, ',', '.') . " inmuebles encontrados " ?></small>
+                            <small><?php echo esc_html( number_format($paginador->getTotalItems(), 0, ',', '.') . " inmuebles encontrados " ); ?></small>
                         </div>
                     <?php endif; ?>
                     <div class="visualinmu-btns-order">
                         <a class=" btn btn-primary btn-sm" type="button"
-                            href="<?php echo visualinmu_url_parameters_append(['direccion_order' => 'asc']); ?>"
+                            href="<?php echo esc_url( visualinmu_url_parameters_append(['direccion_order' => 'asc']) ); ?>"
                             data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="custom-tooltip"
                             title="Menor a mayor">
                             <i class=" icon-homlity icon-uniEA3E"></i>
                         </a>
                         <a class=" btn btn-primary btn-sm" type="button"
-                            href="<?php echo visualinmu_url_parameters_append(['direccion_order' => 'desc']); ?>"
+                            href="<?php echo esc_url( visualinmu_url_parameters_append(['direccion_order' => 'desc']) ); ?>"
                             data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="custom-tooltip"
                             title="Mayor a menor">
                             <i class=" icon-homlity icon-uniEA3A"></i></a>

@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <div class="row">
     <?php if (count($inmuebles) > 0) : ?>
         <?php foreach ($inmuebles as $cont => $inmueble) : ?>

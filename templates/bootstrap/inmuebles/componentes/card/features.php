@@ -1,24 +1,25 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
 $checkLink = !(isset($attrs) && isset($attrs['withLinktoDetail']) && $attrs['withLinktoDetail'] == false);
 ?>
 <div class="row">
     <!-- -->
     <div class="col-md-12">
-        <a title="Valor propiedad"+
-            href="<?php echo $checkLink ? visualinmu_route_detalleInmueble($inmueble->slug()) : ''; ?>" target="_blank">
-            <span class="p-0 m-0 h4" itemprop="price" content="<?php echo $inmueble->valor() ?>">
+        <a title="Valor propiedad"
+            href="<?php echo esc_url( $checkLink ? visualinmu_route_detalleInmueble($inmueble->slug()) : '' ); ?>" target="_blank">
+            <span class="p-0 m-0 h4" itemprop="price" content="<?php echo esc_attr( $inmueble->valor() ); ?>">
                 <?php if ($inmueble->gestion()->esArriendoVenta()):
                     ?>
-                    $<?php echo $inmueble->valorCanon(true); ?>
+                    $<?php echo esc_html( $inmueble->valorCanon(true) ); ?>
                 <?php elseif ($inmueble->gestion()->esAriendo()): ?>
-                    $<?php echo $inmueble->valorCanon(true); ?>
+                    $<?php echo esc_html( $inmueble->valorCanon(true) ); ?>
 
                 <?php else: ?>
-                    $<?php echo $inmueble->valorVenta(true); ?>
+                    $<?php echo esc_html( $inmueble->valorVenta(true) ); ?>
                 <?php endif; ?>
             </span>
             <?php if (($inmueble->gestion()->esArriendoVenta() || $inmueble->gestion()->esAriendo()) && !$inmueble->precioConAdministracion() && $inmueble->valorAdmin() > 0) { ?>
-                <small> + $<?php echo $inmueble->valorAdmin(true); ?> Administración</small>
+                <small> + $<?php echo esc_html( $inmueble->valorAdmin(true) ); ?> Administración</small>
             <?php } ?>
 
 
@@ -26,37 +27,37 @@ $checkLink = !(isset($attrs) && isset($attrs['withLinktoDetail']) && $attrs['wit
     </div>
     <div class="col-sm-12">
         <?php
-        $nameFull = $inmueble->tipoInmueble()->nombreSingular() . " " . __('en', 'visualinmueble') . " " . $inmueble->barrio()->nombre() . " " . __('en', 'visualinmueble');
+        $nameFull = $inmueble->tipoInmueble()->nombreSingular() . " " . __('en', 'homlity-plugin') . " " . $inmueble->barrio()->nombre() . " " . __('en', 'homlity-plugin');
 
         $nameFull .= $inmueble->gestion()->nombre();
         ?>
-        <a title="<?php echo $nameFull; ?>"
-            href="<?php echo $checkLink ? visualinmu_route_detalleInmueble($inmueble->slug()) : ''; ?>" target="_blank"
+        <a title="<?php echo esc_attr( $nameFull ); ?>"
+            href="<?php echo esc_url( $checkLink ? visualinmu_route_detalleInmueble($inmueble->slug()) : '' ); ?>" target="_blank"
             class="cb-nombre">
             <h2 class="d-inline-block text-truncate p-0 m-0 h6" style="max-width:100%" itemprop="name">
-                <?php echo $nameFull; ?>
+                <?php echo esc_html( $nameFull ); ?>
             </h2>
         </a>
     </div>
     <div class="col-4 d-inline-block text-truncate">
-        <span title="<?php echo $inmueble->codigo(); ?>"><i class="icon-homlity icon-uniE978"></i><?php echo $inmueble->codigo(); ?></span>
+        <span title="<?php echo esc_attr( $inmueble->codigo() ); ?>"><i class="icon-homlity icon-uniE978"></i><?php echo esc_html( $inmueble->codigo() ); ?></span>
     </div>
     <div class="col-8 text-md-end d-inline-block text-truncate" itemprop="address" itemscope
         itemtype="https://schema.org/PostalAddress">
         <i class="icon-homlity icon-uniE91C"></i>
-        <meta itemprop="addressLocality" content="<?php echo $inmueble->ciudad()->nombre(); ?>" />
-        <meta itemprop="addressSubLocality" content="<?php echo $inmueble->barrio()->nombre(); ?>" />
+        <meta itemprop="addressLocality" content="<?php echo esc_attr( $inmueble->ciudad()->nombre() ); ?>" />
+        <meta itemprop="addressSubLocality" content="<?php echo esc_attr( $inmueble->barrio()->nombre() ); ?>" />
         <meta itemprop="addressCountry" content="CO" />
-        <a href="<?php echo visualinmu_route_search(["city" => $inmueble->ciudad()->nombre()]); ?>"
+        <a href="<?php echo esc_url( visualinmu_route_search(["city" => $inmueble->ciudad()->nombre()]) ); ?>"
             class="vi-link-ubicacion"
             target="_blank"
             itemprop="address"
-            title="<?php echo $inmueble->ciudad()->nombre(); ?>"><?php echo $inmueble->ciudad()->nombre(); ?></a>,
-            <a href="<?php echo visualinmu_route_search(["neighborhood" => $inmueble->barrio()->nombre()]); ?>"
+            title="<?php echo esc_attr( $inmueble->ciudad()->nombre() ); ?>"><?php echo esc_html( $inmueble->ciudad()->nombre() ); ?></a>,
+            <a href="<?php echo esc_url( visualinmu_route_search(["neighborhood" => $inmueble->barrio()->nombre()]) ); ?>"
             class="vi-link-ubicacion" 
             target="_blank" 
             itemprop="address"
-             title="<?php echo $inmueble->barrio()->nombre(); ?>"><?php echo $inmueble->barrio()->nombre(); ?></a>
+             title="<?php echo esc_attr( $inmueble->barrio()->nombre() ); ?>"><?php echo esc_html( $inmueble->barrio()->nombre() ); ?></a>
     </div>
     <div class="col-12">
         <div class="property-description" itemprop="description">
@@ -69,15 +70,15 @@ $checkLink = !(isset($attrs) && isset($attrs['withLinktoDetail']) && $attrs['wit
             <?php if ($inmueble->areaConstruida() > 0) { ?>
                 <div class="col">
                     <span data-toggle="tooltip" data-placement="top" title="Área construida" itemprop="floorSize"
-                        content="<?php echo $inmueble->areaConstruida(); ?>">
-                        <i class="icon-homlity icon-uniE95E"></i><?php echo $inmueble->areaConstruida(); ?> m<sup>2</sup>
+                        content="<?php echo esc_attr( $inmueble->areaConstruida() ); ?>">
+                        <i class="icon-homlity icon-uniE95E"></i><?php echo esc_html( $inmueble->areaConstruida() ); ?> m<sup>2</sup>
                     </span>
                 </div>
             <?php }
             if (in_array($inmueble->tipoInmueble()->codigo(), [8, 7, 13, 9, 21]) && $inmueble->areaLote()) { ?>
                 <div class="col">
                     <span data-toggle="tooltip" data-placement="top" title="Área lote">
-                        <i class="icon-homlity icon-uniE95E"></i><?php echo $inmueble->areaLote(); ?> m<sup>2</sup>
+                        <i class="icon-homlity icon-uniE95E"></i><?php echo esc_html( $inmueble->areaLote() ); ?> m<sup>2</sup>
                     </span>
                 </div>
             <?php } ?>
@@ -95,8 +96,8 @@ $checkLink = !(isset($attrs) && isset($attrs['withLinktoDetail']) && $attrs['wit
                 <div class="col">
 
                     <span data-toggle="tooltip" data-placement="top" title="Alcobas" itemprop="floorSize"
-                        content="<?php echo $inmueble->nAlcobas(); ?>">
-                        <i class="icon-homlity icon-uniE951"></i><?php echo $inmueble->nAlcobas(); ?>
+                        content="<?php echo esc_attr( $inmueble->nAlcobas() ); ?>">
+                        <i class="icon-homlity icon-uniE951"></i><?php echo esc_html( $inmueble->nAlcobas() ); ?>
                     </span>
 
                 </div>
@@ -109,8 +110,8 @@ $checkLink = !(isset($attrs) && isset($attrs['withLinktoDetail']) && $attrs['wit
                 <div class="col">
 
                     <span data-toggle="tooltip" data-placement="top" title="Baños" itemprop="numberOfBathroomsTotal"
-                        content="<?php echo $inmueble->nBaños(); ?>">
-                        <i class="icon-homlity icon-uniE93E"></i><?php echo $inmueble->nBaños(); ?>
+                        content="<?php echo esc_attr( $inmueble->nBaños() ); ?>">
+                        <i class="icon-homlity icon-uniE93E"></i><?php echo esc_html( $inmueble->nBaños() ); ?>
                     </span>
 
                 </div>
@@ -121,7 +122,7 @@ $checkLink = !(isset($attrs) && isset($attrs['withLinktoDetail']) && $attrs['wit
             ) { ?>
                 <div class="col">
                     <span data-toggle="tooltip" data-placement="top" title="Garajes">
-                        <i class="icon-homlity icon-uniE9CC"></i> <?php echo $inmueble->nGarajes(); ?>
+                        <i class="icon-homlity icon-uniE9CC"></i> <?php echo esc_html( $inmueble->nGarajes() ); ?>
                     </span>
                 </div>
             <?php } ?>

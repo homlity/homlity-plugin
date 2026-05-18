@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
 
 $conVideo = !empty($slider["video"]);
@@ -42,52 +43,65 @@ $firstVideo = visualinmu_configuracion_checkConfiguracion("filtros", "defaultSho
     <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade  <?php echo ($conVideo && $firstVideo) ? '' : 'show active' ?>" id="fotos"
             role="tabpanel" aria-labelledby="fotos-tab">
-            <?php if (\Codwelt\WordPress\VisualInmueble\Configuracion::checkConfiguracion("filtros", 'sliderDetalleInmueble') == 1) { ?>
+            <?php if (\Codwelt\WordPress\homlity-plugin\Configuracion::checkConfiguracion("filtros", 'sliderDetalleInmueble') == 1) { ?>
                 <ul id="visualinmo-inmueble-slider" style="width: 100%;" class="pre-slider">
                     <?php foreach ($slider["fotos"] as $foto): ?>
-                        <li data-thumb="<?php echo $foto->url(); ?>" data-src="<?php echo $foto->url(); ?>">
-                            <img loading="lazy" src="<?php echo $foto->url(); ?>" class="itemslider"
-                                alt="<?php echo $nombre; ?>" height="40vh" width="100%" />
+                        <li data-thumb="<?php echo esc_url( $foto->url() ); ?>" data-src="<?php echo esc_url( $foto->url() ); ?>">
+                            <img loading="lazy" src="<?php echo esc_url( $foto->url() ); ?>" class="itemslider"
+                                alt="<?php echo esc_attr( $nombre ); ?>" height="40vh" width="100%" />
                         </li>
                     <?php endforeach; ?>
                 </ul>
             <?php } else { ?>
-                <div class="owl-carousel owl-theme">
+                <div class="swiper homlity-property-photos-swiper">
+                    <div class="swiper-wrapper">
                     <?php foreach ($slider["fotos"] as $foto): ?>
-                        <div class="item" data-thumb="<?php echo $foto->url(); ?>" data-src="<?php echo $foto->url(); ?>"
-                            style="width:100%;">
-                            <img src="<?php echo $foto->url(); ?>" style="height:55vh;object-fit:cover" />
+                        <div class="swiper-slide" data-thumb="<?php echo esc_url( $foto->url() ); ?>" data-src="<?php echo esc_url( $foto->url() ); ?>">
+                            <img src="<?php echo esc_url( $foto->url() ); ?>" style="height:55vh;object-fit:cover;width:100%;" />
                         </div>
                     <?php endforeach; ?>
+                    </div>
+                    <div class="swiper-pagination"></div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
                 </div>
                 <script>
-                    jQuery(function ($) {
-                        $(document).ready(function () {
-                            $('.owl-carousel').owlCarousel({
-                                center: true,
-                                items: 2,
+                    (function () {
+                        function initHomlityLegacyPhotosSwiper() {
+                            var container = document.querySelector('.homlity-property-photos-swiper');
+                            if (!container || typeof window.Swiper !== 'function' || container.dataset.swiperReady === '1') {
+                                return;
+                            }
+                            container.dataset.swiperReady = '1';
+                            new window.Swiper(container, {
+                                slidesPerView: 1,
+                                spaceBetween: 8,
                                 loop: true,
-                                margin: 5,
-                                responsive: {
-                                    600: {
-                                        items: 2
-                                    }
+                                pagination: {
+                                    el: container.querySelector('.swiper-pagination'),
+                                    clickable: true
+                                },
+                                navigation: {
+                                    nextEl: container.querySelector('.swiper-button-next'),
+                                    prevEl: container.querySelector('.swiper-button-prev')
                                 }
                             });
-                            $(".owl-carousel").lightGallery({
-                                selector: '.owl-carousel .item'
-                            });
-                        });
-                    });
+                        }
+                        if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', initHomlityLegacyPhotosSwiper);
+                        } else {
+                            initHomlityLegacyPhotosSwiper();
+                        }
+                    })();
                 </script>
             <?php } ?>
         </div>
         <?php if ($conFotos360) { ?>
             <div class="tab-pane fade" id="fotos360" role="tabpanel" aria-labelledby="fotos360-tab">
-                <visualinmueble-slider360></visualinmueble-slider360>
+                <homlity-plugin-slider360></homlity-plugin-slider360>
                 <script type="text/javascript">
-                    window.VISUALINMUEBLE_FOTOS = <?php echo json_encode($slider["s360"], JSON_PRETTY_PRINT); ?>;
-                    window.VISUALINMUEBLE_SITE_URL = "<?php echo \get_site_url(); ?>";
+                    window.homlity-plugin_FOTOS = <?php echo json_encode($slider["s360"], JSON_PRETTY_PRINT); ?>;
+                    window.homlity-plugin_SITE_URL = "<?php echo esc_url( \get_site_url() ); ?>";
                 </script>
             </div>
         <?php } ?>
@@ -96,7 +110,7 @@ $firstVideo = visualinmu_configuracion_checkConfiguracion("filtros", "defaultSho
             ?>
             <div class="tab-pane fade <?php echo ($conVideo && $firstVideo) ? 'show active' : '' ?>" id="video"
                 role="tabpanel" aria-labelledby="video-tab">
-                <iframe src="<?php echo $slider['video']->url(); ?>" title="<?php echo $nombre; ?>"
+                <iframe src="<?php echo esc_url( $slider['video']->url() ); ?>" title="<?php echo esc_attr( $nombre ); ?>"
                     style="width: 100%; height: 70vh;" frameborder="0"
                     allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen
                     id="homlity_slider_video"></iframe>
@@ -104,7 +118,7 @@ $firstVideo = visualinmu_configuracion_checkConfiguracion("filtros", "defaultSho
         <?php endif; ?>
         <?php if ($conVideo360) { ?>
             <div class="tab-pane fade" id="video360" role="tabpanel" aria-labelledby="video360-tab">
-                <iframe src="<?php echo $slider["video360"]->url(); ?>" title="<?php echo $nombre; ?>" frameborder="0"
+                <iframe src="<?php echo esc_url( $slider["video360"]->url() ); ?>" title="<?php echo esc_attr( $nombre ); ?>" frameborder="0"
                     style="width: 100%; height: 50vh;"
                     allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen></iframe>

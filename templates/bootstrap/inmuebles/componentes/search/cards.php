@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <div class="row d-flex align-items-stretch flex-wrap" itemscope itemtype="https://schema.org/ItemList">
    
     <meta itemprop="numberOfItems" content="<?php echo count($inmuebles); ?>" />
@@ -16,7 +17,7 @@
                         <div class="card card-space " style="width: 100%;">
                             <div class="card-body">
                                 <?php
-                                $version = rand(0, 1) == 0 ? 'A' : 'B';
+                                $version = wp_rand(0, 1) === 0 ? 'A' : 'B';
                                 if ($version == 'A') {
                                     $path = "leads/buscarinmueble";
                                 } else {

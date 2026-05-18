@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <div class="card section-ficha-tecnica" style="width: 100%;">
     <div class="card-body">
         <h4>Enviate la ficha técnica</h4>

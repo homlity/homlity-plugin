@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <div class="row d-flex align-items-stretch visualinmu-ubicacion-header">
     <div class="col-md-4 col-sm-12">
         <div class="location-title">
@@ -19,7 +20,7 @@
             <div class="card-body">
                 <h6 class="h6 card-title text-center">Calcular con</h6>
                 <div class="d-flex flex-wrap flex-md-row flex-sm-column justify-content-evenly" id="vi-btns-calcroute">
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=<?php echo $mapa['latitud'] . "," . $mapa["longitud"]; ?> "
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=<?php echo esc_attr( $mapa['latitud'] . ',' . $mapa['longitud'] ); ?> "
                         target="_blank" class="btn google-maps btn-outline-primary" onclick="gtag('event', 'prop_dir_maps', {
     'origin': 'property_ubicacion',
     'label': 'Ubicación inmueble' // Este valor puede ser un número
@@ -33,7 +34,7 @@
                         </svg>
                         <br>Maps
                     </a>
-                    <a href="https://waze.com/ul?ll=<?php echo $mapa['latitud'] . "," . $mapa["longitud"]; ?>&navigate=yes"
+                    <a href="https://waze.com/ul?ll=<?php echo esc_attr( $mapa['latitud'] . ',' . $mapa['longitud'] ); ?>&navigate=yes"
                         target="_blank" class="btn waze btn-outline-primary" onclick="gtag('event', 'prop_dir_waze', {
                                 'origin': 'property_ubicacion',
                                 'label': 'Ubicación inmueble' // Este valor puede ser un número

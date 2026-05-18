@@ -2,13 +2,26 @@
     'use strict';
 
     // Split text into sentences to work around Chrome's ~15s SpeechSynthesis cutoff.
-    // Speaking one sentence at a time via onend avoids the bug entirely.
     function splitSentences(text) {
         var parts = text.match(/[^.!?…\n]+[.!?…\n]+\s*/g) || [];
         var joined = parts.join('');
         var leftover = text.slice(joined.length).trim();
         if (leftover) parts.push(leftover);
         return parts.filter(function (s) { return s.trim().length > 0; });
+    }
+
+    function formatTime(seconds) {
+        var m = Math.floor(seconds / 60);
+        var s = seconds % 60;
+        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function estimateDurationSeconds(text, rate) {
+        var words = (text.match(/\S+/g) || []).length;
+        var baseWpm = 170;
+        var safeRate = rate > 0 ? rate : 1;
+        var seconds = Math.round((words / (baseWpm * safeRate)) * 60);
+        return Math.max(1, seconds);
     }
 
     function HomlityAudioPlayer(bar) {
@@ -19,21 +32,21 @@
         this.index      = 0;
         this.playing    = false;
         this.paused     = false;
-        this.kaTimer    = null; // keep-alive timer (Chrome fallback)
+        this.kaTimer    = null;
+        this.clockTimer = null;
+        this.elapsed    = 0;
 
-        this.progressEl   = bar.querySelector('.property-content-audio-bar__progress');
-        this.playPauseBtn = bar.querySelector('[data-audio="play-pause"]');
-        this.iconPlay     = bar.querySelector('.hca-icon-play');
-        this.iconPause    = bar.querySelector('.hca-icon-pause');
-        this.rateSelect   = bar.querySelector('[data-audio="rate"]');
+        this.progressEl = bar.querySelector('.property-content-audio-bar__progress');
+        this.timeEl     = bar.querySelector('.property-content-audio-bar__time');
+        this.playBtn    = bar.querySelector('[data-audio="play-pause"]');
+        this.rateSelect = bar.querySelector('[data-audio="rate"]');
 
         var defaultRate = parseFloat(bar.getAttribute('data-rate') || '1') || 1;
         this.rate = defaultRate;
+        this.estimatedDuration = estimateDurationSeconds(this.text, this.rate);
         if (this.rateSelect) {
             this.rateSelect.value = String(defaultRate);
         }
-        if (this.iconPause) this.iconPause.setAttribute('aria-hidden', 'true');
-        if (this.iconPause) this.iconPause.style.display = 'none';
 
         this._bindEvents();
     }
@@ -49,55 +62,66 @@
                 if (!self.playing)        { self.play(); }
                 else if (self.paused)     { self.resume(); }
                 else                      { self.pause(); }
-            } else if (action === 'rewind')  { self.seek(-15); }
-            else if (action === 'forward')   { self.seek(15); }
-            else if (action === 'close')     { self.stop(); self.hide(); }
+            }
         });
 
         if (this.rateSelect) {
             this.rateSelect.addEventListener('change', function () {
                 self.rate = parseFloat(self.rateSelect.value) || 1;
+                self.estimatedDuration = estimateDurationSeconds(self.text, self.rate);
+                self._renderTime();
+                self._updateProgress();
                 if (self.playing && !self.paused) { self.speakCurrent(); }
             });
         }
     };
 
-    HomlityAudioPlayer.prototype.show = function () {
-        this.bar.hidden = false;
-        // rAF so the display:none→block transition fires
-        var bar = this.bar;
-        requestAnimationFrame(function () {
-            requestAnimationFrame(function () { bar.classList.add('is-visible'); });
-        });
+    HomlityAudioPlayer.prototype._renderTime = function () {
+        if (!this.timeEl) { return; }
+        this.timeEl.textContent = formatTime(this.elapsed) + ' / ' + formatTime(this.estimatedDuration);
     };
 
-    HomlityAudioPlayer.prototype.hide = function () {
-        var bar = this.bar;
-        bar.classList.remove('is-visible');
-        setTimeout(function () { bar.hidden = true; }, 350);
+    HomlityAudioPlayer.prototype._startClock = function () {
+        var self = this;
+        clearInterval(this.clockTimer);
+        this.clockTimer = setInterval(function () {
+            self.elapsed++;
+            self._renderTime();
+            self._updateProgress();
+        }, 1000);
+    };
+
+    HomlityAudioPlayer.prototype._pauseClock = function () {
+        clearInterval(this.clockTimer);
+    };
+
+    HomlityAudioPlayer.prototype._resetClock = function () {
+        clearInterval(this.clockTimer);
+        this.elapsed = 0;
+        this._renderTime();
     };
 
     HomlityAudioPlayer.prototype._setPlayState = function (isPlaying, isPaused) {
         this.playing = isPlaying;
         this.paused  = isPaused;
-        var showPlay  = !isPlaying || isPaused;
-        if (this.iconPlay)  { this.iconPlay.style.display  = showPlay ? '' : 'none'; }
-        if (this.iconPause) { this.iconPause.style.display = showPlay ? 'none' : ''; }
-        if (this.playPauseBtn) {
+        if (this.playBtn) {
+            this.playBtn.classList.toggle('is-playing', isPlaying && !isPaused);
             var label = !isPlaying ? 'Reproducir' : (isPaused ? 'Reanudar' : 'Pausar');
-            this.playPauseBtn.setAttribute('aria-label', label);
+            this.playBtn.setAttribute('aria-label', label);
         }
     };
 
     HomlityAudioPlayer.prototype._updateProgress = function () {
-        var pct = this.total > 0 ? Math.round((this.index / this.total) * 100) : 0;
-        if (this.progressEl) { this.progressEl.style.width = pct + '%'; }
+        var pct = this.estimatedDuration > 0 ? Math.round((this.elapsed / this.estimatedDuration) * 100) : 0;
+        if (pct > 100) { pct = 100; }
+        if (this.progressEl) {
+            this.progressEl.style.width = pct + '%';
+        }
     };
 
     HomlityAudioPlayer.prototype._startKeepAlive = function () {
         clearInterval(this.kaTimer);
         this.kaTimer = setInterval(function () {
-            // Chrome workaround: prod the synth so it doesn't silently die
             if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
                 window.speechSynthesis.pause();
                 window.speechSynthesis.resume();
@@ -112,6 +136,7 @@
 
         if (self.index >= self.total) {
             self._setPlayState(false, false);
+            self._resetClock();
             self.index = 0;
             self._updateProgress();
             return;
@@ -133,6 +158,7 @@
         utt.onerror = function (e) {
             if (e.error === 'interrupted' || e.error === 'canceled') { return; }
             clearInterval(self.kaTimer);
+            self._pauseClock();
             self._setPlayState(false, false);
         };
 
@@ -142,13 +168,16 @@
 
     HomlityAudioPlayer.prototype.play = function () {
         this.index = 0;
+        this._resetClock();
         this._setPlayState(true, false);
         this._updateProgress();
+        this._startClock();
         this.speakCurrent();
     };
 
     HomlityAudioPlayer.prototype.pause = function () {
         clearInterval(this.kaTimer);
+        this._pauseClock();
         window.speechSynthesis.pause();
         this._setPlayState(true, true);
     };
@@ -157,24 +186,15 @@
         window.speechSynthesis.resume();
         this._setPlayState(true, false);
         this._startKeepAlive();
+        this._startClock();
     };
 
     HomlityAudioPlayer.prototype.stop = function () {
         clearInterval(this.kaTimer);
+        this._resetClock();
         window.speechSynthesis.cancel();
         this._setPlayState(false, false);
         this.index = 0;
-        this._updateProgress();
-    };
-
-    HomlityAudioPlayer.prototype.seek = function (seconds) {
-        // Estimate jump in sentences from elapsed seconds
-        var words           = this.text.split(/\s+/).length;
-        var avgWordsPerSent = words / Math.max(1, this.total);
-        var wordsPerSec     = this.rate * 2.5;
-        var jump            = Math.round((seconds * wordsPerSec) / avgWordsPerSent);
-        this.index = Math.max(0, Math.min(this.total - 1, this.index + jump));
-        if (this.playing && !this.paused) { this.speakCurrent(); }
         this._updateProgress();
     };
 
@@ -183,20 +203,10 @@
     function init() {
         if (!('speechSynthesis' in window)) { return; }
 
-        document.querySelectorAll('.property-content-audio-trigger').forEach(function (trigger) {
-            if (trigger.dataset.hcaReady) { return; }
-            trigger.dataset.hcaReady = '1';
-
-            var playerId = trigger.getAttribute('data-player');
-            var bar      = playerId ? document.getElementById(playerId) : null;
-            if (!bar) { return; }
-
-            var player = new HomlityAudioPlayer(bar);
-
-            trigger.addEventListener('click', function () {
-                player.show();
-                if (!player.playing) { player.play(); }
-            });
+        document.querySelectorAll('.property-content-audio-bar').forEach(function (bar) {
+            if (bar.dataset.hcaReady) { return; }
+            bar.dataset.hcaReady = '1';
+            new HomlityAudioPlayer(bar);
         });
     }
 
@@ -206,7 +216,6 @@
         init();
     }
 
-    // Re-init after Elementor re-renders a widget in the editor
     document.addEventListener('elementor/frontend/init', function () {
         if (window.elementorFrontend && window.elementorFrontend.hooks) {
             window.elementorFrontend.hooks.addAction(

@@ -1,7 +1,7 @@
 const pinIcon = {
-    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    iconUrl: window.homlityLeafletAssets?.iconUrl || '',
+    iconRetinaUrl: window.homlityLeafletAssets?.iconRetinaUrl || '',
+    shadowUrl: window.homlityLeafletAssets?.shadowUrl || '',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
@@ -24,7 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
         attribution: '&copy; OpenStreetMap',
     }).addTo(map);
 
-    const marker = L.marker([defaultLat, defaultLng], { draggable: true, icon: L.icon(pinIcon) }).addTo(map);
+    const hasCustomPin = !!(pinIcon.iconUrl && pinIcon.iconRetinaUrl && pinIcon.shadowUrl);
+    const markerOptions = hasCustomPin ? { draggable: true, icon: L.icon(pinIcon) } : { draggable: true };
+    const marker = L.marker([defaultLat, defaultLng], markerOptions).addTo(map);
 
     function updateInputs(lat, lng) {
         if (latInput) latInput.value = lat.toFixed(6);

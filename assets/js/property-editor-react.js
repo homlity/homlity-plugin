@@ -63,10 +63,71 @@
       type: props.type || 'text',
       name: props.name,
       value: props.value,
+      placeholder: props.placeholder || '',
       required: !!props.required,
       readOnly: !!props.readOnly,
       onChange: function (e) { props.onChange && props.onChange(e.target.value); }
     });
+  }
+
+  function normalizeUrlListInput(value) {
+    return String(value || '')
+      .split(/\r?\n|,/)
+      .map(function (v) { return String(v || '').trim(); })
+      .filter(function (v, i, arr) { return v && arr.indexOf(v) === i; });
+  }
+
+  function normalizeUrlListFromMeta(value) {
+    function collectFromAny(input) {
+      if (Array.isArray(input)) {
+        return input.reduce(function (acc, item) {
+          if (typeof item === 'string') {
+            acc.push(item);
+            return acc;
+          }
+          if (item && typeof item === 'object') {
+            if (typeof item.url === 'string') {
+              acc.push(item.url);
+            } else {
+              Object.keys(item).forEach(function (k) {
+                var maybe = item[k];
+                if (typeof maybe === 'string') acc.push(maybe);
+              });
+            }
+          }
+          return acc;
+        }, []);
+      }
+
+      if (input && typeof input === 'object') {
+        return Object.keys(input).map(function (k) { return input[k]; }).filter(function (v) { return typeof v === 'string'; });
+      }
+
+      if (typeof input === 'string') {
+        var raw = input.trim();
+        if (!raw) return [];
+        if (raw[0] === '[' || raw[0] === '{') {
+          try {
+            return collectFromAny(JSON.parse(raw));
+          } catch (e) {
+            return normalizeUrlListInput(raw);
+          }
+        }
+        return normalizeUrlListInput(raw);
+      }
+
+      return [];
+    }
+
+    return collectFromAny(value)
+      .map(function (v) { return String(v || '').trim(); })
+      .filter(function (v, i, arr) { return v && arr.indexOf(v) === i; });
+  }
+
+  function normalizeSingleUrlFromMeta(value) {
+    var urls = normalizeUrlListFromMeta(value);
+    if (urls.length) return urls[0];
+    return String(value || '').trim();
   }
 
   function Field(props) {
@@ -191,6 +252,10 @@
     var defaultAgent = String(meta.agent_id || app.currentUserId || '');
     var _ag = useState(String(meta.gallery || '')), gallery = _ag[0], setGallery = _ag[1];
     var _ah = useState(defaultAgent), agentId = _ah[0], setAgentId = _ah[1];
+    var _ah2 = useState(normalizeUrlListFromMeta(meta.videos).join('\n')), videosText = _ah2[0], setVideosText = _ah2[1];
+    var _ah3 = useState(normalizeUrlListFromMeta(meta.photos_360).join('\n')), photos360Text = _ah3[0], setPhotos360Text = _ah3[1];
+    var _ah4 = useState(normalizeUrlListFromMeta(meta.tour_360).join('\n')), tours360Text = _ah4[0], setTours360Text = _ah4[1];
+    var _ah5 = useState(normalizeSingleUrlFromMeta(meta.brochure)), brochure = _ah5[0], setBrochure = _ah5[1];
     var _ak = useState(!!Number(meta.featured || 0)), featured = _ak[0], setFeatured = _ak[1];
     var mapNodeRef = useRef(null);
     var mapRef = useRef(null);
@@ -202,10 +267,12 @@
 
     var initialExistingItems = useMemo(function () {
       return (opts.gallery_items || []).map(function (item) {
+        var hasId = Number(item.id || 0) > 0;
+        var safeUrl = String(item.url || '');
         return {
-          token: 'id:' + String(item.id),
-          id: String(item.id),
-          url: item.url || ''
+          token: hasId ? ('id:' + String(item.id)) : ('url:' + safeUrl),
+          id: hasId ? String(item.id) : '',
+          url: safeUrl
         };
       });
     }, []);
@@ -215,6 +282,20 @@
     var _ao = useState([]), selectedGalleryTokens = _ao[0], setSelectedGalleryTokens = _ao[1];
     var _ap = useState(''), draggingToken = _ap[0], setDraggingToken = _ap[1];
     var _aq = useState((app.validation && app.validation.fields) ? app.validation.fields : []), errorFields = _aq[0], setErrorFields = _aq[1];
+    var _ar = useState('main'), activeTab = _ar[0], setActiveTab = _ar[1];
+    var _as = useState('photos'), mediaTab = _as[0], setMediaTab = _as[1];
+    var visitStats = app.visitStats || { totals: {}, daily: [], recent: [] };
+    var syncInfo = app.sync || {};
+    var isSyncedProperty = !!syncInfo.isSynced;
+    var visitTotals = visitStats.totals || {};
+    var dailyVisits = Array.isArray(visitStats.daily) ? visitStats.daily : [];
+    var recentVisits = Array.isArray(visitStats.recent) ? visitStats.recent : [];
+    var maxDailyVisit = dailyVisits.reduce(function (max, row) { return Math.max(max, Number(row.visits || 0)); }, 0) || 1;
+
+    var syncedVideos = normalizeUrlListFromMeta(meta.videos);
+    var syncedPhotos360 = normalizeUrlListFromMeta(meta.photos_360);
+    var syncedTours360 = normalizeUrlListFromMeta(meta.tour_360);
+    var syncedBrochure = normalizeSingleUrlFromMeta(meta.brochure);
 
     var currencyOptions = (opts.currencies || []).map(function (c) { return { id: c, name: c }; });
     var users = (opts.users || []).map(function (u) { return { id: u.id, name: u.label }; });
@@ -224,6 +305,25 @@
     var operationSlug = String((selectedOperation && (selectedOperation.slug || selectedOperation.name)) || '').toLowerCase();
     var isRent = operationSlug.indexOf('arr') !== -1 || operationSlug.indexOf('alquil') !== -1 || operationSlug.indexOf('rent') !== -1;
     var isSale = operationSlug.indexOf('vent') !== -1 || operationSlug.indexOf('sale') !== -1;
+
+    useEffect(function () {
+      var postId = Number(app.postId || 0);
+      if (!postId) return;
+
+      api('/homlity-plugin/v1/property-media-sync', { post_id: postId }).then(function (res) {
+        if (!res || res.ok !== true) return;
+
+        var videos = normalizeUrlListFromMeta(res.videos);
+        var photos360 = normalizeUrlListFromMeta(res.photos_360);
+        var tours360 = normalizeUrlListFromMeta(res.tour_360);
+        var brochureUrl = normalizeSingleUrlFromMeta(res.brochure);
+
+        if (videos.length) setVideosText(videos.join('\n'));
+        if (photos360.length) setPhotos360Text(photos360.join('\n'));
+        if (tours360.length) setTours360Text(tours360.join('\n'));
+        if (brochureUrl) setBrochure(brochureUrl);
+      });
+    }, []);
 
     useEffect(function () {
       syncCore('title', title);
@@ -320,11 +420,12 @@
     }, [city]);
 
     useEffect(function () {
+      if (isSyncedProperty) return;
       api('/homlity-plugin/v1/property-next-code', { operation: operation || 0, type: type || 0, post_id: app.postId || 0 })
         .then(function (res) {
           if (res && res.code) setCode(String(res.code));
         });
-    }, [operation, type]);
+    }, [operation, type, isSyncedProperty]);
 
     useEffect(function () {
       if (typeof window.L === 'undefined' || !mapNodeRef.current || mapRef.current) return;
@@ -638,28 +739,34 @@
       hidden('post_title', title),
       hidden('excerpt', excerpt),
       hidden('content', content),
-      h('div', { className: 'hpe-grid' },
+      h('div', { className: 'hpe-editor-tabs' },
+        h('button', { type: 'button', className: 'button' + (activeTab === 'main' ? ' button-primary' : ''), onClick: function () { setActiveTab('main'); } }, 'Formulario'),
+        h('button', { type: 'button', className: 'button' + (activeTab === 'visits' ? ' button-primary' : ''), onClick: function () { setActiveTab('visits'); } }, 'Informe de visitas')
+      ),
+      h('div', { className: 'hpe-grid hpe-grid--tab-' + activeTab },
         h('section', { className: 'hpe-card hpe-span-2' },
-          h('h2', null, 'Contenido'),
+          h('h2', null, 'Información básica'),
           h(Field, { label: 'Título', required: true, error: hasError('title') ? 'Este campo es obligatorio.' : '' }, h('input', { type: 'text', value: title, required: true, onChange: function (e) { setTitle(e.target.value); } })),
           h(Field, { label: 'Descripción corta' }, h('textarea', { rows: 3, value: excerpt, onChange: function (e) { setExcerpt(e.target.value); } })),
+          h('p', { className: 'description' }, 'Describe el inmueble con enfoque comercial: ubicación, distribución, beneficios y estado.'),
           h(Field, null, h('textarea', { ref: contentEditorTextareaRef, rows: 8, value: content, onChange: function (e) { setContent(e.target.value); } }))
         ),
         h('section', { className: 'hpe-card' },
-          h('h2', null, 'Clasificación'),
-          h(Field, { label: 'Gestión', required: true, error: hasError('operation') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_operation', value: operation, required: true, onChange: setOperation, options: opts.operations || [] })),
+          h('h2', null, 'Configuración comercial'),
           h(Field, { label: 'Tipo de inmueble', required: true, error: hasError('type') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_type', value: type, required: true, onChange: setType, options: opts.types || [] })),
+          h(Field, { label: 'Gestión', required: true, error: hasError('operation') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_operation', value: operation, required: true, onChange: setOperation, options: opts.operations || [] })),
+          h(Field, { label: 'Estado inmueble' }, h(Input, { name: 'property_condition', value: condition, onChange: setCondition })),
           h(Field, { label: 'Código (auto)' }, h(Input, { name: 'property_code', value: code, readOnly: true })),
-          h(Field, { label: 'Año de construido' }, h(Input, { name: 'property_age', value: yearBuilt, type: 'number', onChange: setYearBuilt })),
-          h(Field, { label: 'Estado inmueble' }, h(Input, { name: 'property_condition', value: condition, onChange: setCondition }))
+          isSyncedProperty && h('p', { className: 'description' }, 'Código bloqueado por sincronización (webhook/web.homlity.com).'),
+          h(Field, { label: 'Año de construido' }, h(Input, { name: 'property_age', value: yearBuilt, type: 'number', onChange: setYearBuilt }))
         ),
         h('section', { className: 'hpe-card' },
           h('h2', null, 'Ubicación'),
+          h(Field, { label: 'Dirección', required: true, error: hasError('address') ? 'Este campo es obligatorio.' : '' }, h(Input, { name: 'property_address', required: true, value: address, onChange: setAddress })),
           h(Field, { label: 'País', required: true, error: hasError('country') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_country', value: country, required: true, onChange: setCountry, options: opts.countries || [] })),
           h(Field, { label: 'Departamento/Provincia', required: true, error: hasError('state') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_state', value: state, required: true, onChange: setState, options: stateOptions })),
           h(Field, { label: 'Ciudad', required: true, error: hasError('city') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_city', value: city, required: true, onChange: setCity, options: cityOptions })),
           h(Field, { label: 'Barrio' }, h(Select, { name: 'property_neighborhood', value: neighborhood, onChange: setNeighborhood, options: neighborhoodOptions })),
-          h(Field, { label: 'Dirección', required: true, error: hasError('address') ? 'Este campo es obligatorio.' : '' }, h(Input, { name: 'property_address', required: true, value: address, onChange: setAddress })),
           h('div', { className: 'hpe-prices' },
             h(Field, { label: 'Latitud', required: true, error: hasError('latitude') ? 'Este campo es obligatorio.' : '' }, h(Input, { name: 'property_latitude', required: true, value: latitude, onChange: setLatitude })),
             h(Field, { label: 'Longitud', required: true, error: hasError('longitude') ? 'Este campo es obligatorio.' : '' }, h(Input, { name: 'property_longitude', required: true, value: longitude, onChange: setLongitude }))
@@ -695,13 +802,13 @@
         h('section', { className: 'hpe-card hpe-span-2' },
           h('h2', null, 'Características'),
           h('div', { className: 'hpe-prices' },
+            h(Field, { label: 'Habitaciones' }, h(Input, { type: 'number', name: 'property_bedrooms', value: bedrooms, onChange: setBedrooms })),
+            h(Field, { label: 'Baños' }, h(Input, { type: 'number', name: 'property_bathrooms', value: bathrooms, onChange: setBathrooms })),
+            h(Field, { label: 'Parqueaderos' }, h(Input, { type: 'number', name: 'property_parking', value: parking, onChange: setParking })),
             h(Field, { label: 'Área total' }, h(Input, { name: 'property_area', value: area, onChange: setArea })),
             h(Field, { label: 'Área lote' }, h(Input, { name: 'property_area_lot', value: areaLot, onChange: setAreaLot })),
             h(Field, { label: 'Área privada' }, h(Input, { name: 'property_area_private', value: areaPrivate, onChange: setAreaPrivate })),
-            h(Field, { label: 'Área construida' }, h(Input, { name: 'property_area_built', value: areaBuilt, onChange: setAreaBuilt })),
-            h(Field, { label: 'Habitaciones' }, h(Input, { type: 'number', name: 'property_bedrooms', value: bedrooms, onChange: setBedrooms })),
-            h(Field, { label: 'Baños' }, h(Input, { type: 'number', name: 'property_bathrooms', value: bathrooms, onChange: setBathrooms })),
-            h(Field, { label: 'Parqueaderos' }, h(Input, { type: 'number', name: 'property_parking', value: parking, onChange: setParking }))
+            h(Field, { label: 'Área construida' }, h(Input, { name: 'property_area_built', value: areaBuilt, onChange: setAreaBuilt }))
           ),
           h('div', { className: 'hpe-feature-groups' },
             featureGroups.map(function (group) {
@@ -732,68 +839,154 @@
           }),
           hidden('property_nearby', selectedNearby.join(','))
         ),
-        h('section', { className: 'hpe-card hpe-span-2' },
-          h('h2', null, 'Asesor y extras'),
-          h(Field, { label: 'Fotos del inmueble' },
-            h('button', { type: 'button', className: 'button', onClick: openWpMediaPicker }, 'Seleccionar desde Biblioteca de Medios')
-          ),
-          h('p', { className: 'description' }, 'Puedes agregar varias fotos desde WordPress, ordenarlas con drag & drop, marcar destacada y quitar una o varias.'),
-          h('div', { className: 'hpe-gallery-toolbar' },
-            h('label', { className: 'hpe-gallery-select-all' },
-              h('input', {
-                type: 'checkbox',
-                checked: galleryOrder.length > 0 && selectedGalleryTokens.length === galleryOrder.length,
-                onChange: toggleSelectAllGallery
-              }),
-              h('span', null, 'Seleccionar todas')
-            ),
-            h('span', { className: 'hpe-gallery-selected-count' }, String(selectedGalleryTokens.length) + ' seleccionada(s)'),
-            h('button', { type: 'button', className: 'hpe-trash-btn', onClick: removeSelectedGallery, disabled: !selectedGalleryTokens.length },
-              h('span', { className: 'hpe-trash-icon', 'aria-hidden': 'true' }, '🗑'),
-              h('span', null, 'Quitar')
-            )
-          ),
-          h('div', { className: 'hpe-gallery-grid' },
-            galleryOrder.map(function (token, index) {
-              var item = itemByToken(token);
-              if (!item) return null;
-              var src = item.url || '';
-              var isFeatured = featuredGalleryToken === token;
-              var isSelected = selectedGalleryTokens.indexOf(token) >= 0;
-              return h('div', {
-                key: token,
-                className: 'hpe-gallery-item' + (isFeatured ? ' is-featured' : '') + (isSelected ? ' is-selected' : ''),
-                draggable: true,
-                onDragStart: function () { setDraggingToken(token); },
-                onDragOver: function (e) { e.preventDefault(); },
-                onDrop: function (e) { e.preventDefault(); reorderGalleryTokens(draggingToken, token); setDraggingToken(''); }
-              },
-                src ? h('img', { src: src, alt: item.name || ('Foto ' + (index + 1)) }) : null,
-                h('label', { className: 'hpe-gallery-check' },
-                  h('input', {
-                    type: 'checkbox',
-                    checked: isSelected,
-                    onChange: function () { toggleTokenSelection(token); }
-                  })
-                ),
-                h('div', { className: 'hpe-gallery-actions' },
-                  h('button', { type: 'button', className: 'hpe-featured-btn' + (isFeatured ? ' is-active' : ''), onClick: function () { setFeaturedGalleryToken(token); } }, isFeatured ? 'Destacada' : 'Destacar'),
-                  h('button', { type: 'button', className: 'hpe-trash-btn is-inline', onClick: function () { removeGalleryItem(token); } },
-                    h('span', { className: 'hpe-trash-icon', 'aria-hidden': 'true' }, '🗑'),
-                    h('span', null, 'Quitar')
-                  )
-                )
-              );
-            })
-          ),
-          hidden('property_gallery', existingGalleryItems.map(function (i) { return i.id; }).join(',')),
-          hidden('property_gallery_existing', existingGalleryItems.map(function (i) { return i.id; }).join(',')),
-          hidden('property_gallery_order', galleryOrder.join(',')),
-          hidden('property_gallery_featured', featuredGalleryToken),
+        h('section', { className: 'hpe-card hpe-span-3' },
+          h('h2', null, 'Asesor, medios y publicación'),
           h(Field, { label: 'Asesor' }, h(Select, { name: 'property_agent_id', value: agentId, onChange: setAgentId, options: users, placeholder: 'Sin asignar' })),
           h('p', { className: 'description' }, 'El teléfono y correo del asesor se toman automáticamente desde su perfil de usuario.'),
           h('label', { className: 'hpe-check' }, h('input', { type: 'checkbox', checked: featured, onChange: function (e) { setFeatured(e.target.checked); } }), 'Inmueble destacado'),
-          hidden('property_featured', featured ? '1' : '0')
+          hidden('property_featured', featured ? '1' : '0'),
+          h('div', { className: 'hpe-editor-tabs' },
+            h('button', { type: 'button', className: 'button' + (mediaTab === 'photos' ? ' button-primary' : ''), onClick: function () { setMediaTab('photos'); } }, 'Fotos'),
+            h('button', { type: 'button', className: 'button' + (mediaTab === 'videos' ? ' button-primary' : ''), onClick: function () { setMediaTab('videos'); } }, 'Videos'),
+            h('button', { type: 'button', className: 'button' + (mediaTab === 'vr360' ? ' button-primary' : ''), onClick: function () { setMediaTab('vr360'); } }, '360'),
+            h('button', { type: 'button', className: 'button' + (mediaTab === 'brochure' ? ' button-primary' : ''), onClick: function () { setMediaTab('brochure'); } }, 'Brochure'),
+            h('button', { type: 'button', className: 'button' + (mediaTab === 'synced' ? ' button-primary' : ''), onClick: function () { setMediaTab('synced'); } }, 'Sincronizado')
+          ),
+          mediaTab === 'photos' && h('div', null,
+            h(Field, { label: 'Fotos del inmueble' },
+              h('button', { type: 'button', className: 'button', onClick: openWpMediaPicker }, 'Seleccionar desde Biblioteca de Medios')
+            ),
+            h('p', { className: 'description' }, 'Puedes agregar varias fotos desde WordPress, ordenarlas con drag & drop, marcar destacada y quitar una o varias.'),
+            h('div', { className: 'hpe-gallery-toolbar' },
+              h('label', { className: 'hpe-gallery-select-all' },
+                h('input', {
+                  type: 'checkbox',
+                  checked: galleryOrder.length > 0 && selectedGalleryTokens.length === galleryOrder.length,
+                  onChange: toggleSelectAllGallery
+                }),
+                h('span', null, 'Seleccionar todas')
+              ),
+              h('span', { className: 'hpe-gallery-selected-count' }, String(selectedGalleryTokens.length) + ' seleccionada(s)'),
+              h('button', { type: 'button', className: 'hpe-trash-btn', onClick: removeSelectedGallery, disabled: !selectedGalleryTokens.length },
+                h('span', { className: 'hpe-trash-icon', 'aria-hidden': 'true' }, '🗑'),
+                h('span', null, 'Quitar')
+              )
+            ),
+            h('div', { className: 'hpe-gallery-grid' },
+              galleryOrder.map(function (token, index) {
+                var item = itemByToken(token);
+                if (!item) return null;
+                var src = item.url || '';
+                var isFeatured = featuredGalleryToken === token;
+                var isSelected = selectedGalleryTokens.indexOf(token) >= 0;
+                return h('div', {
+                  key: token,
+                  className: 'hpe-gallery-item' + (isFeatured ? ' is-featured' : '') + (isSelected ? ' is-selected' : ''),
+                  draggable: true,
+                  onDragStart: function () { setDraggingToken(token); },
+                  onDragOver: function (e) { e.preventDefault(); },
+                  onDrop: function (e) { e.preventDefault(); reorderGalleryTokens(draggingToken, token); setDraggingToken(''); }
+                },
+                  src ? h('img', { src: src, alt: item.name || ('Foto ' + (index + 1)) }) : null,
+                  h('label', { className: 'hpe-gallery-check' },
+                    h('input', {
+                      type: 'checkbox',
+                      checked: isSelected,
+                      onChange: function () { toggleTokenSelection(token); }
+                    })
+                  ),
+                  h('div', { className: 'hpe-gallery-actions' },
+                    h('button', { type: 'button', className: 'hpe-featured-btn' + (isFeatured ? ' is-active' : ''), onClick: function () { setFeaturedGalleryToken(token); } }, isFeatured ? 'Destacada' : 'Destacar'),
+                    h('button', { type: 'button', className: 'hpe-trash-btn is-inline', onClick: function () { removeGalleryItem(token); } },
+                      h('span', { className: 'hpe-trash-icon', 'aria-hidden': 'true' }, '🗑'),
+                      h('span', null, 'Quitar')
+                    )
+                  )
+                );
+              })
+            )
+          ),
+          mediaTab === 'videos' && h(Field, { label: 'Video de YouTube (solo 1 URL)' },
+            h(Input, { value: videosText, onChange: setVideosText, placeholder: 'https://www.youtube.com/watch?v=...' })
+          ),
+          mediaTab === 'vr360' && h('div', null,
+            h(Field, { label: 'Foto(s) 360 (una URL por línea)' },
+              h('textarea', { rows: 4, value: photos360Text, onChange: function (e) { setPhotos360Text(e.target.value); }, placeholder: 'https://...' })
+            ),
+            h(Field, { label: 'Recorrido(s) 360 (una URL por línea)' },
+              h('textarea', { rows: 4, value: tours360Text, onChange: function (e) { setTours360Text(e.target.value); }, placeholder: 'https://...' })
+            )
+          ),
+          mediaTab === 'brochure' && h(Field, { label: 'Brochure (URL)' },
+            h(Input, { name: 'property_brochure', value: brochure, onChange: setBrochure, placeholder: 'https://...' })
+          ),
+          mediaTab === 'synced' && h('div', { className: 'hpe-synced-urls' },
+            h('h3', null, 'Información sincronizada desde CRM'),
+            (!syncedVideos.length && !syncedPhotos360.length && !syncedTours360.length && !syncedBrochure) && h('p', { className: 'description' }, 'No hay URLs sincronizadas en este inmueble.'),
+            !!syncedVideos.length && h('div', null,
+              h('strong', null, 'Videos sincronizados'),
+              h('ul', null, syncedVideos.map(function (url) { return h('li', { key: 'v-' + url }, h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, url)); }))
+            ),
+            !!syncedPhotos360.length && h('div', null,
+              h('strong', null, 'Fotos 360 sincronizadas'),
+              h('ul', null, syncedPhotos360.map(function (url) { return h('li', { key: 'p-' + url }, h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, url)); }))
+            ),
+            !!syncedTours360.length && h('div', null,
+              h('strong', null, 'Recorridos 360 sincronizados'),
+              h('ul', null, syncedTours360.map(function (url) { return h('li', { key: 't-' + url }, h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, url)); }))
+            )
+          ),
+          hidden('property_gallery', existingGalleryItems.map(function (i) { return i.id; }).filter(function (id) { return !!id; }).join(',')),
+          hidden('property_gallery_existing', existingGalleryItems.map(function (i) { return i.id; }).filter(function (id) { return !!id; }).join(',')),
+          hidden('property_gallery_order', galleryOrder.join(',')),
+          hidden('property_gallery_featured', featuredGalleryToken),
+          hidden('property_videos', JSON.stringify((function () {
+            var list = normalizeUrlListInput(videosText);
+            return list.length ? [list[0]] : [];
+          })())),
+          hidden('property_photos_360', JSON.stringify(normalizeUrlListInput(photos360Text))),
+          hidden('property_tour_360', JSON.stringify(normalizeUrlListInput(tours360Text))),
+          hidden('property_brochure', brochure)
+        ),
+        h('section', { className: 'hpe-card hpe-span-3 hpe-card--visits' },
+          h('h2', null, 'Informe de visitas del inmueble'),
+          h('p', { className: 'description' }, 'Solo se cuentan visitas de usuarios no logeados. El mismo visitante no suma nuevamente en el mismo inmueble durante 24 horas.'),
+          h('div', { className: 'hpe-visit-metrics' },
+            h('div', { className: 'hpe-visit-metric' }, h('strong', null, String(visitTotals.all || 0)), h('span', null, 'Total histórico')),
+            h('div', { className: 'hpe-visit-metric' }, h('strong', null, String(visitTotals.today || 0)), h('span', null, 'Hoy')),
+            h('div', { className: 'hpe-visit-metric' }, h('strong', null, String(visitTotals.last7 || 0)), h('span', null, 'Últimos 7 días')),
+            h('div', { className: 'hpe-visit-metric' }, h('strong', null, String(visitTotals.last30 || 0)), h('span', null, 'Últimos 30 días')),
+            h('div', { className: 'hpe-visit-metric' }, h('strong', null, String(visitTotals.unique_visitors || 0)), h('span', null, 'Visitantes únicos'))
+          ),
+          h('h3', null, 'Gráfica diaria (30 días)'),
+          dailyVisits.length ? h('div', { className: 'hpe-visit-chart' },
+            dailyVisits.map(function (row, i) {
+              var count = Number(row.visits || 0);
+              var pct = Math.max(4, Math.round((count / maxDailyVisit) * 100));
+              return h('div', { key: 'd-' + i, className: 'hpe-visit-chart-row' },
+                h('span', { className: 'hpe-visit-chart-date' }, String(row.date || '')),
+                h('div', { className: 'hpe-visit-chart-bar-wrap' },
+                  h('span', { className: 'hpe-visit-chart-bar', style: { width: pct + '%' } })
+                ),
+                h('span', { className: 'hpe-visit-chart-count' }, String(count))
+              );
+            })
+          ) : h('p', { className: 'description' }, 'Aún no hay visitas registradas para graficar.'),
+          h('h3', null, 'Historial reciente'),
+          recentVisits.length ? h('table', { className: 'widefat striped' },
+            h('thead', null, h('tr', null,
+              h('th', null, 'Fecha y hora'),
+              h('th', null, 'Visitante')
+            )),
+            h('tbody', null,
+              recentVisits.map(function (row, i) {
+                return h('tr', { key: 'r-' + i },
+                  h('td', null, String(row.visited_at || '')),
+                  h('td', null, String(row.visitor || ''))
+                );
+              })
+            )
+          ) : h('p', { className: 'description' }, 'Sin historial reciente de visitas.')
         )
       ),
       h('div', { className: 'hpe-actions hpe-actions-bottom' },

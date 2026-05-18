@@ -310,17 +310,25 @@ class PropertyGalleryWidget extends BasePropertyWidget
     {
         $settings = $this->get_settings_for_display();
 
+        wp_enqueue_script(
+            'homlity-plugin-gallery-tabs',
+            HOMLITY_PLUGIN_URL . 'assets/js/property-gallery-tabs.js',
+            [],
+            HOMLITY_PLUGIN_VERSION,
+            true
+        );
+
         $layout = $settings['gallery_layout'] ?? 'slider_show';
         if (in_array($layout, ['slider_show', 'masonry'], true)) {
             wp_enqueue_style(
                 'homlity-plugin-swiper',
-                'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.css',
                 [],
                 '11.1.4'
             );
             wp_enqueue_script(
                 'homlity-plugin-swiper',
-                'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.js',
                 [],
                 '11.1.4',
                 true
@@ -337,13 +345,13 @@ class PropertyGalleryWidget extends BasePropertyWidget
         if ($layout === 'light_gallery') {
             wp_enqueue_style(
                 'homlity-plugin-lightgallery',
-                'https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lightgallery-bundle.min.css',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/lightgallery/lightgallery-bundle.min.css',
                 [],
                 '2.7.2'
             );
             wp_enqueue_script(
                 'homlity-plugin-lightgallery',
-                'https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/lightgallery.min.js',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/lightgallery/lightgallery.min.js',
                 [],
                 '2.7.2',
                 true

@@ -1,19 +1,20 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
 $checkLink = !(isset($attrs) && isset($attrs['withLinktoDetail']) && $attrs['withLinktoDetail'] == false);
 ?>
 <?php
 if ($checkLink) :
 ?>
-    <a href="<?php echo visualinmu_route_detalleInmueble($inmueble->slug()); ?>" class="inmueblelink" target="_blank">
+    <a href="<?php echo esc_url( visualinmu_route_detalleInmueble($inmueble->slug()) ); ?>" class="inmueblelink" target="_blank">
     <?php
 endif;
     ?>
     <style>
     .property-noavaliable::after {
-        content: "<?php echo $inmueble->gestion()->esAriendo() ?  __('ARRENDADO','visualinmueble') : __('VENDIDO','visualinmueble') ?>"; 
+        content: "<?php echo esc_html( $inmueble->gestion()->esAriendo() ?  __('ARRENDADO','homlity-plugin') : __('VENDIDO','homlity-plugin') ); ?>"; 
     }
     </style>
-    <div class="imagenportada portada<?php echo $cont; ?> <?php echo $inmueble->retirado() ? 'property-noavaliable' : ''?>" style=" background: url(<?php echo $inmueble->fotoPortada(); ?>);  background-size: cover; background-position: center; ">
+    <div class="imagenportada portada<?php echo esc_attr( $cont ); ?> <?php echo esc_attr( $inmueble->retirado() ? 'property-noavaliable' : '' );?>" style=" background: url(<?php echo esc_url( $inmueble->fotoPortada() ); ?>);  background-size: cover; background-position: center; ">
         <?php if ($inmueble->gestion()->esArriendoVenta()) : ?>
             <span class="badge rounded-pill bg-primary">Venta</span>
             <span class="badge rounded-pill bg-primary">Arriendo</span>

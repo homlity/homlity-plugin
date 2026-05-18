@@ -5,6 +5,9 @@
  *
  * Expected args: $post_id (int), $settings (array, optional — Elementor widget settings)
  */
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 if (!isset($post_id)) {
     $post_id = get_the_ID();
@@ -42,18 +45,23 @@ if ($title !== '') {
     $summaryParts[] = $title;
 }
 if ($bedrooms !== '') {
+    /* translators: %s: number of bedrooms */
     $summaryParts[] = sprintf(__('alcobas: %s', 'homlity-plugin'), $bedrooms);
 }
 if ($bathrooms !== '') {
+    /* translators: %s: number of bathrooms */
     $summaryParts[] = sprintf(__('baños: %s', 'homlity-plugin'), $bathrooms);
 }
 if ($parking !== '') {
+    /* translators: %s: number of parking spaces */
     $summaryParts[] = sprintf(__('parqueaderos: %s', 'homlity-plugin'), $parking);
 }
 if ($area !== '') {
+    /* translators: %s: property area in square meters */
     $summaryParts[] = sprintf(__('área: %sm2', 'homlity-plugin'), $area);
 }
 if ($displayPrice !== '') {
+    /* translators: %s: formatted property price */
     $summaryParts[] = sprintf(__('valor: %s', 'homlity-plugin'), $displayPrice);
 }
 

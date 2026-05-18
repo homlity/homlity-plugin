@@ -21,6 +21,12 @@ use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyContentWid
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyOperationPriceWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyShareWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyTitleWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyMediaTabsWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyBreadcrumbWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyVideoWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyTechnicalSheetButtonWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFeaturedTermsWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyAgentsAvailableWidget;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 
 if (!defined('ABSPATH')) {
@@ -117,6 +123,12 @@ class ElementorIntegrationService implements ServiceInterface
             PropertyContentWidget::class,
             PropertySummaryWidget::class,
             PropertyGalleryWidget::class,
+            PropertyBreadcrumbWidget::class,
+            PropertyMediaTabsWidget::class,
+            PropertyVideoWidget::class,
+            PropertyTechnicalSheetButtonWidget::class,
+            PropertyFeaturedTermsWidget::class,
+            PropertyAgentsAvailableWidget::class,
             PropertyFeaturesPrimaryWidget::class,
             PropertyFeaturesSecondaryWidget::class,
             PropertyMapWidget::class,
@@ -177,14 +189,14 @@ class ElementorIntegrationService implements ServiceInterface
 
         wp_enqueue_style(
             'homlity-plugin-leaflet',
-            'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+            HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.css',
             [],
             '1.9.4'
         );
 
         wp_enqueue_script(
             'homlity-plugin-leaflet',
-            'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+            HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.js',
             [],
             '1.9.4',
             true

@@ -1,15 +1,16 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 
 
 
-<div class="container visualinmueble-detalle-inmueble ">
+<div class="container homlity-plugin-detalle-inmueble ">
   
     <div class="row">
         <?php
         /**
-         * @var \Codwelt\VisualInmueble\Core\Modelos\Inmueble $inmueble
+         * @var \Codwelt\homlity-plugin\Core\Modelos\Inmueble $inmueble
          */
         if (isset($inmueble)) : ?>
-            <div class="col-xl-9 col-lg-9 col-md-8 visualinmueble-inmueble-retirado">
+            <div class="col-xl-9 col-lg-9 col-md-8 homlity-plugin-inmueble-retirado">
             <div id="overlay-retirado">
         <div class="overlay-container">
             <div class="overlay-message">
@@ -25,10 +26,10 @@
                     $urlQuery2 = visualinmu_route_search_url(['tiposInmueble' => $inmueble->tipoInmueble()->codigo(),'ciudades' => $inmueble->ciudad()->codigo()]);
                 ?>
                 <p class="text-white">
-                    <a  class ="button btn-link overlay-button" title="<?php echo $titulo2 ?>" href="<?php echo $urlQuery2  ?>">+ <?php echo $titulo2; ?></a>
+                    <a  class ="button btn-link overlay-button" title="<?php echo esc_attr( $titulo2 ); ?>" href="<?php echo esc_url( $urlQuery2 ); ?>">+ <?php echo esc_html( $titulo2 ); ?></a>
                 </p>
                 <p class="text-white">
-                <a class ="button btn-link overlay-button" title="<?php echo $titulo1; ?>" href="<?php echo $urlQuery1 ?>">+ <?php echo $titulo1 ?></a>
+                <a class ="button btn-link overlay-button" title="<?php echo esc_attr( $titulo1 ); ?>" href="<?php echo esc_url( $urlQuery1 ); ?>">+ <?php echo esc_html( $titulo1 ); ?></a>
                 </p>
                
                 

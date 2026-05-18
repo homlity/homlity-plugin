@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
 $columns = 3;
 $totalFeatures = $inmueble->caracteristicas();
@@ -13,8 +14,8 @@ if ($conteo > 0) {
                         foreach ($grupo as $caracteristica) { ?>
                             <div class="item-caracteristicas">
                                 <i class="icon-homlity icon-uniE954"></i>
-                                <?php echo $caracteristica->nombre() .
-                                    ((!empty($caracteristica->valor()) && $caracteristica->valor()) != '0' ? ': ' . $caracteristica->valor() : '') ?>
+                                <?php echo esc_html( $caracteristica->nombre() .
+                                    ((!empty($caracteristica->valor()) && $caracteristica->valor()) != '0' ? ': ' . $caracteristica->valor() : '') ); ?>
                             </div>
                         <?php }
                     } ?>
@@ -42,8 +43,8 @@ if ($conteo > 0) {
                     foreach ($grupo as $caracteristica) { ?>
                         <div class="item-caracteristicas">
                             <i class="icon-homlity icon-uniE954"></i>
-                            <?php echo $caracteristica->nombre() .
-                                ((!empty($caracteristica->valor()) && $caracteristica->valor()) != '0' ? ': ' . $caracteristica->valor() : '') ?>
+                            <?php echo esc_html( $caracteristica->nombre() .
+                                ((!empty($caracteristica->valor()) && $caracteristica->valor()) != '0' ? ': ' . $caracteristica->valor() : '') ); ?>
                         </div>
                     <?php }
                 } ?>

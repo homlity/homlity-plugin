@@ -4,10 +4,26 @@
             return;
         }
 
+        const iconUrl = window.homlityLeafletAssets?.iconUrl || '';
+        const iconRetinaUrl = window.homlityLeafletAssets?.iconRetinaUrl || '';
+        const shadowUrl = window.homlityLeafletAssets?.shadowUrl || '';
+        if (!iconUrl || !iconRetinaUrl || !shadowUrl) {
+            return;
+        }
+
         window.L.Icon.Default.mergeOptions({
-            iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-            iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+            iconUrl,
+            iconRetinaUrl,
+            shadowUrl,
+        });
+    }
+
+    function makeCustomIcon(url) {
+        return window.L.icon({
+            iconUrl:      url,
+            iconSize:     [32, 32],
+            iconAnchor:   [16, 32],
+            popupAnchor:  [0, -34],
         });
     }
 
@@ -28,15 +44,41 @@
         const map = window.L.map(node, {
             scrollWheelZoom: false,
         }).setView([lat, lng], Number.isNaN(zoom) ? 16 : zoom);
+        node.__homlityLeafletMap = map;
 
         window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors',
         }).addTo(map);
 
-        const marker = window.L.marker([lat, lng]).addTo(map);
-        if (title) {
-            marker.bindPopup(title);
+        const iconUrl     = node.dataset.markerIcon || '';
+        const fallbackUrl = node.dataset.markerIconFallback || '';
+
+        function addMarker(url) {
+            const icon   = url ? makeCustomIcon(url) : undefined;
+            const marker = icon
+                ? window.L.marker([lat, lng], { icon }).addTo(map)
+                : window.L.marker([lat, lng]).addTo(map);
+            if (title) {
+                marker.bindPopup(title);
+            }
         }
+
+        if (iconUrl) {
+            const img = new Image();
+            img.onload  = function () { addMarker(iconUrl); };
+            img.onerror = function () { addMarker(fallbackUrl); };
+            img.src = iconUrl;
+        } else {
+            addMarker(fallbackUrl);
+        }
+
+        node.addEventListener('homlity:map-resize', function () {
+            if (node.__homlityLeafletMap && typeof node.__homlityLeafletMap.invalidateSize === 'function') {
+                setTimeout(function () {
+                    node.__homlityLeafletMap.invalidateSize();
+                }, 50);
+            }
+        });
     }
 
     document.addEventListener('DOMContentLoaded', function () {

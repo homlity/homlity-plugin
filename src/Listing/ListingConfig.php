@@ -31,6 +31,8 @@ class ListingConfig
         'preset_operation'       => 0,
         'preset_type'            => 0,
         'preset_tag'             => 0,
+        'preset_tag_ids'         => [],
+        'use_current_property_tags' => false,
         'preset_feature'         => 0,
         'preset_country'         => 0,
         'preset_state'           => 0,
@@ -48,6 +50,7 @@ class ListingConfig
         'template'               => 'default', // 'default' | 'bootstrap'
         'card_media_mode'        => 'single', // 'single' | 'slider'
         'card_visual_preset'     => 'default', // 'default' | 'cover_overlay' | 'minimal_light'
+        'card_hover_effect'      => 'lift', // 'none' | 'lift' | 'zoom' | 'glow'
         'card_show_title'        => true,
         'card_show_excerpt'      => true,
         'card_show_operation'    => true,
@@ -55,6 +58,9 @@ class ListingConfig
         'card_show_features'     => true,
         'card_show_whatsapp'     => true,
         'card_whatsapp_label'    => '',
+        'card_whatsapp_show_icon' => true,
+        'card_whatsapp_icon_position' => 'left',
+        'card_whatsapp_icon' => ['value' => 'fab fa-whatsapp', 'library' => 'fa-brands'],
         'card_feature_area'      => true,
         'card_feature_bedrooms'  => true,
         'card_feature_bathrooms' => true,
@@ -65,6 +71,16 @@ class ListingConfig
         'card_feature_age'       => true,
         'card_feature_condition' => true,
         'card_feature_code'      => true,
+        'card_feature_icon_area' => ['value' => 'fas fa-ruler-combined', 'library' => 'fa-solid'],
+        'card_feature_icon_bedrooms' => ['value' => 'fas fa-bed', 'library' => 'fa-solid'],
+        'card_feature_icon_bathrooms' => ['value' => 'fas fa-bath', 'library' => 'fa-solid'],
+        'card_feature_icon_parking' => ['value' => 'fas fa-car', 'library' => 'fa-solid'],
+        'card_feature_icon_area_lot' => ['value' => 'fas fa-draw-polygon', 'library' => 'fa-solid'],
+        'card_feature_icon_area_private' => ['value' => 'fas fa-house', 'library' => 'fa-solid'],
+        'card_feature_icon_area_built' => ['value' => 'fas fa-ruler', 'library' => 'fa-solid'],
+        'card_feature_icon_age' => ['value' => 'fas fa-clock', 'library' => 'fa-solid'],
+        'card_feature_icon_condition' => ['value' => 'fas fa-circle-check', 'library' => 'fa-solid'],
+        'card_feature_icon_code' => ['value' => 'fas fa-hashtag', 'library' => 'fa-solid'],
     ];
 
     // ── Private constructor – use static factories ────────────────────────────
@@ -105,6 +121,8 @@ class ListingConfig
             'preset_operation'      => absint($settings['preset_operation'] ?? 0),
             'preset_type'           => absint($settings['preset_type'] ?? 0),
             'preset_tag'            => absint($settings['preset_tag'] ?? 0),
+            'preset_tag_ids'        => array_values(array_filter(array_map('absint', (array) ($settings['preset_tag_ids'] ?? [])))),
+            'use_current_property_tags' => !empty($settings['use_current_property_tags']),
             'preset_feature'        => absint($settings['preset_feature'] ?? 0),
             'preset_country'        => absint($settings['preset_country'] ?? 0),
             'preset_state'          => absint($settings['preset_state'] ?? 0),
@@ -122,6 +140,7 @@ class ListingConfig
             'template'              => self::sanitizeTemplate($settings['template'] ?? 'default'),
             'card_media_mode'       => self::sanitizeMediaMode($settings['card_media_mode'] ?? 'single'),
             'card_visual_preset'    => self::sanitizeCardPreset($settings['card_visual_preset'] ?? 'default'),
+            'card_hover_effect'     => self::sanitizeHoverEffect($settings['card_hover_effect'] ?? 'lift'),
             'card_show_title'       => !empty($settings['card_show_title']),
             'card_show_excerpt'     => !empty($settings['card_show_excerpt']),
             'card_show_operation'   => !empty($settings['card_show_operation']),
@@ -129,6 +148,11 @@ class ListingConfig
             'card_show_features'    => !empty($settings['card_show_features']),
             'card_show_whatsapp'    => !empty($settings['card_show_whatsapp']),
             'card_whatsapp_label'   => sanitize_text_field($settings['card_whatsapp_label'] ?? ''),
+            'card_whatsapp_show_icon' => !empty($settings['card_whatsapp_show_icon']),
+            'card_whatsapp_icon_position' => in_array(($settings['card_whatsapp_icon_position'] ?? 'left'), ['left', 'right'], true)
+                ? $settings['card_whatsapp_icon_position']
+                : 'left',
+            'card_whatsapp_icon' => self::normalizeElementorIcon($settings['card_whatsapp_icon'] ?? []),
             'card_feature_area'      => !empty($settings['card_feature_area']),
             'card_feature_bedrooms'  => !empty($settings['card_feature_bedrooms']),
             'card_feature_bathrooms' => !empty($settings['card_feature_bathrooms']),
@@ -139,6 +163,16 @@ class ListingConfig
             'card_feature_age'       => !empty($settings['card_feature_age']),
             'card_feature_condition' => !empty($settings['card_feature_condition']),
             'card_feature_code'      => !empty($settings['card_feature_code']),
+            'card_feature_icon_area' => self::normalizeElementorIcon($settings['card_feature_icon_area'] ?? []),
+            'card_feature_icon_bedrooms' => self::normalizeElementorIcon($settings['card_feature_icon_bedrooms'] ?? []),
+            'card_feature_icon_bathrooms' => self::normalizeElementorIcon($settings['card_feature_icon_bathrooms'] ?? []),
+            'card_feature_icon_parking' => self::normalizeElementorIcon($settings['card_feature_icon_parking'] ?? []),
+            'card_feature_icon_area_lot' => self::normalizeElementorIcon($settings['card_feature_icon_area_lot'] ?? []),
+            'card_feature_icon_area_private' => self::normalizeElementorIcon($settings['card_feature_icon_area_private'] ?? []),
+            'card_feature_icon_area_built' => self::normalizeElementorIcon($settings['card_feature_icon_area_built'] ?? []),
+            'card_feature_icon_age' => self::normalizeElementorIcon($settings['card_feature_icon_age'] ?? []),
+            'card_feature_icon_condition' => self::normalizeElementorIcon($settings['card_feature_icon_condition'] ?? []),
+            'card_feature_icon_code' => self::normalizeElementorIcon($settings['card_feature_icon_code'] ?? []),
         ]);
     }
 
@@ -172,6 +206,8 @@ class ListingConfig
             'preset_operation'      => absint($atts['operation'] ?? 0),
             'preset_type'           => absint($atts['type'] ?? 0),
             'preset_tag'            => absint($atts['tag'] ?? 0),
+            'preset_tag_ids'        => [],
+            'use_current_property_tags' => $bool($atts['current_property_tags'] ?? null, false),
             'preset_feature'        => absint($atts['feature'] ?? 0),
             'preset_country'        => absint($atts['country'] ?? 0),
             'preset_state'          => absint($atts['state'] ?? 0),
@@ -189,6 +225,7 @@ class ListingConfig
             'template'              => self::sanitizeTemplate($atts['template'] ?? 'default'),
             'card_media_mode'       => self::sanitizeMediaMode($atts['card_media'] ?? 'single'),
             'card_visual_preset'    => self::sanitizeCardPreset($atts['card_preset'] ?? 'default'),
+            'card_hover_effect'     => self::sanitizeHoverEffect($atts['card_hover_effect'] ?? 'lift'),
             'card_show_title'       => $bool($atts['card_title'] ?? null, true),
             'card_show_excerpt'     => $bool($atts['card_excerpt'] ?? null, true),
             'card_show_operation'   => $bool($atts['card_operation'] ?? null, true),
@@ -196,6 +233,11 @@ class ListingConfig
             'card_show_features'    => $bool($atts['card_features'] ?? null, true),
             'card_show_whatsapp'    => $bool($atts['card_whatsapp'] ?? null, true),
             'card_whatsapp_label'   => sanitize_text_field($atts['card_whatsapp_label'] ?? ''),
+            'card_whatsapp_show_icon' => $bool($atts['card_whatsapp_icon'] ?? null, true),
+            'card_whatsapp_icon_position' => in_array(($atts['card_whatsapp_icon_position'] ?? 'left'), ['left', 'right'], true)
+                ? $atts['card_whatsapp_icon_position']
+                : 'left',
+            'card_whatsapp_icon' => self::normalizeElementorIcon([]),
             'card_feature_area'      => $bool($atts['card_area'] ?? null, true),
             'card_feature_bedrooms'  => $bool($atts['card_bedrooms'] ?? null, true),
             'card_feature_bathrooms' => $bool($atts['card_bathrooms'] ?? null, true),
@@ -206,6 +248,16 @@ class ListingConfig
             'card_feature_age'       => $bool($atts['card_age'] ?? null, true),
             'card_feature_condition' => $bool($atts['card_condition'] ?? null, true),
             'card_feature_code'      => $bool($atts['card_code'] ?? null, true),
+            'card_feature_icon_area' => self::normalizeElementorIcon([]),
+            'card_feature_icon_bedrooms' => self::normalizeElementorIcon([]),
+            'card_feature_icon_bathrooms' => self::normalizeElementorIcon([]),
+            'card_feature_icon_parking' => self::normalizeElementorIcon([]),
+            'card_feature_icon_area_lot' => self::normalizeElementorIcon([]),
+            'card_feature_icon_area_private' => self::normalizeElementorIcon([]),
+            'card_feature_icon_area_built' => self::normalizeElementorIcon([]),
+            'card_feature_icon_age' => self::normalizeElementorIcon([]),
+            'card_feature_icon_condition' => self::normalizeElementorIcon([]),
+            'card_feature_icon_code' => self::normalizeElementorIcon([]),
         ]);
     }
 
@@ -223,6 +275,8 @@ class ListingConfig
     public function presetOperation(): int { return (int)    $this->data['preset_operation']; }
     public function presetType(): int      { return (int)    $this->data['preset_type']; }
     public function presetTag(): int       { return (int)    $this->data['preset_tag']; }
+    public function presetTagIds(): array  { return array_values(array_filter(array_map('absint', (array) $this->data['preset_tag_ids']))); }
+    public function useCurrentPropertyTags(): bool { return (bool) $this->data['use_current_property_tags']; }
     public function presetFeature(): int   { return (int)    $this->data['preset_feature']; }
     public function presetCountry(): int   { return (int)    $this->data['preset_country']; }
     public function presetState(): int     { return (int)    $this->data['preset_state']; }
@@ -241,6 +295,7 @@ class ListingConfig
     public function cardOptions(): array   { return [
         'media_mode' => (string) $this->data['card_media_mode'],
         'visual_preset' => (string) $this->data['card_visual_preset'],
+        'hover_effect' => (string) $this->data['card_hover_effect'],
         'show_title' => (bool) $this->data['card_show_title'],
         'show_excerpt' => (bool) $this->data['card_show_excerpt'],
         'show_operation' => (bool) $this->data['card_show_operation'],
@@ -248,6 +303,9 @@ class ListingConfig
         'show_features' => (bool) $this->data['card_show_features'],
         'show_whatsapp' => (bool) $this->data['card_show_whatsapp'],
         'whatsapp_label' => (string) $this->data['card_whatsapp_label'],
+        'whatsapp_show_icon' => (bool) $this->data['card_whatsapp_show_icon'],
+        'whatsapp_icon_position' => (string) $this->data['card_whatsapp_icon_position'],
+        'whatsapp_icon' => is_array($this->data['card_whatsapp_icon']) ? $this->data['card_whatsapp_icon'] : [],
         'feature_area' => (bool) $this->data['card_feature_area'],
         'feature_bedrooms' => (bool) $this->data['card_feature_bedrooms'],
         'feature_bathrooms' => (bool) $this->data['card_feature_bathrooms'],
@@ -258,6 +316,16 @@ class ListingConfig
         'feature_age' => (bool) $this->data['card_feature_age'],
         'feature_condition' => (bool) $this->data['card_feature_condition'],
         'feature_code' => (bool) $this->data['card_feature_code'],
+        'feature_icon_area' => is_array($this->data['card_feature_icon_area']) ? $this->data['card_feature_icon_area'] : [],
+        'feature_icon_bedrooms' => is_array($this->data['card_feature_icon_bedrooms']) ? $this->data['card_feature_icon_bedrooms'] : [],
+        'feature_icon_bathrooms' => is_array($this->data['card_feature_icon_bathrooms']) ? $this->data['card_feature_icon_bathrooms'] : [],
+        'feature_icon_parking' => is_array($this->data['card_feature_icon_parking']) ? $this->data['card_feature_icon_parking'] : [],
+        'feature_icon_area_lot' => is_array($this->data['card_feature_icon_area_lot']) ? $this->data['card_feature_icon_area_lot'] : [],
+        'feature_icon_area_private' => is_array($this->data['card_feature_icon_area_private']) ? $this->data['card_feature_icon_area_private'] : [],
+        'feature_icon_area_built' => is_array($this->data['card_feature_icon_area_built']) ? $this->data['card_feature_icon_area_built'] : [],
+        'feature_icon_age' => is_array($this->data['card_feature_icon_age']) ? $this->data['card_feature_icon_age'] : [],
+        'feature_icon_condition' => is_array($this->data['card_feature_icon_condition']) ? $this->data['card_feature_icon_condition'] : [],
+        'feature_icon_code' => is_array($this->data['card_feature_icon_code']) ? $this->data['card_feature_icon_code'] : [],
     ]; }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -277,6 +345,8 @@ class ListingConfig
             'preset_operation' => $this->presetOperation(),
             'preset_type'      => $this->presetType(),
             'preset_tag'       => $this->presetTag(),
+            'preset_tag_ids'   => $this->presetTagIds(),
+            'use_current_property_tags' => $this->useCurrentPropertyTags(),
             'preset_feature'   => $this->presetFeature(),
             'preset_country'   => $this->presetCountry(),
             'preset_state'     => $this->presetState(),
@@ -320,8 +390,28 @@ class ListingConfig
         return in_array($value, ['single', 'slider'], true) ? $value : 'single';
     }
 
+    private static function sanitizeHoverEffect(string $value): string
+    {
+        return in_array($value, ['none', 'lift', 'zoom', 'glow'], true) ? $value : 'lift';
+    }
+
     private static function sanitizeCardPreset(string $value): string
     {
         return in_array($value, ['default', 'cover_overlay', 'minimal_light'], true) ? $value : 'default';
+    }
+
+    private static function normalizeElementorIcon($raw): array
+    {
+        $value = '';
+        $library = '';
+        if (is_array($raw)) {
+            $value = isset($raw['value']) ? sanitize_text_field((string) $raw['value']) : '';
+            $library = isset($raw['library']) ? sanitize_key((string) $raw['library']) : '';
+        }
+
+        return [
+            'value' => $value,
+            'library' => $library,
+        ];
     }
 }

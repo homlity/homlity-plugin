@@ -1,31 +1,186 @@
-.property-content-audio {
-  margin-top: 14px;
-  border: 1px solid #d0d5dd;
-  border-radius: 12px;
-  padding: 12px;
-  background: #fff;
-}
+/* ── Property content audio player ──────────────────────────────────────── */
 
-.property-content-audio__title {
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-
-.property-content-audio__controls {
+.property-content-audio-bar {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px 10px 10px;
+  margin-top: 16px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 60px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  font-family: inherit;
+}
+
+/* ── Play / Pause button ─────────────────────────────────────────────────── */
+
+.property-content-audio-bar__play-btn {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2.5px solid #3dba72;
+  background: transparent;
+  color: #3dba72;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.18s ease, color 0.18s ease;
+  outline-offset: 3px;
+}
+
+.property-content-audio-bar__play-btn:hover {
+  background: #3dba72;
+  color: #fff;
+}
+
+.property-content-audio-bar__play-btn.is-playing {
+  background: #3dba72;
+  color: #fff;
+}
+
+.property-content-audio-bar__play-btn .hca-icon-pause {
+  display: none;
+}
+
+.property-content-audio-bar__play-btn.is-playing .hca-icon-play {
+  display: none;
+}
+
+.property-content-audio-bar__play-btn.is-playing .hca-icon-pause {
+  display: block;
+}
+
+/* ── Label ───────────────────────────────────────────────────────────────── */
+
+.property-content-audio-bar__label {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.property-content-audio-bar__heading,
+.property-content-audio-bar__sublabel {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  color: #1a1a1a;
+  white-space: nowrap;
+}
+
+/* ── Progress track ──────────────────────────────────────────────────────── */
+
+.property-content-audio-bar__track-wrap {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 0;
+  cursor: default;
+}
+
+.property-content-audio-bar__track {
+  position: relative;
+  height: 4px;
+  background: #e4e4e4;
+  border-radius: 2px;
+  overflow: visible;
+}
+
+.property-content-audio-bar__progress {
+  position: absolute;
+  inset: 0;
+  right: auto;
+  width: 0%;
+  background: #c0c0c0;
+  border-radius: 2px;
+  overflow: visible;
+  transition: width 0.35s linear;
+}
+
+/* Thumb dot — sits at the leading edge of the progress */
+.property-content-audio-bar__thumb {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(50%, -50%);
+  display: block;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #8a8a8a;
+  pointer-events: none;
+}
+
+/* ── Time display ────────────────────────────────────────────────────────── */
+
+.property-content-audio-bar__time {
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #555;
+  min-width: 38px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ── Rate selector ───────────────────────────────────────────────────────── */
+
+.property-content-audio-bar__rate-wrap {
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
   align-items: center;
 }
 
-.property-content-audio__controls button,
-.property-content-audio__controls select,
-.property-content-audio__controls input[type="range"] {
-  min-height: 34px;
+.property-content-audio-bar__rate {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1.5px solid #c8c8c8;
+  border-radius: 24px;
+  padding: 5px 26px 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+  outline-offset: 2px;
+  white-space: nowrap;
 }
 
-.property-content-audio__controls label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.property-content-audio-bar__rate:focus {
+  border-color: #3dba72;
+  outline: none;
+}
+
+.property-content-audio-bar__chevron {
+  position: absolute;
+  right: 10px;
+  pointer-events: none;
+  color: #666;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .property-content-audio-bar {
+    gap: 10px;
+    padding: 8px 10px 8px 8px;
+  }
+
+  .property-content-audio-bar__label {
+    display: none;
+  }
+
+  .property-content-audio-bar__time {
+    display: none;
+  }
 }

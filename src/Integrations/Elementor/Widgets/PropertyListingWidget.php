@@ -23,6 +23,8 @@ if (!defined('ABSPATH')) {
 
 class PropertyListingWidget extends Widget_Base
 {
+    use PropertyCardStylesTrait;
+
     public function get_name(): string  { return 'property_listing'; }
     public function get_title(): string { return __('Listado de inmuebles', 'homlity-plugin'); }
     public function get_icon(): string  { return 'eicon-posts-grid'; }
@@ -72,81 +74,17 @@ class PropertyListingWidget extends Widget_Base
 
         $this->end_controls_section();
 
-        $this->start_controls_section('card_content', ['label' => __('Contenido de la tarjeta', 'homlity-plugin')]);
-
-        $this->add_control('card_media_mode', [
-            'label' => __('Galería de fotos', 'homlity-plugin'),
-            'type' => Controls_Manager::SELECT,
-            'options' => [
-                'single' => __('Imagen principal', 'homlity-plugin'),
-                'slider' => __('Slider de fotos', 'homlity-plugin'),
-            ],
-            'default' => 'single',
-        ]);
-
-        $this->add_control('card_visual_preset', [
-            'label' => __('Preset visual tarjeta', 'homlity-plugin'),
-            'type' => Controls_Manager::SELECT,
-            'options' => [
-                'default' => __('Clásico', 'homlity-plugin'),
-                'cover_overlay' => __('Portada con overlay', 'homlity-plugin'),
-                'minimal_light' => __('Minimal claro', 'homlity-plugin'),
-            ],
-            'default' => 'default',
-        ]);
-
-        foreach ([
-            'card_show_title' => __('Mostrar título', 'homlity-plugin'),
-            'card_show_excerpt' => __('Mostrar descripción corta', 'homlity-plugin'),
-            'card_show_operation' => __('Mostrar gestión (venta/arriendo)', 'homlity-plugin'),
-            'card_show_price' => __('Mostrar valor de gestión', 'homlity-plugin'),
-            'card_show_features' => __('Mostrar características', 'homlity-plugin'),
-            'card_show_whatsapp' => __('Mostrar botón WhatsApp asesor', 'homlity-plugin'),
-        ] as $key => $label) {
-            $this->add_control($key, [
-                'label' => $label,
-                'type' => Controls_Manager::SWITCHER,
-                'default' => 'yes',
-            ]);
-        }
-
-        $this->add_control('card_whatsapp_label', [
-            'label' => __('Texto botón WhatsApp', 'homlity-plugin'),
-            'type' => Controls_Manager::TEXT,
-            'default' => __('Hablar por WhatsApp', 'homlity-plugin'),
-            'condition' => ['card_show_whatsapp' => 'yes'],
-        ]);
-
-        foreach ([
-            'card_feature_area' => __('Área', 'homlity-plugin'),
-            'card_feature_bedrooms' => __('Alcobas', 'homlity-plugin'),
-            'card_feature_bathrooms' => __('Baños', 'homlity-plugin'),
-            'card_feature_parking' => __('Garajes', 'homlity-plugin'),
-            'card_feature_area_lot' => __('Área de lote', 'homlity-plugin'),
-            'card_feature_area_private' => __('Área privada', 'homlity-plugin'),
-            'card_feature_area_built' => __('Área construida', 'homlity-plugin'),
-            'card_feature_age' => __('Edad inmueble', 'homlity-plugin'),
-            'card_feature_condition' => __('Estado inmueble', 'homlity-plugin'),
-            'card_feature_code' => __('Código inmueble', 'homlity-plugin'),
-        ] as $key => $label) {
-            $this->add_control($key, [
-                'label' => $label,
-                'type' => Controls_Manager::SWITCHER,
-                'default' => 'yes',
-                'condition' => ['card_show_features' => 'yes'],
-            ]);
-        }
-
-        $this->end_controls_section();
+        // ── Contenido de la tarjeta (shared via trait) ────────────────────────
+        $this->registerCardContentControls();
 
         // ── Consulta ──────────────────────────────────────────────────────────
         $this->start_controls_section('query', ['label' => __('Consulta', 'homlity-plugin')]);
 
         $this->add_control('query_mode', [
-            'label' => __('Origen de la consulta', 'homlity-plugin'),
-            'type' => Controls_Manager::SELECT,
+            'label'   => __('Origen de la consulta', 'homlity-plugin'),
+            'type'    => Controls_Manager::SELECT,
             'options' => [
-                'custom' => __('Filtros configurados en el widget', 'homlity-plugin'),
+                'custom'  => __('Filtros configurados en el widget', 'homlity-plugin'),
                 'current' => __('Consulta actual (archivo, categoría, etiqueta, búsqueda)', 'homlity-plugin'),
             ],
             'default' => 'custom',
@@ -174,89 +112,108 @@ class PropertyListingWidget extends Widget_Base
         ]);
 
         $this->add_control('search_keyword', [
-            'label' => __('Buscar por palabra clave', 'homlity-plugin'),
-            'type' => Controls_Manager::TEXT,
-            'default' => '',
+            'label'     => __('Buscar por palabra clave', 'homlity-plugin'),
+            'type'      => Controls_Manager::TEXT,
+            'default'   => '',
             'condition' => ['query_mode' => 'custom'],
         ]);
 
         $this->add_control('preset_category', [
-            'label' => __('Fijar categoría', 'homlity-plugin'),
-            'type' => Controls_Manager::SELECT,
-            'options' => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_CATEGORY),
-            'default' => '',
+            'label'     => __('Fijar categoría', 'homlity-plugin'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_CATEGORY),
+            'default'   => '',
             'condition' => ['query_mode' => 'custom'],
         ]);
 
         $this->add_control('preset_operation', [
-            'label'   => __('Fijar gestión (venta/arriendo)', 'homlity-plugin'),
-            'type'    => Controls_Manager::SELECT,
-            'options' => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_OPERATION),
-            'default' => '',
+            'label'     => __('Fijar gestión (venta/arriendo)', 'homlity-plugin'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_OPERATION),
+            'default'   => '',
             'condition' => ['query_mode' => 'custom'],
         ]);
 
         $this->add_control('preset_type', [
-            'label'   => __('Fijar tipo de inmueble', 'homlity-plugin'),
-            'type'    => Controls_Manager::SELECT,
-            'options' => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_TYPE),
-            'default' => '',
+            'label'     => __('Fijar tipo de inmueble', 'homlity-plugin'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_TYPE),
+            'default'   => '',
             'condition' => ['query_mode' => 'custom'],
         ]);
 
         $this->add_control('preset_tag', [
-            'label' => __('Fijar etiqueta', 'homlity-plugin'),
-            'type' => Controls_Manager::SELECT,
-            'options' => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_TAG),
-            'default' => '',
+            'label'     => __('Fijar etiqueta', 'homlity-plugin'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_TAG),
+            'default'   => '',
             'condition' => ['query_mode' => 'custom'],
         ]);
 
+        $this->add_control('preset_tag_ids', [
+            'label'       => __('Fijar etiquetas (múltiples)', 'homlity-plugin'),
+            'type'        => Controls_Manager::SELECT2,
+            'multiple'    => true,
+            'label_block' => true,
+            'options'     => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_TAG),
+            'default'     => [],
+            'condition'   => ['query_mode' => 'custom'],
+            'description' => __('Si seleccionas varias, se usarán para filtrar el listado por esas etiquetas.', 'homlity-plugin'),
+        ]);
+
+        $this->add_control('use_current_property_tags', [
+            'label'       => __('Filtrar por etiquetas del inmueble actual', 'homlity-plugin'),
+            'type'        => Controls_Manager::SWITCHER,
+            'default'     => '',
+            'condition'   => ['query_mode' => 'custom'],
+            'description' => __('En páginas de detalle de inmueble, usa sus etiquetas para listar relacionados.', 'homlity-plugin'),
+        ]);
+
         $this->add_control('preset_feature', [
-            'label' => __('Fijar característica', 'homlity-plugin'),
-            'type' => Controls_Manager::SELECT,
-            'options' => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_FEATURE),
-            'default' => '',
+            'label'     => __('Fijar característica', 'homlity-plugin'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_FEATURE),
+            'default'   => '',
             'condition' => ['query_mode' => 'custom'],
         ]);
 
         $this->add_control('preset_country', [
-            'label' => __('Fijar país', 'homlity-plugin'),
-            'type' => Controls_Manager::SELECT,
-            'options' => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_COUNTRY),
-            'default' => '',
+            'label'     => __('Fijar país', 'homlity-plugin'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_COUNTRY),
+            'default'   => '',
             'condition' => ['query_mode' => 'custom'],
         ]);
 
         $this->add_control('preset_state', [
-            'label' => __('Fijar departamento / provincia', 'homlity-plugin'),
-            'type' => Controls_Manager::SELECT,
-            'options' => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_STATE),
-            'default' => '',
+            'label'     => __('Fijar departamento / provincia', 'homlity-plugin'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_STATE),
+            'default'   => '',
             'condition' => ['query_mode' => 'custom'],
         ]);
 
         $this->add_control('preset_city', [
-            'label' => __('Fijar ciudad', 'homlity-plugin'),
-            'type' => Controls_Manager::SELECT,
-            'options' => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_CITY),
-            'default' => '',
+            'label'     => __('Fijar ciudad', 'homlity-plugin'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_CITY),
+            'default'   => '',
             'condition' => ['query_mode' => 'custom'],
         ]);
 
         $this->add_control('preset_neighborhood', [
-            'label' => __('Fijar barrio', 'homlity-plugin'),
-            'type' => Controls_Manager::SELECT,
-            'options' => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD),
-            'default' => '',
+            'label'     => __('Fijar barrio', 'homlity-plugin'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD),
+            'default'   => '',
             'condition' => ['query_mode' => 'custom'],
         ]);
 
         $this->add_control('preset_nearby', [
-            'label' => __('Fijar lugar cercano', 'homlity-plugin'),
-            'type' => Controls_Manager::SELECT,
-            'options' => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_NEARBY),
-            'default' => '',
+            'label'     => __('Fijar lugar cercano', 'homlity-plugin'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_NEARBY),
+            'default'   => '',
             'condition' => ['query_mode' => 'custom'],
         ]);
 
@@ -265,22 +222,22 @@ class PropertyListingWidget extends Widget_Base
         $this->start_controls_section('geo_query', ['label' => __('Georreferenciación', 'homlity-plugin')]);
 
         $this->add_control('geo_latitude', [
-            'label' => __('Latitud centro', 'homlity-plugin'),
-            'type' => Controls_Manager::TEXT,
+            'label'   => __('Latitud centro', 'homlity-plugin'),
+            'type'    => Controls_Manager::TEXT,
             'default' => '',
         ]);
 
         $this->add_control('geo_longitude', [
-            'label' => __('Longitud centro', 'homlity-plugin'),
-            'type' => Controls_Manager::TEXT,
+            'label'   => __('Longitud centro', 'homlity-plugin'),
+            'type'    => Controls_Manager::TEXT,
             'default' => '',
         ]);
 
         $this->add_control('geo_radius_km', [
-            'label' => __('Radio en kilómetros', 'homlity-plugin'),
-            'type' => Controls_Manager::NUMBER,
-            'min' => 0,
-            'step' => 0.5,
+            'label'   => __('Radio en kilómetros', 'homlity-plugin'),
+            'type'    => Controls_Manager::NUMBER,
+            'min'     => 0,
+            'step'    => 0.5,
             'default' => 0,
         ]);
 
@@ -317,9 +274,7 @@ class PropertyListingWidget extends Widget_Base
             'size_units' => ['px'],
             'range'      => ['px' => ['min' => 200, 'max' => 1000, 'step' => 10]],
             'default'    => ['size' => 500, 'unit' => 'px'],
-            'selectors'  => [
-                '{{WRAPPER}} .property-listing__map' => 'height: {{SIZE}}{{UNIT}};',
-            ],
+            'selectors'  => ['{{WRAPPER}} .property-listing__map' => 'height: {{SIZE}}{{UNIT}};'],
         ]);
 
         $this->add_control('map_zoom', [
@@ -332,202 +287,224 @@ class PropertyListingWidget extends Widget_Base
 
         $this->end_controls_section();
 
-        $this->start_controls_section('style_card', [
-            'label' => __('Tarjeta', 'homlity-plugin'),
-            'tab' => Controls_Manager::TAB_STYLE,
+        // ── Estilos tarjeta (shared via trait) ────────────────────────────────
+        $this->registerCardStyleControls();
+
+        // ── Botones grilla/mapa (listing-only style) ──────────────────────────
+        $this->start_controls_section('style_view_toggle', [
+            'label'     => __('Botones grilla/mapa', 'homlity-plugin'),
+            'tab'       => Controls_Manager::TAB_STYLE,
+            'condition' => ['show_view_toggle' => 'yes'],
         ]);
 
-        $this->add_control('card_bg_color', [
-            'label' => __('Fondo', 'homlity-plugin'),
-            'type' => Controls_Manager::COLOR,
-            'selectors' => [
-                '{{WRAPPER}} .property-card, {{WRAPPER}} .property-card-bs' => 'background-color: {{VALUE}};',
-            ],
+        $this->add_responsive_control('view_toggle_icon_size', [
+            'label'      => __('Tamaño icono', 'homlity-plugin'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range'      => ['px' => ['min' => 10, 'max' => 36]],
+            'selectors'  => ['{{WRAPPER}} .property-listing__view-btn svg' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};'],
+        ]);
+
+        $this->add_responsive_control('view_toggle_padding', [
+            'label'      => __('Padding botón', 'homlity-plugin'),
+            'type'       => Controls_Manager::DIMENSIONS,
+            'size_units' => ['px', '%', 'em'],
+            'selectors'  => ['{{WRAPPER}} .property-listing__view-btn' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
         ]);
 
         $this->add_group_control(Group_Control_Border::get_type(), [
-            'name' => 'card_border',
-            'selector' => '{{WRAPPER}} .property-card, {{WRAPPER}} .property-card-bs',
+            'name'     => 'view_toggle_border',
+            'selector' => '{{WRAPPER}} .property-listing__view-btn',
         ]);
 
-        $this->add_responsive_control('card_radius', [
-            'label' => __('Radio de borde', 'homlity-plugin'),
-            'type' => Controls_Manager::SLIDER,
+        $this->add_responsive_control('view_toggle_radius', [
+            'label'      => __('Radio botón', 'homlity-plugin'),
+            'type'       => Controls_Manager::SLIDER,
             'size_units' => ['px'],
-            'range' => ['px' => ['min' => 0, 'max' => 40]],
-            'selectors' => [
-                '{{WRAPPER}} .property-card, {{WRAPPER}} .property-card-bs' => 'border-radius: {{SIZE}}{{UNIT}}; overflow: hidden;',
-            ],
+            'range'      => ['px' => ['min' => 0, 'max' => 40]],
+            'selectors'  => ['{{WRAPPER}} .property-listing__view-btn' => 'border-radius: {{SIZE}}{{UNIT}};'],
+        ]);
+
+        $this->start_controls_tabs('view_toggle_states');
+
+        $this->start_controls_tab('view_toggle_normal', ['label' => __('Normal', 'homlity-plugin')]);
+        $this->add_control('view_toggle_text_color', [
+            'label'     => __('Color icono/texto', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-listing__view-btn' => 'color: {{VALUE}};'],
+        ]);
+        $this->add_control('view_toggle_bg_color', [
+            'label'     => __('Fondo', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-listing__view-btn' => 'background-color: {{VALUE}};'],
+        ]);
+        $this->end_controls_tab();
+
+        $this->start_controls_tab('view_toggle_hover', ['label' => __('Hover', 'homlity-plugin')]);
+        $this->add_control('view_toggle_text_color_hover', [
+            'label'     => __('Color icono/texto', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-listing__view-btn:hover' => 'color: {{VALUE}};'],
+        ]);
+        $this->add_control('view_toggle_bg_color_hover', [
+            'label'     => __('Fondo', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-listing__view-btn:hover' => 'background-color: {{VALUE}};'],
+        ]);
+        $this->end_controls_tab();
+
+        $this->start_controls_tab('view_toggle_active', ['label' => __('Activo', 'homlity-plugin')]);
+        $this->add_control('view_toggle_text_color_active', [
+            'label'     => __('Color icono/texto', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-listing__view-btn.is-active, {{WRAPPER}} .property-listing__view-btn.active' => 'color: {{VALUE}};'],
+        ]);
+        $this->add_control('view_toggle_bg_color_active', [
+            'label'     => __('Fondo', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-listing__view-btn.is-active, {{WRAPPER}} .property-listing__view-btn.active' => 'background-color: {{VALUE}};'],
+        ]);
+        $this->end_controls_tab();
+
+        $this->end_controls_tabs();
+
+        $this->add_group_control(Group_Control_Box_Shadow::get_type(), [
+            'name'     => 'view_toggle_shadow',
+            'selector' => '{{WRAPPER}} .property-listing__view-btn',
+        ]);
+
+        $this->end_controls_section();
+
+        // ── Paginación (listing-only style) ───────────────────────────────────
+        $this->start_controls_section('style_pagination', [
+            'label'     => __('Paginador', 'homlity-plugin'),
+            'tab'       => Controls_Manager::TAB_STYLE,
+            'condition' => ['show_pagination' => 'yes'],
+        ]);
+
+        $this->add_responsive_control('pagination_gap', [
+            'label'      => __('Espaciado entre botones', 'homlity-plugin'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range'      => ['px' => ['min' => 0, 'max' => 30]],
+            'selectors'  => ['{{WRAPPER}} .property-listing__pagination' => 'gap: {{SIZE}}{{UNIT}};'],
+        ]);
+
+        $this->add_responsive_control('pagination_margin_top', [
+            'label'      => __('Margen superior', 'homlity-plugin'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range'      => ['px' => ['min' => 0, 'max' => 120]],
+            'selectors'  => ['{{WRAPPER}} .property-listing__pagination' => 'margin-top: {{SIZE}}{{UNIT}};'],
+        ]);
+
+        $this->add_group_control(Group_Control_Typography::get_type(), [
+            'name'     => 'pagination_typography',
+            'selector' => '{{WRAPPER}} .property-listing__page-btn',
+        ]);
+
+        $this->add_responsive_control('pagination_btn_width', [
+            'label'      => __('Ancho mínimo botón', 'homlity-plugin'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range'      => ['px' => ['min' => 28, 'max' => 120]],
+            'selectors'  => ['{{WRAPPER}} .property-listing__page-btn' => 'min-width: {{SIZE}}{{UNIT}};'],
+        ]);
+
+        $this->add_responsive_control('pagination_btn_height', [
+            'label'      => __('Alto botón', 'homlity-plugin'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range'      => ['px' => ['min' => 28, 'max' => 80]],
+            'selectors'  => ['{{WRAPPER}} .property-listing__page-btn' => 'height: {{SIZE}}{{UNIT}};'],
+        ]);
+
+        $this->add_responsive_control('pagination_btn_padding', [
+            'label'      => __('Padding botón', 'homlity-plugin'),
+            'type'       => Controls_Manager::DIMENSIONS,
+            'size_units' => ['px', 'em', '%'],
+            'selectors'  => ['{{WRAPPER}} .property-listing__page-btn' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
+        ]);
+
+        $this->add_group_control(Group_Control_Border::get_type(), [
+            'name'     => 'pagination_btn_border',
+            'selector' => '{{WRAPPER}} .property-listing__page-btn',
+        ]);
+
+        $this->add_responsive_control('pagination_btn_radius', [
+            'label'      => __('Radio botón', 'homlity-plugin'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range'      => ['px' => ['min' => 0, 'max' => 40]],
+            'selectors'  => ['{{WRAPPER}} .property-listing__page-btn' => 'border-radius: {{SIZE}}{{UNIT}};'],
         ]);
 
         $this->add_group_control(Group_Control_Box_Shadow::get_type(), [
-            'name' => 'card_shadow',
-            'selector' => '{{WRAPPER}} .property-card, {{WRAPPER}} .property-card-bs',
+            'name'     => 'pagination_btn_shadow',
+            'selector' => '{{WRAPPER}} .property-listing__page-btn',
         ]);
 
-        $this->add_responsive_control('card_padding', [
-            'label' => __('Padding interno', 'homlity-plugin'),
-            'type' => Controls_Manager::DIMENSIONS,
-            'size_units' => ['px', '%', 'em'],
+        $this->start_controls_tabs('pagination_states');
+
+        $this->start_controls_tab('pagination_state_normal', ['label' => __('Normal', 'homlity-plugin')]);
+        $this->add_control('pagination_btn_text_color', [
+            'label'     => __('Color texto', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-listing__page-btn' => 'color: {{VALUE}};'],
+        ]);
+        $this->add_control('pagination_btn_bg_color', [
+            'label'     => __('Fondo', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-listing__page-btn' => 'background-color: {{VALUE}};'],
+        ]);
+        $this->end_controls_tab();
+
+        $this->start_controls_tab('pagination_state_hover', ['label' => __('Hover', 'homlity-plugin')]);
+        $this->add_control('pagination_btn_text_color_hover', [
+            'label'     => __('Color texto', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-listing__page-btn:hover' => 'color: {{VALUE}};'],
+        ]);
+        $this->add_control('pagination_btn_bg_color_hover', [
+            'label'     => __('Fondo', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-listing__page-btn:hover' => 'background-color: {{VALUE}};'],
+        ]);
+        $this->add_control('pagination_btn_border_color_hover', [
+            'label'     => __('Color borde', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-listing__page-btn:hover' => 'border-color: {{VALUE}};'],
+        ]);
+        $this->end_controls_tab();
+
+        $this->start_controls_tab('pagination_state_active', ['label' => __('Activo', 'homlity-plugin')]);
+        $this->add_control('pagination_btn_text_color_active', [
+            'label'     => __('Color texto', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-card__content' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
-                '{{WRAPPER}} .property-card-bs .card-body' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+                '{{WRAPPER}} .property-listing__page-btn.is-active' => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-listing__pagination .page-item.active .property-listing__page-btn' => 'color: {{VALUE}};',
             ],
         ]);
-
-        $this->end_controls_section();
-
-        $this->start_controls_section('style_card_image', [
-            'label' => __('Imagen', 'homlity-plugin'),
-            'tab' => Controls_Manager::TAB_STYLE,
-        ]);
-
-        $this->add_responsive_control('card_image_height', [
-            'label' => __('Altura', 'homlity-plugin'),
-            'type' => Controls_Manager::SLIDER,
-            'size_units' => ['px'],
-            'range' => ['px' => ['min' => 120, 'max' => 520]],
+        $this->add_control('pagination_btn_bg_color_active', [
+            'label'     => __('Fondo', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-card__gallery > img, {{WRAPPER}} .property-card__gallery-slider > img, {{WRAPPER}} .property-card-bs .card-img-top' => 'height: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-listing__page-btn.is-active' => 'background-color: {{VALUE}};',
+                '{{WRAPPER}} .property-listing__pagination .page-item.active .property-listing__page-btn' => 'background-color: {{VALUE}};',
             ],
         ]);
-
-        $this->add_responsive_control('card_image_radius', [
-            'label' => __('Radio de borde imagen', 'homlity-plugin'),
-            'type' => Controls_Manager::SLIDER,
-            'size_units' => ['px'],
-            'range' => ['px' => ['min' => 0, 'max' => 40]],
+        $this->add_control('pagination_btn_border_color_active', [
+            'label'     => __('Color borde', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-card__gallery > img, {{WRAPPER}} .property-card__gallery-slider > img, {{WRAPPER}} .property-card-bs .card-img-top' => 'border-radius: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-listing__page-btn.is-active' => 'border-color: {{VALUE}};',
+                '{{WRAPPER}} .property-listing__pagination .page-item.active .property-listing__page-btn' => 'border-color: {{VALUE}};',
             ],
         ]);
+        $this->end_controls_tab();
 
-        $this->end_controls_section();
-
-        $this->start_controls_section('style_card_text', [
-            'label' => __('Título y Texto', 'homlity-plugin'),
-            'tab' => Controls_Manager::TAB_STYLE,
-        ]);
-
-        $this->add_group_control(Group_Control_Typography::get_type(), [
-            'name' => 'card_title_typography',
-            'label' => __('Tipografía título', 'homlity-plugin'),
-            'selector' => '{{WRAPPER}} .property-card__title, {{WRAPPER}} .property-card-bs .card-title, {{WRAPPER}} .property-card__overlay-title',
-        ]);
-
-        $this->add_control('card_title_color', [
-            'label' => __('Color título', 'homlity-plugin'),
-            'type' => Controls_Manager::COLOR,
-            'selectors' => [
-                '{{WRAPPER}} .property-card__title, {{WRAPPER}} .property-card-bs .card-title, {{WRAPPER}} .property-card__overlay-title' => 'color: {{VALUE}};',
-            ],
-        ]);
-
-        $this->add_group_control(Group_Control_Typography::get_type(), [
-            'name' => 'card_excerpt_typography',
-            'label' => __('Tipografía descripción', 'homlity-plugin'),
-            'selector' => '{{WRAPPER}} .property-card__excerpt, {{WRAPPER}} .property-card-bs .property-card__excerpt, {{WRAPPER}} .property-card__overlay-location',
-        ]);
-
-        $this->add_control('card_excerpt_color', [
-            'label' => __('Color descripción', 'homlity-plugin'),
-            'type' => Controls_Manager::COLOR,
-            'selectors' => [
-                '{{WRAPPER}} .property-card__excerpt, {{WRAPPER}} .property-card-bs .property-card__excerpt, {{WRAPPER}} .property-card__overlay-location' => 'color: {{VALUE}};',
-            ],
-        ]);
-
-        $this->add_group_control(Group_Control_Typography::get_type(), [
-            'name' => 'card_operation_typography',
-            'label' => __('Tipografía gestión', 'homlity-plugin'),
-            'selector' => '{{WRAPPER}} .property-card__operation, {{WRAPPER}} .property-card__overlay-operation',
-        ]);
-
-        $this->add_control('card_operation_color', [
-            'label' => __('Color gestión', 'homlity-plugin'),
-            'type' => Controls_Manager::COLOR,
-            'selectors' => [
-                '{{WRAPPER}} .property-card__operation, {{WRAPPER}} .property-card__overlay-operation' => 'color: {{VALUE}};',
-            ],
-        ]);
-
-        $this->end_controls_section();
-
-        $this->start_controls_section('style_card_meta', [
-            'label' => __('Precio y Características', 'homlity-plugin'),
-            'tab' => Controls_Manager::TAB_STYLE,
-        ]);
-
-        $this->add_group_control(Group_Control_Typography::get_type(), [
-            'name' => 'card_price_typography',
-            'label' => __('Tipografía precio', 'homlity-plugin'),
-            'selector' => '{{WRAPPER}} .property-card__price, {{WRAPPER}} .property-card-bs [itemprop="price"], {{WRAPPER}} .property-card__overlay-price',
-        ]);
-
-        $this->add_control('card_price_color', [
-            'label' => __('Color precio', 'homlity-plugin'),
-            'type' => Controls_Manager::COLOR,
-            'selectors' => [
-                '{{WRAPPER}} .property-card__price, {{WRAPPER}} .property-card-bs [itemprop="price"], {{WRAPPER}} .property-card__overlay-price' => 'color: {{VALUE}};',
-            ],
-        ]);
-
-        $this->add_group_control(Group_Control_Typography::get_type(), [
-            'name' => 'card_features_typography',
-            'label' => __('Tipografía características', 'homlity-plugin'),
-            'selector' => '{{WRAPPER}} .property-card__features, {{WRAPPER}} .property-card-bs .property-card__features',
-        ]);
-
-        $this->add_control('card_features_color', [
-            'label' => __('Color características', 'homlity-plugin'),
-            'type' => Controls_Manager::COLOR,
-            'selectors' => [
-                '{{WRAPPER}} .property-card__features, {{WRAPPER}} .property-card-bs .property-card__features' => 'color: {{VALUE}};',
-            ],
-        ]);
-
-        $this->end_controls_section();
-
-        $this->start_controls_section('style_card_whatsapp', [
-            'label' => __('Botón WhatsApp', 'homlity-plugin'),
-            'tab' => Controls_Manager::TAB_STYLE,
-        ]);
-
-        $this->add_group_control(Group_Control_Typography::get_type(), [
-            'name' => 'card_whatsapp_typography',
-            'selector' => '{{WRAPPER}} .property-card__whatsapp',
-        ]);
-
-        $this->add_control('card_whatsapp_text_color', [
-            'label' => __('Color texto', 'homlity-plugin'),
-            'type' => Controls_Manager::COLOR,
-            'selectors' => [
-                '{{WRAPPER}} .property-card__whatsapp' => 'color: {{VALUE}};',
-            ],
-        ]);
-
-        $this->add_control('card_whatsapp_bg_color', [
-            'label' => __('Color fondo', 'homlity-plugin'),
-            'type' => Controls_Manager::COLOR,
-            'selectors' => [
-                '{{WRAPPER}} .property-card__whatsapp' => 'background-color: {{VALUE}};',
-            ],
-        ]);
-
-        $this->add_group_control(Group_Control_Border::get_type(), [
-            'name' => 'card_whatsapp_border',
-            'selector' => '{{WRAPPER}} .property-card__whatsapp',
-        ]);
-
-        $this->add_responsive_control('card_whatsapp_radius', [
-            'label' => __('Radio de borde', 'homlity-plugin'),
-            'type' => Controls_Manager::SLIDER,
-            'size_units' => ['px'],
-            'range' => ['px' => ['min' => 0, 'max' => 30]],
-            'selectors' => [
-                '{{WRAPPER}} .property-card__whatsapp' => 'border-radius: {{SIZE}}{{UNIT}};',
-            ],
-        ]);
+        $this->end_controls_tabs();
 
         $this->end_controls_section();
     }

@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php foreach ($tags as $tag) { ?>
     <?php if ($tag->key() === "VISUALINMU_DESTACADO" || $tag->key() === "DESTACADO") { ?>
         <a href="/inmuebles/?tags=DESTACADO" target="_blank"

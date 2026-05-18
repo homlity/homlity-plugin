@@ -32,6 +32,11 @@ class PropertyAjaxService implements ServiceInterface
     public function handle(): void
     {
         check_ajax_referer('homlity_listing_nonce', 'nonce');
+        $presetTagIdsRaw = wp_unslash($_POST['preset_tag_ids'] ?? []);
+        if (!is_array($presetTagIdsRaw)) {
+            $presetTagIdsRaw = $presetTagIdsRaw === '' ? [] : explode(',', (string) $presetTagIdsRaw);
+        }
+        $presetTagIds = array_values(array_filter(array_map('absint', $presetTagIdsRaw)));
 
         // Build a ListingConfig from POST params so the correct card template is used.
         $config = ListingConfig::fromArray([
@@ -44,6 +49,7 @@ class PropertyAjaxService implements ServiceInterface
             'preset_operation' => absint($_POST['preset_operation'] ?? 0),
             'preset_type'      => absint($_POST['preset_type']      ?? 0),
             'preset_tag'       => absint($_POST['preset_tag']       ?? 0),
+            'preset_tag_ids'   => $presetTagIds,
             'preset_feature'   => absint($_POST['preset_feature']   ?? 0),
             'preset_country'   => absint($_POST['preset_country']   ?? 0),
             'preset_state'     => absint($_POST['preset_state']     ?? 0),
@@ -56,6 +62,7 @@ class PropertyAjaxService implements ServiceInterface
             'template'         => sanitize_key($_POST['template']   ?? 'default'),
             'card_media_mode'  => sanitize_key($_POST['card_media_mode'] ?? 'single'),
             'card_visual_preset' => sanitize_key($_POST['card_visual_preset'] ?? 'default'),
+            'card_hover_effect' => sanitize_key($_POST['card_hover_effect'] ?? 'lift'),
             'card_show_title'  => !empty($_POST['card_show_title']),
             'card_show_excerpt' => !empty($_POST['card_show_excerpt']),
             'card_show_operation' => !empty($_POST['card_show_operation']),
@@ -63,6 +70,11 @@ class PropertyAjaxService implements ServiceInterface
             'card_show_features' => !empty($_POST['card_show_features']),
             'card_show_whatsapp' => !empty($_POST['card_show_whatsapp']),
             'card_whatsapp_label' => sanitize_text_field(wp_unslash($_POST['card_whatsapp_label'] ?? '')),
+            'card_whatsapp_show_icon' => !empty($_POST['card_whatsapp_show_icon']),
+            'card_whatsapp_icon_position' => in_array(($_POST['card_whatsapp_icon_position'] ?? 'left'), ['left', 'right'], true)
+                ? sanitize_key((string) $_POST['card_whatsapp_icon_position'])
+                : 'left',
+            'card_whatsapp_icon' => $this->decodeIconControl($_POST['card_whatsapp_icon'] ?? ''),
             'card_feature_area' => !empty($_POST['card_feature_area']),
             'card_feature_bedrooms' => !empty($_POST['card_feature_bedrooms']),
             'card_feature_bathrooms' => !empty($_POST['card_feature_bathrooms']),
@@ -73,6 +85,16 @@ class PropertyAjaxService implements ServiceInterface
             'card_feature_age' => !empty($_POST['card_feature_age']),
             'card_feature_condition' => !empty($_POST['card_feature_condition']),
             'card_feature_code' => !empty($_POST['card_feature_code']),
+            'card_feature_icon_area' => $this->decodeIconControl($_POST['card_feature_icon_area'] ?? ''),
+            'card_feature_icon_bedrooms' => $this->decodeIconControl($_POST['card_feature_icon_bedrooms'] ?? ''),
+            'card_feature_icon_bathrooms' => $this->decodeIconControl($_POST['card_feature_icon_bathrooms'] ?? ''),
+            'card_feature_icon_parking' => $this->decodeIconControl($_POST['card_feature_icon_parking'] ?? ''),
+            'card_feature_icon_area_lot' => $this->decodeIconControl($_POST['card_feature_icon_area_lot'] ?? ''),
+            'card_feature_icon_area_private' => $this->decodeIconControl($_POST['card_feature_icon_area_private'] ?? ''),
+            'card_feature_icon_area_built' => $this->decodeIconControl($_POST['card_feature_icon_area_built'] ?? ''),
+            'card_feature_icon_age' => $this->decodeIconControl($_POST['card_feature_icon_age'] ?? ''),
+            'card_feature_icon_condition' => $this->decodeIconControl($_POST['card_feature_icon_condition'] ?? ''),
+            'card_feature_icon_code' => $this->decodeIconControl($_POST['card_feature_icon_code'] ?? ''),
         ]);
 
         $filterParams = [
@@ -86,6 +108,7 @@ class PropertyAjaxService implements ServiceInterface
             'preset_operation' => $config->presetOperation(),
             'preset_type'      => $config->presetType(),
             'preset_tag'       => $config->presetTag(),
+            'preset_tag_ids'   => $config->presetTagIds(),
             'preset_feature'   => $config->presetFeature(),
             'preset_country'   => $config->presetCountry(),
             'preset_state'     => $config->presetState(),
@@ -124,5 +147,21 @@ class PropertyAjaxService implements ServiceInterface
             'pages'    => (int) $query->max_num_pages,
             'map_data' => $this->search->getMapData($query),
         ]);
+    }
+
+    private function decodeIconControl($raw): array
+    {
+        if (!is_string($raw)) {
+            return ['value' => '', 'library' => ''];
+        }
+        $decoded = json_decode(wp_unslash($raw), true);
+        if (!is_array($decoded)) {
+            return ['value' => '', 'library' => ''];
+        }
+
+        return [
+            'value' => sanitize_text_field((string) ($decoded['value'] ?? '')),
+            'library' => sanitize_key((string) ($decoded['library'] ?? '')),
+        ];
     }
 }

@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <style>
     @media (max-width: 700px) {
         .mapa-inmueble {
@@ -7,10 +8,10 @@
 </style>
 <div class="mapa-inmueble">
     
-    <div id="visualinmueble-map">
-        <visualinmueble-map></visualinmueble-map>
+    <div id="homlity-plugin-map">
+        <homlity-plugin-map></homlity-plugin-map>
     </div>
     <script type="text/javascript">
-        window.VISUALINMUEBLE_INMUEBLES = <?php echo $inmuebles; ?>;
+        window.homlity-plugin_INMUEBLES = <?php echo wp_kses_post( $inmuebles ); ?>;
     </script>
 </div>

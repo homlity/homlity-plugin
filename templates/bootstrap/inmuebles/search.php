@@ -1,4 +1,5 @@
-<div class="visualinmueble-search">
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
+<div class="homlity-plugin-search">
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions"
         aria-labelledby="offcanvasWithBothOptionsLabel">
         <div class="offcanvas-header">
@@ -13,7 +14,7 @@
         <?php if (isset($error)): ?>
             <div class="row">
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <strong>Información: </strong> <?php echo $error; ?>
+                    <strong>Información: </strong> <?php echo esc_html( $error ); ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </div>

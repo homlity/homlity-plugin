@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <div class="row">
 <div class="col-md-12">
     <br>
@@ -7,17 +8,17 @@
                 <ul class="pagination justify-content-end">
                     <?php if ($paginador->getPrevUrl()): ?>
                         <li class="page-item">
-                            <a href="<?php echo htmlspecialchars($paginador->getPrevUrl()) ?>" data-toggle="tooltip"
-                               data-placement="top" title="<?php echo $paginador->getPreviousText() ?>" class="page-link">
-                                <i class="icon-homlity icon-uniEA40"></i><?php echo $paginador->getPreviousText() ?></a></li>
+                            <a href="<?php echo esc_url( $paginador->getPrevUrl() ); ?>" data-toggle="tooltip"
+                               data-placement="top" title="<?php echo esc_attr( $paginador->getPreviousText() ); ?>" class="page-link">
+                                <i class="icon-homlity icon-uniEA40"></i><?php echo esc_html( $paginador->getPreviousText() ); ?></a></li>
                     <?php endif; ?>
 
                     <?php foreach ($paginador->getPages() as $page) {
                         if ($page['url']) { ?>
-                            <li class="page-item <?php echo($page["isCurrent"] ? 'active' : '') ?> " <?php echo($page["isCurrent"] ? 'aria-current="page"' : '') ?>   aria-label="Pagina <?php echo $page["num"] ?>" >
+                            <li class="page-item <?php echo($page["isCurrent"] ? 'active' : '') ?> " <?php echo($page["isCurrent"] ? 'aria-current="page"' : '') ?>   aria-label="Pagina <?php echo esc_attr( $page["num"] ); ?>" >
                                 <a class="page-link "
                                  
-                                   href="<?php echo htmlspecialchars($page['url']) ?>"><?php echo $page["num"] ?></a>
+                                   href="<?php echo esc_url( $page['url'] ); ?>"><?php echo esc_html( $page["num"] ); ?></a>
                             </li>
                             <?php
                         } else { ?>
@@ -28,9 +29,9 @@
                     ?>
                     <?php if ($paginador->getNextUrl()): ?>
                         <li class="page-item">
-                            <a href="<?php echo htmlspecialchars($paginador->getNextUrl()) ?>"
-                               data-toggle="tooltip" data-placement="top" title="<?php echo $paginador->getNextText() ?>"
-                               class="page-link"><?php echo $paginador->getNextText() ?><i class="icon-homlity icon-uniEA3C"></i></a></li>
+                            <a href="<?php echo esc_url( $paginador->getNextUrl() ); ?>"
+                               data-toggle="tooltip" data-placement="top" title="<?php echo esc_attr( $paginador->getNextText() ); ?>"
+                               class="page-link"><?php echo esc_html( $paginador->getNextText() ); ?><i class="icon-homlity icon-uniEA3C"></i></a></li>
                     <?php endif; ?>
                 </ul>
             </nav>

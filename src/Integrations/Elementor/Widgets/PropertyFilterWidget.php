@@ -112,6 +112,40 @@ class PropertyFilterWidget extends Widget_Base
             'default' => 'yes',
         ]);
 
+        $this->add_control('mobile_sidebar_enabled', [
+            'label' => __('Modo móvil: botón + sidebar', 'homlity-plugin'),
+            'type' => Controls_Manager::SWITCHER,
+            'default' => 'yes',
+        ]);
+
+        $this->add_control('mobile_filter_button_label', [
+            'label' => __('Texto botón móvil', 'homlity-plugin'),
+            'type' => Controls_Manager::TEXT,
+            'default' => __('Filtrar inmuebles', 'homlity-plugin'),
+            'condition' => ['mobile_sidebar_enabled' => 'yes'],
+        ]);
+
+        $this->add_control('field_label_mode', [
+            'label' => __('Mostrar etiqueta', 'homlity-plugin'),
+            'type' => Controls_Manager::SELECT,
+            'default' => 'outside',
+            'options' => [
+                'outside' => __('Afuera del campo', 'homlity-plugin'),
+                'placeholder' => __('Dentro del campo (placeholder)', 'homlity-plugin'),
+            ],
+        ]);
+
+        $this->add_control('select_first_option_mode', [
+            'label' => __('Texto primer option en selects', 'homlity-plugin'),
+            'type' => Controls_Manager::SELECT,
+            'default' => 'auto',
+            'options' => [
+                'auto' => __('Automático (según modo de etiqueta)', 'homlity-plugin'),
+                'generic' => __('Genérico (Todos/Cualquiera)', 'homlity-plugin'),
+                'label' => __('Usar nombre del campo (Gestión, Tipo, etc.)', 'homlity-plugin'),
+            ],
+        ]);
+
         $this->end_controls_section();
 
         $this->start_controls_section('style_form', [
@@ -299,6 +333,223 @@ class PropertyFilterWidget extends Widget_Base
 
         $this->end_controls_section();
 
+        $this->start_controls_section('style_multiselect_chips', [
+            'label' => __('Chips multiselección', 'homlity-plugin'),
+            'tab' => Controls_Manager::TAB_STYLE,
+        ]);
+
+        $this->add_group_control(Group_Control_Typography::get_type(), [
+            'name' => 'multi_chip_typography',
+            'selector' => '{{WRAPPER}} .property-filter-widget .hpf-multi__chip',
+        ]);
+
+        $this->add_control('multi_field_heading', [
+            'label' => __('Campo multiselección', 'homlity-plugin'),
+            'type' => Controls_Manager::HEADING,
+        ]);
+
+        $this->add_control('multi_trigger_text_color', [
+            'label' => __('Color texto campo', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__trigger' => 'color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_trigger_bg_color', [
+            'label' => __('Fondo campo', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__trigger' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_trigger_border_color', [
+            'label' => __('Borde campo', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__trigger' => 'border-color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_placeholder_color', [
+            'label' => __('Color placeholder', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__placeholder' => 'color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_menu_heading', [
+            'label' => __('Lista de opciones', 'homlity-plugin'),
+            'type' => Controls_Manager::HEADING,
+            'separator' => 'before',
+        ]);
+
+        $this->add_control('multi_menu_bg_color', [
+            'label' => __('Fondo lista', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__menu' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_menu_border_color', [
+            'label' => __('Borde lista', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__menu' => 'border-color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_item_text_color', [
+            'label' => __('Texto opción', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__item' => 'color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_item_bg_color', [
+            'label' => __('Fondo opción', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__item' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_item_hover_bg_color', [
+            'label' => __('Fondo opción hover', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__item:hover' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_item_selected_bg_color', [
+            'label' => __('Fondo opción seleccionada', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__item.is-selected' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_chip_text_color', [
+            'label' => __('Color texto chip', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__chip' => 'color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_chip_bg_color', [
+            'label' => __('Fondo chip', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__chip' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_group_control(Group_Control_Border::get_type(), [
+            'name' => 'multi_chip_border',
+            'selector' => '{{WRAPPER}} .property-filter-widget .hpf-multi__chip',
+        ]);
+
+        $this->add_responsive_control('multi_chip_border_radius', [
+            'label' => __('Radio chip', 'homlity-plugin'),
+            'type' => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range' => [
+                'px' => ['min' => 0, 'max' => 30],
+            ],
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__chip' => 'border-radius: {{SIZE}}{{UNIT}};',
+            ],
+        ]);
+
+        $this->add_responsive_control('multi_chip_padding', [
+            'label' => __('Padding chip', 'homlity-plugin'),
+            'type' => Controls_Manager::DIMENSIONS,
+            'size_units' => ['px', '%', 'em'],
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__chip' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+            ],
+        ]);
+
+        $this->add_control('multi_chip_heading_hover', [
+            'label' => __('Hover chip', 'homlity-plugin'),
+            'type' => Controls_Manager::HEADING,
+            'separator' => 'before',
+        ]);
+
+        $this->add_control('multi_chip_hover_text_color', [
+            'label' => __('Texto chip hover', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__chip:hover' => 'color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_chip_hover_bg_color', [
+            'label' => __('Fondo chip hover', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__chip:hover' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_chip_remove_heading', [
+            'label' => __('Botón quitar (×)', 'homlity-plugin'),
+            'type' => Controls_Manager::HEADING,
+            'separator' => 'before',
+        ]);
+
+        $this->add_responsive_control('multi_chip_remove_size', [
+            'label' => __('Tamaño icono ×', 'homlity-plugin'),
+            'type' => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range' => [
+                'px' => ['min' => 8, 'max' => 30],
+            ],
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__chip-remove' => 'font-size: {{SIZE}}{{UNIT}};',
+            ],
+        ]);
+
+        $this->add_control('multi_chip_remove_color', [
+            'label' => __('Color icono ×', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__chip-remove' => 'color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_chip_remove_hover_color', [
+            'label' => __('Color icono × hover', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__chip-remove:hover' => 'color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_chip_remove_bg_color', [
+            'label' => __('Fondo botón ×', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__chip-remove' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->add_control('multi_chip_remove_hover_bg_color', [
+            'label' => __('Fondo botón × hover', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .hpf-multi__chip-remove:hover' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+
+        $this->end_controls_section();
+
         $this->start_controls_section('style_buttons', [
             'label' => __('Botones', 'homlity-plugin'),
             'tab' => Controls_Manager::TAB_STYLE,
@@ -374,6 +625,132 @@ class PropertyFilterWidget extends Widget_Base
             'selectors' => [
                 '{{WRAPPER}} .property-filter-widget .property-listing__btn' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
             ],
+        ]);
+
+        $this->add_control('button_primary_heading', [
+            'label' => __('Botón Buscar', 'homlity-plugin'),
+            'type' => Controls_Manager::HEADING,
+            'separator' => 'before',
+        ]);
+
+        $this->add_responsive_control('button_primary_width', [
+            'label' => __('Ancho botón buscar', 'homlity-plugin'),
+            'type' => Controls_Manager::SLIDER,
+            'size_units' => ['px', '%'],
+            'range' => [
+                'px' => ['min' => 40, 'max' => 480],
+                '%' => ['min' => 10, 'max' => 100],
+            ],
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .property-listing__btn--primary' => 'width: {{SIZE}}{{UNIT}};',
+            ],
+        ]);
+
+        $this->add_group_control(Group_Control_Border::get_type(), [
+            'name' => 'button_primary_border',
+            'selector' => '{{WRAPPER}} .property-filter-widget .property-listing__btn--primary',
+        ]);
+
+        $this->add_responsive_control('button_primary_padding', [
+            'label' => __('Padding botón buscar', 'homlity-plugin'),
+            'type' => Controls_Manager::DIMENSIONS,
+            'size_units' => ['px', '%', 'em'],
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .property-listing__btn--primary' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+            ],
+        ]);
+
+        $this->add_responsive_control('button_primary_margin', [
+            'label' => __('Margin botón buscar', 'homlity-plugin'),
+            'type' => Controls_Manager::DIMENSIONS,
+            'size_units' => ['px', '%', 'em'],
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .property-listing__btn--primary' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+            ],
+        ]);
+
+        $this->add_control('button_mobile_heading', [
+            'label' => __('Botón Filtrar (Móvil)', 'homlity-plugin'),
+            'type' => Controls_Manager::HEADING,
+            'separator' => 'before',
+            'condition' => ['mobile_sidebar_enabled' => 'yes'],
+        ]);
+
+        $this->add_group_control(Group_Control_Typography::get_type(), [
+            'name' => 'mobile_filter_button_typography',
+            'selector' => '{{WRAPPER}} .property-filter-widget .property-listing__mobile-toggle',
+            'condition' => ['mobile_sidebar_enabled' => 'yes'],
+        ]);
+
+        $this->add_control('mobile_filter_button_text_color', [
+            'label' => __('Color texto (móvil)', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .property-listing__mobile-toggle' => 'color: {{VALUE}};',
+            ],
+            'condition' => ['mobile_sidebar_enabled' => 'yes'],
+        ]);
+
+        $this->add_control('mobile_filter_button_bg_color', [
+            'label' => __('Fondo (móvil)', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .property-listing__mobile-toggle' => 'background-color: {{VALUE}};',
+            ],
+            'condition' => ['mobile_sidebar_enabled' => 'yes'],
+        ]);
+
+        $this->add_group_control(Group_Control_Border::get_type(), [
+            'name' => 'mobile_filter_button_border',
+            'selector' => '{{WRAPPER}} .property-filter-widget .property-listing__mobile-toggle',
+            'condition' => ['mobile_sidebar_enabled' => 'yes'],
+        ]);
+
+        $this->add_responsive_control('mobile_filter_button_width', [
+            'label' => __('Ancho botón filtrar', 'homlity-plugin'),
+            'type' => Controls_Manager::SLIDER,
+            'size_units' => ['px', '%'],
+            'range' => [
+                'px' => ['min' => 40, 'max' => 480],
+                '%' => ['min' => 10, 'max' => 100],
+            ],
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .property-listing__mobile-toggle' => 'width: {{SIZE}}{{UNIT}};',
+            ],
+            'condition' => ['mobile_sidebar_enabled' => 'yes'],
+        ]);
+
+        $this->add_responsive_control('mobile_filter_button_radius', [
+            'label' => __('Radio borde (móvil)', 'homlity-plugin'),
+            'type' => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range' => [
+                'px' => ['min' => 0, 'max' => 40],
+            ],
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .property-listing__mobile-toggle' => 'border-radius: {{SIZE}}{{UNIT}};',
+            ],
+            'condition' => ['mobile_sidebar_enabled' => 'yes'],
+        ]);
+
+        $this->add_responsive_control('mobile_filter_button_padding', [
+            'label' => __('Padding botón filtrar', 'homlity-plugin'),
+            'type' => Controls_Manager::DIMENSIONS,
+            'size_units' => ['px', '%', 'em'],
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .property-listing__mobile-toggle' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+            ],
+            'condition' => ['mobile_sidebar_enabled' => 'yes'],
+        ]);
+
+        $this->add_responsive_control('mobile_filter_button_margin', [
+            'label' => __('Margin botón filtrar', 'homlity-plugin'),
+            'type' => Controls_Manager::DIMENSIONS,
+            'size_units' => ['px', '%', 'em'],
+            'selectors' => [
+                '{{WRAPPER}} .property-filter-widget .property-listing__mobile-toggle' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+            ],
+            'condition' => ['mobile_sidebar_enabled' => 'yes'],
         ]);
 
         $this->end_controls_section();

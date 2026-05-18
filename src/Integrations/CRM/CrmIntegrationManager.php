@@ -2,7 +2,6 @@
 
 namespace Homlity\PluginInmobiliario\Integrations\CRM;
 
-use Homlity\PluginInmobiliario\Integrations\CRM\Adapters\Demo\DemoCrmAdapter;
 use Homlity\PluginInmobiliario\Integrations\CRM\Contracts\CrmAdapterInterface;
 
 if (!defined('ABSPATH')) {
@@ -16,8 +15,6 @@ class CrmIntegrationManager
 
     public function __construct()
     {
-        // Demo stays in core so package authors can validate the flow without a real CRM.
-        $this->registerAdapter(new DemoCrmAdapter());
         do_action('homlity_crm_register_adapters', $this);
 
         $filtered = apply_filters('homlity_crm_adapters', $this->adapters);

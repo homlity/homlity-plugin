@@ -15,7 +15,26 @@ class SeoService implements ServiceInterface
 {
     public function register(): void
     {
+        add_action('wp_head', [$this, 'renderOpenGraphTags'], 4);
         add_action('wp_head', [$this, 'renderStructuredData'], 5);
+    }
+
+    public function renderOpenGraphTags(): void
+    {
+        if (is_admin()) {
+            return;
+        }
+
+        if (is_singular(PropertyPostType::POST_TYPE)) {
+            $this->renderPropertyOpenGraph();
+            return;
+        }
+
+        $isArchiveSearch = is_post_type_archive(PropertyPostType::POST_TYPE)
+            || ((string) get_query_var('homlity_property_archive', '') === '1');
+        if ($isArchiveSearch) {
+            $this->renderPropertyArchiveOpenGraph();
+        }
     }
 
     public function renderStructuredData(): void
@@ -106,5 +125,79 @@ class SeoService implements ServiceInterface
             }
         }
         return '';
+    }
+
+    private function renderPropertyOpenGraph(): void
+    {
+        $post = get_post();
+        if (!$post instanceof \WP_Post) {
+            return;
+        }
+
+        $title = get_the_title($post);
+        $description = wp_strip_all_tags(get_the_excerpt($post) ?: get_post_field('post_content', $post->ID));
+        $url = get_permalink($post);
+        $image = get_the_post_thumbnail_url($post, 'large') ?: get_site_icon_url(512);
+
+        $this->printOg([
+            'og:type' => 'product',
+            'og:title' => $title,
+            'og:description' => wp_trim_words($description, 35, '...'),
+            'og:url' => $url,
+            'og:image' => $image ?: '',
+            'og:site_name' => get_bloginfo('name'),
+        ]);
+    }
+
+    private function renderPropertyArchiveOpenGraph(): void
+    {
+        $titleParts = ['Inmuebles'];
+        $gestion = sanitize_text_field((string) get_query_var('gestion', ''));
+        $tipo = sanitize_text_field((string) get_query_var('tipo', ''));
+        $ciudad = sanitize_text_field((string) get_query_var('ciudad', ''));
+        $barrio = sanitize_text_field((string) get_query_var('barrios', ''));
+
+        if ($gestion !== '') {
+            $titleParts[] = 'Gestión ' . ucwords(str_replace('-', ' ', $gestion));
+        }
+        if ($tipo !== '') {
+            $titleParts[] = ucwords(str_replace('-', ' ', $tipo));
+        }
+        if ($ciudad !== '') {
+            $titleParts[] = ucwords(str_replace('-', ' ', $ciudad));
+        }
+        if ($barrio !== '') {
+            $titleParts[] = ucwords(str_replace('-', ' ', $barrio));
+        }
+
+        $title = implode(' | ', $titleParts);
+        $description = 'Resultados de búsqueda de inmuebles en ' . get_bloginfo('name') . '.';
+        $image = get_site_icon_url(512) ?: '';
+        $url = home_url(add_query_arg([], (string) wp_parse_url((string) ($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH)));
+        if ((string) ($_SERVER['REQUEST_URI'] ?? '') !== '') {
+            $url = home_url((string) $_SERVER['REQUEST_URI']);
+        }
+
+        $this->printOg([
+            'og:type' => 'website',
+            'og:title' => $title,
+            'og:description' => $description,
+            'og:url' => $url,
+            'og:image' => $image,
+            'og:site_name' => get_bloginfo('name'),
+        ]);
+    }
+
+    /**
+     * @param array<string,string> $tags
+     */
+    private function printOg(array $tags): void
+    {
+        foreach ($tags as $property => $content) {
+            if ($content === '') {
+                continue;
+            }
+            echo '<meta property="' . esc_attr($property) . '" content="' . esc_attr($content) . "\" />\n";
+        }
     }
 }

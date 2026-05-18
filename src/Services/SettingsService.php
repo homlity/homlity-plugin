@@ -92,9 +92,9 @@ class SettingsService implements ServiceInterface
             'savePath' => '/homlity-plugin/v1/settings',
             'locationTermsPath' => '/homlity-plugin/v1/location-terms',
             'nonce' => wp_create_nonce('wp_rest'),
-            'pageTitle' => __('Ajustes de la plataforma inmobiliaria', HOMLITY_PLUGIN_TEXT_DOMAIN),
-            'saveLabel' => __('Guardar cambios', HOMLITY_PLUGIN_TEXT_DOMAIN),
-            'resetLabel' => __('Restablecer', HOMLITY_PLUGIN_TEXT_DOMAIN),
+            'pageTitle' => __('Ajustes de la plataforma inmobiliaria', 'homlity-plugin'),
+            'saveLabel' => __('Guardar cambios', 'homlity-plugin'),
+            'resetLabel' => __('Restablecer', 'homlity-plugin'),
         ]);
     }
 
@@ -127,7 +127,7 @@ class SettingsService implements ServiceInterface
         if (!is_array($incoming)) {
             return new \WP_Error(
                 'homlity_plugin_invalid_settings',
-                __('La configuración enviada no es válida.', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                __('La configuración enviada no es válida.', 'homlity-plugin'),
                 ['status' => 400]
             );
         }
@@ -138,7 +138,7 @@ class SettingsService implements ServiceInterface
 
         return new \WP_REST_Response([
             'settings' => $this->settingsPayload(),
-            'message' => __('Configuración guardada correctamente.', HOMLITY_PLUGIN_TEXT_DOMAIN),
+            'message' => __('Configuración guardada correctamente.', 'homlity-plugin'),
         ]);
     }
 
@@ -210,6 +210,8 @@ class SettingsService implements ServiceInterface
             ? $values['detail_gallery_mode']
             : $this->defaults()['detail_gallery_mode'];
 
+        $values['show_powered_by'] = !empty($values['show_powered_by']);
+
         $values['primary_color'] = isset($values['primary_color'])
             ? sanitize_hex_color($values['primary_color'])
             : $this->defaults()['primary_color'];
@@ -264,23 +266,23 @@ class SettingsService implements ServiceInterface
         return [
             [
                 'value' => 'price',
-                'label' => __('Precio', HOMLITY_PLUGIN_TEXT_DOMAIN),
-                'description' => __('Muestra el valor principal de la propiedad en cada tarjeta.', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                'label' => __('Precio', 'homlity-plugin'),
+                'description' => __('Muestra el valor principal de la propiedad en cada tarjeta.', 'homlity-plugin'),
             ],
             [
                 'value' => 'excerpt',
-                'label' => __('Descripción corta', HOMLITY_PLUGIN_TEXT_DOMAIN),
-                'description' => __('Añade contexto editorial con un resumen breve del inmueble.', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                'label' => __('Descripción corta', 'homlity-plugin'),
+                'description' => __('Añade contexto editorial con un resumen breve del inmueble.', 'homlity-plugin'),
             ],
             [
                 'value' => 'features',
-                'label' => __('Características', HOMLITY_PLUGIN_TEXT_DOMAIN),
-                'description' => __('Expone área, habitaciones y baños en el listado.', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                'label' => __('Características', 'homlity-plugin'),
+                'description' => __('Expone área, habitaciones y baños en el listado.', 'homlity-plugin'),
             ],
             [
                 'value' => 'whatsapp',
-                'label' => __('Botón de WhatsApp', HOMLITY_PLUGIN_TEXT_DOMAIN),
-                'description' => __('Habilita contacto rápido desde la tarjeta del inmueble.', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                'label' => __('Botón de WhatsApp', 'homlity-plugin'),
+                'description' => __('Habilita contacto rápido desde la tarjeta del inmueble.', 'homlity-plugin'),
             ],
         ];
     }
@@ -290,27 +292,27 @@ class SettingsService implements ServiceInterface
         return [
             [
                 'value' => 'created_desc',
-                'label' => __('Fecha de creación (mayor a menor)', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                'label' => __('Fecha de creación (mayor a menor)', 'homlity-plugin'),
             ],
             [
                 'value' => 'created_asc',
-                'label' => __('Fecha de creación (menor a mayor)', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                'label' => __('Fecha de creación (menor a mayor)', 'homlity-plugin'),
             ],
             [
                 'value' => 'price_desc',
-                'label' => __('Precio (mayor a menor)', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                'label' => __('Precio (mayor a menor)', 'homlity-plugin'),
             ],
             [
                 'value' => 'price_asc',
-                'label' => __('Precio (menor a mayor)', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                'label' => __('Precio (menor a mayor)', 'homlity-plugin'),
             ],
             [
                 'value' => 'modified_desc',
-                'label' => __('Fecha de actualización (mayor a menor)', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                'label' => __('Fecha de actualización (mayor a menor)', 'homlity-plugin'),
             ],
             [
                 'value' => 'modified_asc',
-                'label' => __('Fecha de actualización (menor a mayor)', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                'label' => __('Fecha de actualización (menor a mayor)', 'homlity-plugin'),
             ],
         ];
     }
@@ -320,11 +322,11 @@ class SettingsService implements ServiceInterface
         return [
             [
                 'value' => 'leaflet_map',
-                'label' => __('Leaflet Map', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                'label' => __('Leaflet Map', 'homlity-plugin'),
             ],
             [
                 'value' => 'google_map',
-                'label' => __('Google Map', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                'label' => __('Google Map', 'homlity-plugin'),
             ],
         ];
     }
@@ -334,11 +336,11 @@ class SettingsService implements ServiceInterface
         return [
             [
                 'value' => 'light_gallery',
-                'label' => __('Light Gallery', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                'label' => __('Light Gallery', 'homlity-plugin'),
             ],
             [
                 'value' => 'owl_gallery',
-                'label' => __('Owl Gallery', HOMLITY_PLUGIN_TEXT_DOMAIN),
+                'label' => __('Owl Gallery', 'homlity-plugin'),
             ],
         ];
     }
@@ -370,6 +372,7 @@ class SettingsService implements ServiceInterface
             'primary_color' => '#ff6752',
             'default_map_provider' => 'leaflet_map',
             'detail_gallery_mode' => 'light_gallery',
+            'show_powered_by' => false,
         ];
     }
 }

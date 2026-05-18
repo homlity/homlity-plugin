@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
 /**
  * Agent info component.
@@ -7,6 +8,7 @@
  */
 
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\WhatsAppLinkService;
 
 if (!isset($post_id)) {
     $post_id = get_the_ID();
@@ -57,10 +59,7 @@ if ($source === 'static') {
 $ctas = [];
 
 if ($source === 'dynamic') {
-    $phoneDigits = $phone ? preg_replace('/\D+/', '', $phone) : '';
-    $whatsAppUrl = $phoneDigits
-        ? 'https://wa.me/' . $phoneDigits . '?text=' . rawurlencode(get_the_title($post_id) . ' - ' . get_permalink($post_id))
-        : '';
+    $whatsAppUrl = WhatsAppLinkService::buildPropertyLink((int) $post_id, (string) $phone);
 
     if (($s['show_cta_whatsapp'] ?? 'yes') === 'yes' && $whatsAppUrl) {
         $ctas[] = [
@@ -124,12 +123,40 @@ if (!$name && !$avatarHtml) {
             <?php endif; ?>
 
             <?php if ($phone): ?>
-                <p class="property-agent-block__phone"><?php echo esc_html($phone); ?></p>
+                <p class="property-agent-block__phone">
+                    <a href="tel:<?php echo esc_attr(preg_replace('/\s+/', '', (string) $phone)); ?>" data-homlity-contact-type="phone" data-property-id="<?php echo esc_attr($post_id); ?>">
+                        <?php
+                        $iconPhone = $s['icon_phone'] ?? [];
+                        if (!empty($iconPhone['value'])): ?>
+                            <span class="property-agent-block__icon property-agent-block__icon--phone" aria-hidden="true">
+                                <?php \Elementor\Icons_Manager::render_icon($iconPhone, ['aria-hidden' => 'true']); ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="property-agent-block__icon property-agent-block__icon--phone" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.11.37 2.29.56 3.5.56a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.97 21 3 13.03 3 3.99a1 1 0 0 1 1-1H7.5a1 1 0 0 1 1 1c0 1.21.19 2.39.56 3.5a1 1 0 0 1-.24 1.01l-2.2 2.29Z" /></svg>
+                            </span>
+                        <?php endif; ?>
+                        <span><?php echo esc_html($phone); ?></span>
+                    </a>
+                </p>
             <?php endif; ?>
 
             <?php if ($email): ?>
                 <p class="property-agent-block__email">
-                    <a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a>
+                    <a href="mailto:<?php echo esc_attr($email); ?>" data-homlity-contact-type="email" data-property-id="<?php echo esc_attr($post_id); ?>">
+                        <?php
+                        $iconEmail = $s['icon_email'] ?? [];
+                        if (!empty($iconEmail['value'])): ?>
+                            <span class="property-agent-block__icon property-agent-block__icon--email" aria-hidden="true">
+                                <?php \Elementor\Icons_Manager::render_icon($iconEmail, ['aria-hidden' => 'true']); ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="property-agent-block__icon property-agent-block__icon--email" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4.24-8 5-8-5V6l8 5 8-5v2.24Z" /></svg>
+                            </span>
+                        <?php endif; ?>
+                        <span><?php echo esc_html($email); ?></span>
+                    </a>
                 </p>
             <?php endif; ?>
 
@@ -140,6 +167,8 @@ if (!$name && !$avatarHtml) {
                             class="property-agent-block__cta"
                             href="<?php echo esc_url($cta['url']); ?>"
                             target="<?php echo esc_attr($cta['target']); ?>"
+                            data-homlity-contact-type="<?php echo (strpos((string) ($cta['url'] ?? ''), 'wa.me/') !== false || strpos((string) ($cta['url'] ?? ''), 'whatsapp.com/') !== false) ? 'whatsapp' : ''; ?>"
+                            data-property-id="<?php echo esc_attr($post_id); ?>"
                             <?php echo $cta['target'] === '_blank' ? 'rel="noopener noreferrer"' : ''; ?>
                         >
                             <?php echo esc_html($cta['text']); ?>

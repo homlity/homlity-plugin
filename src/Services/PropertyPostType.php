@@ -37,6 +37,10 @@ class PropertyPostType implements ServiceInterface
         'longitude' => '_property_longitude',
         'admin_included' => '_property_admin_included',
         'gallery' => '_property_gallery',
+        'videos' => '_property_videos',
+        'photos_360' => '_property_photos_360',
+        'tour_360' => '_property_tour_360',
+        'brochure' => '_property_brochure',
         'featured' => '_property_featured',
         'agent_id' => '_property_agent_id',
         'agent_phone' => '_property_agent_phone',
@@ -63,6 +67,8 @@ class PropertyPostType implements ServiceInterface
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
         add_action('admin_notices', [$this, 'renderValidationNotice']);
         add_action('add_meta_boxes_' . self::POST_TYPE, [$this, 'removeLegacyMetaboxes'], 999);
+        add_filter('manage_edit-' . self::POST_TYPE . '_columns', [$this, 'registerAdminColumns']);
+        add_action('manage_' . self::POST_TYPE . '_posts_custom_column', [$this, 'renderAdminColumn'], 10, 2);
     }
 
     public function useBlockEditorForPostType(bool $useBlockEditor, string $postType): bool
@@ -369,7 +375,7 @@ class PropertyPostType implements ServiceInterface
                 <td>
                     <select id="property_country" name="property_country" class="property-location-select" data-taxonomy="<?php echo esc_attr($this->locationTaxonomies['country']); ?>">
                         <option value=""><?php esc_html_e('Selecciona país', 'homlity-plugin'); ?></option>
-                        <?php echo $this->renderLocationOptions($post->ID, 'country'); ?>
+                        <?php echo $this->renderLocationOptions($post->ID, 'country'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                     </select>
                 </td>
             </tr>
@@ -471,6 +477,12 @@ class PropertyPostType implements ServiceInterface
             return;
         }
 
+        // Some admin scripts (core/third-party) call $.fn.pointer on post edit.
+        // Ensure pointer assets are present to avoid runtime errors that can
+        // interrupt the React property editor boot.
+        wp_enqueue_style('wp-pointer');
+        wp_enqueue_script('wp-pointer');
+
         wp_enqueue_script(
             'homlity-plugin-location',
             HOMLITY_PLUGIN_URL . 'assets/js/location-admin.js',
@@ -494,16 +506,18 @@ class PropertyPostType implements ServiceInterface
             }
         }
 
+        // phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent
         wp_enqueue_style(
             'homlity-plugin-leaflet',
-            'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+            HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.css',
             [],
             '1.9.4'
         );
 
+        // phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent
         wp_enqueue_script(
             'homlity-plugin-leaflet',
-            'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+            HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.js',
             [],
             '1.9.4',
             true
@@ -516,6 +530,17 @@ class PropertyPostType implements ServiceInterface
             HOMLITY_PLUGIN_VERSION,
             true
         );
+        wp_localize_script('homlity-plugin-location-map', 'homlityLeafletAssets', [
+            'iconUrl' => file_exists(HOMLITY_PLUGIN_PATH . 'assets/vendor/leaflet/images/marker-icon.png')
+                ? HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/images/marker-icon.png'
+                : '',
+            'iconRetinaUrl' => file_exists(HOMLITY_PLUGIN_PATH . 'assets/vendor/leaflet/images/marker-icon-2x.png')
+                ? HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/images/marker-icon-2x.png'
+                : '',
+            'shadowUrl' => file_exists(HOMLITY_PLUGIN_PATH . 'assets/vendor/leaflet/images/marker-shadow.png')
+                ? HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/images/marker-shadow.png'
+                : '',
+        ]);
 
         wp_enqueue_script(
             'homlity-plugin-gallery',
@@ -599,6 +624,10 @@ class PropertyPostType implements ServiceInterface
         foreach ($this->metaKeys as $key => $metaKey) {
             $meta[$key] = get_post_meta($postId, $metaKey, true);
         }
+        $syncId = trim((string) get_post_meta($postId, '_homlity_sync_id', true));
+        $syncSource = trim((string) get_post_meta($postId, '_homlity_sync_source', true));
+        $isSyncedProperty = ($syncId !== '' || $syncSource !== '');
+        $meta = $this->normalizeMediaMetaForEditor($postId, $meta);
 
         $operationTerms = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_OPERATION, ['fields' => 'ids']);
         $typeTerms = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_TYPE, ['fields' => 'ids']);
@@ -610,12 +639,35 @@ class PropertyPostType implements ServiceInterface
             $terms = wp_get_object_terms($postId, $taxonomy, ['fields' => 'ids']);
             $location[$key] = $terms ? (int) $terms[0] : 0;
         }
-        $galleryIds = array_filter(array_map('absint', explode(',', (string) ($meta['gallery'] ?? ''))));
         $galleryItems = [];
-        foreach ($galleryIds as $gid) {
-            $url = wp_get_attachment_image_url($gid, 'medium');
-            if ($url) {
-                $galleryItems[] = ['id' => (int) $gid, 'url' => $url];
+        $rawGallery = $meta['gallery'] ?? '';
+
+        if (is_array($rawGallery)) {
+            foreach ($rawGallery as $entry) {
+                if (is_numeric($entry)) {
+                    $gid = absint($entry);
+                    if ($gid <= 0) {
+                        continue;
+                    }
+                    $url = wp_get_attachment_image_url($gid, 'medium');
+                    if ($url) {
+                        $galleryItems[] = ['id' => $gid, 'url' => $url];
+                    }
+                    continue;
+                }
+
+                $url = esc_url_raw((string) $entry);
+                if ($url !== '') {
+                    $galleryItems[] = ['id' => 0, 'url' => $url];
+                }
+            }
+        } else {
+            $galleryIds = array_filter(array_map('absint', explode(',', (string) $rawGallery)));
+            foreach ($galleryIds as $gid) {
+                $url = wp_get_attachment_image_url($gid, 'medium');
+                if ($url) {
+                    $galleryItems[] = ['id' => (int) $gid, 'url' => $url];
+                }
             }
         }
 
@@ -674,6 +726,18 @@ class PropertyPostType implements ServiceInterface
                 'message' => sanitize_text_field(wp_unslash((string) ($_GET['homlity_validation_error'] ?? ''))),
                 'fields' => array_values(array_filter(array_map('sanitize_key', explode(',', sanitize_text_field(wp_unslash((string) ($_GET['homlity_validation_fields'] ?? ''))))))),
             ],
+            'visitStats' => class_exists(\Homlity\PluginInmobiliario\Services\PropertyVisitTrackingService::class)
+                ? \Homlity\PluginInmobiliario\Services\PropertyVisitTrackingService::getReportForProperty($postId)
+                : [
+                    'totals' => ['all' => 0, 'today' => 0, 'last7' => 0, 'last30' => 0, 'unique_visitors' => 0],
+                    'daily' => [],
+                    'recent' => [],
+                ],
+            'sync' => [
+                'isSynced' => $isSyncedProperty,
+                'syncId' => $syncId,
+                'source' => $syncSource,
+            ],
         ]);
     }
 
@@ -704,6 +768,15 @@ class PropertyPostType implements ServiceInterface
                 'state' => ['type' => 'string', 'required' => false, 'default' => ''],
                 'city' => ['type' => 'string', 'required' => false, 'default' => ''],
                 'neighborhood' => ['type' => 'string', 'required' => false, 'default' => ''],
+            ],
+        ]);
+
+        register_rest_route('homlity-plugin/v1', '/property-media-sync', [
+            'methods' => 'GET',
+            'callback' => [$this, 'restPropertyMediaSync'],
+            'permission_callback' => '__return_true',
+            'args' => [
+                'post_id' => ['type' => 'integer', 'required' => true],
             ],
         ]);
     }
@@ -761,6 +834,244 @@ class PropertyPostType implements ServiceInterface
             'lat' => (float) $data[0]['lat'],
             'lng' => (float) $data[0]['lon'],
         ], 200);
+    }
+
+    public function restPropertyMediaSync(\WP_REST_Request $request): \WP_REST_Response
+    {
+        $postId = absint($request->get_param('post_id'));
+        if ($postId <= 0 || get_post_type($postId) !== self::POST_TYPE) {
+            return new \WP_REST_Response(['ok' => false, 'error' => 'invalid_post'], 400);
+        }
+
+        $meta = [];
+        foreach ($this->metaKeys as $key => $metaKey) {
+            $meta[$key] = get_post_meta($postId, $metaKey, true);
+        }
+        $meta = $this->normalizeMediaMetaForEditor($postId, $meta);
+
+        return new \WP_REST_Response([
+            'ok' => true,
+            'videos' => $meta['videos'] ?? [],
+            'photos_360' => $meta['photos_360'] ?? [],
+            'tour_360' => $meta['tour_360'] ?? [],
+            'brochure' => $meta['brochure'] ?? '',
+        ], 200);
+    }
+
+    /**
+     * Normaliza multimedia para que el editor React siempre reciba formato consistente.
+     *
+     * @param array<string,mixed> $meta
+     * @return array<string,mixed>
+     */
+    private function normalizeMediaMetaForEditor(int $postId, array $meta): array
+    {
+        $videos = $this->extractUrlList($meta['videos'] ?? null);
+        $photos360 = $this->extractUrlList($meta['photos_360'] ?? null);
+        $tour360 = $this->extractUrlList($meta['tour_360'] ?? null);
+        $brochure = $this->extractSingleUrl($meta['brochure'] ?? null);
+
+        if (!empty($videos) && !empty($photos360) && !empty($tour360) && $brochure !== '') {
+            $meta['videos'] = $videos;
+            $meta['photos_360'] = $photos360;
+            $meta['tour_360'] = $tour360;
+            $meta['brochure'] = $brochure;
+            return $meta;
+        }
+
+        $rawPayload = get_post_meta($postId, '_property_sync_payload', true);
+        if (!is_string($rawPayload) || trim($rawPayload) === '') {
+            $rawPayload = get_post_meta($postId, '_homlity_sync_payload', true);
+        }
+
+        $payload = [];
+        if (is_string($rawPayload) && trim($rawPayload) !== '') {
+            $decoded = json_decode($rawPayload, true);
+            if (is_array($decoded)) {
+                $payload = $decoded;
+            }
+        }
+
+        $property = is_array($payload['property'] ?? null) ? $payload['property'] : $payload;
+        $media = is_array($property['media'] ?? null) ? $property['media'] : [];
+
+        if (empty($videos)) {
+            $videos = $this->extractUrlList($media['videos'] ?? ($property['videos'] ?? null));
+        }
+        if (empty($photos360)) {
+            $photos360 = $this->extractUrlList($media['photos_360'] ?? null);
+        }
+        if (empty($tour360)) {
+            $tour360 = $this->extractUrlList($media['tour_360'] ?? null);
+        }
+        if ($brochure === '') {
+            $brochure = $this->extractSingleUrl($media['brochure'] ?? ($property['brochure'] ?? null));
+        }
+
+        // Direct fallback from plugin-homlity-sync dedicated media metas.
+        if (empty($videos)) {
+            $videos = $this->extractUrlList(get_post_meta($postId, '_homlity_sync_media_videos', true));
+        }
+        if (empty($photos360)) {
+            $photos360 = $this->extractUrlList(get_post_meta($postId, '_homlity_sync_media_photos_360', true));
+        }
+        if (empty($tour360)) {
+            $tour360 = $this->extractUrlList(get_post_meta($postId, '_homlity_sync_media_tour_360', true));
+        }
+        if ($brochure === '') {
+            $brochure = $this->extractSingleUrl(get_post_meta($postId, '_homlity_sync_media_brochure', true));
+        }
+
+        // Final fallback: query homlity-sync API detail by external sync ID
+        // when local meta/payload are missing multimedia.
+        if (empty($videos) && empty($photos360) && empty($tour360) && $brochure === '') {
+            $externalId = sanitize_text_field((string) get_post_meta($postId, '_homlity_sync_id', true));
+            if ($externalId !== '') {
+                $remoteMedia = $this->fetchMediaFromHomlitySync($externalId);
+                if (!empty($remoteMedia['videos'])) {
+                    $videos = $this->extractUrlList($remoteMedia['videos']);
+                }
+                if (!empty($remoteMedia['photos_360'])) {
+                    $photos360 = $this->extractUrlList($remoteMedia['photos_360']);
+                }
+                if (!empty($remoteMedia['tour_360'])) {
+                    $tour360 = $this->extractUrlList($remoteMedia['tour_360']);
+                }
+                if ($brochure === '' && !empty($remoteMedia['brochure'])) {
+                    $brochure = $this->extractSingleUrl($remoteMedia['brochure']);
+                }
+            }
+        }
+
+        $meta['videos'] = $videos;
+        $meta['photos_360'] = $photos360;
+        $meta['tour_360'] = $tour360;
+        $meta['brochure'] = $brochure;
+
+        return $meta;
+    }
+
+    /**
+     * @return array<int,string>
+     */
+    private function extractUrlList(mixed $value): array
+    {
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '') {
+                return [];
+            }
+
+            if ($trimmed[0] === '[' || $trimmed[0] === '{') {
+                $decoded = json_decode($trimmed, true);
+                if (is_array($decoded)) {
+                    return $this->extractUrlList($decoded);
+                }
+            }
+
+            $parts = preg_split('/[\r\n,;|]+/', $trimmed) ?: [];
+            $urls = [];
+            foreach ($parts as $part) {
+                $url = esc_url_raw(trim((string) $part));
+                if ($url !== '') {
+                    $urls[] = $url;
+                }
+            }
+            return array_values(array_unique($urls));
+        }
+
+        if (is_array($value)) {
+            $urls = [];
+            foreach ($value as $item) {
+                if (is_string($item)) {
+                    $url = esc_url_raw(trim($item));
+                    if ($url !== '') {
+                        $urls[] = $url;
+                    }
+                    continue;
+                }
+                if (is_array($item)) {
+                    $url = esc_url_raw(trim((string) ($item['url'] ?? '')));
+                    if ($url !== '') {
+                        $urls[] = $url;
+                    }
+                }
+            }
+            return array_values(array_unique($urls));
+        }
+
+        return [];
+    }
+
+    private function extractSingleUrl(mixed $value): string
+    {
+        if (is_array($value)) {
+            if (isset($value['url']) && is_string($value['url'])) {
+                return esc_url_raw(trim($value['url']));
+            }
+            $urls = $this->extractUrlList($value);
+            return $urls[0] ?? '';
+        }
+
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '') {
+                return '';
+            }
+            if ($trimmed[0] === '{' || $trimmed[0] === '[') {
+                $decoded = json_decode($trimmed, true);
+                if (is_array($decoded)) {
+                    return $this->extractSingleUrl($decoded);
+                }
+            }
+            $clean = esc_url_raw($trimmed);
+            if ($clean !== '') {
+                return $clean;
+            }
+            preg_match('/https?:\/\/[^\s"]+/i', $trimmed, $matches);
+            return esc_url_raw($matches[0] ?? '');
+        }
+
+        return '';
+    }
+
+    /**
+     * @return array{videos?: mixed, photos_360?: mixed, tour_360?: mixed, brochure?: mixed}
+     */
+    private function fetchMediaFromHomlitySync(string $externalId): array
+    {
+        if (!class_exists(\HomlitySync\Api\HomlityApiClient::class)) {
+            return [];
+        }
+
+        try {
+            $client = new \HomlitySync\Api\HomlityApiClient();
+            $response = $client->getProperty($externalId);
+            if (!($response->success ?? false)) {
+                return [];
+            }
+
+            $data = is_array($response->data ?? null) ? $response->data : [];
+            $property = $data['data']['data'] ?? $data['data'] ?? $data['item'] ?? $data;
+            if (!is_array($property)) {
+                return [];
+            }
+
+            $media = is_array($property['media'] ?? null) ? $property['media'] : [];
+            $videos = $media['videos'] ?? ($property['videos'] ?? []);
+            $photos360 = $media['photos_360'] ?? [];
+            $tour360 = $media['tour_360'] ?? [];
+            $brochure = $media['brochure'] ?? ($property['brochure'] ?? '');
+
+            return [
+                'videos' => $videos,
+                'photos_360' => $photos360,
+                'tour_360' => $tour360,
+                'brochure' => $brochure,
+            ];
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 
     private function termsToOptions(string $taxonomy): array
@@ -928,6 +1239,18 @@ class PropertyPostType implements ServiceInterface
                 $ids = array_filter($ids);
                 return implode(',', $ids);
             },
+            'videos' => function ($value) {
+                return $this->sanitizeSingleVideoUrlList($value);
+            },
+            'photos_360' => function ($value) {
+                return $this->sanitizeUrlList($value);
+            },
+            'tour_360' => function ($value) {
+                return $this->sanitizeUrlList($value);
+            },
+            'brochure' => static function ($value) {
+                return esc_url_raw((string) $value);
+            },
             'featured' => static function ($value) {
                 return (bool) $value;
             },
@@ -942,12 +1265,17 @@ class PropertyPostType implements ServiceInterface
             },
         ];
 
+        $isSyncedProperty = $this->isSyncedProperty($postId);
+
         foreach ($this->metaKeys as $key => $metaKey) {
             $value = $_POST['property_' . $key] ?? null;
             // For checkboxes/booleans ensure a default value is stored.
             if (in_array($key, ['featured', 'admin_included'], true) && $value === null) {
                 $value = 0;
             } elseif ($value === null) {
+                continue;
+            }
+            if ($key === 'code' && $isSyncedProperty) {
                 continue;
             }
             $value = call_user_func($sanitizers[$key], $value);
@@ -995,6 +1323,7 @@ class PropertyPostType implements ServiceInterface
         $fieldKeys = array_keys($errors);
         $labels = array_values($errors);
         $message = sprintf(
+            /* translators: %s: comma-separated list of missing required field labels */
             __('Faltan campos obligatorios: %s', 'homlity-plugin'),
             implode(', ', $labels)
         );
@@ -1249,6 +1578,50 @@ class PropertyPostType implements ServiceInterface
         wp_set_object_terms($postId, $nearbyIds, PropertyTaxonomies::TAXONOMY_NEARBY, false);
     }
 
+    /**
+     * @param mixed $value
+     * @return array<int, string>
+     */
+    private function sanitizeUrlList($value): array
+    {
+        $items = [];
+        if (is_array($value)) {
+            $items = $value;
+        } else {
+            $raw = (string) $value;
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded)) {
+                $items = $decoded;
+            } else {
+                $items = preg_split('/[\r\n,]+/', $raw) ?: [];
+            }
+        }
+
+        $urls = [];
+        foreach ($items as $item) {
+            $url = esc_url_raw(trim((string) $item));
+            if ($url !== '') {
+                $urls[] = $url;
+            }
+        }
+
+        return array_values(array_unique($urls));
+    }
+
+    /**
+     * @param mixed $value
+     * @return array<int, string>
+     */
+    private function sanitizeSingleVideoUrlList($value): array
+    {
+        $urls = $this->sanitizeUrlList($value);
+        if (empty($urls)) {
+            return [];
+        }
+
+        return [reset($urls)];
+    }
+
     private function featureGroupsOptions(): array
     {
         $terms = get_terms([
@@ -1304,6 +1677,14 @@ class PropertyPostType implements ServiceInterface
 
     private function saveAutomaticCodeIfNeeded(int $postId): void
     {
+        // Never auto-generate the code for CRM/webhook-synced properties.
+        // For synced records, the code must come from the integration payload.
+        $syncId = trim((string) get_post_meta($postId, '_homlity_sync_id', true));
+        $syncSource = trim((string) get_post_meta($postId, '_homlity_sync_source', true));
+        if ($syncId !== '' || $syncSource !== '') {
+            return;
+        }
+
         $current = trim((string) get_post_meta($postId, $this->metaKeys['code'], true));
         if ($current !== '') {
             return;
@@ -1531,5 +1912,121 @@ class PropertyPostType implements ServiceInterface
     {
         $types[] = 'post_' . self::POST_TYPE;
         return $types;
+    }
+
+    public function registerAdminColumns(array $columns): array
+    {
+        return [
+            'cb' => $columns['cb'] ?? '<input type="checkbox" />',
+            'title' => __('Nombre', 'homlity-plugin'),
+            'property_operation' => __('Gestión', 'homlity-plugin'),
+            'property_type' => __('Tipo de inmueble', 'homlity-plugin'),
+            'property_location' => __('Ubicación', 'homlity-plugin'),
+            'property_operation_value' => __('Valor gestión', 'homlity-plugin'),
+            'property_last_sync' => __('Última sincronización', 'homlity-plugin'),
+            'date' => $columns['date'] ?? __('Fecha', 'homlity-plugin'),
+        ];
+    }
+
+    public function renderAdminColumn(string $column, int $postId): void
+    {
+        if ($column === 'property_operation') {
+            $terms = wp_get_post_terms($postId, PropertyTaxonomies::TAXONOMY_OPERATION);
+            echo !is_wp_error($terms) && !empty($terms) ? esc_html($terms[0]->name) : '—';
+            return;
+        }
+
+        if ($column === 'property_type') {
+            $terms = wp_get_post_terms($postId, PropertyTaxonomies::TAXONOMY_TYPE);
+            echo !is_wp_error($terms) && !empty($terms) ? esc_html($terms[0]->name) : '—';
+            return;
+        }
+
+        if ($column === 'property_location') {
+            $parts = [];
+            $taxes = [
+                PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD,
+                PropertyTaxonomies::TAXONOMY_CITY,
+                PropertyTaxonomies::TAXONOMY_STATE,
+                PropertyTaxonomies::TAXONOMY_COUNTRY,
+            ];
+
+            foreach ($taxes as $taxonomy) {
+                $terms = wp_get_post_terms($postId, $taxonomy);
+                if (!is_wp_error($terms) && !empty($terms)) {
+                    $parts[] = $terms[0]->name;
+                }
+            }
+
+            echo !empty($parts) ? esc_html(implode(', ', $parts)) : '—';
+            return;
+        }
+
+        if ($column === 'property_operation_value') {
+            $operation = '';
+            $operationTerms = wp_get_post_terms($postId, PropertyTaxonomies::TAXONOMY_OPERATION);
+            if (!is_wp_error($operationTerms) && !empty($operationTerms)) {
+                $operation = strtolower(sanitize_title($operationTerms[0]->name));
+            }
+
+            $currencyService = new CurrencyService();
+            $currency = (string) get_post_meta($postId, '_property_currency_sale', true);
+            if ($currency === '') {
+                $currency = (string) get_post_meta($postId, '_property_currency_rent', true);
+            }
+            if ($currency === '') {
+                $currency = (string) $currencyService->baseCurrency();
+            }
+
+            $priceSale = (string) get_post_meta($postId, '_property_price_sale', true);
+            $priceRent = (string) get_post_meta($postId, '_property_price_rent', true);
+            $priceAdmin = (string) get_post_meta($postId, '_property_price_admin', true);
+
+            $value = '';
+            if (str_contains($operation, 'arriendo') || str_contains($operation, 'rent')) {
+                $value = $priceRent !== '' ? $priceRent : $priceSale;
+            } else {
+                $value = $priceSale !== '' ? $priceSale : $priceRent;
+            }
+
+            if ($value === '' && $priceAdmin !== '') {
+                $value = $priceAdmin;
+            }
+
+            if ($value === '') {
+                echo '—';
+                return;
+            }
+
+            $formatted = \homlity_plugin_apply_filters('homlity_plugin_format_price', null, $value, $currency);
+            echo esc_html((string) ($formatted !== null ? $formatted : $value));
+            return;
+        }
+
+        if ($column === 'property_last_sync') {
+            $syncedAt = (string) get_post_meta($postId, '_homlity_sync_updated_at', true);
+            if ($syncedAt === '') {
+                echo '—';
+                return;
+            }
+
+            $timestamp = strtotime($syncedAt);
+            if ($timestamp === false) {
+                echo esc_html($syncedAt);
+                return;
+            }
+
+            echo esc_html(wp_date('Y-m-d H:i', $timestamp));
+        }
+    }
+
+    private function isSyncedProperty(int $postId): bool
+    {
+        if ($postId <= 0) {
+            return false;
+        }
+        $syncId = trim((string) get_post_meta($postId, '_homlity_sync_id', true));
+        $syncSource = trim((string) get_post_meta($postId, '_homlity_sync_source', true));
+        return ($syncId !== '' || $syncSource !== '');
     }
 }

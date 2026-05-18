@@ -217,6 +217,38 @@ class PropertyAgentWidget extends BasePropertyWidget
                 '{{WRAPPER}} .property-agent-block__avatar img' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
             ],
         ]);
+        $this->add_responsive_control('photo_width_percent', [
+            'label'      => __('Ancho (%)', 'homlity-plugin'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['%'],
+            'range'      => ['%' => ['min' => 10, 'max' => 100]],
+            'selectors'  => [
+                '{{WRAPPER}} .property-agent-block__avatar img' => 'width: {{SIZE}}{{UNIT}}; height: auto;',
+            ],
+        ]);
+        $this->add_responsive_control('photo_align', [
+            'label'   => __('Alineación foto', 'homlity-plugin'),
+            'type'    => Controls_Manager::CHOOSE,
+            'options' => [
+                'left' => [
+                    'title' => __('Izquierda', 'homlity-plugin'),
+                    'icon'  => 'eicon-text-align-left',
+                ],
+                'center' => [
+                    'title' => __('Centro', 'homlity-plugin'),
+                    'icon'  => 'eicon-text-align-center',
+                ],
+                'right' => [
+                    'title' => __('Derecha', 'homlity-plugin'),
+                    'icon'  => 'eicon-text-align-right',
+                ],
+            ],
+            'default'   => 'left',
+            'selectors' => [
+                '{{WRAPPER}} .property-agent-block__avatar' => 'text-align: {{VALUE}};',
+                '{{WRAPPER}} .property-agent-block__avatar img' => 'display: inline-block;',
+            ],
+        ]);
         $this->add_responsive_control('photo_radius', [
             'label'      => __('Radio borde', 'homlity-plugin'),
             'type'       => Controls_Manager::DIMENSIONS,
@@ -278,6 +310,68 @@ class PropertyAgentWidget extends BasePropertyWidget
             'selectors' => ['{{WRAPPER}} .property-agent-block__email a:hover' => 'color: {{VALUE}};'],
         ]);
 
+        // — Icono teléfono —
+        $this->add_control('icon_phone_heading', [
+            'label'     => __('Icono teléfono', 'homlity-plugin'),
+            'type'      => Controls_Manager::HEADING,
+            'separator' => 'before',
+        ]);
+        $this->add_control('icon_phone', [
+            'label'   => __('Icono', 'homlity-plugin'),
+            'type'    => Controls_Manager::ICONS,
+            'default' => ['value' => 'fas fa-phone', 'library' => 'fa-solid'],
+        ]);
+        $this->add_responsive_control('icon_phone_size', [
+            'label'      => __('Tamaño', 'homlity-plugin'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['px', 'em'],
+            'range'      => ['px' => ['min' => 10, 'max' => 64]],
+            'default'    => ['unit' => 'px', 'size' => 16],
+            'selectors'  => [
+                '{{WRAPPER}} .property-agent-block__icon--phone i'   => 'font-size: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-agent-block__icon--phone svg' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
+            ],
+        ]);
+        $this->add_control('icon_phone_color', [
+            'label'     => __('Color', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-agent-block__icon--phone i'   => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-agent-block__icon--phone svg' => 'fill: {{VALUE}};',
+            ],
+        ]);
+
+        // — Icono correo —
+        $this->add_control('icon_email_heading', [
+            'label'     => __('Icono correo', 'homlity-plugin'),
+            'type'      => Controls_Manager::HEADING,
+            'separator' => 'before',
+        ]);
+        $this->add_control('icon_email', [
+            'label'   => __('Icono', 'homlity-plugin'),
+            'type'    => Controls_Manager::ICONS,
+            'default' => ['value' => 'fas fa-envelope', 'library' => 'fa-solid'],
+        ]);
+        $this->add_responsive_control('icon_email_size', [
+            'label'      => __('Tamaño', 'homlity-plugin'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['px', 'em'],
+            'range'      => ['px' => ['min' => 10, 'max' => 64]],
+            'default'    => ['unit' => 'px', 'size' => 16],
+            'selectors'  => [
+                '{{WRAPPER}} .property-agent-block__icon--email i'   => 'font-size: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-agent-block__icon--email svg' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
+            ],
+        ]);
+        $this->add_control('icon_email_color', [
+            'label'     => __('Color', 'homlity-plugin'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-agent-block__icon--email i'   => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-agent-block__icon--email svg' => 'fill: {{VALUE}};',
+            ],
+        ]);
+
         // — Botones CTA —
         $this->add_control('btn_heading', [
             'label'     => __('Botones', 'homlity-plugin'),
@@ -319,6 +413,14 @@ class PropertyAgentWidget extends BasePropertyWidget
             'label'     => __('Color texto (hover)', 'homlity-plugin'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-agent-block__cta:hover' => 'color: {{VALUE}};'],
+        ]);
+        $this->add_responsive_control('actions_gap', [
+            'label'      => __('Espacio entre botones', 'homlity-plugin'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range'      => ['px' => ['min' => 0, 'max' => 48]],
+            'default'    => ['unit' => 'px', 'size' => 10],
+            'selectors'  => ['{{WRAPPER}} .property-agent-block__actions' => 'gap: {{SIZE}}{{UNIT}};'],
         ]);
 
         $this->end_controls_section();

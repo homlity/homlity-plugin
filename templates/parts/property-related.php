@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
 /**
  * Related properties component.
@@ -13,6 +14,9 @@ use Homlity\PluginInmobiliario\Services\TemplateService;
 if (!isset($post_id)) {
     $post_id = get_the_ID();
 }
+$postsPerPage  = isset($posts_per_page)  ? max(1, (int) $posts_per_page) : 3;
+$columns       = isset($columns) ? max(1, (int) $columns) : 3;
+$passCardOptions = isset($card_options) && is_array($card_options) ? $card_options : [];
 
 $taxQuery = [];
 
@@ -52,13 +56,16 @@ if (!is_wp_error($tagTerms) && $tagTerms) {
     ];
 }
 
-if (!$taxQuery) {
-    return;
-}
+if (!$taxQuery) : ?>
+    <section class="property-related">
+        <p class="property-related__empty"><?php esc_html_e('No hay inmuebles relacionados.', 'homlity-plugin'); ?></p>
+    </section>
+    <?php return;
+endif;
 
 $related = new WP_Query([
     'post_type' => PropertyPostType::POST_TYPE,
-    'posts_per_page' => 3,
+    'posts_per_page' => $postsPerPage,
     'post__not_in' => [$post_id],
     'tax_query' => $taxQuery,
     'meta_query' => [
@@ -74,15 +81,17 @@ $related = new WP_Query([
     ],
 ]);
 
-if (!$related->have_posts()) {
-    return;
-}
+if (!$related->have_posts()) : ?>
+    <section class="property-related">
+        <p class="property-related__empty"><?php esc_html_e('No hay inmuebles relacionados.', 'homlity-plugin'); ?></p>
+    </section>
+    <?php wp_reset_postdata(); return;
+endif;
 ?>
 <section class="property-related">
-    <h2><?php esc_html_e('Propiedades relacionadas', 'homlity-plugin'); ?></h2>
-    <div class="property-related__grid">
+    <div class="property-related__grid" style="display:grid;grid-template-columns:repeat(<?php echo esc_attr($columns); ?>, minmax(0, 1fr));">
         <?php while ($related->have_posts()) : $related->the_post(); ?>
-            <?php TemplateService::includeComponent('property-card.php', ['post_id' => get_the_ID()]); ?>
+            <?php TemplateService::includeComponent('property-card.php', ['post_id' => get_the_ID(), 'card_options' => $passCardOptions]); ?>
         <?php endwhile; ?>
     </div>
 </section>

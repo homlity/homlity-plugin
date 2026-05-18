@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
 /**
  * Generic template for property taxonomies (category, type, operation, location).

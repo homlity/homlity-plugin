@@ -20,11 +20,82 @@ class TemplateService implements ServiceInterface
         add_filter('query_vars', [$this, 'registerQueryVars']);
         add_filter('request', [$this, 'normalizeSeoArchiveRequest'], 1);
         add_action('init', [$this, 'addRewriteRules']);
+        add_action('init', [$this, 'registerShortcodes']);
         add_filter('template_include', [$this, 'maybeLoadTemplate']);
         add_action('pre_get_posts', [$this, 'filterArchiveQuery']);
+        add_action('template_redirect', [$this, 'maybeRenderTechnicalSheetPdf'], 1);
         add_action('template_redirect', [$this, 'redirectLegacyEnglishUrls']);
         add_action('wp_enqueue_scripts', [$this, 'enqueuePublicAssets']);
         add_filter('elementor/frontend/admin_bar/settings', [$this, 'injectElementorAdminBarLinks'], 600);
+    }
+
+    public function registerShortcodes(): void
+    {
+        add_shortcode('homlity_agent_profile', [$this, 'renderAgentProfileShortcode']);
+    }
+
+    public function renderAgentProfileShortcode(): string
+    {
+        ob_start();
+        self::includeComponent('agent-profile-content.php');
+        return (string) ob_get_clean();
+    }
+
+    public function maybeRenderTechnicalSheetPdf(): void
+    {
+        if (is_admin() || $this->isElementorEditorRequest()) {
+            return;
+        }
+
+        if (!is_singular(PropertyPostType::POST_TYPE)) {
+            return;
+        }
+
+        $sheetFlag = (string) ($_GET['homlity_sheet'] ?? get_query_var('homlity_sheet', ''));
+        if ($sheetFlag !== '1') {
+            return;
+        }
+
+        if (!class_exists('\Dompdf\Dompdf')) {
+            return;
+        }
+
+        $postId = (int) get_queried_object_id();
+        if ($postId <= 0) {
+            return;
+        }
+
+        $cssFile = HOMLITY_PLUGIN_PATH . 'assets/css/front-components.css';
+        $css = file_exists($cssFile) ? (string) file_get_contents($cssFile) : '';
+        $css .= '
+            @page { margin: 18px; }
+            body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 12px; color: #111827; }
+            .homlity-tech-sheet { max-width: none !important; padding: 0 !important; }
+            .homlity-tech-sheet__actions { display: none !important; }
+            .homlity-tech-sheet__card { page-break-inside: avoid; }
+            .homlity-tech-sheet__gallery { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+        ';
+
+        ob_start();
+        self::includeComponent('property-technical-sheet.php', ['post_id' => $postId]);
+        $content = (string) ob_get_clean();
+
+        $html = '<!doctype html><html><head><meta charset="utf-8"><style>' . $css . '</style></head><body>' . $content . '</body></html>';
+
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $filename = sanitize_title(get_the_title($postId)) ?: 'ficha-tecnica';
+        $forceDownload = (string) ($_GET['download'] ?? '') === '1';
+        if ($forceDownload) {
+            PropertyTechnicalSheetDownloadTrackingService::trackDownload($postId);
+        }
+        $dompdf->stream($filename . '.pdf', ['Attachment' => $forceDownload]);
+        exit;
     }
 
     public function registerQueryVars(array $vars): array
@@ -48,6 +119,7 @@ class TemplateService implements ServiceInterface
         $vars[] = 'date_from';
         $vars[] = 'date_to';
         $vars[] = 'homlity_property_archive';
+        $vars[] = 'homlity_sheet';
         return $vars;
     }
 
@@ -343,18 +415,20 @@ class TemplateService implements ServiceInterface
         }
 
         if (is_singular(PropertyPostType::POST_TYPE)) {
+            if ((string) ($_GET['homlity_sheet'] ?? '') === '1' || (string) get_query_var('homlity_sheet', '') === '1') {
+                return self::locateTemplate('property-technical-sheet.php', $template);
+            }
             return self::locateTemplate('single-property.php', $template);
         }
 
         // For SEO archive routes, keep the configured archive page template (Elementor),
         // do not override it with archive-property.php.
+        // Some filtered URLs can lose `is_page()` context depending on rewrite/order,
+        // but should still render through the configured archive page.
         $archivePageId = (int) get_option('homlity_plugin_archive_page_id', 0);
         $isSeoArchiveRequest = ((string) get_query_var('homlity_property_archive', '') === '1');
         if ($archivePageId > 0 && $isSeoArchiveRequest) {
-            $queriedObjectId = (int) get_queried_object_id();
-            if ($queriedObjectId === $archivePageId || is_page($archivePageId)) {
-                return $template;
-            }
+            return $template;
         }
 
         if (
@@ -404,6 +478,18 @@ class TemplateService implements ServiceInterface
             wp_add_inline_style('homlity-plugin-front-components', $inlineCss);
         }
 
+        wp_enqueue_script(
+            'homlity-plugin-contact-tracking',
+            HOMLITY_PLUGIN_URL . 'assets/js/property-contact-tracking.js',
+            [],
+            HOMLITY_PLUGIN_VERSION,
+            true
+        );
+        wp_localize_script('homlity-plugin-contact-tracking', 'homlityContactTracking', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('homlity_contact_click_nonce'),
+        ]);
+
         if (!is_singular(PropertyPostType::POST_TYPE)) {
             return;
         }
@@ -411,14 +497,14 @@ class TemplateService implements ServiceInterface
         if ($settings['default_map_provider'] === 'leaflet_map') {
             wp_enqueue_style(
                 'homlity-plugin-leaflet-front',
-                'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.css',
                 [],
                 '1.9.4'
             );
 
             wp_enqueue_script(
                 'homlity-plugin-leaflet-front',
-                'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.js',
                 [],
                 '1.9.4',
                 true
@@ -431,27 +517,53 @@ class TemplateService implements ServiceInterface
                 HOMLITY_PLUGIN_VERSION,
                 true
             );
+            wp_localize_script('homlity-plugin-front-map', 'homlityLeafletAssets', [
+                'iconUrl' => file_exists(HOMLITY_PLUGIN_PATH . 'assets/vendor/leaflet/images/marker-icon.png')
+                    ? HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/images/marker-icon.png'
+                    : '',
+                'iconRetinaUrl' => file_exists(HOMLITY_PLUGIN_PATH . 'assets/vendor/leaflet/images/marker-icon-2x.png')
+                    ? HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/images/marker-icon-2x.png'
+                    : '',
+                'shadowUrl' => file_exists(HOMLITY_PLUGIN_PATH . 'assets/vendor/leaflet/images/marker-shadow.png')
+                    ? HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/images/marker-shadow.png'
+                    : '',
+            ]);
         }
+
+        // Required by legacy "Tabs multimedia inmueble" photos slider.
+        wp_enqueue_style(
+            'homlity-plugin-swiper',
+            HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.css',
+            [],
+            '11.0.0'
+        );
+        wp_enqueue_script(
+            'homlity-plugin-swiper',
+            HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.js',
+            [],
+            '11.0.0',
+            true
+        );
 
         $galleryDeps = [];
         if ($settings['detail_gallery_mode'] === 'owl_gallery') {
             wp_enqueue_style(
                 'homlity-plugin-owl-carousel',
-                'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/owlcarousel/owl.carousel.min.css',
                 [],
                 '2.3.4'
             );
 
             wp_enqueue_style(
                 'homlity-plugin-owl-carousel-theme',
-                'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/owlcarousel/owl.theme.default.min.css',
                 ['homlity-plugin-owl-carousel'],
                 '2.3.4'
             );
 
             wp_enqueue_script(
                 'homlity-plugin-owl-carousel',
-                'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/owlcarousel/owl.carousel.min.js',
                 ['jquery'],
                 '2.3.4',
                 true
@@ -461,14 +573,14 @@ class TemplateService implements ServiceInterface
         } else {
             wp_enqueue_style(
                 'homlity-plugin-lightgallery',
-                'https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.8.3/css/lightgallery-bundle.min.css',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/lightgallery/lightgallery-bundle.min.css',
                 [],
                 '2.8.3'
             );
 
             wp_enqueue_script(
                 'homlity-plugin-lightgallery',
-                'https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.8.3/lightgallery.min.js',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/lightgallery/lightgallery.min.js',
                 [],
                 '2.8.3',
                 true

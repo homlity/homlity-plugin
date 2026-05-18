@@ -82,7 +82,10 @@ class LocationMetaService implements ServiceInterface
         ]);
         ?>
         <select id="<?php echo esc_attr($fieldName); ?>" name="<?php echo esc_attr($fieldName); ?>">
-            <option value="0"><?php echo esc_html(sprintf(__('Selecciona %s', 'homlity-plugin'), $label)); ?></option>
+            <option value="0"><?php
+                /* translators: %s: parent taxonomy label */
+                echo esc_html(sprintf(__('Selecciona %s', 'homlity-plugin'), $label));
+            ?></option>
             <?php foreach ($terms as $term): ?>
                 <option value="<?php echo esc_attr($term->term_id); ?>" <?php selected($selected, $term->term_id); ?>>
                     <?php echo esc_html($term->name); ?>

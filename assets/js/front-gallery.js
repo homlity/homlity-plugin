@@ -17,7 +17,7 @@
                     controls: true,
                     showCloseIcon: true,
                 },
-                selector: '.property-gallery__item--light',
+                selector: '.property-gallery__item--light, .property-gallery__slide-link',
                 speed: 400,
             });
         });

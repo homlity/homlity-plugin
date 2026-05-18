@@ -8,9 +8,13 @@
         var wrapper = document.createElement('div');
         wrapper.className = 'hpf-multi';
 
+        var menuId = (select.id ? select.id : ('hpf-multi-' + Math.random().toString(36).slice(2))) + '-menu';
         var trigger = document.createElement('button');
         trigger.type = 'button';
         trigger.className = 'hpf-multi__trigger';
+        trigger.setAttribute('aria-haspopup', 'listbox');
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.setAttribute('aria-controls', menuId);
 
         var chips = document.createElement('div');
         chips.className = 'hpf-multi__chips';
@@ -24,6 +28,9 @@
 
         var menu = document.createElement('div');
         menu.className = 'hpf-multi__menu';
+        menu.id = menuId;
+        menu.setAttribute('role', 'listbox');
+        menu.setAttribute('aria-multiselectable', 'true');
 
         var options = Array.prototype.slice.call(select.options).filter(function (opt) {
             return opt.value !== '';
@@ -45,27 +52,14 @@
                 return;
             }
 
-            selected.forEach(function (opt) {
-                var chip = document.createElement('span');
-                chip.className = 'hpf-multi__chip';
-                chip.textContent = opt.text;
-
-                var remove = document.createElement('button');
-                remove.type = 'button';
-                remove.className = 'hpf-multi__chip-remove';
-                remove.innerHTML = '&times;';
-                remove.setAttribute('aria-label', 'Quitar ' + opt.text);
-                remove.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    opt.selected = false;
-                    renderChips();
-                    renderMenu();
-                });
-
-                chip.appendChild(remove);
-                chips.appendChild(chip);
-            });
+            var summary = document.createElement('span');
+            summary.className = 'hpf-multi__summary';
+            if (selected.length === 1) {
+                summary.textContent = selected[0].text;
+            } else {
+                summary.textContent = selected.length + ' seleccionados';
+            }
+            chips.appendChild(summary);
         }
 
         function renderMenu() {
@@ -74,6 +68,8 @@
                 var item = document.createElement('button');
                 item.type = 'button';
                 item.className = 'hpf-multi__item' + (opt.selected ? ' is-selected' : '');
+                item.setAttribute('role', 'option');
+                item.setAttribute('aria-selected', opt.selected ? 'true' : 'false');
                 item.textContent = opt.text;
                 item.addEventListener('click', function (e) {
                     e.preventDefault();
@@ -85,13 +81,42 @@
             });
         }
 
+        function openMenu() {
+            wrapper.classList.add('is-open');
+            trigger.setAttribute('aria-expanded', 'true');
+        }
+
+        function closeMenu() {
+            wrapper.classList.remove('is-open');
+            trigger.setAttribute('aria-expanded', 'false');
+        }
+
         trigger.addEventListener('click', function () {
-            wrapper.classList.toggle('is-open');
+            if (wrapper.classList.contains('is-open')) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
         });
 
         document.addEventListener('click', function (e) {
             if (!wrapper.contains(e.target)) {
-                wrapper.classList.remove('is-open');
+                closeMenu();
+            }
+        });
+
+        wrapper.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeMenu();
+                trigger.focus();
+            }
+            if ((e.key === 'Enter' || e.key === ' ') && document.activeElement === trigger) {
+                e.preventDefault();
+                if (wrapper.classList.contains('is-open')) {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
             }
         });
 
@@ -130,20 +155,25 @@
             var action = form.getAttribute('action') || window.location.pathname;
             action = action.split('?')[0].replace(/\/+$/, '');
 
-            function firstOf(key) {
-                return values[key] && values[key].length ? values[key][0] : '';
+            function seoValueOf(key) {
+                if (!values[key] || !values[key].length) {
+                    return '';
+                }
+                return values[key].map(function (value) {
+                    return encodeURIComponent(value);
+                }).join(',');
             }
 
             var pathParts = [];
-            var gestion = firstOf('gestion');
-            var tipo = firstOf('tipo');
-            var ciudad = firstOf('ciudad');
-            var barrios = firstOf('barrios');
+            var gestion = seoValueOf('gestion');
+            var tipo = seoValueOf('tipo');
+            var ciudad = seoValueOf('ciudad');
+            var barrios = seoValueOf('barrios');
 
-            if (gestion) { pathParts.push('gestion', encodeURIComponent(gestion)); }
-            if (tipo) { pathParts.push('tipo', encodeURIComponent(tipo)); }
-            if (ciudad) { pathParts.push('ciudad', encodeURIComponent(ciudad)); }
-            if (barrios) { pathParts.push('barrios', encodeURIComponent(barrios)); }
+            if (gestion) { pathParts.push('gestion', gestion); }
+            if (tipo) { pathParts.push('tipo', tipo); }
+            if (ciudad) { pathParts.push('ciudad', ciudad); }
+            if (barrios) { pathParts.push('barrios', barrios); }
 
             var url = action + (pathParts.length ? '/' + pathParts.join('/') : '') + '/';
 
@@ -151,9 +181,6 @@
             Object.keys(values).forEach(function (key) {
                 if (!values[key] || !values[key].length) return;
                 if (key === 'gestion' || key === 'tipo' || key === 'ciudad' || key === 'barrios') {
-                    if (values[key].length > 1) {
-                        params.set(key, values[key].join(','));
-                    }
                     return;
                 }
 
@@ -175,6 +202,42 @@
         root.querySelectorAll('.property-filter-multiselect').forEach(createMultiSelect);
 
         root.querySelectorAll('.property-filter-widget form').forEach(bindFormSubmit);
+
+        root.querySelectorAll('.property-filter-widget--mobile-sidebar').forEach(function (widget) {
+            if (widget.dataset.mobileBound === '1') return;
+            widget.dataset.mobileBound = '1';
+
+            var openBtn = widget.querySelector('[data-mobile-filter-open]');
+            var closeBtn = widget.querySelector('[data-mobile-filter-close]');
+            var sidebar = widget.querySelector('[data-mobile-filter-sidebar]');
+            var overlay = widget.querySelector('[data-mobile-filter-overlay]');
+
+            if (!openBtn || !closeBtn || !sidebar || !overlay) return;
+
+            function openSidebar() {
+                widget.classList.add('is-mobile-open');
+                openBtn.setAttribute('aria-expanded', 'true');
+                overlay.hidden = false;
+                document.body.classList.add('homlity-mobile-filter-open');
+            }
+
+            function closeSidebar() {
+                widget.classList.remove('is-mobile-open');
+                openBtn.setAttribute('aria-expanded', 'false');
+                overlay.hidden = true;
+                document.body.classList.remove('homlity-mobile-filter-open');
+            }
+
+            openBtn.addEventListener('click', openSidebar);
+            closeBtn.addEventListener('click', closeSidebar);
+            overlay.addEventListener('click', closeSidebar);
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    closeSidebar();
+                }
+            });
+        });
     }
 
     function bindElementorHooks() {

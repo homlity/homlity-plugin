@@ -4,6 +4,8 @@ namespace Homlity\PluginInmobiliario\Integrations\Elementor\Widgets;
 
 use Homlity\PluginInmobiliario\Services\TemplateService;
 use Elementor\Controls_Manager;
+use Elementor\Group_Control_Border;
+use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Text_Shadow;
 use Elementor\Group_Control_Typography;
 
@@ -30,6 +32,9 @@ class PropertyContentWidget extends BasePropertyWidget
 
     protected function register_controls(): void
     {
+        $contentSelector = '{{WRAPPER}} .property-content-widget';
+        $contentTextSelector = '{{WRAPPER}} .property-content-widget, {{WRAPPER}} .property-content-widget p, {{WRAPPER}} .property-content-widget li, {{WRAPPER}} .property-content-widget span, {{WRAPPER}} .property-content-widget a, {{WRAPPER}} .property-content-widget strong, {{WRAPPER}} .property-content-widget em, {{WRAPPER}} .property-content-widget h1, {{WRAPPER}} .property-content-widget h2, {{WRAPPER}} .property-content-widget h3, {{WRAPPER}} .property-content-widget h4, {{WRAPPER}} .property-content-widget h5, {{WRAPPER}} .property-content-widget h6, {{WRAPPER}} .property-content-widget blockquote';
+
         $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-plugin')]);
         $this->register_property_control();
         $this->add_control('content_tag', [
@@ -45,10 +50,16 @@ class PropertyContentWidget extends BasePropertyWidget
             'type' => Controls_Manager::SWITCHER,
             'default' => 'no',
         ]);
-        $this->add_control('audio_player_label', [
-            'label' => __('Texto del reproductor', 'homlity-plugin'),
+        $this->add_control('audio_player_heading', [
+            'label' => __('Título (línea 1)', 'homlity-plugin'),
             'type' => Controls_Manager::TEXT,
-            'default' => __('Escuchar descripción', 'homlity-plugin'),
+            'default' => __('Escucha', 'homlity-plugin'),
+            'condition' => ['show_audio_player' => 'yes'],
+        ]);
+        $this->add_control('audio_player_label', [
+            'label' => __('Subtítulo (línea 2)', 'homlity-plugin'),
+            'type' => Controls_Manager::TEXT,
+            'default' => __('este inmueble', 'homlity-plugin'),
             'condition' => ['show_audio_player' => 'yes'],
         ]);
         $this->add_control('audio_default_rate', [
@@ -80,49 +91,216 @@ class PropertyContentWidget extends BasePropertyWidget
                 'right' => ['title' => __('Derecha', 'homlity-plugin'), 'icon' => 'eicon-text-align-right'],
                 'justify' => ['title' => __('Justificado', 'homlity-plugin'), 'icon' => 'eicon-text-align-justify'],
             ],
-            'selectors' => ['{{WRAPPER}} .property-content-widget' => 'text-align: {{VALUE}};'],
+            'selectors' => [$contentSelector => 'text-align: {{VALUE}};'],
         ]);
         $this->add_group_control(Group_Control_Typography::get_type(), [
             'name' => 'content_typography',
-            'selector' => '{{WRAPPER}} .property-content-widget',
+            'selector' => $contentTextSelector,
         ]);
         $this->add_group_control(Group_Control_Text_Shadow::get_type(), [
             'name' => 'content_text_shadow',
-            'selector' => '{{WRAPPER}} .property-content-widget',
+            'selector' => $contentTextSelector,
         ]);
         $this->add_control('content_stroke_width', [
             'label' => __('Trazo ancho (px)', 'homlity-plugin'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => ['px'],
             'range' => ['px' => ['min' => 0, 'max' => 4]],
-            'selectors' => ['{{WRAPPER}} .property-content-widget' => '-webkit-text-stroke-width: {{SIZE}}{{UNIT}};'],
+            'selectors' => [$contentTextSelector => '-webkit-text-stroke-width: {{SIZE}}{{UNIT}};'],
         ]);
         $this->add_control('content_stroke_color', [
             'label' => __('Trazo color', 'homlity-plugin'),
             'type' => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-content-widget' => '-webkit-text-stroke-color: {{VALUE}};'],
+            'selectors' => [$contentTextSelector => '-webkit-text-stroke-color: {{VALUE}};'],
         ]);
         $this->start_controls_tabs('content_states');
         $this->start_controls_tab('content_normal', ['label' => __('Normal', 'homlity-plugin')]);
         $this->add_control('content_color', [
             'label' => __('Color texto', 'homlity-plugin'),
             'type' => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-content-widget' => 'color: {{VALUE}};'],
+            'selectors' => [$contentTextSelector => 'color: {{VALUE}};'],
         ]);
         $this->end_controls_tab();
         $this->start_controls_tab('content_hover', ['label' => __('Hover', 'homlity-plugin')]);
         $this->add_control('content_color_hover', [
             'label' => __('Color texto (hover)', 'homlity-plugin'),
             'type' => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-content-widget:hover' => 'color: {{VALUE}};'],
+            'selectors' => [$contentSelector . ':hover, ' . $contentSelector . ':hover p, ' . $contentSelector . ':hover li, ' . $contentSelector . ':hover span, ' . $contentSelector . ':hover a, ' . $contentSelector . ':hover strong, ' . $contentSelector . ':hover em, ' . $contentSelector . ':hover h1, ' . $contentSelector . ':hover h2, ' . $contentSelector . ':hover h3, ' . $contentSelector . ':hover h4, ' . $contentSelector . ':hover h5, ' . $contentSelector . ':hover h6, ' . $contentSelector . ':hover blockquote' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('content_stroke_color_hover', [
             'label' => __('Trazo color (hover)', 'homlity-plugin'),
             'type' => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-content-widget:hover' => '-webkit-text-stroke-color: {{VALUE}};'],
+            'selectors' => [$contentSelector . ':hover, ' . $contentSelector . ':hover p, ' . $contentSelector . ':hover li, ' . $contentSelector . ':hover span, ' . $contentSelector . ':hover a, ' . $contentSelector . ':hover strong, ' . $contentSelector . ':hover em, ' . $contentSelector . ':hover h1, ' . $contentSelector . ':hover h2, ' . $contentSelector . ':hover h3, ' . $contentSelector . ':hover h4, ' . $contentSelector . ':hover h5, ' . $contentSelector . ':hover h6, ' . $contentSelector . ':hover blockquote' => '-webkit-text-stroke-color: {{VALUE}};'],
         ]);
         $this->end_controls_tab();
         $this->end_controls_tabs();
+        $this->end_controls_section();
+
+        $this->start_controls_section('style_audio_player', [
+            'label' => __('Estilos reproductor', 'homlity-plugin'),
+            'tab' => Controls_Manager::TAB_STYLE,
+            'condition' => ['show_audio_player' => 'yes'],
+        ]);
+        $this->add_group_control(Group_Control_Typography::get_type(), [
+            'name' => 'audio_player_typography',
+            'selector' => '{{WRAPPER}} .property-content-audio-bar, {{WRAPPER}} .property-content-audio-bar__heading, {{WRAPPER}} .property-content-audio-bar__sublabel, {{WRAPPER}} .property-content-audio-bar__time, {{WRAPPER}} .property-content-audio-bar__rate',
+        ]);
+        $this->add_responsive_control('audio_player_padding', [
+            'label' => __('Padding', 'homlity-plugin'),
+            'type' => Controls_Manager::DIMENSIONS,
+            'size_units' => ['px', '%', 'em', 'rem'],
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+            ],
+        ]);
+        $this->add_responsive_control('audio_player_radius', [
+            'label' => __('Radio de borde', 'homlity-plugin'),
+            'type' => Controls_Manager::DIMENSIONS,
+            'size_units' => ['px', '%'],
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+            ],
+        ]);
+        $this->add_group_control(Group_Control_Border::get_type(), [
+            'name' => 'audio_player_border',
+            'selector' => '{{WRAPPER}} .property-content-audio-bar',
+        ]);
+        $this->add_group_control(Group_Control_Box_Shadow::get_type(), [
+            'name' => 'audio_player_shadow',
+            'selector' => '{{WRAPPER}} .property-content-audio-bar',
+        ]);
+        $this->add_control('audio_player_background', [
+            'label' => __('Fondo', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+        $this->add_control('audio_player_text_color', [
+            'label' => __('Color texto', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar, {{WRAPPER}} .property-content-audio-bar__heading, {{WRAPPER}} .property-content-audio-bar__sublabel, {{WRAPPER}} .property-content-audio-bar__time, {{WRAPPER}} .property-content-audio-bar__rate' => 'color: {{VALUE}};',
+            ],
+        ]);
+        $this->add_control('audio_player_heading_color', [
+            'label' => __('Color título/subtítulo', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar__heading, {{WRAPPER}} .property-content-audio-bar__sublabel' => 'color: {{VALUE}};',
+            ],
+        ]);
+        $this->add_control('audio_player_time_color', [
+            'label' => __('Color tiempo', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar__time' => 'color: {{VALUE}};',
+            ],
+        ]);
+        $this->add_control('audio_player_rate_color', [
+            'label' => __('Color selector velocidad', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar__rate, {{WRAPPER}} .property-content-audio-bar__chevron' => 'color: {{VALUE}};',
+            ],
+        ]);
+        $this->add_control('audio_player_rate_bg', [
+            'label' => __('Fondo selector velocidad', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar__rate' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+        $this->add_control('audio_player_rate_border', [
+            'label' => __('Borde selector velocidad', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar__rate' => 'border-color: {{VALUE}};',
+            ],
+        ]);
+        $this->add_control('audio_player_button_heading', [
+            'label' => __('Botón reproducir/pausa', 'homlity-plugin'),
+            'type' => Controls_Manager::HEADING,
+            'separator' => 'before',
+        ]);
+        $this->start_controls_tabs('audio_player_button_tabs');
+        $this->start_controls_tab('audio_player_button_normal', [
+            'label' => __('Normal', 'homlity-plugin'),
+        ]);
+        $this->add_control('audio_player_button_color', [
+            'label' => __('Color icono', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar__play-btn' => 'color: {{VALUE}};',
+            ],
+        ]);
+        $this->add_control('audio_player_button_bg', [
+            'label' => __('Fondo', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar__play-btn' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+        $this->add_control('audio_player_button_border', [
+            'label' => __('Borde', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar__play-btn' => 'border-color: {{VALUE}};',
+            ],
+        ]);
+        $this->end_controls_tab();
+        $this->start_controls_tab('audio_player_button_hover', [
+            'label' => __('Hover/Activo', 'homlity-plugin'),
+        ]);
+        $this->add_control('audio_player_button_color_hover', [
+            'label' => __('Color icono', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar__play-btn:hover, {{WRAPPER}} .property-content-audio-bar__play-btn.is-playing' => 'color: {{VALUE}};',
+            ],
+        ]);
+        $this->add_control('audio_player_button_bg_hover', [
+            'label' => __('Fondo', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar__play-btn:hover, {{WRAPPER}} .property-content-audio-bar__play-btn.is-playing' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+        $this->add_control('audio_player_button_border_hover', [
+            'label' => __('Borde', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar__play-btn:hover, {{WRAPPER}} .property-content-audio-bar__play-btn.is-playing' => 'border-color: {{VALUE}};',
+            ],
+        ]);
+        $this->end_controls_tab();
+        $this->end_controls_tabs();
+        $this->add_control('audio_player_progress_heading', [
+            'label' => __('Barra de progreso', 'homlity-plugin'),
+            'type' => Controls_Manager::HEADING,
+            'separator' => 'before',
+        ]);
+        $this->add_control('audio_player_track_color', [
+            'label' => __('Color pista', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar__track' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+        $this->add_control('audio_player_progress_color', [
+            'label' => __('Color progreso', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar__progress' => 'background-color: {{VALUE}};',
+            ],
+        ]);
+        $this->add_control('audio_player_thumb_color', [
+            'label' => __('Color indicador', 'homlity-plugin'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-content-audio-bar__thumb' => 'background-color: {{VALUE}};',
+            ],
+        ]);
         $this->end_controls_section();
     }
 
@@ -148,11 +326,12 @@ class PropertyContentWidget extends BasePropertyWidget
         }
 
         TemplateService::includeComponent('property-content.php', [
-            'post_id' => $this->current_property_id(),
-            'content_tag' => $settings['content_tag'] ?? 'div',
-            'show_audio_player' => $showAudio,
-            'audio_player_label' => (string) ($settings['audio_player_label'] ?? __('Escuchar descripción', 'homlity-plugin')),
-            'audio_default_rate' => (float) ($settings['audio_default_rate'] ?? 1),
+            'post_id'              => $this->current_property_id(),
+            'content_tag'          => $settings['content_tag'] ?? 'div',
+            'show_audio_player'    => $showAudio,
+            'audio_player_heading' => (string) ($settings['audio_player_heading'] ?? __('Escucha', 'homlity-plugin')),
+            'audio_player_label'   => (string) ($settings['audio_player_label'] ?? __('este inmueble', 'homlity-plugin')),
+            'audio_default_rate'   => (float) ($settings['audio_default_rate'] ?? 1),
         ]);
     }
 }

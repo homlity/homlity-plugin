@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <div class="card-inmueble ">
     <?php 
         $passwordRequired = homlity_property_required_password_in_tag($inmueble);

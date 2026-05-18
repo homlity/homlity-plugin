@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php if ($conVideo): ?>
       <li class="nav-item" role="presentation">
     <button onclick="gtag('event', 'wp_property_tab_video', {

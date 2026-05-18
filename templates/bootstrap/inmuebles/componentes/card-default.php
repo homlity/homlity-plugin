@@ -1,15 +1,16 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <article itemprop="itemListElement" itemscope
-    itemtype="<?php echo homlity_get_sheme_type_name_from_property($inmueble->tipoInmueble()->codigo()); ?>"
+    itemtype="<?php echo esc_attr( homlity_get_sheme_type_name_from_property($inmueble->tipoInmueble()->codigo()) ); ?>"
     class="card card-space" style="width: 100%; position: relative;">
     <?php if (isset($cont)) {
         ?>
-        <meta itemprop="position" content="<?php echo $cont; ?>" />
+        <meta itemprop="position" content="<?php echo esc_attr( $cont ); ?>" />
         <?php
     }
     ?>
 
     <meta itemprop="availability" content="https://schema.org/InStock" />
-    <meta itemprop="url" content="<?php echo visualinmu_route_detalleInmueble($inmueble->slug()); ?>" />
+    <meta itemprop="url" content="<?php echo esc_url( visualinmu_route_detalleInmueble($inmueble->slug()) ); ?>" />
 
 
     <div itemprop="aggregateRating" itemtype="https://schema.org/AggregateRating" itemscope>
@@ -19,7 +20,7 @@
     <div itemprop="review" itemtype="https://schema.org/Review" itemscope>
         <?php if (method_exists($inmueble, "asesor") && $inmueble->asesor()) { ?>
             <div itemprop="author" itemtype="https://schema.org/Person" itemscope>
-                <meta itemprop="name" content="<?php echo $inmueble->asesor()->nombre() ?>" />
+                <meta itemprop="name" content="<?php echo esc_attr( $inmueble->asesor()->nombre() ); ?>" />
             </div>
         <?php } ?>
         <div itemprop="reviewRating" itemtype="https://schema.org/Rating" itemscope>
@@ -28,14 +29,14 @@
         </div>
     </div>
     <a target="_blank"
-        onclick="gtag('event', 'property_open', { 'origin': 'card', 'label': 'property_open', 'value': '<?php echo $inmueble->nombre(); ?>' });"
-       title="<?php echo $inmueble->nombre(); ?>"
-        href="<?php echo visualinmu_route_detalleInmueble($inmueble->slug()); ?>" class="inmueblelink">
+        onclick="gtag('event', 'property_open', { 'origin': 'card', 'label': 'property_open', 'value': '<?php echo esc_js( $inmueble->nombre() ); ?>' });"
+       title="<?php echo esc_attr( $inmueble->nombre() ); ?>"
+        href="<?php echo esc_url( visualinmu_route_detalleInmueble($inmueble->slug()) ); ?>" class="inmueblelink">
 
         <div class="position-relative">
             <!-- Imagen real -->
-            <img src="<?php echo $inmueble->fotoPortada(); ?>" alt="<?php echo $inmueble->nombre(); ?>"
-                title="<?php echo $inmueble->nombre(); ?>" class="card-img-top" itemprop="image"
+            <img src="<?php echo esc_url( $inmueble->fotoPortada() ); ?>" alt="<?php echo esc_attr( $inmueble->nombre() ); ?>"
+                title="<?php echo esc_attr( $inmueble->nombre() ); ?>" class="card-img-top" itemprop="image"
                 style="height: 35vh; object-fit: cover; width: 100%; background-color: #f0f0f0;"
                 onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';">
 

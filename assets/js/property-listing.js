@@ -19,6 +19,7 @@
         this.presetOperation  = el.dataset.presetOperation || '';
         this.presetType       = el.dataset.presetType || '';
         this.presetTag        = el.dataset.presetTag || '';
+        this.presetTagIds     = el.dataset.presetTagIds || '';
         this.presetFeature    = el.dataset.presetFeature || '';
         this.presetCountry    = el.dataset.presetCountry || '';
         this.presetState      = el.dataset.presetState || '';
@@ -47,6 +48,7 @@
         this.nearby           = el.dataset.nearby || '';
         this.cardMediaMode    = el.dataset.cardMediaMode || 'single';
         this.cardVisualPreset = el.dataset.cardVisualPreset || 'default';
+        this.cardHoverEffect  = el.dataset.cardHoverEffect || 'lift';
         this.cardShowTitle    = el.dataset.cardShowTitle || '1';
         this.cardShowExcerpt  = el.dataset.cardShowExcerpt || '1';
         this.cardShowOperation = el.dataset.cardShowOperation || '1';
@@ -54,6 +56,9 @@
         this.cardShowFeatures = el.dataset.cardShowFeatures || '1';
         this.cardShowWhatsapp = el.dataset.cardShowWhatsapp || '1';
         this.cardWhatsappLabel = el.dataset.cardWhatsappLabel || '';
+        this.cardWhatsappShowIcon = el.dataset.cardWhatsappShowIcon || '1';
+        this.cardWhatsappIconPosition = el.dataset.cardWhatsappIconPosition || 'left';
+        this.cardWhatsappIcon = el.dataset.cardWhatsappIcon || '{}';
         this.cardFeatureArea = el.dataset.cardFeatureArea || '1';
         this.cardFeatureBedrooms = el.dataset.cardFeatureBedrooms || '1';
         this.cardFeatureBathrooms = el.dataset.cardFeatureBathrooms || '1';
@@ -64,6 +69,16 @@
         this.cardFeatureAge = el.dataset.cardFeatureAge || '1';
         this.cardFeatureCondition = el.dataset.cardFeatureCondition || '1';
         this.cardFeatureCode = el.dataset.cardFeatureCode || '1';
+        this.cardFeatureIconArea = el.dataset.cardFeatureIconArea || 'grid';
+        this.cardFeatureIconBedrooms = el.dataset.cardFeatureIconBedrooms || 'bed';
+        this.cardFeatureIconBathrooms = el.dataset.cardFeatureIconBathrooms || 'bath';
+        this.cardFeatureIconParking = el.dataset.cardFeatureIconParking || 'car';
+        this.cardFeatureIconAreaLot = el.dataset.cardFeatureIconAreaLot || 'lot';
+        this.cardFeatureIconAreaPrivate = el.dataset.cardFeatureIconAreaPrivate || 'home';
+        this.cardFeatureIconAreaBuilt = el.dataset.cardFeatureIconAreaBuilt || 'ruler';
+        this.cardFeatureIconAge = el.dataset.cardFeatureIconAge || 'clock';
+        this.cardFeatureIconCondition = el.dataset.cardFeatureIconCondition || 'diamond';
+        this.cardFeatureIconCode = el.dataset.cardFeatureIconCode || 'hash';
         this.listTabId        = el.dataset.listTabId || '';
         this.mapTabId         = el.dataset.mapTabId || '';
         this.currentPage      = 1;
@@ -126,14 +141,43 @@
             var nextEl = sliderNode.querySelector('.swiper-button-next');
             var prevEl = sliderNode.querySelector('.swiper-button-prev');
 
-            new window.Swiper(sliderNode, {
+            var swiper = new window.Swiper(sliderNode, {
                 slidesPerView: 1,
                 spaceBetween: 0,
                 loop: true,
                 speed: 420,
+                watchOverflow: true,
+                observer: true,
+                observeParents: true,
+                allowTouchMove: true,
+                grabCursor: true,
                 pagination: paginationEl ? { el: paginationEl, clickable: true } : undefined,
                 navigation: (nextEl && prevEl) ? { nextEl: nextEl, prevEl: prevEl } : undefined
             });
+
+            // Slider is nested inside a card link; prevent accidental navigation
+            // when interacting with slider controls.
+            sliderNode.addEventListener('click', function (e) {
+                if (e.target.closest('.swiper-button-next, .swiper-button-prev, .swiper-pagination, .swiper-pagination-bullet')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+
+            var moved = false;
+            swiper.on('touchMove', function () {
+                moved = true;
+            });
+            swiper.on('sliderFirstMove', function () {
+                moved = true;
+            });
+            sliderNode.addEventListener('click', function (e) {
+                if (moved) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    moved = false;
+                }
+            }, true);
 
             sliderNode.dataset.swiperReady = '1';
         });
@@ -264,6 +308,7 @@
             preset_operation:  this.presetOperation,
             preset_type:       this.presetType,
             preset_tag:        this.presetTag,
+            preset_tag_ids:    this.presetTagIds,
             preset_feature:    this.presetFeature,
             preset_country:    this.presetCountry,
             preset_state:      this.presetState,
@@ -292,6 +337,7 @@
             nearby:            this.nearby,
             card_media_mode:   this.cardMediaMode,
             card_visual_preset: this.cardVisualPreset,
+            card_hover_effect: this.cardHoverEffect,
             card_show_title:   this.cardShowTitle,
             card_show_excerpt: this.cardShowExcerpt,
             card_show_operation: this.cardShowOperation,
@@ -299,6 +345,9 @@
             card_show_features: this.cardShowFeatures,
             card_show_whatsapp: this.cardShowWhatsapp,
             card_whatsapp_label: this.cardWhatsappLabel,
+            card_whatsapp_show_icon: this.cardWhatsappShowIcon,
+            card_whatsapp_icon_position: this.cardWhatsappIconPosition,
+            card_whatsapp_icon: this.cardWhatsappIcon,
             card_feature_area: this.cardFeatureArea,
             card_feature_bedrooms: this.cardFeatureBedrooms,
             card_feature_bathrooms: this.cardFeatureBathrooms,
@@ -309,6 +358,16 @@
             card_feature_age: this.cardFeatureAge,
             card_feature_condition: this.cardFeatureCondition,
             card_feature_code: this.cardFeatureCode,
+            card_feature_icon_area: this.cardFeatureIconArea,
+            card_feature_icon_bedrooms: this.cardFeatureIconBedrooms,
+            card_feature_icon_bathrooms: this.cardFeatureIconBathrooms,
+            card_feature_icon_parking: this.cardFeatureIconParking,
+            card_feature_icon_area_lot: this.cardFeatureIconAreaLot,
+            card_feature_icon_area_private: this.cardFeatureIconAreaPrivate,
+            card_feature_icon_area_built: this.cardFeatureIconAreaBuilt,
+            card_feature_icon_age: this.cardFeatureIconAge,
+            card_feature_icon_condition: this.cardFeatureIconCondition,
+            card_feature_icon_code: this.cardFeatureIconCode,
         }, formParams));
 
         this._setLoading(true);

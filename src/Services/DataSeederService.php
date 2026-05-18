@@ -166,6 +166,8 @@ class DataSeederService
 
         $this->seedArchiveElementorPage();
         $this->seedSingleElementorTemplate();
+        $this->seedAgentProfileElementorPage();
+        $this->seedUnavailableElementorPage();
     }
 
     private function seedArchivePage(): void
@@ -332,6 +334,143 @@ class DataSeederService
         foreach ($duplicateIds as $id) {
             wp_trash_post((int) $id);
         }
+    }
+
+    private function seedAgentProfileElementorPage(): void
+    {
+        $optionKey = 'homlity_plugin_agent_profile_page_id';
+        $pageId = (int) get_option($optionKey, 0);
+
+        if ($pageId > 0 && in_array(get_post_status($pageId), ['publish', 'draft', 'pending'], true)) {
+            return;
+        }
+
+        $existing = get_posts([
+            'name' => 'perfil-asesor',
+            'post_type' => 'page',
+            'post_status' => ['publish', 'draft', 'pending'],
+            'posts_per_page' => 1,
+            'no_found_rows' => true,
+            'fields' => 'ids',
+        ]);
+
+        if (!empty($existing)) {
+            $pageId = (int) $existing[0];
+            update_option($optionKey, $pageId);
+        } else {
+            $pageId = wp_insert_post([
+                'post_title' => __('Perfil del asesor', 'homlity-plugin'),
+                'post_name' => 'perfil-asesor',
+                'post_content' => '',
+                'post_status' => 'publish',
+                'post_type' => 'page',
+                'comment_status' => 'closed',
+                'ping_status' => 'closed',
+            ]);
+            if (is_wp_error($pageId) || !$pageId) {
+                return;
+            }
+            update_option($optionKey, (int) $pageId);
+        }
+
+        if (
+            (int) get_option('homlity_plugin_agent_profile_elementor_page_id', 0) === (int) $pageId &&
+            get_post_meta((int) $pageId, '_elementor_edit_mode', true) === 'builder'
+        ) {
+            return;
+        }
+
+        $data = [
+            $this->elementorSection([
+                $this->elementorWidget('shortcode', [
+                    'shortcode' => '[homlity_agent_profile]',
+                ]),
+            ]),
+        ];
+
+        $this->saveElementorData((int) $pageId, $data, 'wp-page');
+        update_option('homlity_plugin_agent_profile_elementor_page_id', (int) $pageId);
+    }
+
+    private function seedUnavailableElementorPage(): void
+    {
+        $optionKey = 'homlity_plugin_unavailable_template_id';
+        $pageId = (int) get_option($optionKey, 0);
+
+        if ($pageId > 0 && in_array(get_post_status($pageId), ['publish', 'draft', 'pending'], true)) {
+            return;
+        }
+
+        $existing = get_posts([
+            'name' => 'inmueble-no-disponible',
+            'post_type' => 'page',
+            'post_status' => ['publish', 'draft', 'pending'],
+            'posts_per_page' => 1,
+            'no_found_rows' => true,
+            'fields' => 'ids',
+        ]);
+
+        if (!empty($existing)) {
+            $pageId = (int) $existing[0];
+            update_option($optionKey, $pageId);
+        } else {
+            $pageId = wp_insert_post([
+                'post_title' => __('Inmueble no disponible', 'homlity-plugin'),
+                'post_name' => 'inmueble-no-disponible',
+                'post_content' => '',
+                'post_status' => 'publish',
+                'post_type' => 'page',
+                'comment_status' => 'closed',
+                'ping_status' => 'closed',
+            ]);
+            if (is_wp_error($pageId) || !$pageId) {
+                return;
+            }
+            update_option($optionKey, (int) $pageId);
+        }
+
+        if ((string) get_option('homlity_plugin_unavailable_page_layout', '') === '') {
+            update_option('homlity_plugin_unavailable_page_layout', 'elementor_canvas');
+        }
+
+        if (
+            (int) get_option('homlity_plugin_unavailable_elementor_page_id', 0) === (int) $pageId &&
+            get_post_meta((int) $pageId, '_elementor_edit_mode', true) === 'builder'
+        ) {
+            return;
+        }
+
+        $archivePageId = (int) get_option('homlity_plugin_archive_page_id', 0);
+        $archiveUrl = $archivePageId > 0 ? get_permalink($archivePageId) : home_url('/inmuebles/');
+        $buttonUrl = $archiveUrl ? $archiveUrl : home_url('/inmuebles/');
+
+        $data = [
+            $this->elementorSection([
+                $this->elementorWidget('heading', [
+                    'title' => __('Inmueble no disponible', 'homlity-plugin'),
+                    'header_size' => 'h1',
+                    'align' => 'center',
+                ]),
+                $this->elementorWidget('text-editor', [
+                    'editor' => __('El inmueble que buscas fue retirado o está fuera de publicación. Explora otras opciones disponibles.', 'homlity-plugin'),
+                    'align' => 'center',
+                ]),
+                $this->elementorWidget('button', [
+                    'text' => __('Ver otros inmuebles', 'homlity-plugin'),
+                    'link' => [
+                        'url' => $buttonUrl,
+                        'is_external' => '',
+                        'nofollow' => '',
+                        'custom_attributes' => '',
+                    ],
+                    'align' => 'center',
+                    'size' => 'md',
+                ]),
+            ]),
+        ];
+
+        $this->saveElementorData((int) $pageId, $data, 'wp-page');
+        update_option('homlity_plugin_unavailable_elementor_page_id', (int) $pageId);
     }
 
     private function saveElementorData(int $postId, array $data, string $templateType): void

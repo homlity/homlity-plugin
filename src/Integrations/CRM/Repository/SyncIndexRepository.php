@@ -20,7 +20,7 @@ class SyncIndexRepository
     {
         global $wpdb;
 
-        $table = $this->tableName();
+        $table = esc_sql($this->tableName());
         $charsetCollate = $wpdb->get_charset_collate();
 
         $sql = "CREATE TABLE {$table} (
@@ -54,7 +54,7 @@ class SyncIndexRepository
             return;
         }
 
-        $table = $this->tableName();
+        $table = esc_sql($this->tableName());
         $now = gmdate('Y-m-d H:i:s');
         $sourceUpdatedAtSql = $this->normalizeDateForSql($sourceUpdatedAt);
 
@@ -88,7 +88,7 @@ class SyncIndexRepository
     {
         global $wpdb;
 
-        $table = $this->tableName();
+        $table = esc_sql($this->tableName());
         $sourceKey = sanitize_key($sourceKey);
         $externalId = sanitize_text_field($externalId);
 

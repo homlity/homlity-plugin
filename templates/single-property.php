@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
 /**
  * Single property template.
@@ -8,7 +9,12 @@ use Homlity\PluginInmobiliario\Services\CurrencyService;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\TemplateService;
 
-get_header();
+$singleLayout = (string) get_option('homlity_plugin_single_page_layout', 'default');
+$isCanvasLayout = ($singleLayout === 'elementor_canvas');
+
+if (!$isCanvasLayout) {
+    get_header();
+}
 
 if (function_exists('elementor_theme_do_location') && elementor_theme_do_location('single')) {
     get_footer();
@@ -21,8 +27,10 @@ if (
     get_post_status($homlityElementorTemplateId) &&
     class_exists('\Elementor\Plugin')
 ) {
-    echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($homlityElementorTemplateId);
-    get_footer();
+    echo wp_kses_post( \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($homlityElementorTemplateId) );
+    if (!$isCanvasLayout) {
+        get_footer();
+    }
     return;
 }
 
@@ -92,4 +100,6 @@ $agentUser = $agentId ? get_user_by('id', $agentId) : null;
 </main>
 
 <?php
-get_footer();
+if (!$isCanvasLayout) {
+    get_footer();
+}

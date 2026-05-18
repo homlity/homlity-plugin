@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
 /**
  * Operation & price component.
@@ -21,12 +22,32 @@ $s               = $settings ?? [];
 $operations    = wp_get_post_terms($post_id, PropertyTaxonomies::TAXONOMY_OPERATION);
 $operationName = (!is_wp_error($operations) && !empty($operations)) ? $operations[0]->name : '';
 
+$opSlug     = mb_strtolower($operationName);
+$isVenta    = str_contains($opSlug, 'venta');
+$isArriendo = str_contains($opSlug, 'arriendo');
+$hideZero   = ($s['hide_zero_values'] ?? 'no') === 'yes';
+
+// Price keys visible for this operation type; if unknown, show all
+if (!$isVenta && !$isArriendo) {
+    $shownPrices = ['price_sale', 'price_rent', 'price_admin'];
+} else {
+    $shownPrices = ['price_admin'];
+    if ($isVenta)    $shownPrices[] = 'price_sale';
+    if ($isArriendo) $shownPrices[] = 'price_rent';
+}
+
 $priceSale    = get_post_meta($post_id, $meta['price_sale'],    true);
 $currencySale = get_post_meta($post_id, $meta['currency_sale'], true) ?: $currencyService->baseCurrency();
 $priceRent    = get_post_meta($post_id, $meta['price_rent'],    true);
 $currencyRent = get_post_meta($post_id, $meta['currency_rent'], true) ?: $currencyService->baseCurrency();
 $priceAdmin   = get_post_meta($post_id, $meta['price_admin'],   true);
 $currencyAdmin = get_post_meta($post_id, $meta['currency_admin'], true) ?: $currencyService->baseCurrency();
+
+$rawPrices = [
+    'price_sale'  => $priceSale,
+    'price_rent'  => $priceRent,
+    'price_admin' => $priceAdmin,
+];
 
 $items = [
     'operation'   => [
@@ -60,6 +81,12 @@ $items = [
             continue;
         }
         if ($item['value'] === '' || $item['value'] === null) {
+            continue;
+        }
+        if ($key !== 'operation' && !in_array($key, $shownPrices, true)) {
+            continue;
+        }
+        if ($hideZero && isset($rawPrices[$key]) && (float) ($rawPrices[$key] ?? 0) === 0.0) {
             continue;
         }
         $icon = $s['icon_' . $key] ?? [];

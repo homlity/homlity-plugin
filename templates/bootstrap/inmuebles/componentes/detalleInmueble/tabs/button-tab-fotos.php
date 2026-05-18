@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 
     <?php if (($conVideo || $conVideo360 || $conFotos360)) { ?>
          <li class="nav-item" role="presentation">

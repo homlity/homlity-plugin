@@ -1,7 +1,8 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
 
-use Codwelt\VisualInmueble\Core\Modelos\Inmueble;
-use Codwelt\VisualInmueble\Core\Modelos\InmueblePreview;
+use Codwelt\homlity-plugin\Core\Modelos\Inmueble;
+use Codwelt\homlity-plugin\Core\Modelos\InmueblePreview;
 ?> <div>
     <div class="card-inmueble h-100  d-flex align-items-stretch">
         <div class="card card-space h-100 " style="width: 100%;">

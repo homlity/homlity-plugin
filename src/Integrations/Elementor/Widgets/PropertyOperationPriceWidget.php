@@ -44,6 +44,13 @@ class PropertyOperationPriceWidget extends BasePropertyWidget
         $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-plugin')]);
         $this->register_property_control();
 
+        $this->add_control('hide_zero_values', [
+            'label'     => __('Ocultar valores en 0', 'homlity-plugin'),
+            'type'      => Controls_Manager::SWITCHER,
+            'default'   => 'no',
+            'separator' => 'before',
+        ]);
+
         foreach ($this->itemsConfig() as $key => $item) {
             $this->add_control('show_' . $key, [
                 'label'     => $item['label'],

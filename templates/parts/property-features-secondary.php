@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
 /**
  * Secondary features component.
@@ -15,8 +16,6 @@ if (!isset($post_id)) {
 
 $meta       = (new PropertyPostType())->metaKeys();
 $iconHtml   = $item_icon_html ?? '';
-$lat        = get_post_meta($post_id, $meta['latitude'],  true);
-$lng        = get_post_meta($post_id, $meta['longitude'], true);
 $features   = wp_get_post_terms($post_id, PropertyTaxonomies::TAXONOMY_FEATURE);
 $nearby     = wp_get_post_terms($post_id, PropertyTaxonomies::TAXONOMY_NEARBY);
 
@@ -40,23 +39,25 @@ if ($features && !is_wp_error($features)) {
 
 $items = [];
 
-if ($lat && $lng) {
-    $items[] = ['label' => __('Coordenadas', 'homlity-plugin'), 'value' => $lat . ', ' . $lng];
-}
-
 $operationTerms = get_the_terms($post_id, PropertyTaxonomies::TAXONOMY_OPERATION);
 if ($operationTerms && !is_wp_error($operationTerms)) {
     $items[] = ['label' => __('Gestión', 'homlity-plugin'), 'value' => implode(', ', wp_list_pluck($operationTerms, 'name'))];
 }
 
 if ($featureGroups['interior']) {
-    $items[] = ['label' => __('Características interiores', 'homlity-plugin'), 'value' => implode(', ', $featureGroups['interior'])];
+    foreach ($featureGroups['interior'] as $featureName) {
+        $items[] = ['label' => __('Características interiores', 'homlity-plugin'), 'value' => $featureName];
+    }
 }
 if ($featureGroups['exterior']) {
-    $items[] = ['label' => __('Características exteriores', 'homlity-plugin'), 'value' => implode(', ', $featureGroups['exterior'])];
+    foreach ($featureGroups['exterior'] as $featureName) {
+        $items[] = ['label' => __('Características exteriores', 'homlity-plugin'), 'value' => $featureName];
+    }
 }
 if ($featureGroups['other']) {
-    $items[] = ['label' => __('Otras características', 'homlity-plugin'), 'value' => implode(', ', $featureGroups['other'])];
+    foreach ($featureGroups['other'] as $featureName) {
+        $items[] = ['label' => '', 'value' => $featureName];
+    }
 }
 if ($nearby && !is_wp_error($nearby)) {
     $items[] = ['label' => __('Lugares cercanos', 'homlity-plugin'), 'value' => implode(', ', wp_list_pluck($nearby, 'name'))];
@@ -73,7 +74,9 @@ if (empty($items)) {
                 <span class="property-features__icon"><?php echo $iconHtml; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
             <?php endif; ?>
             <span class="property-features__text">
-                <strong class="property-features__label"><?php echo esc_html($item['label']); ?>:</strong>
+                <?php if ($item['label'] !== ''): ?>
+                    <strong class="property-features__label"><?php echo esc_html($item['label']); ?>:</strong>
+                <?php endif; ?>
                 <?php echo esc_html($item['value']); ?>
             </span>
         </li>

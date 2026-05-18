@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Homlity Plugin
  * Description: Homlity Plugin, gestor de inmuebles, asesores y SEO listo para WordPress.
- * Version:     0.3.0
+ * Version:     11.1.3
  * Author:      Ecosistema Inmobiliario Homlity
  * Plugin URI:  https://github.com/homlity/homlity-plugin
  * Text Domain: homlity-plugin
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 define('HOMLITY_PLUGIN_FILE', __FILE__);
 define('HOMLITY_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('HOMLITY_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('HOMLITY_PLUGIN_VERSION', '0.3.0');
+define('HOMLITY_PLUGIN_VERSION', '11.1.2');
 define('HOMLITY_PLUGIN_SLUG', 'homlity-plugin');
 define('HOMLITY_PLUGIN_TEXT_DOMAIN', 'homlity-plugin');
 define('HOMLITY_PLUGIN_SETTINGS_OPTION', 'homlity_plugin_settings');
@@ -142,6 +142,9 @@ register_activation_hook(__FILE__, static function () {
     (new Homlity\PluginInmobiliario\Services\CapabilityService())->ensureCaps();
 
     (new Homlity\PluginInmobiliario\Services\DataSeederService())->seed();
+
+    // Create homologation table (safe: uses IF NOT EXISTS via dbDelta).
+    Homlity\PluginInmobiliario\Homologation\HomologationRepository::createTable();
 
     flush_rewrite_rules();
 });

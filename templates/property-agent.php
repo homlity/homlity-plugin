@@ -1,10 +1,10 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
 /**
  * Agent profile page, reachable via /property-agent/{user_nicename}.
  * Can be overridden in theme at homlity-plugin/property-agent.php
  */
 
-use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\TemplateService;
 
 get_header();
@@ -18,48 +18,24 @@ if (!$agent) {
     return;
 }
 
-$agent_query = new WP_Query([
-    'post_type' => PropertyPostType::POST_TYPE,
-    'posts_per_page' => 12,
-    'meta_query' => [
-        [
-            'key' => '_property_agent_id',
-            'value' => $agent->ID,
-        ],
-    ],
-    'paged' => get_query_var('paged') ?: 1,
-]);
-?>
-<main class="property-agent">
-    <header class="property-agent__header">
-        <div class="property-agent__avatar">
-            <?php echo get_avatar($agent->ID, 128); ?>
-        </div>
-        <div class="property-agent__info">
-            <h1><?php echo esc_html($agent->display_name); ?></h1>
-            <p><?php echo esc_html($agent->user_email); ?></p>
-        </div>
-    </header>
+$elementorPageId = (int) get_option('homlity_plugin_agent_profile_page_id', 0);
+$rendered = false;
 
-    <?php if ($agent_query->have_posts()) : ?>
-        <h2><?php esc_html_e('Inmuebles del asesor', 'homlity-plugin'); ?></h2>
-        <div class="property-agent__grid">
-            <?php while ($agent_query->have_posts()) : $agent_query->the_post(); ?>
-                <?php TemplateService::includeComponent('property-card.php', ['post_id' => get_the_ID()]); ?>
-            <?php endwhile; ?>
-        </div>
-        <div class="property-agent__pagination">
-            <?php
-            echo paginate_links([
-                'total' => $agent_query->max_num_pages,
-            ]);
-            ?>
-        </div>
-        <?php wp_reset_postdata(); ?>
-    <?php else : ?>
-        <p><?php esc_html_e('No hay inmuebles publicados por este asesor.', 'homlity-plugin'); ?></p>
-    <?php endif; ?>
-</main>
+if (
+    $elementorPageId > 0
+    && get_post_status($elementorPageId)
+    && class_exists('\Elementor\Plugin')
+) {
+    $content = \Elementor\Plugin::instance()->frontend->get_builder_content_for_display($elementorPageId, true);
+    if (is_string($content) && trim($content) !== '') {
+        echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        $rendered = true;
+    }
+}
 
-<?php
+if (!$rendered) {
+    TemplateService::includeComponent('agent-profile-content.php');
+}
+
 get_footer();
+

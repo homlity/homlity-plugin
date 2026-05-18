@@ -13,7 +13,10 @@ if (!defined('ABSPATH')) {
 
 class PropertySearchService implements ServiceInterface
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        add_filter('posts_clauses', [$this, 'applyPriorityKeywordSearch'], 20, 2);
+    }
 
     public function buildQueryArgs(array $params): array
     {
@@ -31,8 +34,35 @@ class PropertySearchService implements ServiceInterface
             'meta_query'     => ['relation' => 'AND'],
         ];
 
+        // Mostrar únicamente inmuebles activos/disponibles.
+        // Si el meta no existe (carga manual o integraciones antiguas), se permite.
+        $args['meta_query'][] = [
+            'relation' => 'OR',
+            [
+                'key' => '_property_status',
+                'compare' => 'NOT EXISTS',
+            ],
+            [
+                'key' => '_property_status',
+                'value' => 'active',
+                'compare' => '=',
+            ],
+        ];
+        $args['meta_query'][] = [
+            'relation' => 'OR',
+            [
+                'key' => '_property_available',
+                'compare' => 'NOT EXISTS',
+            ],
+            [
+                'key' => '_property_available',
+                'value' => ['1', 'true', 'yes', 'active'],
+                'compare' => 'IN',
+            ],
+        ];
+
         if (!empty($params['search'])) {
-            $args['s'] = sanitize_text_field((string) $params['search']);
+            $args['homlity_keyword_search'] = sanitize_text_field((string) $params['search']);
         }
 
         $taxMap = [
@@ -54,7 +84,10 @@ class PropertySearchService implements ServiceInterface
 
         // User filter terms
         foreach ($taxMap as $key => $taxonomy) {
-            $termIds = $this->extractTermIds($params[$key] ?? null);
+            $termIds = $this->filterExistingTermIds(
+                $this->extractTermIds($params[$key] ?? null),
+                $taxonomy
+            );
             if ($termIds) {
                 $args['tax_query'][] = [
                     'taxonomy' => $taxonomy,
@@ -68,7 +101,7 @@ class PropertySearchService implements ServiceInterface
         foreach ($taxMap as $key => $taxonomy) {
             $presetKey = 'preset_' . $key;
             $presetId = absint($params[$presetKey] ?? 0);
-            if ($presetId) {
+            if ($presetId && term_exists($presetId, $taxonomy)) {
                 // Remove any user-supplied filter for the same taxonomy
                 foreach ($args['tax_query'] as $i => $clause) {
                     if (is_array($clause) && ($clause['taxonomy'] ?? '') === $taxonomy) {
@@ -79,6 +112,25 @@ class PropertySearchService implements ServiceInterface
                     'taxonomy' => $taxonomy,
                     'field'    => 'term_id',
                     'terms'    => [$presetId],
+                ];
+            }
+        }
+
+        // Multi-tag preset from widgets/builders.
+        $presetTagIds = array_values(array_filter(array_map('absint', (array) ($params['preset_tag_ids'] ?? []))));
+        if (!empty($presetTagIds)) {
+            $presetTagIds = $this->filterExistingTermIds($presetTagIds, PropertyTaxonomies::TAXONOMY_TAG);
+            if (!empty($presetTagIds)) {
+                foreach ($args['tax_query'] as $i => $clause) {
+                    if (is_array($clause) && ($clause['taxonomy'] ?? '') === PropertyTaxonomies::TAXONOMY_TAG) {
+                        unset($args['tax_query'][$i]);
+                    }
+                }
+                $args['tax_query'][] = [
+                    'taxonomy' => PropertyTaxonomies::TAXONOMY_TAG,
+                    'field'    => 'term_id',
+                    'terms'    => $presetTagIds,
+                    'operator' => 'IN',
                 ];
             }
         }
@@ -200,6 +252,90 @@ class PropertySearchService implements ServiceInterface
         }
 
         return $args;
+    }
+
+    public function applyPriorityKeywordSearch(array $clauses, \WP_Query $query): array
+    {
+        $rawTerm = $query->get('homlity_keyword_search');
+        if (!is_string($rawTerm) || $rawTerm === '') {
+            return $clauses;
+        }
+
+        if ($query->get('post_type') !== PropertyPostType::POST_TYPE) {
+            return $clauses;
+        }
+
+        global $wpdb;
+
+        $term = sanitize_text_field($rawTerm);
+        if ($term === '') {
+            return $clauses;
+        }
+
+        $likeAny = '%' . $wpdb->esc_like($term) . '%';
+        $likePrefix = $wpdb->esc_like($term) . '%';
+
+        $clauses['join'] .= " LEFT JOIN {$wpdb->postmeta} AS homlity_pm_code
+            ON {$wpdb->posts}.ID = homlity_pm_code.post_id
+            AND homlity_pm_code.meta_key = '_property_code'";
+
+        $clauses['join'] .= " LEFT JOIN {$wpdb->term_relationships} AS homlity_tr
+            ON {$wpdb->posts}.ID = homlity_tr.object_id
+            LEFT JOIN {$wpdb->term_taxonomy} AS homlity_tt
+            ON homlity_tr.term_taxonomy_id = homlity_tt.term_taxonomy_id
+            AND homlity_tt.taxonomy = '" . esc_sql(PropertyTaxonomies::TAXONOMY_FEATURE) . "'
+            LEFT JOIN {$wpdb->terms} AS homlity_terms
+            ON homlity_tt.term_id = homlity_terms.term_id";
+
+        $whereSearch = $wpdb->prepare(
+            "(
+                homlity_pm_code.meta_value LIKE %s
+                OR {$wpdb->posts}.post_title LIKE %s
+                OR {$wpdb->posts}.post_excerpt LIKE %s
+                OR {$wpdb->posts}.post_content LIKE %s
+                OR homlity_terms.name LIKE %s
+            )",
+            $likeAny,
+            $likeAny,
+            $likeAny,
+            $likeAny,
+            $likeAny
+        );
+        $clauses['where'] .= " AND {$whereSearch}";
+
+        $rankSql = $wpdb->prepare(
+            "CASE
+                WHEN homlity_pm_code.meta_value = %s THEN 0
+                WHEN homlity_pm_code.meta_value LIKE %s THEN 1
+                WHEN {$wpdb->posts}.post_title LIKE %s THEN 2
+                WHEN {$wpdb->posts}.post_title LIKE %s THEN 3
+                WHEN homlity_terms.name LIKE %s THEN 4
+                WHEN {$wpdb->posts}.post_excerpt LIKE %s THEN 5
+                WHEN {$wpdb->posts}.post_content LIKE %s THEN 6
+                ELSE 9
+            END",
+            $term,
+            $likePrefix,
+            $likePrefix,
+            $likeAny,
+            $likeAny,
+            $likeAny,
+            $likeAny
+        );
+
+        $existingOrderby = trim((string) ($clauses['orderby'] ?? ''));
+        $clauses['orderby'] = $rankSql . ($existingOrderby !== '' ? ', ' . $existingOrderby : '');
+        $clauses['distinct'] = 'DISTINCT';
+
+        $groupBy = trim((string) ($clauses['groupby'] ?? ''));
+        $postIdField = "{$wpdb->posts}.ID";
+        if ($groupBy === '') {
+            $clauses['groupby'] = $postIdField;
+        } elseif (stripos($groupBy, $postIdField) === false) {
+            $clauses['groupby'] .= ', ' . $postIdField;
+        }
+
+        return $clauses;
     }
 
     public function currentQueryParams(): array
@@ -385,6 +521,22 @@ class PropertySearchService implements ServiceInterface
         }
 
         return array_values(array_unique($ids));
+    }
+
+    /**
+     * @param int[] $termIds
+     * @return int[]
+     */
+    private function filterExistingTermIds(array $termIds, string $taxonomy): array
+    {
+        $valid = [];
+        foreach ($termIds as $termId) {
+            if ($termId > 0 && term_exists($termId, $taxonomy)) {
+                $valid[] = $termId;
+            }
+        }
+
+        return array_values(array_unique($valid));
     }
 
     public function getMapData(\WP_Query $query): array

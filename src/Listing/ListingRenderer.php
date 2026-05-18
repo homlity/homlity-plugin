@@ -10,6 +10,8 @@
 namespace Homlity\PluginInmobiliario\Listing;
 
 use Homlity\PluginInmobiliario\Services\PropertySearchService;
+use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 use Homlity\PluginInmobiliario\Services\TemplateService;
 
 if (!defined('ABSPATH')) {
@@ -112,6 +114,44 @@ class ListingRenderer
             $params['query_mode'] = 'custom';
         }
 
+        if (
+            !empty($params['use_current_property_tags'])
+            && is_singular(PropertyPostType::POST_TYPE)
+            && empty($params['preset_tag'])
+            && empty($params['preset_tag_ids'])
+        ) {
+            $currentPropertyId = (int) get_queried_object_id();
+            if ($currentPropertyId > 0) {
+                $relatedTagIds = wp_get_post_terms($currentPropertyId, PropertyTaxonomies::TAXONOMY_TAG, ['fields' => 'ids']);
+                if (is_array($relatedTagIds)) {
+                    $relatedTagIds = array_values(array_filter(array_map('absint', $relatedTagIds)));
+                    if ($relatedTagIds) {
+                        $params['preset_tag_ids'] = $relatedTagIds;
+                    }
+                }
+            }
+        }
+
+        // En el archivo principal (/inmuebles/) sin filtros explícitos en URL,
+        // ignorar presets heredados del widget para no vaciar el listado por
+        // configuraciones antiguas o términos eliminados.
+        $isPropertyArchive = is_post_type_archive('property')
+            || ((string) get_query_var('homlity_property_archive', '') === '1');
+        if ($isPropertyArchive && !$hasRequestFilters) {
+            $params['search'] = '';
+            $params['preset_category'] = 0;
+            $params['preset_operation'] = 0;
+            $params['preset_type'] = 0;
+            $params['preset_tag'] = 0;
+            $params['preset_tag_ids'] = [];
+            $params['preset_feature'] = 0;
+            $params['preset_country'] = 0;
+            $params['preset_state'] = 0;
+            $params['preset_city'] = 0;
+            $params['preset_neighborhood'] = 0;
+            $params['preset_nearby'] = 0;
+        }
+
         $args   = $this->search->buildQueryArgs($params);
         $query  = new \WP_Query($args);
 
@@ -169,21 +209,21 @@ class ListingRenderer
 
         wp_enqueue_style(
             'homlity-plugin-swiper',
-            'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css',
+            HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.css',
             [],
             '11.1.4'
         );
 
         wp_enqueue_style(
             'homlity-plugin-leaflet',
-            'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+            HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.css',
             [],
             '1.9.4'
         );
 
         wp_enqueue_script(
             'homlity-plugin-leaflet',
-            'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+            HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.js',
             [],
             '1.9.4',
             true
@@ -191,7 +231,7 @@ class ListingRenderer
 
         wp_enqueue_script(
             'homlity-plugin-swiper',
-            'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js',
+            HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.js',
             [],
             '11.1.4',
             true
@@ -204,6 +244,18 @@ class ListingRenderer
             HOMLITY_PLUGIN_VERSION,
             true
         );
+
+        wp_enqueue_script(
+            'homlity-plugin-contact-tracking',
+            HOMLITY_PLUGIN_URL . 'assets/js/property-contact-tracking.js',
+            [],
+            HOMLITY_PLUGIN_VERSION,
+            true
+        );
+        wp_localize_script('homlity-plugin-contact-tracking', 'homlityContactTracking', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('homlity_contact_click_nonce'),
+        ]);
 
         wp_localize_script('homlity-plugin-listing', 'homlityListingI18n', [
             'noResults' => __('No se han encontrado inmuebles para esta consulta.', 'homlity-plugin'),

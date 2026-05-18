@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
 /**
  * Property card component.
@@ -8,9 +9,75 @@
 
 use Homlity\PluginInmobiliario\Services\CurrencyService;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\WhatsAppLinkService;
 
 if (!isset($post_id)) {
     $post_id = get_the_ID();
+}
+
+if (!function_exists('homlity_card_extract_urls')) {
+    /**
+     * @param mixed $value
+     * @return array<int,string>
+     */
+    function homlity_card_extract_urls($value): array
+    {
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '') {
+                return [];
+            }
+            if ($trimmed[0] === '[' || $trimmed[0] === '{') {
+                $decoded = json_decode($trimmed, true);
+                if (is_array($decoded)) {
+                    return homlity_card_extract_urls($decoded);
+                }
+            }
+            $parts = preg_split('/[\r\n,;|]+/', $trimmed) ?: [];
+            $urls = [];
+            foreach ($parts as $part) {
+                $url = esc_url_raw(trim((string) $part));
+                if ($url !== '') {
+                    $urls[] = $url;
+                }
+            }
+            return array_values(array_unique($urls));
+        }
+        if (!is_array($value)) {
+            return [];
+        }
+        $urls = [];
+        foreach ($value as $item) {
+            if (is_string($item)) {
+                $url = esc_url_raw(trim($item));
+                if ($url !== '') {
+                    $urls[] = $url;
+                }
+                continue;
+            }
+            if (is_array($item)) {
+                $url = esc_url_raw(trim((string) ($item['url'] ?? '')));
+                if ($url !== '') {
+                    $urls[] = $url;
+                }
+            }
+        }
+        return array_values(array_unique($urls));
+    }
+}
+if (!function_exists('homlity_card_feature_icon')) {
+    function homlity_card_feature_icon($iconConfig, string $fallback): string
+    {
+        if (is_array($iconConfig) && !empty($iconConfig['value']) && class_exists('\Elementor\Icons_Manager')) {
+            ob_start();
+            \Elementor\Icons_Manager::render_icon($iconConfig, ['aria-hidden' => 'true']);
+            $iconHtml = ob_get_clean();
+            if (is_string($iconHtml) && $iconHtml !== '') {
+                return $iconHtml;
+            }
+        }
+        return esc_html($fallback);
+    }
 }
 
 $meta = (new PropertyPostType())->metaKeys();
@@ -26,6 +93,7 @@ $cardOptions = array_merge([
     'show_features' => true,
     'show_whatsapp' => true,
     'whatsapp_label' => '',
+    'whatsapp_icon' => ['value' => 'fab fa-whatsapp', 'library' => 'fa-brands'],
     'feature_area' => true,
     'feature_bedrooms' => true,
     'feature_bathrooms' => true,
@@ -36,6 +104,16 @@ $cardOptions = array_merge([
     'feature_age' => true,
     'feature_condition' => true,
     'feature_code' => true,
+    'feature_icon_area' => 'grid',
+    'feature_icon_bedrooms' => 'bed',
+    'feature_icon_bathrooms' => 'bath',
+    'feature_icon_parking' => 'car',
+    'feature_icon_area_lot' => 'lot',
+    'feature_icon_area_private' => 'home',
+    'feature_icon_area_built' => 'ruler',
+    'feature_icon_age' => 'clock',
+    'feature_icon_condition' => 'diamond',
+    'feature_icon_code' => 'hash',
 ], $cardOptions);
 
 $settings = get_option(HOMLITY_PLUGIN_SETTINGS_OPTION, [
@@ -59,6 +137,7 @@ $parking = get_post_meta($post_id, $meta['parking'], true);
 $condition = get_post_meta($post_id, $meta['condition'], true);
 $age = get_post_meta($post_id, $meta['age'], true);
 $code = get_post_meta($post_id, $meta['code'], true);
+$featured = (bool) get_post_meta($post_id, $meta['featured'], true);
 $agentPhone = get_post_meta($post_id, $meta['agent_phone'], true);
 $agentId = (int) get_post_meta($post_id, $meta['agent_id'], true);
 if (!$agentPhone && $agentId > 0) {
@@ -67,8 +146,6 @@ if (!$agentPhone && $agentId > 0) {
         $agentPhone = (string) get_user_meta($agentId, 'billing_phone', true);
     }
 }
-$agentPhoneDigits = $agentPhone ? preg_replace('/\D+/', '', $agentPhone) : '';
-
 $operationTerms = wp_get_post_terms($post_id, \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_OPERATION, ['fields' => 'names']);
 $operationLabel = (!is_wp_error($operationTerms) && !empty($operationTerms)) ? (string) $operationTerms[0] : '';
 $tagTerms = wp_get_post_terms($post_id, \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_TAG, ['fields' => 'names']);
@@ -76,12 +153,16 @@ $tagTerms = (!is_wp_error($tagTerms) && is_array($tagTerms)) ? array_slice($tagT
 
 $images = [];
 $coverImage = get_the_post_thumbnail_url($post_id, 'large');
+if (!$coverImage) {
+    $coverImage = (string) get_post_meta($post_id, '_property_featured_image_url', true);
+}
 if ($coverImage) {
     $images[] = $coverImage;
 }
 
-if ($cardOptions['media_mode'] === 'slider') {
-    $galleryIds = array_filter(array_map('absint', explode(',', (string) get_post_meta($post_id, $meta['gallery'], true))));
+if ($cardOptions['media_mode'] === 'slider' || empty($images)) {
+    $rawGallery = get_post_meta($post_id, $meta['gallery'], true);
+    $galleryIds = array_filter(array_map('absint', explode(',', (string) $rawGallery)));
     foreach ($galleryIds as $attachmentId) {
         $url = wp_get_attachment_image_url($attachmentId, 'large');
         if ($url && !in_array($url, $images, true)) {
@@ -89,6 +170,17 @@ if ($cardOptions['media_mode'] === 'slider') {
         }
         if (count($images) >= 6) {
             break;
+        }
+    }
+
+    if (count($images) < 1) {
+        foreach (homlity_card_extract_urls($rawGallery) as $url) {
+            if (!in_array($url, $images, true)) {
+                $images[] = $url;
+            }
+            if (count($images) >= 6) {
+                break;
+            }
         }
     }
 
@@ -116,15 +208,19 @@ if ($cardOptions['media_mode'] === 'slider') {
 }
 
 $whatsAppLink = '';
-if ($agentPhoneDigits && !empty($cardOptions['show_whatsapp'])) {
-    $msg = rawurlencode(get_the_title($post_id) . ' - ' . get_permalink($post_id));
-    $whatsAppLink = 'https://wa.me/' . $agentPhoneDigits . '?text=' . $msg;
+if (!empty($cardOptions['show_whatsapp'])) {
+    $whatsAppLink = WhatsAppLinkService::buildPropertyLink((int) $post_id, (string) $agentPhone);
 }
+$showWhatsappIcon = !empty($cardOptions['whatsapp_show_icon']);
+$whatsappIconPosition = ($cardOptions['whatsapp_icon_position'] ?? 'left') === 'right' ? 'right' : 'left';
+$whatsappIcon = is_array($cardOptions['whatsapp_icon'] ?? null) ? $cardOptions['whatsapp_icon'] : [];
 
 $showPrice = !empty($cardOptions['show_price']) && in_array('price', $listingFields, true);
 $visualPreset = (string) ($cardOptions['visual_preset'] ?? 'default');
 $isCoverOverlayPreset = ($visualPreset === 'cover_overlay');
 $presetClass = $visualPreset !== 'default' ? ' property-card--preset-' . sanitize_html_class(str_replace('_', '-', $visualPreset)) : '';
+$hoverEffect = (string) ($cardOptions['hover_effect'] ?? 'lift');
+$hoverClass = ' property-card--hover-' . sanitize_html_class($hoverEffect);
 $displayPrice = '';
 $displayPriceAdmin = '';
 if ($showPrice) {
@@ -138,9 +234,12 @@ if ($showPrice) {
     }
 }
 ?>
-<article <?php post_class('property-card' . $presetClass, $post_id); ?>>
+<article <?php post_class('property-card' . $presetClass . $hoverClass, $post_id); ?> data-property-id="<?php echo esc_attr($post_id); ?>">
     <a href="<?php echo esc_url(get_permalink($post_id)); ?>">
         <div class="property-card__gallery">
+            <?php if ($featured): ?>
+                <span class="property-card__featured-badge"><?php esc_html_e('Destacado', 'homlity-plugin'); ?></span>
+            <?php endif; ?>
             <?php if (!empty($tagTerms)): ?>
                 <div class="property-card__media-tags">
                     <?php foreach ($tagTerms as $tagName): ?>
@@ -171,7 +270,7 @@ if ($showPrice) {
                         <p class="property-card__overlay-price"><?php echo esc_html($displayPrice); ?></p>
                     <?php endif; ?>
                     <?php if (!empty($cardOptions['show_title'])): ?>
-                        <h2 class="property-card__overlay-title"><?php echo esc_html(get_the_title($post_id)); ?></h2>
+                        <p class="property-card__overlay-title"><?php echo esc_html(get_the_title($post_id)); ?></p>
                     <?php endif; ?>
                     <?php if (!empty($cardOptions['show_operation']) && $operationLabel): ?>
                         <p class="property-card__overlay-operation">
@@ -185,16 +284,28 @@ if ($showPrice) {
                     <?php if (!empty($cardOptions['show_features'])): ?>
                         <div class="property-card__overlay-features">
                             <?php if (!empty($cardOptions['feature_area']) && $area): ?>
-                                <span class="property-card__overlay-chip"><?php echo esc_html($area); ?> m²</span>
+                                <span class="property-card__overlay-chip property-card__feature-item">
+                                    <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_area'] ?? [], '▦'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                                    <span class="property-card__feature-value"><?php echo esc_html($area); ?> m²</span>
+                                </span>
                             <?php endif; ?>
                             <?php if (!empty($cardOptions['feature_bedrooms']) && $bedrooms): ?>
-                                <span class="property-card__overlay-chip"><?php echo esc_html($bedrooms); ?></span>
+                                <span class="property-card__overlay-chip property-card__feature-item">
+                                    <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_bedrooms'] ?? [], '🛏'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                                    <span class="property-card__feature-value"><?php echo esc_html($bedrooms); ?></span>
+                                </span>
                             <?php endif; ?>
                             <?php if (!empty($cardOptions['feature_bathrooms']) && $bathrooms): ?>
-                                <span class="property-card__overlay-chip"><?php echo esc_html($bathrooms); ?></span>
+                                <span class="property-card__overlay-chip property-card__feature-item">
+                                    <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_bathrooms'] ?? [], '🛁'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                                    <span class="property-card__feature-value"><?php echo esc_html($bathrooms); ?></span>
+                                </span>
                             <?php endif; ?>
                             <?php if (!empty($cardOptions['feature_parking']) && $parking): ?>
-                                <span class="property-card__overlay-chip"><?php echo esc_html($parking); ?></span>
+                                <span class="property-card__overlay-chip property-card__feature-item">
+                                    <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_parking'] ?? [], '🚗'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                                    <span class="property-card__feature-value"><?php echo esc_html($parking); ?></span>
+                                </span>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>
@@ -204,7 +315,7 @@ if ($showPrice) {
         <?php if (!$isCoverOverlayPreset): ?>
         <div class="property-card__content">
         <?php if (!empty($cardOptions['show_title'])): ?>
-            <h2 class="property-card__title"><?php echo esc_html(get_the_title($post_id)); ?></h2>
+            <p class="property-card__title"><?php echo esc_html(get_the_title($post_id)); ?></p>
         <?php endif; ?>
         <?php if (!empty($cardOptions['show_operation']) && $operationLabel): ?>
             <p class="property-card__operation">
@@ -223,61 +334,61 @@ if ($showPrice) {
             <ul class="property-card__features">
                 <?php if (!empty($cardOptions['feature_area']) && $area): ?>
                     <li class="property-card__feature-item" title="<?php esc_attr_e('Área', 'homlity-plugin'); ?>">
-                        <span class="property-card__feature-icon" aria-hidden="true">▦</span>
+                        <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_area'] ?? [], '▦'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                         <span class="property-card__feature-value"><?php echo esc_html($area); ?> m²</span>
                     </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_bedrooms']) && $bedrooms): ?>
                     <li class="property-card__feature-item" title="<?php esc_attr_e('Alcobas', 'homlity-plugin'); ?>">
-                        <span class="property-card__feature-icon" aria-hidden="true">🛏</span>
+                        <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_bedrooms'] ?? [], '🛏'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                         <span class="property-card__feature-value"><?php echo esc_html($bedrooms); ?></span>
                     </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_bathrooms']) && $bathrooms): ?>
                     <li class="property-card__feature-item" title="<?php esc_attr_e('Baños', 'homlity-plugin'); ?>">
-                        <span class="property-card__feature-icon" aria-hidden="true">🛁</span>
+                        <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_bathrooms'] ?? [], '🛁'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                         <span class="property-card__feature-value"><?php echo esc_html($bathrooms); ?></span>
                     </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_parking']) && $parking): ?>
                     <li class="property-card__feature-item" title="<?php esc_attr_e('Garajes', 'homlity-plugin'); ?>">
-                        <span class="property-card__feature-icon" aria-hidden="true">🚗</span>
+                        <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_parking'] ?? [], '🚗'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                         <span class="property-card__feature-value"><?php echo esc_html($parking); ?></span>
                     </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_area_lot']) && $areaLot): ?>
                     <li class="property-card__feature-item" title="<?php esc_attr_e('Área lote', 'homlity-plugin'); ?>">
-                        <span class="property-card__feature-icon" aria-hidden="true">▣</span>
+                        <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_area_lot'] ?? [], '▣'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                         <span class="property-card__feature-value"><?php echo esc_html($areaLot); ?> m²</span>
                     </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_area_private']) && $areaPrivate): ?>
                     <li class="property-card__feature-item" title="<?php esc_attr_e('Área privada', 'homlity-plugin'); ?>">
-                        <span class="property-card__feature-icon" aria-hidden="true">◫</span>
+                        <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_area_private'] ?? [], '◫'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                         <span class="property-card__feature-value"><?php echo esc_html($areaPrivate); ?> m²</span>
                     </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_area_built']) && $areaBuilt): ?>
                     <li class="property-card__feature-item" title="<?php esc_attr_e('Área construida', 'homlity-plugin'); ?>">
-                        <span class="property-card__feature-icon" aria-hidden="true">◧</span>
+                        <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_area_built'] ?? [], '◧'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                         <span class="property-card__feature-value"><?php echo esc_html($areaBuilt); ?> m²</span>
                     </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_age']) && $age): ?>
                     <li class="property-card__feature-item" title="<?php esc_attr_e('Año/Edad', 'homlity-plugin'); ?>">
-                        <span class="property-card__feature-icon" aria-hidden="true">◷</span>
+                        <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_age'] ?? [], '◷'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                         <span class="property-card__feature-value"><?php echo esc_html($age); ?></span>
                     </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_condition']) && $condition): ?>
                     <li class="property-card__feature-item" title="<?php esc_attr_e('Estado', 'homlity-plugin'); ?>">
-                        <span class="property-card__feature-icon" aria-hidden="true">◆</span>
+                        <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_condition'] ?? [], '◆'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                         <span class="property-card__feature-value"><?php echo esc_html($condition); ?></span>
                     </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_code']) && $code): ?>
                     <li class="property-card__feature-item" title="<?php esc_attr_e('Código', 'homlity-plugin'); ?>">
-                        <span class="property-card__feature-icon" aria-hidden="true">#</span>
+                        <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_code'] ?? [], '#'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                         <span class="property-card__feature-value"><?php echo esc_html($code); ?></span>
                     </li>
                 <?php endif; ?>
@@ -296,8 +407,17 @@ if ($showPrice) {
     </a>
 
     <?php if ($whatsAppLink): ?>
-        <a class="property-card__whatsapp" href="<?php echo esc_url($whatsAppLink); ?>" target="_blank" rel="noopener noreferrer">
-            <?php echo esc_html($cardOptions['whatsapp_label'] ?: __('Contactar por WhatsApp', 'homlity-plugin')); ?>
+        <a class="property-card__whatsapp property-card__whatsapp--icon-<?php echo esc_attr($whatsappIconPosition); ?>" href="<?php echo esc_url($whatsAppLink); ?>" target="_blank" rel="noopener noreferrer" data-homlity-contact-type="whatsapp" data-property-id="<?php echo esc_attr($post_id); ?>">
+            <?php if ($showWhatsappIcon): ?>
+                <span class="property-card__whatsapp-icon" aria-hidden="true">
+                    <?php if (!empty($whatsappIcon['value']) && class_exists('\Elementor\Icons_Manager')) : ?>
+                        <?php \Elementor\Icons_Manager::render_icon($whatsappIcon, ['aria-hidden' => 'true']); ?>
+                    <?php else : ?>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326z"/></svg>
+                    <?php endif; ?>
+                </span>
+            <?php endif; ?>
+            <span class="property-card__whatsapp-label"><?php echo esc_html($cardOptions['whatsapp_label'] ?: __('Contactar por WhatsApp', 'homlity-plugin')); ?></span>
         </a>
     <?php endif; ?>
 </article>

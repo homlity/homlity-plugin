@@ -50,7 +50,7 @@ $paramToAttr = static function ($value): string {
 };
 ?>
 <div id="<?php echo esc_attr($uid); ?>"
-     class="visualinmueble-search property-listing property-listing--bootstrap"
+     class="homlity-plugin-search property-listing property-listing--bootstrap"
      data-view="<?php echo esc_attr($config->defaultView()); ?>"
      data-per-page="<?php echo esc_attr($config->postsPerPage()); ?>"
      data-columns="<?php echo esc_attr($config->columns()); ?>"
@@ -63,6 +63,7 @@ $paramToAttr = static function ($value): string {
      data-preset-operation="<?php echo esc_attr($params['preset_operation'] ?? $config->presetOperation()); ?>"
      data-preset-type="<?php echo esc_attr($params['preset_type'] ?? $config->presetType()); ?>"
      data-preset-tag="<?php echo esc_attr($params['preset_tag'] ?? $config->presetTag()); ?>"
+     data-preset-tag-ids="<?php echo esc_attr($paramToAttr($params['preset_tag_ids'] ?? $config->presetTagIds())); ?>"
      data-preset-feature="<?php echo esc_attr($params['preset_feature'] ?? $config->presetFeature()); ?>"
      data-preset-country="<?php echo esc_attr($params['preset_country'] ?? $config->presetCountry()); ?>"
      data-preset-state="<?php echo esc_attr($params['preset_state'] ?? $config->presetState()); ?>"
@@ -91,6 +92,7 @@ $paramToAttr = static function ($value): string {
      data-nearby="<?php echo esc_attr($paramToAttr($params['nearby'] ?? '')); ?>"
      data-card-media-mode="<?php echo esc_attr($cardOptions['media_mode'] ?? 'single'); ?>"
      data-card-visual-preset="<?php echo esc_attr($cardOptions['visual_preset'] ?? 'default'); ?>"
+     data-card-hover-effect="<?php echo esc_attr($cardOptions['hover_effect'] ?? 'lift'); ?>"
      data-card-show-title="<?php echo esc_attr(!empty($cardOptions['show_title']) ? '1' : '0'); ?>"
      data-card-show-excerpt="<?php echo esc_attr(!empty($cardOptions['show_excerpt']) ? '1' : '0'); ?>"
      data-card-show-operation="<?php echo esc_attr(!empty($cardOptions['show_operation']) ? '1' : '0'); ?>"
@@ -98,6 +100,9 @@ $paramToAttr = static function ($value): string {
      data-card-show-features="<?php echo esc_attr(!empty($cardOptions['show_features']) ? '1' : '0'); ?>"
      data-card-show-whatsapp="<?php echo esc_attr(!empty($cardOptions['show_whatsapp']) ? '1' : '0'); ?>"
      data-card-whatsapp-label="<?php echo esc_attr($cardOptions['whatsapp_label'] ?? ''); ?>"
+     data-card-whatsapp-show-icon="<?php echo esc_attr(!empty($cardOptions['whatsapp_show_icon']) ? '1' : '0'); ?>"
+     data-card-whatsapp-icon-position="<?php echo esc_attr($cardOptions['whatsapp_icon_position'] ?? 'left'); ?>"
+     data-card-whatsapp-icon="<?php echo esc_attr(wp_json_encode($cardOptions['whatsapp_icon'] ?? [])); ?>"
      data-card-feature-area="<?php echo esc_attr(!empty($cardOptions['feature_area']) ? '1' : '0'); ?>"
      data-card-feature-bedrooms="<?php echo esc_attr(!empty($cardOptions['feature_bedrooms']) ? '1' : '0'); ?>"
      data-card-feature-bathrooms="<?php echo esc_attr(!empty($cardOptions['feature_bathrooms']) ? '1' : '0'); ?>"
@@ -108,6 +113,16 @@ $paramToAttr = static function ($value): string {
      data-card-feature-age="<?php echo esc_attr(!empty($cardOptions['feature_age']) ? '1' : '0'); ?>"
      data-card-feature-condition="<?php echo esc_attr(!empty($cardOptions['feature_condition']) ? '1' : '0'); ?>"
      data-card-feature-code="<?php echo esc_attr(!empty($cardOptions['feature_code']) ? '1' : '0'); ?>"
+     data-card-feature-icon-area="<?php echo esc_attr(wp_json_encode($cardOptions['feature_icon_area'] ?? [])); ?>"
+     data-card-feature-icon-bedrooms="<?php echo esc_attr(wp_json_encode($cardOptions['feature_icon_bedrooms'] ?? [])); ?>"
+     data-card-feature-icon-bathrooms="<?php echo esc_attr(wp_json_encode($cardOptions['feature_icon_bathrooms'] ?? [])); ?>"
+     data-card-feature-icon-parking="<?php echo esc_attr(wp_json_encode($cardOptions['feature_icon_parking'] ?? [])); ?>"
+     data-card-feature-icon-area-lot="<?php echo esc_attr(wp_json_encode($cardOptions['feature_icon_area_lot'] ?? [])); ?>"
+     data-card-feature-icon-area-private="<?php echo esc_attr(wp_json_encode($cardOptions['feature_icon_area_private'] ?? [])); ?>"
+     data-card-feature-icon-area-built="<?php echo esc_attr(wp_json_encode($cardOptions['feature_icon_area_built'] ?? [])); ?>"
+     data-card-feature-icon-age="<?php echo esc_attr(wp_json_encode($cardOptions['feature_icon_age'] ?? [])); ?>"
+     data-card-feature-icon-condition="<?php echo esc_attr(wp_json_encode($cardOptions['feature_icon_condition'] ?? [])); ?>"
+     data-card-feature-icon-code="<?php echo esc_attr(wp_json_encode($cardOptions['feature_icon_code'] ?? [])); ?>"
      data-nonce="<?php echo esc_attr(wp_create_nonce('homlity_listing_nonce')); ?>"
      data-ajax-url="<?php echo esc_url(admin_url('admin-ajax.php')); ?>"
      data-map-data="<?php echo esc_attr(wp_json_encode($mapData)); ?>"
@@ -218,9 +233,9 @@ $paramToAttr = static function ($value): string {
                             wp_reset_postdata();
                         } else {
                             echo '<div class="col-12 text-center py-5">'
-                                . '<h3 class="text-muted property-listing__empty">'
+                                . '<p class="text-muted property-listing__empty">'
                                 . esc_html__('No se han encontrado inmuebles para esta consulta.', 'homlity-plugin')
-                                . '</h3></div>';
+                                . '</p></div>';
                         }
                         ?>
                     </div>
@@ -271,4 +286,4 @@ $paramToAttr = static function ($value): string {
         </div>
     </div>
 
-</div><!-- /visualinmueble-search -->
+</div><!-- /homlity-plugin-search -->
