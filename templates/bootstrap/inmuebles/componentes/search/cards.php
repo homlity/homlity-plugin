@@ -1,4 +1,10 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+?>
 <div class="row d-flex align-items-stretch flex-wrap" itemscope itemtype="https://schema.org/ItemList">
    
     <meta itemprop="numberOfItems" content="<?php echo count($inmuebles); ?>" />

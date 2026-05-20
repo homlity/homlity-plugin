@@ -1,15 +1,19 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Shown when a visitor lands on the permalink of an unpublished property.
- * Overridable at {theme}/homlity-plugin/property-unavailable.php
+ * Overridable at {theme}/homlity-real-estate/property-unavailable.php
  */
 
 $archivePageId  = (int) get_option('homlity_plugin_archive_page_id', 0);
 $archiveUrl     = $archivePageId ? get_permalink($archivePageId) : home_url('/inmuebles/');
 $noticeMessage  = isset($hml_unavailable_message) && is_string($hml_unavailable_message) && trim($hml_unavailable_message) !== ''
     ? $hml_unavailable_message
-    : __('El inmueble que buscas fue retirado o está fuera de publicación.', 'homlity-plugin');
+    : __('El inmueble que buscas fue retirado o está fuera de publicación.', 'homlity-real-estate');
 
 get_header();
 ?>
@@ -31,17 +35,17 @@ get_header();
         </div>
 
         <h1 id="hml-unavailable-title" class="hml-unavailable-title">
-            <?php esc_html_e('Inmueble ya no disponible', 'homlity-plugin'); ?>
+            <?php esc_html_e('Inmueble ya no disponible', 'homlity-real-estate'); ?>
         </h1>
 
         <p class="hml-unavailable-desc">
             <?php echo esc_html($noticeMessage); ?>
             <br>
-            <?php esc_html_e('Explora nuestro catálogo para encontrar opciones similares.', 'homlity-plugin'); ?>
+            <?php esc_html_e('Explora nuestro catálogo para encontrar opciones similares.', 'homlity-real-estate'); ?>
         </p>
 
         <a href="<?php echo esc_url((string) $archiveUrl); ?>" class="hml-unavailable-btn">
-            <?php esc_html_e('Ver otros inmuebles', 'homlity-plugin'); ?>
+            <?php esc_html_e('Ver otros inmuebles', 'homlity-real-estate'); ?>
         </a>
 
     </div>
@@ -49,7 +53,7 @@ get_header();
 
 <div class="hml-unavailable-results">
     <div class="hml-unavailable-results__inner">
-        <h2 class="hml-unavailable-results__title"><?php esc_html_e('Resultados de búsqueda', 'homlity-plugin'); ?></h2>
+        <h2 class="hml-unavailable-results__title"><?php esc_html_e('Resultados de búsqueda', 'homlity-real-estate'); ?></h2>
         <?php echo do_shortcode('[homlity_listing template="bootstrap" per_page="12" filters="true" view_toggle="true" sort="true"]'); ?>
     </div>
 </div>

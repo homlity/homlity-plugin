@@ -8,7 +8,7 @@
     apiFetch.use(apiFetch.createNonceMiddleware(cfg.nonce));
   }
 
-  const root = document.getElementById('homlity-plugin-analytics-app');
+  const root = document.getElementById('homlity-real-estate-analytics-app');
   if (!root) return;
 
   function ChartBars(props) {

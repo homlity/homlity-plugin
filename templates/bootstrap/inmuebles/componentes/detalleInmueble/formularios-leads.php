@@ -1,4 +1,10 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+?>
 <div class="card section-ficha-tecnica" style="width: 100%;">
     <div class="card-body">
         <h4>Enviate la ficha técnica</h4>

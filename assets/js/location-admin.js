@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     async function fetchTerms(taxonomy, parentId) {
-        const url = new URL(restUrl + 'homlity-plugin/v1/location-terms');
+        const url = new URL(restUrl + 'homlity-real-estate/v1/location-terms');
         url.searchParams.set('taxonomy', taxonomy);
         url.searchParams.set('parent', parentId || 0);
 

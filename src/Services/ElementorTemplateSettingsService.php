@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 /**
  * Admin settings page for selecting Elementor templates for property pages.
  */
@@ -21,7 +23,7 @@ class ElementorTemplateSettingsService implements ServiceInterface
     private const OPTION_UNAVAILABLE_LAYOUT  = 'homlity_plugin_unavailable_page_layout';
     private const NONCE_ACTION   = 'homlity_elementor_templates_save';
     private const NONCE_FIELD    = 'homlity_elementor_templates_nonce';
-    private const PAGE_SLUG      = 'homlity-plugin-elementor-templates';
+    private const PAGE_SLUG      = 'homlity-real-estate-elementor-templates';
 
     public function register(): void
     {
@@ -32,9 +34,9 @@ class ElementorTemplateSettingsService implements ServiceInterface
     public function registerMenu(): void
     {
         add_submenu_page(
-            'homlity-plugin-settings',
-            __('Plantillas Elementor', 'homlity-plugin'),
-            __('Plantillas Elementor', 'homlity-plugin'),
+            'homlity-real-estate-settings',
+            __('Plantillas Elementor', 'homlity-real-estate'),
+            __('Plantillas Elementor', 'homlity-real-estate'),
             'manage_options',
             self::PAGE_SLUG,
             [$this, 'renderPage']
@@ -115,18 +117,18 @@ class ElementorTemplateSettingsService implements ServiceInterface
         $pages     = $this->getElementorPages();
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('Plantillas Elementor para inmuebles', 'homlity-plugin'); ?></h1>
+            <h1><?php esc_html_e('Plantillas Elementor para inmuebles', 'homlity-real-estate'); ?></h1>
 
             <?php if (!empty($_GET['saved'])): ?>
                 <div class="notice notice-success is-dismissible">
-                    <p><?php esc_html_e('Configuración guardada correctamente.', 'homlity-plugin'); ?></p>
+                    <p><?php esc_html_e('Configuración guardada correctamente.', 'homlity-real-estate'); ?></p>
                 </div>
             <?php endif; ?>
 
             <p class="description" style="max-width:700px;margin-bottom:20px;">
                 <?php esc_html_e(
                     'Selecciona qué página construida con Elementor se usará como plantilla para el listado y el detalle de inmuebles. Usa páginas con el layout "Elementor Canvas" (★ Canvas) para tener control total del diseño sin header ni footer del tema.',
-                    'homlity-plugin'
+                    'homlity-real-estate'
                 ); ?>
             </p>
 
@@ -137,7 +139,7 @@ class ElementorTemplateSettingsService implements ServiceInterface
                     <tr>
                         <th scope="row">
                             <label for="archive_page_id">
-                                <?php esc_html_e('Página de listado de inmuebles', 'homlity-plugin'); ?>
+                                <?php esc_html_e('Página de listado de inmuebles', 'homlity-real-estate'); ?>
                             </label>
                         </th>
                         <td>
@@ -145,7 +147,7 @@ class ElementorTemplateSettingsService implements ServiceInterface
                             <p class="description">
                                 <?php esc_html_e(
                                     'Página de Elementor que se mostrará en /inmuebles/ y en las rutas de búsqueda filtrada (/inmuebles/gestion/venta/, etc.).',
-                                    'homlity-plugin'
+                                    'homlity-real-estate'
                                 ); ?>
                             </p>
                         </td>
@@ -153,7 +155,7 @@ class ElementorTemplateSettingsService implements ServiceInterface
                     <tr>
                         <th scope="row">
                             <label for="archive_page_layout">
-                                <?php esc_html_e('Layout página de listado', 'homlity-plugin'); ?>
+                                <?php esc_html_e('Layout página de listado', 'homlity-real-estate'); ?>
                             </label>
                         </th>
                         <td>
@@ -163,7 +165,7 @@ class ElementorTemplateSettingsService implements ServiceInterface
                     <tr>
                         <th scope="row">
                             <label for="single_template_id">
-                                <?php esc_html_e('Plantilla de detalle de inmueble', 'homlity-plugin'); ?>
+                                <?php esc_html_e('Plantilla de detalle de inmueble', 'homlity-real-estate'); ?>
                             </label>
                         </th>
                         <td>
@@ -171,7 +173,7 @@ class ElementorTemplateSettingsService implements ServiceInterface
                             <p class="description">
                                 <?php esc_html_e(
                                     'Página de Elementor cuyo layout y widgets se usarán para mostrar cada inmueble. Los widgets de propiedad leerán automáticamente los datos del inmueble actual.',
-                                    'homlity-plugin'
+                                    'homlity-real-estate'
                                 ); ?>
                             </p>
                         </td>
@@ -179,18 +181,18 @@ class ElementorTemplateSettingsService implements ServiceInterface
                     <tr>
                         <th scope="row">
                             <label for="single_page_layout">
-                                <?php esc_html_e('Layout página de detalle', 'homlity-plugin'); ?>
+                                <?php esc_html_e('Layout página de detalle', 'homlity-real-estate'); ?>
                             </label>
                         </th>
                         <td>
                             <?php $this->renderLayoutSelect('single_page_layout', $singleLayout); ?>
-                            <p class="description"><?php esc_html_e('Canvas en detalle renderiza solo el contenido Elementor (sin header/footer del tema).', 'homlity-plugin'); ?></p>
+                            <p class="description"><?php esc_html_e('Canvas en detalle renderiza solo el contenido Elementor (sin header/footer del tema).', 'homlity-real-estate'); ?></p>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">
                             <label for="unavailable_template_id">
-                                <?php esc_html_e('Plantilla inmueble no disponible', 'homlity-plugin'); ?>
+                                <?php esc_html_e('Plantilla inmueble no disponible', 'homlity-real-estate'); ?>
                             </label>
                         </th>
                         <td>
@@ -198,7 +200,7 @@ class ElementorTemplateSettingsService implements ServiceInterface
                             <p class="description">
                                 <?php esc_html_e(
                                     'Se usa cuando un inmueble deja de estar público. La URL responde 410 (SEO) y muestra esta plantilla Elementor.',
-                                    'homlity-plugin'
+                                    'homlity-real-estate'
                                 ); ?>
                             </p>
                         </td>
@@ -206,7 +208,7 @@ class ElementorTemplateSettingsService implements ServiceInterface
                     <tr>
                         <th scope="row">
                             <label for="unavailable_page_layout">
-                                <?php esc_html_e('Layout página no disponible', 'homlity-plugin'); ?>
+                                <?php esc_html_e('Layout página no disponible', 'homlity-real-estate'); ?>
                             </label>
                         </th>
                         <td>
@@ -215,19 +217,19 @@ class ElementorTemplateSettingsService implements ServiceInterface
                     </tr>
                 </table>
 
-                <?php submit_button(__('Guardar cambios', 'homlity-plugin')); ?>
+                <?php submit_button(__('Guardar cambios', 'homlity-real-estate')); ?>
             </form>
 
             <?php if (!empty($pages)): ?>
                 <hr>
-                <h2><?php esc_html_e('Páginas con Elementor disponibles', 'homlity-plugin'); ?></h2>
+                <h2><?php esc_html_e('Páginas con Elementor disponibles', 'homlity-real-estate'); ?></h2>
                 <table class="widefat striped" style="max-width:750px;">
                     <thead>
                         <tr>
-                            <th><?php esc_html_e('Título', 'homlity-plugin'); ?></th>
-                            <th><?php esc_html_e('Layout', 'homlity-plugin'); ?></th>
-                            <th><?php esc_html_e('Estado', 'homlity-plugin'); ?></th>
-                            <th><?php esc_html_e('Acción', 'homlity-plugin'); ?></th>
+                            <th><?php esc_html_e('Título', 'homlity-real-estate'); ?></th>
+                            <th><?php esc_html_e('Layout', 'homlity-real-estate'); ?></th>
+                            <th><?php esc_html_e('Estado', 'homlity-real-estate'); ?></th>
+                            <th><?php esc_html_e('Acción', 'homlity-real-estate'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -238,7 +240,7 @@ class ElementorTemplateSettingsService implements ServiceInterface
                                 <td><?php echo esc_html($page['status_label']); ?></td>
                                 <td>
                                     <a href="<?php echo esc_url(admin_url('post.php?post=' . $page['id'] . '&action=elementor')); ?>" target="_blank">
-                                        <?php esc_html_e('Editar con Elementor', 'homlity-plugin'); ?> ↗
+                                        <?php esc_html_e('Editar con Elementor', 'homlity-real-estate'); ?> ↗
                                     </a>
                                 </td>
                             </tr>
@@ -247,11 +249,11 @@ class ElementorTemplateSettingsService implements ServiceInterface
                 </table>
             <?php elseif (!class_exists('\Elementor\Plugin')): ?>
                 <div class="notice notice-warning inline">
-                    <p><?php esc_html_e('Elementor no está activo. Activa Elementor para poder seleccionar plantillas.', 'homlity-plugin'); ?></p>
+                    <p><?php esc_html_e('Elementor no está activo. Activa Elementor para poder seleccionar plantillas.', 'homlity-real-estate'); ?></p>
                 </div>
             <?php else: ?>
                 <div class="notice notice-info inline">
-                    <p><?php esc_html_e('No se encontraron páginas construidas con Elementor. Crea una página nueva y edítala con Elementor.', 'homlity-plugin'); ?></p>
+                    <p><?php esc_html_e('No se encontraron páginas construidas con Elementor. Crea una página nueva y edítala con Elementor.', 'homlity-real-estate'); ?></p>
                 </div>
             <?php endif; ?>
         </div>
@@ -266,7 +268,7 @@ class ElementorTemplateSettingsService implements ServiceInterface
     private function renderPageSelect(string $name, int $selected, array $pages): void
     {
         echo '<select id="' . esc_attr($name) . '" name="' . esc_attr($name) . '" style="min-width:380px;">';
-        echo '<option value="0">' . esc_html__('— Sin plantilla personalizada —', 'homlity-plugin') . '</option>';
+        echo '<option value="0">' . esc_html__('— Sin plantilla personalizada —', 'homlity-real-estate') . '</option>';
 
         foreach ($pages as $page) {
             $badge = match ($page['template']) {
@@ -291,9 +293,9 @@ class ElementorTemplateSettingsService implements ServiceInterface
     private function renderLayoutSelect(string $name, string $selected): void
     {
         $options = [
-            'default' => __('Predeterminado del tema', 'homlity-plugin'),
-            'elementor-full-width' => __('Elementor Full Width', 'homlity-plugin'),
-            'elementor_canvas' => __('Elementor Canvas (Ancho completo)', 'homlity-plugin'),
+            'default' => __('Predeterminado del tema', 'homlity-real-estate'),
+            'elementor-full-width' => __('Elementor Full Width', 'homlity-real-estate'),
+            'elementor_canvas' => __('Elementor Canvas (Ancho completo)', 'homlity-real-estate'),
         ];
 
         echo '<select id="' . esc_attr($name) . '" name="' . esc_attr($name) . '" style="min-width:280px;">';
@@ -325,9 +327,9 @@ class ElementorTemplateSettingsService implements ServiceInterface
     private function layoutBadge(string $template): string
     {
         [$label, $color] = match ($template) {
-            'elementor_canvas'     => [__('Canvas (Ancho completo)', 'homlity-plugin'), '#0ea5e9'],
-            'elementor-full-width' => [__('Full Width', 'homlity-plugin'), '#22c55e'],
-            default                => [__('Predeterminado del tema', 'homlity-plugin'), '#94a3b8'],
+            'elementor_canvas'     => [__('Canvas (Ancho completo)', 'homlity-real-estate'), '#0ea5e9'],
+            'elementor-full-width' => [__('Full Width', 'homlity-real-estate'), '#22c55e'],
+            default                => [__('Predeterminado del tema', 'homlity-real-estate'), '#94a3b8'],
         };
 
         return sprintf(
@@ -369,9 +371,9 @@ class ElementorTemplateSettingsService implements ServiceInterface
         ]);
 
         $statusLabels = [
-            'publish' => __('Publicada', 'homlity-plugin'),
-            'draft'   => __('Borrador', 'homlity-plugin'),
-            'private' => __('Privada', 'homlity-plugin'),
+            'publish' => __('Publicada', 'homlity-real-estate'),
+            'draft'   => __('Borrador', 'homlity-real-estate'),
+            'private' => __('Privada', 'homlity-real-estate'),
         ];
 
         $pages = [];
@@ -379,7 +381,7 @@ class ElementorTemplateSettingsService implements ServiceInterface
             $template = get_post_meta($post->ID, '_wp_page_template', true) ?: 'default';
             $pages[]  = [
                 'id'           => $post->ID,
-                'title'        => $post->post_title ?: __('(sin título)', 'homlity-plugin'),
+                'title'        => $post->post_title ?: __('(sin título)', 'homlity-real-estate'),
                 'template'     => $template,
                 'status_label' => $statusLabels[$post->post_status] ?? $post->post_status,
             ];

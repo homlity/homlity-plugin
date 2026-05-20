@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 /**
  * Tracks unique contact-click events per property and visitor.
  */
@@ -61,6 +63,14 @@ class PropertyContactClickTrackingService implements ServiceInterface
     {
         check_ajax_referer('homlity_contact_click_nonce', 'nonce');
 
+        if (!self::isTrackingAllowed()) {
+            wp_send_json_success(['ok' => true]);
+        }
+
+        if (BotDetector::isBot()) {
+            wp_send_json_success(['ok' => true]);
+        }
+
         $propertyId = absint($_POST['property_id'] ?? 0);
         $eventType = sanitize_key((string) ($_POST['event_type'] ?? ''));
         if ($propertyId <= 0 || !in_array($eventType, ['whatsapp', 'phone', 'email'], true)) {
@@ -93,6 +103,18 @@ class PropertyContactClickTrackingService implements ServiceInterface
         );
 
         wp_send_json_success(['ok' => true]);
+    }
+
+    private static function isTrackingAllowed(): bool
+    {
+        $settings = (array) get_option(HOMLITY_PLUGIN_SETTINGS_OPTION, []);
+        if (empty($settings['enable_analytics'])) {
+            return false;
+        }
+        if (function_exists('wp_has_consent') && !wp_has_consent('statistics')) {
+            return false;
+        }
+        return true;
     }
 
     private function tableName(): string

@@ -52,17 +52,17 @@
            <span> Estrato: <?php
            if ( homlity_sync_integrator_current_is_wasi() ) {
                 if ( $caracteristicas['estrato'] == 7 ) {
-                    echo esc_html__( 'Rural', 'homlity-plugin' );
+                    echo esc_html__( 'Rural', 'homlity-real-estate' );
                 } elseif ( $caracteristicas['estrato'] == 8 ) {
-                    echo esc_html__( 'Comercial', 'homlity-plugin' );
+                    echo esc_html__( 'Comercial', 'homlity-real-estate' );
                 } else {
                     echo esc_html( $caracteristicas['estrato'] );
                 }
            } elseif ( homlity_sync_integrator_current_is_simi() ) {
                 if ( $caracteristicas['estrato'] == 8 ) {
-                    echo esc_html__( 'Rural', 'homlity-plugin' );
+                    echo esc_html__( 'Rural', 'homlity-real-estate' );
                 } elseif ( $caracteristicas['estrato'] == 7 ) {
-                    echo esc_html__( 'Comercial', 'homlity-plugin' );
+                    echo esc_html__( 'Comercial', 'homlity-real-estate' );
                 } else {
                     echo esc_html( $caracteristicas['estrato'] );
                 }

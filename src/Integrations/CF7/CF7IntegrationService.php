@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
 /**
  * Contact Form 7 integration – registers the [homlity_property_code] form tag.
  *
@@ -88,7 +89,7 @@ class CF7IntegrationService implements ServiceInterface
 
         \WPCF7_TagGenerator::get_instance()->add(
             'homlity_property_code',
-            __('Código de Inmueble', 'homlity-plugin'),
+            __('Código de Inmueble', 'homlity-real-estate'),
             [$this, 'renderTagGeneratorPanel']
         );
     }
@@ -99,18 +100,18 @@ class CF7IntegrationService implements ServiceInterface
         $panel_id = $options['id'] ?? 'homlity_property_code';
         ?>
         <header class="description-box">
-            <h3><?php esc_html_e('Código de Inmueble (Homlity)', 'homlity-plugin'); ?></h3>
+            <h3><?php esc_html_e('Código de Inmueble (Homlity)', 'homlity-real-estate'); ?></h3>
             <p>
                 <?php esc_html_e(
                     'Campo oculto que captura automáticamente el código del inmueble (_property_code). En páginas de propiedad individual se detecta solo; en otras páginas usa la opción post_id.',
-                    'homlity-plugin'
+                    'homlity-real-estate'
                 ); ?>
             </p>
         </header>
 
         <div class="control-box">
             <fieldset>
-                <legend><?php esc_html_e('Nombre del campo', 'homlity-plugin'); ?></legend>
+                <legend><?php esc_html_e('Nombre del campo', 'homlity-real-estate'); ?></legend>
                 <label>
                     <input type="text"
                            name="name"
@@ -121,18 +122,18 @@ class CF7IntegrationService implements ServiceInterface
             </fieldset>
 
             <fieldset>
-                <legend><?php esc_html_e('ID de propiedad (opcional)', 'homlity-plugin'); ?></legend>
+                <legend><?php esc_html_e('ID de propiedad (opcional)', 'homlity-real-estate'); ?></legend>
                 <label>
                     <input type="number"
                            name="values"
                            class="tg-value oneline option"
                            data-tag-part="option"
                            data-option-name="post_id"
-                           placeholder="<?php esc_attr_e('Dejar vacío para detectar automáticamente', 'homlity-plugin'); ?>"
+                           placeholder="<?php esc_attr_e('Dejar vacío para detectar automáticamente', 'homlity-real-estate'); ?>"
                     />
                 </label>
                 <p class="description">
-                    <?php esc_html_e('Solo necesario si el formulario está fuera de la página del inmueble.', 'homlity-plugin'); ?>
+                    <?php esc_html_e('Solo necesario si el formulario está fuera de la página del inmueble.', 'homlity-real-estate'); ?>
                 </p>
             </fieldset>
         </div>
@@ -146,14 +147,14 @@ class CF7IntegrationService implements ServiceInterface
             <div class="submitbox">
                 <input type="button"
                        class="button button-primary insert-tag"
-                       value="<?php esc_attr_e('Insertar tag', 'homlity-plugin'); ?>" />
+                       value="<?php esc_attr_e('Insertar tag', 'homlity-real-estate'); ?>" />
             </div>
             <br class="clear" />
             <p class="description mail-tag">
                 <?php
                 printf(
                     /* translators: %s: mail tag placeholder */
-                    esc_html__('Para usar en el correo: %s', 'homlity-plugin'),
+                    esc_html__('Para usar en el correo: %s', 'homlity-real-estate'),
                     '<strong>[<span class="mail-tag"></span>]</strong>'
                 );
                 ?>

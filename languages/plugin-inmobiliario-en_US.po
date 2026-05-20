@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: homlity-plugin 0.2.8\n"
+"Project-Id-Version: homlity-real-estate 0.2.8\n"
 "POT-Creation-Date: 2024-01-01 00:00+0000\n"
 "PO-Revision-Date: 2024-01-01 00:00+0000\n"
 "Last-Translator: Ecosistema Inmobiliario Homlity\n"

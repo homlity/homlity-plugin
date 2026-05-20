@@ -20,7 +20,7 @@ class PropertyShareWidget extends BasePropertyWidget
 
     public function get_title(): string
     {
-        return __('Compartir inmueble', 'homlity-plugin');
+        return __('Compartir inmueble', 'homlity-real-estate');
     }
 
     public function get_icon(): string
@@ -31,35 +31,35 @@ class PropertyShareWidget extends BasePropertyWidget
     private function platformsConfig(): array
     {
         return [
-            'whatsapp'  => ['label' => __('WhatsApp',      'homlity-plugin'), 'icon' => 'fab fa-whatsapp',     'icon_library' => 'fa-brands'],
-            'facebook'  => ['label' => __('Facebook',      'homlity-plugin'), 'icon' => 'fab fa-facebook-f',   'icon_library' => 'fa-brands'],
-            'x'         => ['label' => __('X',             'homlity-plugin'), 'icon' => 'fab fa-x-twitter',    'icon_library' => 'fa-brands'],
-            'linkedin'  => ['label' => __('LinkedIn',      'homlity-plugin'), 'icon' => 'fab fa-linkedin-in',  'icon_library' => 'fa-brands'],
-            'telegram'  => ['label' => __('Telegram',      'homlity-plugin'), 'icon' => 'fab fa-telegram',     'icon_library' => 'fa-brands'],
-            'pinterest' => ['label' => __('Pinterest',     'homlity-plugin'), 'icon' => 'fab fa-pinterest-p',  'icon_library' => 'fa-brands'],
-            'reddit'    => ['label' => __('Reddit',        'homlity-plugin'), 'icon' => 'fab fa-reddit-alien', 'icon_library' => 'fa-brands'],
-            'email'     => ['label' => __('Correo',        'homlity-plugin'), 'icon' => 'fas fa-envelope',     'icon_library' => 'fa-solid'],
-            'copy'      => ['label' => __('Copiar enlace', 'homlity-plugin'), 'icon' => 'fas fa-link',         'icon_library' => 'fa-solid'],
+            'whatsapp'  => ['label' => __('WhatsApp',      'homlity-real-estate'), 'icon' => 'fab fa-whatsapp',     'icon_library' => 'fa-brands'],
+            'facebook'  => ['label' => __('Facebook',      'homlity-real-estate'), 'icon' => 'fab fa-facebook-f',   'icon_library' => 'fa-brands'],
+            'x'         => ['label' => __('X',             'homlity-real-estate'), 'icon' => 'fab fa-x-twitter',    'icon_library' => 'fa-brands'],
+            'linkedin'  => ['label' => __('LinkedIn',      'homlity-real-estate'), 'icon' => 'fab fa-linkedin-in',  'icon_library' => 'fa-brands'],
+            'telegram'  => ['label' => __('Telegram',      'homlity-real-estate'), 'icon' => 'fab fa-telegram',     'icon_library' => 'fa-brands'],
+            'pinterest' => ['label' => __('Pinterest',     'homlity-real-estate'), 'icon' => 'fab fa-pinterest-p',  'icon_library' => 'fa-brands'],
+            'reddit'    => ['label' => __('Reddit',        'homlity-real-estate'), 'icon' => 'fab fa-reddit-alien', 'icon_library' => 'fa-brands'],
+            'email'     => ['label' => __('Correo',        'homlity-real-estate'), 'icon' => 'fas fa-envelope',     'icon_library' => 'fa-solid'],
+            'copy'      => ['label' => __('Copiar enlace', 'homlity-real-estate'), 'icon' => 'fas fa-link',         'icon_library' => 'fa-solid'],
         ];
     }
 
     protected function register_controls(): void
     {
         // ── Contenido ────────────────────────────────────────────────────────
-        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-plugin')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-real-estate')]);
         $this->register_property_control();
 
         $this->add_control('share_text', [
-            'label'       => __('Texto a compartir', 'homlity-plugin'),
+            'label'       => __('Texto a compartir', 'homlity-real-estate'),
             'type'        => Controls_Manager::TEXTAREA,
             'default'     => '{summary} {url}',
-            'description' => __('Placeholders: {summary}, {title}, {url}, {bedrooms}, {bathrooms}, {parking}, {area}, {price}', 'homlity-plugin'),
+            'description' => __('Placeholders: {summary}, {title}, {url}, {bedrooms}, {bathrooms}, {parking}, {area}, {price}', 'homlity-real-estate'),
             'separator'   => 'before',
         ]);
         $this->add_control('heading_text', [
-            'label' => __('Título del bloque', 'homlity-plugin'),
+            'label' => __('Título del bloque', 'homlity-real-estate'),
             'type' => Controls_Manager::TEXT,
-            'default' => __('Compartir en:', 'homlity-plugin'),
+            'default' => __('Compartir en:', 'homlity-real-estate'),
         ]);
 
         foreach ($this->platformsConfig() as $key => $platform) {
@@ -75,7 +75,7 @@ class PropertyShareWidget extends BasePropertyWidget
                 'condition' => ['show_' . $key => 'yes'],
             ]);
             $this->add_control('label_' . $key, [
-                'label'     => __('Etiqueta', 'homlity-plugin'),
+                'label'     => __('Etiqueta', 'homlity-real-estate'),
                 'type'      => Controls_Manager::TEXT,
                 'default'   => $platform['label'],
                 'condition' => ['show_' . $key => 'yes'],
@@ -86,17 +86,17 @@ class PropertyShareWidget extends BasePropertyWidget
 
         // ── Estilos ──────────────────────────────────────────────────────────
         $this->start_controls_section('style_share', [
-            'label' => __('Estilos', 'homlity-plugin'),
+            'label' => __('Estilos', 'homlity-real-estate'),
             'tab'   => Controls_Manager::TAB_STYLE,
         ]);
 
         // — Layout de lista —
         $this->add_control('layout_heading', [
-            'label' => __('Layout de lista', 'homlity-plugin'),
+            'label' => __('Layout de lista', 'homlity-real-estate'),
             'type'  => Controls_Manager::HEADING,
         ]);
         $this->add_responsive_control('list_columns', [
-            'label'          => __('Columnas', 'homlity-plugin'),
+            'label'          => __('Columnas', 'homlity-real-estate'),
             'type'           => Controls_Manager::SELECT,
             'default'        => '1',
             'tablet_default' => '1',
@@ -107,7 +107,7 @@ class PropertyShareWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_responsive_control('list_gap', [
-            'label'      => __('Espacio entre ítems', 'homlity-plugin'),
+            'label'      => __('Espacio entre ítems', 'homlity-real-estate'),
             'type'       => Controls_Manager::SLIDER,
             'size_units' => ['px', 'em'],
             'range'      => ['px' => ['min' => 0, 'max' => 60]],
@@ -119,37 +119,37 @@ class PropertyShareWidget extends BasePropertyWidget
 
         // — Ítem —
         $this->add_control('item_heading', [
-            'label'     => __('Ítem', 'homlity-plugin'),
+            'label'     => __('Ítem', 'homlity-real-estate'),
             'type'      => Controls_Manager::HEADING,
             'separator' => 'before',
         ]);
         $this->add_responsive_control('item_direction', [
-            'label'   => __('Dirección', 'homlity-plugin'),
+            'label'   => __('Dirección', 'homlity-real-estate'),
             'type'    => Controls_Manager::CHOOSE,
             'default' => 'row',
             'options' => [
-                'row'    => ['title' => __('Horizontal', 'homlity-plugin'), 'icon' => 'eicon-arrow-right'],
-                'column' => ['title' => __('Vertical',   'homlity-plugin'), 'icon' => 'eicon-arrow-down'],
+                'row'    => ['title' => __('Horizontal', 'homlity-real-estate'), 'icon' => 'eicon-arrow-right'],
+                'column' => ['title' => __('Vertical',   'homlity-real-estate'), 'icon' => 'eicon-arrow-down'],
             ],
             'selectors' => [
                 '{{WRAPPER}} .property-share__link' => 'display: flex; flex-direction: {{VALUE}};',
             ],
         ]);
         $this->add_responsive_control('item_align_items', [
-            'label'   => __('Alineación interna', 'homlity-plugin'),
+            'label'   => __('Alineación interna', 'homlity-real-estate'),
             'type'    => Controls_Manager::CHOOSE,
             'default' => 'center',
             'options' => [
-                'flex-start' => ['title' => __('Inicio', 'homlity-plugin'), 'icon' => 'eicon-v-align-top'],
-                'center'     => ['title' => __('Centro', 'homlity-plugin'), 'icon' => 'eicon-v-align-middle'],
-                'flex-end'   => ['title' => __('Fin',    'homlity-plugin'), 'icon' => 'eicon-v-align-bottom'],
+                'flex-start' => ['title' => __('Inicio', 'homlity-real-estate'), 'icon' => 'eicon-v-align-top'],
+                'center'     => ['title' => __('Centro', 'homlity-real-estate'), 'icon' => 'eicon-v-align-middle'],
+                'flex-end'   => ['title' => __('Fin',    'homlity-real-estate'), 'icon' => 'eicon-v-align-bottom'],
             ],
             'selectors' => [
                 '{{WRAPPER}} .property-share__link' => 'align-items: {{VALUE}};',
             ],
         ]);
         $this->add_responsive_control('icon_text_gap', [
-            'label'      => __('Espacio ícono–texto', 'homlity-plugin'),
+            'label'      => __('Espacio ícono–texto', 'homlity-real-estate'),
             'type'       => Controls_Manager::SLIDER,
             'size_units' => ['px', 'em'],
             'range'      => ['px' => ['min' => 0, 'max' => 40]],
@@ -159,7 +159,7 @@ class PropertyShareWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_responsive_control('item_padding', [
-            'label'      => __('Padding', 'homlity-plugin'),
+            'label'      => __('Padding', 'homlity-real-estate'),
             'type'       => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%', 'em'],
             'selectors'  => [
@@ -167,40 +167,40 @@ class PropertyShareWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_control('item_bg', [
-            'label'     => __('Fondo', 'homlity-plugin'),
+            'label'     => __('Fondo', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-share__link' => 'background-color: {{VALUE}};'],
         ]);
         $this->add_responsive_control('item_radius', [
-            'label'      => __('Radio borde', 'homlity-plugin'),
+            'label'      => __('Radio borde', 'homlity-real-estate'),
             'type'       => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%'],
             'selectors'  => ['{{WRAPPER}} .property-share__link' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
         ]);
         $this->add_control('item_bg_hover', [
-            'label'     => __('Fondo (hover)', 'homlity-plugin'),
+            'label'     => __('Fondo (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-share__link:hover' => 'background-color: {{VALUE}};'],
         ]);
 
         // — Ícono —
         $this->add_control('icon_heading', [
-            'label'     => __('Ícono', 'homlity-plugin'),
+            'label'     => __('Ícono', 'homlity-real-estate'),
             'type'      => Controls_Manager::HEADING,
             'separator' => 'before',
         ]);
         $this->add_control('icon_color', [
-            'label'     => __('Color', 'homlity-plugin'),
+            'label'     => __('Color', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-share__icon' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('icon_color_hover', [
-            'label'     => __('Color (hover)', 'homlity-plugin'),
+            'label'     => __('Color (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-share__link:hover .property-share__icon' => 'color: {{VALUE}};'],
         ]);
         $this->add_responsive_control('icon_size', [
-            'label'      => __('Tamaño', 'homlity-plugin'),
+            'label'      => __('Tamaño', 'homlity-real-estate'),
             'type'       => Controls_Manager::SLIDER,
             'size_units' => ['px', 'em'],
             'range'      => ['px' => ['min' => 8, 'max' => 64]],
@@ -212,7 +212,7 @@ class PropertyShareWidget extends BasePropertyWidget
 
         // — Texto —
         $this->add_control('label_heading', [
-            'label'     => __('Texto', 'homlity-plugin'),
+            'label'     => __('Texto', 'homlity-real-estate'),
             'type'      => Controls_Manager::HEADING,
             'separator' => 'before',
         ]);
@@ -221,19 +221,19 @@ class PropertyShareWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-share__label',
         ]);
         $this->add_control('label_color', [
-            'label'     => __('Color', 'homlity-plugin'),
+            'label'     => __('Color', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-share__label' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('label_color_hover', [
-            'label'     => __('Color (hover)', 'homlity-plugin'),
+            'label'     => __('Color (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-share__link:hover .property-share__label' => 'color: {{VALUE}};'],
         ]);
 
         // — Valor (URL compartida) —
         $this->add_control('value_heading', [
-            'label'     => __('Valor', 'homlity-plugin'),
+            'label'     => __('Valor', 'homlity-real-estate'),
             'type'      => Controls_Manager::HEADING,
             'separator' => 'before',
         ]);
@@ -242,12 +242,12 @@ class PropertyShareWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-share__value',
         ]);
         $this->add_control('value_color', [
-            'label'     => __('Color', 'homlity-plugin'),
+            'label'     => __('Color', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-share__value' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('value_color_hover', [
-            'label'     => __('Color (hover)', 'homlity-plugin'),
+            'label'     => __('Color (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-share__link:hover .property-share__value' => 'color: {{VALUE}};'],
         ]);
@@ -267,6 +267,14 @@ class PropertyShareWidget extends BasePropertyWidget
         if (class_exists('\Elementor\Icons_Manager')) {
             \Elementor\Icons_Manager::enqueue_shim();
         }
+
+        wp_enqueue_script(
+            'homlity-real-estate-share',
+            HOMLITY_PLUGIN_URL . 'assets/js/property-share.js',
+            [],
+            HOMLITY_PLUGIN_VERSION,
+            true
+        );
 
         $settings = $this->get_settings_for_display();
         TemplateService::includeComponent('property-share.php', [

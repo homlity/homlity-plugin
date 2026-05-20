@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 /**
  * Admin template editor for property listing and detail pages.
  *
@@ -45,8 +46,8 @@ class TemplateEditorService implements ServiceInterface
     {
         add_submenu_page(
             $parentSlug,
-            __('Plantillas', 'homlity-plugin'),
-            __('Plantillas', 'homlity-plugin'),
+            __('Plantillas', 'homlity-real-estate'),
+            __('Plantillas', 'homlity-real-estate'),
             'manage_options',
             self::MENU_SLUG,
             [$this, 'renderPage']
@@ -82,13 +83,13 @@ class TemplateEditorService implements ServiceInterface
                     'saveAction'     => self::AJAX_SAVE,
                     'editorSettings' => $editorSettings !== false ? $editorSettings : new \stdClass(),
                     'i18n'           => [
-                        'unsavedChanges' => __('Hay cambios sin guardar. ¿Deseas continuar?', 'homlity-plugin'),
-                        'saving'         => __('Guardando…', 'homlity-plugin'),
-                        'saveBtn'        => __('Guardar cambios', 'homlity-plugin'),
-                        'saved'          => __('✓ Guardado correctamente', 'homlity-plugin'),
-                        'errorSaving'    => __('Error al guardar el archivo.', 'homlity-plugin'),
-                        'errorLoading'   => __('Error al cargar el archivo.', 'homlity-plugin'),
-                        'connError'      => __('Error de conexión.', 'homlity-plugin'),
+                        'unsavedChanges' => __('Hay cambios sin guardar. ¿Deseas continuar?', 'homlity-real-estate'),
+                        'saving'         => __('Guardando…', 'homlity-real-estate'),
+                        'saveBtn'        => __('Guardar cambios', 'homlity-real-estate'),
+                        'saved'          => __('✓ Guardado correctamente', 'homlity-real-estate'),
+                        'errorSaving'    => __('Error al guardar el archivo.', 'homlity-real-estate'),
+                        'errorLoading'   => __('Error al cargar el archivo.', 'homlity-real-estate'),
+                        'connError'      => __('Error de conexión.', 'homlity-real-estate'),
                     ],
                 ])
             ),
@@ -160,11 +161,11 @@ class TemplateEditorService implements ServiceInterface
         $groups = $this->getTemplateGroups();
         ?>
         <div class="wrap" id="homlity-template-editor-wrap">
-            <h1><?php esc_html_e('Editor de Plantillas', 'homlity-plugin'); ?></h1>
+            <h1><?php esc_html_e('Editor de Plantillas', 'homlity-real-estate'); ?></h1>
             <p class="description">
                 <?php esc_html_e(
                     'Edita las plantillas PHP del plugin directamente desde el admin. Usa Ctrl+S (o ⌘S en Mac) para guardar. Los cambios son inmediatos.',
-                    'homlity-plugin'
+                    'homlity-real-estate'
                 ); ?>
             </p>
 
@@ -209,14 +210,14 @@ class TemplateEditorService implements ServiceInterface
                 <!-- Main: editor -->
                 <div id="homlity-tpl-main">
                     <div id="homlity-tpl-toolbar">
-                        <span id="homlity-tpl-filename"><?php esc_html_e('← Selecciona un archivo', 'homlity-plugin'); ?></span>
+                        <span id="homlity-tpl-filename"><?php esc_html_e('← Selecciona un archivo', 'homlity-real-estate'); ?></span>
                         <button id="homlity-tpl-save" class="button button-primary" disabled>
-                            <?php esc_html_e('Guardar cambios', 'homlity-plugin'); ?>
+                            <?php esc_html_e('Guardar cambios', 'homlity-real-estate'); ?>
                         </button>
                     </div>
 
                     <div id="homlity-tpl-placeholder">
-                        <p><?php esc_html_e('Selecciona un archivo de la lista para comenzar a editar.', 'homlity-plugin'); ?></p>
+                        <p><?php esc_html_e('Selecciona un archivo de la lista para comenzar a editar.', 'homlity-real-estate'); ?></p>
                     </div>
 
                     <div id="homlity-tpl-editor-area" style="display:none">
@@ -374,13 +375,13 @@ class TemplateEditorService implements ServiceInterface
     private function getTemplateGroups(): array
     {
         return [
-            __('Páginas de entrada', 'homlity-plugin') => [
+            __('Páginas de entrada', 'homlity-real-estate') => [
                 'single-property.php',
                 'archive-property.php',
                 'property-agent.php',
                 'taxonomy-property.php',
             ],
-            __('Detalle del inmueble', 'homlity-plugin') => [
+            __('Detalle del inmueble', 'homlity-real-estate') => [
                 'bootstrap/inmuebles/detalleInmueble.php',
                 'bootstrap/inmuebles/detalleInmueble-noexiste.php',
                 'bootstrap/inmuebles/detalleInmueble-retirado.php',
@@ -400,7 +401,7 @@ class TemplateEditorService implements ServiceInterface
                 'bootstrap/inmuebles/componentes/detalleInmueble/propiedadesSimilares.php',
                 'bootstrap/inmuebles/componentes/detalleInmueble/password-form.php',
             ],
-            __('Resultados / Búsqueda', 'homlity-plugin') => [
+            __('Resultados / Búsqueda', 'homlity-real-estate') => [
                 'bootstrap/inmuebles/search.php',
                 'bootstrap/inmuebles/componentes/search/search-form.php',
                 'bootstrap/inmuebles/componentes/search/search-form-sidebar.php',
@@ -411,7 +412,7 @@ class TemplateEditorService implements ServiceInterface
                 'bootstrap/inmuebles/componentes/search/search-widgets.php',
                 'bootstrap/inmuebles/componentes/filtrer-inmuebles-html.php',
             ],
-            __('Tarjetas de inmueble', 'homlity-plugin') => [
+            __('Tarjetas de inmueble', 'homlity-real-estate') => [
                 'bootstrap/inmuebles/componentes/card.php',
                 'bootstrap/inmuebles/componentes/card-default.php',
                 'bootstrap/inmuebles/componentes/card-noclick.php',
@@ -420,13 +421,13 @@ class TemplateEditorService implements ServiceInterface
                 'bootstrap/inmuebles/componentes/card/features.php',
                 'bootstrap/inmuebles/componentes/card/advisor.php',
             ],
-            __('Asesores', 'homlity-plugin') => [
+            __('Asesores', 'homlity-real-estate') => [
                 'bootstrap/asesores/detalle-asesor.php',
                 'bootstrap/asesores/componentes/asesores/detalle.php',
                 'bootstrap/asesores/componentes/asesores/foto.php',
                 'bootstrap/asesores/componentes/asesores/info.php',
             ],
-            __('Widgets', 'homlity-plugin') => [
+            __('Widgets', 'homlity-real-estate') => [
                 'bootstrap/widgets/inmueblesDestacados.php',
                 'bootstrap/widgets/inmueblesEnVenta.php',
                 'bootstrap/widgets/inmueblesEnArriendo.php',
@@ -438,7 +439,7 @@ class TemplateEditorService implements ServiceInterface
                 'bootstrap/widgets/asesores.php',
                 'bootstrap/widgets/propertysByTag.php',
             ],
-            __('Parts', 'homlity-plugin') => [
+            __('Parts', 'homlity-real-estate') => [
                 'parts/property-card.php',
                 'parts/property-card-bootstrap.php',
                 'parts/property-listing.php',

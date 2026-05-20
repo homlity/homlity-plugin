@@ -20,7 +20,7 @@ class PropertyOperationPriceWidget extends BasePropertyWidget
 
     public function get_title(): string
     {
-        return __('Gestión y valor', 'homlity-plugin');
+        return __('Gestión y valor', 'homlity-real-estate');
     }
 
     public function get_icon(): string
@@ -31,21 +31,21 @@ class PropertyOperationPriceWidget extends BasePropertyWidget
     private function itemsConfig(): array
     {
         return [
-            'operation'   => ['label' => __('Gestión',        'homlity-plugin'), 'icon' => 'eicon-tags',       'icon_library' => 'eicons'],
-            'price_sale'  => ['label' => __('Venta',          'homlity-plugin'), 'icon' => 'fas fa-tag',       'icon_library' => 'fa-solid'],
-            'price_rent'  => ['label' => __('Arriendo',       'homlity-plugin'), 'icon' => 'fas fa-house',     'icon_library' => 'fa-solid'],
-            'price_admin' => ['label' => __('Administración', 'homlity-plugin'), 'icon' => 'eicon-wrench',     'icon_library' => 'eicons'],
+            'operation'   => ['label' => __('Gestión',        'homlity-real-estate'), 'icon' => 'eicon-tags',       'icon_library' => 'eicons'],
+            'price_sale'  => ['label' => __('Venta',          'homlity-real-estate'), 'icon' => 'fas fa-tag',       'icon_library' => 'fa-solid'],
+            'price_rent'  => ['label' => __('Arriendo',       'homlity-real-estate'), 'icon' => 'fas fa-house',     'icon_library' => 'fa-solid'],
+            'price_admin' => ['label' => __('Administración', 'homlity-real-estate'), 'icon' => 'eicon-wrench',     'icon_library' => 'eicons'],
         ];
     }
 
     protected function register_controls(): void
     {
         // ── Contenido ────────────────────────────────────────────────────────
-        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-plugin')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-real-estate')]);
         $this->register_property_control();
 
         $this->add_control('hide_zero_values', [
-            'label'     => __('Ocultar valores en 0', 'homlity-plugin'),
+            'label'     => __('Ocultar valores en 0', 'homlity-real-estate'),
             'type'      => Controls_Manager::SWITCHER,
             'default'   => 'no',
             'separator' => 'before',
@@ -69,17 +69,17 @@ class PropertyOperationPriceWidget extends BasePropertyWidget
 
         // ── Estilos ──────────────────────────────────────────────────────────
         $this->start_controls_section('style_operation_price', [
-            'label' => __('Estilos', 'homlity-plugin'),
+            'label' => __('Estilos', 'homlity-real-estate'),
             'tab'   => Controls_Manager::TAB_STYLE,
         ]);
 
         // — Layout de lista —
         $this->add_control('layout_heading', [
-            'label' => __('Layout de lista', 'homlity-plugin'),
+            'label' => __('Layout de lista', 'homlity-real-estate'),
             'type'  => Controls_Manager::HEADING,
         ]);
         $this->add_responsive_control('list_columns', [
-            'label'          => __('Columnas', 'homlity-plugin'),
+            'label'          => __('Columnas', 'homlity-real-estate'),
             'type'           => Controls_Manager::SELECT,
             'default'        => '1',
             'tablet_default' => '1',
@@ -90,7 +90,7 @@ class PropertyOperationPriceWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_responsive_control('list_gap', [
-            'label'      => __('Espacio entre ítems', 'homlity-plugin'),
+            'label'      => __('Espacio entre ítems', 'homlity-real-estate'),
             'type'       => Controls_Manager::SLIDER,
             'size_units' => ['px', 'em'],
             'range'      => ['px' => ['min' => 0, 'max' => 60]],
@@ -102,37 +102,37 @@ class PropertyOperationPriceWidget extends BasePropertyWidget
 
         // — Ítem —
         $this->add_control('item_heading', [
-            'label'     => __('Ítem', 'homlity-plugin'),
+            'label'     => __('Ítem', 'homlity-real-estate'),
             'type'      => Controls_Manager::HEADING,
             'separator' => 'before',
         ]);
         $this->add_responsive_control('item_direction', [
-            'label'   => __('Dirección', 'homlity-plugin'),
+            'label'   => __('Dirección', 'homlity-real-estate'),
             'type'    => Controls_Manager::CHOOSE,
             'default' => 'row',
             'options' => [
-                'row'    => ['title' => __('Horizontal', 'homlity-plugin'), 'icon' => 'eicon-arrow-right'],
-                'column' => ['title' => __('Vertical',   'homlity-plugin'), 'icon' => 'eicon-arrow-down'],
+                'row'    => ['title' => __('Horizontal', 'homlity-real-estate'), 'icon' => 'eicon-arrow-right'],
+                'column' => ['title' => __('Vertical',   'homlity-real-estate'), 'icon' => 'eicon-arrow-down'],
             ],
             'selectors' => [
                 '{{WRAPPER}} .property-operation-price__item' => 'display: flex; flex-direction: {{VALUE}};',
             ],
         ]);
         $this->add_responsive_control('item_align_items', [
-            'label'   => __('Alineación interna', 'homlity-plugin'),
+            'label'   => __('Alineación interna', 'homlity-real-estate'),
             'type'    => Controls_Manager::CHOOSE,
             'default' => 'center',
             'options' => [
-                'flex-start' => ['title' => __('Inicio', 'homlity-plugin'), 'icon' => 'eicon-v-align-top'],
-                'center'     => ['title' => __('Centro', 'homlity-plugin'), 'icon' => 'eicon-v-align-middle'],
-                'flex-end'   => ['title' => __('Fin',    'homlity-plugin'), 'icon' => 'eicon-v-align-bottom'],
+                'flex-start' => ['title' => __('Inicio', 'homlity-real-estate'), 'icon' => 'eicon-v-align-top'],
+                'center'     => ['title' => __('Centro', 'homlity-real-estate'), 'icon' => 'eicon-v-align-middle'],
+                'flex-end'   => ['title' => __('Fin',    'homlity-real-estate'), 'icon' => 'eicon-v-align-bottom'],
             ],
             'selectors' => [
                 '{{WRAPPER}} .property-operation-price__item' => 'align-items: {{VALUE}};',
             ],
         ]);
         $this->add_responsive_control('icon_text_gap', [
-            'label'      => __('Espacio ícono–texto', 'homlity-plugin'),
+            'label'      => __('Espacio ícono–texto', 'homlity-real-estate'),
             'type'       => Controls_Manager::SLIDER,
             'size_units' => ['px', 'em'],
             'range'      => ['px' => ['min' => 0, 'max' => 40]],
@@ -142,7 +142,7 @@ class PropertyOperationPriceWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_responsive_control('item_padding', [
-            'label'      => __('Padding', 'homlity-plugin'),
+            'label'      => __('Padding', 'homlity-real-estate'),
             'type'       => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%', 'em'],
             'selectors'  => [
@@ -150,14 +150,14 @@ class PropertyOperationPriceWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_control('item_bg', [
-            'label'     => __('Fondo', 'homlity-plugin'),
+            'label'     => __('Fondo', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => [
                 '{{WRAPPER}} .property-operation-price__item' => 'background-color: {{VALUE}};',
             ],
         ]);
         $this->add_responsive_control('item_radius', [
-            'label'      => __('Radio borde', 'homlity-plugin'),
+            'label'      => __('Radio borde', 'homlity-real-estate'),
             'type'       => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%'],
             'selectors'  => [
@@ -165,7 +165,7 @@ class PropertyOperationPriceWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_control('item_bg_hover', [
-            'label'     => __('Fondo (hover)', 'homlity-plugin'),
+            'label'     => __('Fondo (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => [
                 '{{WRAPPER}} .property-operation-price__item:hover' => 'background-color: {{VALUE}};',
@@ -174,22 +174,22 @@ class PropertyOperationPriceWidget extends BasePropertyWidget
 
         // — Ícono —
         $this->add_control('icon_heading', [
-            'label'     => __('Ícono', 'homlity-plugin'),
+            'label'     => __('Ícono', 'homlity-real-estate'),
             'type'      => Controls_Manager::HEADING,
             'separator' => 'before',
         ]);
         $this->add_control('icon_color', [
-            'label'     => __('Color', 'homlity-plugin'),
+            'label'     => __('Color', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-operation-price__icon' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('icon_color_hover', [
-            'label'     => __('Color (hover)', 'homlity-plugin'),
+            'label'     => __('Color (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-operation-price__item:hover .property-operation-price__icon' => 'color: {{VALUE}};'],
         ]);
         $this->add_responsive_control('icon_size', [
-            'label'      => __('Tamaño', 'homlity-plugin'),
+            'label'      => __('Tamaño', 'homlity-real-estate'),
             'type'       => Controls_Manager::SLIDER,
             'size_units' => ['px', 'em'],
             'range'      => ['px' => ['min' => 8, 'max' => 64]],
@@ -201,7 +201,7 @@ class PropertyOperationPriceWidget extends BasePropertyWidget
 
         // — Texto (etiqueta) —
         $this->add_control('label_heading', [
-            'label'     => __('Texto', 'homlity-plugin'),
+            'label'     => __('Texto', 'homlity-real-estate'),
             'type'      => Controls_Manager::HEADING,
             'separator' => 'before',
         ]);
@@ -210,19 +210,19 @@ class PropertyOperationPriceWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-operation-price__label',
         ]);
         $this->add_control('label_color', [
-            'label'     => __('Color', 'homlity-plugin'),
+            'label'     => __('Color', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-operation-price__label' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('label_color_hover', [
-            'label'     => __('Color (hover)', 'homlity-plugin'),
+            'label'     => __('Color (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-operation-price__item:hover .property-operation-price__label' => 'color: {{VALUE}};'],
         ]);
 
         // — Valor —
         $this->add_control('value_heading', [
-            'label'     => __('Valor', 'homlity-plugin'),
+            'label'     => __('Valor', 'homlity-real-estate'),
             'type'      => Controls_Manager::HEADING,
             'separator' => 'before',
         ]);
@@ -231,12 +231,12 @@ class PropertyOperationPriceWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-operation-price__value',
         ]);
         $this->add_control('value_color', [
-            'label'     => __('Color', 'homlity-plugin'),
+            'label'     => __('Color', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-operation-price__value' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('value_color_hover', [
-            'label'     => __('Color (hover)', 'homlity-plugin'),
+            'label'     => __('Color (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-operation-price__item:hover .property-operation-price__value' => 'color: {{VALUE}};'],
         ]);

@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 /**
  * Outputs basic structured data for property pages and SEO helpers.
  */

@@ -39,7 +39,7 @@ class SettingsService implements ServiceInterface
 
     public function registerRestRoutes(): void
     {
-        register_rest_route('homlity-plugin/v1', '/settings', [
+        register_rest_route('homlity-real-estate/v1', '/settings', [
             [
                 'methods' => \WP_REST_Server::READABLE,
                 'callback' => [$this, 'getSettingsResponse'],
@@ -60,26 +60,26 @@ class SettingsService implements ServiceInterface
 
     public function enqueueSettingsAssets(string $hook): void
     {
-        if ($hook !== 'toplevel_page_homlity-plugin-settings') {
+        if ($hook !== 'toplevel_page_homlity-real-estate-settings') {
             return;
         }
 
         wp_enqueue_style(
-            'homlity-plugin-settings-app',
+            'homlity-real-estate-settings-app',
             HOMLITY_PLUGIN_URL . 'assets/css/settings-app.css',
             [],
             HOMLITY_PLUGIN_VERSION
         );
 
         wp_enqueue_script(
-            'homlity-plugin-settings-app',
+            'homlity-real-estate-settings-app',
             HOMLITY_PLUGIN_URL . 'assets/js/settings-app.js',
             ['wp-element', 'wp-api-fetch', 'wp-i18n'],
             HOMLITY_PLUGIN_VERSION,
             true
         );
 
-        wp_localize_script('homlity-plugin-settings-app', 'homlityPluginSettingsApp', [
+        wp_localize_script('homlity-real-estate-settings-app', 'homlityPluginSettingsApp', [
             'settings' => $this->settingsPayload(),
             'defaults' => $this->defaults(),
             'currencies' => $this->supportedCurrencies(),
@@ -89,12 +89,12 @@ class SettingsService implements ServiceInterface
             'galleryModeOptions' => $this->galleryModeOptions(),
             'locationTaxonomies' => $this->locationTaxonomies(),
             'logoUrl' => HOMLITY_PLUGIN_URL . 'icono.png',
-            'savePath' => '/homlity-plugin/v1/settings',
-            'locationTermsPath' => '/homlity-plugin/v1/location-terms',
+            'savePath' => '/homlity-real-estate/v1/settings',
+            'locationTermsPath' => '/homlity-real-estate/v1/location-terms',
             'nonce' => wp_create_nonce('wp_rest'),
-            'pageTitle' => __('Ajustes de la plataforma inmobiliaria', 'homlity-plugin'),
-            'saveLabel' => __('Guardar cambios', 'homlity-plugin'),
-            'resetLabel' => __('Restablecer', 'homlity-plugin'),
+            'pageTitle' => __('Ajustes de la plataforma inmobiliaria', 'homlity-real-estate'),
+            'saveLabel' => __('Guardar cambios', 'homlity-real-estate'),
+            'resetLabel' => __('Restablecer', 'homlity-real-estate'),
         ]);
     }
 
@@ -102,7 +102,7 @@ class SettingsService implements ServiceInterface
     {
         ?>
         <div class="wrap homlity-settings-admin">
-            <div id="homlity-plugin-settings-app"></div>
+            <div id="homlity-real-estate-settings-app"></div>
         </div>
         <?php
     }
@@ -127,7 +127,7 @@ class SettingsService implements ServiceInterface
         if (!is_array($incoming)) {
             return new \WP_Error(
                 'homlity_plugin_invalid_settings',
-                __('La configuración enviada no es válida.', 'homlity-plugin'),
+                __('La configuración enviada no es válida.', 'homlity-real-estate'),
                 ['status' => 400]
             );
         }
@@ -138,7 +138,7 @@ class SettingsService implements ServiceInterface
 
         return new \WP_REST_Response([
             'settings' => $this->settingsPayload(),
-            'message' => __('Configuración guardada correctamente.', 'homlity-plugin'),
+            'message' => __('Configuración guardada correctamente.', 'homlity-real-estate'),
         ]);
     }
 
@@ -210,7 +210,7 @@ class SettingsService implements ServiceInterface
             ? $values['detail_gallery_mode']
             : $this->defaults()['detail_gallery_mode'];
 
-        $values['show_powered_by'] = !empty($values['show_powered_by']);
+        $values['enable_analytics'] = !empty($values['enable_analytics']);
 
         $values['primary_color'] = isset($values['primary_color'])
             ? sanitize_hex_color($values['primary_color'])
@@ -266,23 +266,23 @@ class SettingsService implements ServiceInterface
         return [
             [
                 'value' => 'price',
-                'label' => __('Precio', 'homlity-plugin'),
-                'description' => __('Muestra el valor principal de la propiedad en cada tarjeta.', 'homlity-plugin'),
+                'label' => __('Precio', 'homlity-real-estate'),
+                'description' => __('Muestra el valor principal de la propiedad en cada tarjeta.', 'homlity-real-estate'),
             ],
             [
                 'value' => 'excerpt',
-                'label' => __('Descripción corta', 'homlity-plugin'),
-                'description' => __('Añade contexto editorial con un resumen breve del inmueble.', 'homlity-plugin'),
+                'label' => __('Descripción corta', 'homlity-real-estate'),
+                'description' => __('Añade contexto editorial con un resumen breve del inmueble.', 'homlity-real-estate'),
             ],
             [
                 'value' => 'features',
-                'label' => __('Características', 'homlity-plugin'),
-                'description' => __('Expone área, habitaciones y baños en el listado.', 'homlity-plugin'),
+                'label' => __('Características', 'homlity-real-estate'),
+                'description' => __('Expone área, habitaciones y baños en el listado.', 'homlity-real-estate'),
             ],
             [
                 'value' => 'whatsapp',
-                'label' => __('Botón de WhatsApp', 'homlity-plugin'),
-                'description' => __('Habilita contacto rápido desde la tarjeta del inmueble.', 'homlity-plugin'),
+                'label' => __('Botón de WhatsApp', 'homlity-real-estate'),
+                'description' => __('Habilita contacto rápido desde la tarjeta del inmueble.', 'homlity-real-estate'),
             ],
         ];
     }
@@ -292,27 +292,27 @@ class SettingsService implements ServiceInterface
         return [
             [
                 'value' => 'created_desc',
-                'label' => __('Fecha de creación (mayor a menor)', 'homlity-plugin'),
+                'label' => __('Fecha de creación (mayor a menor)', 'homlity-real-estate'),
             ],
             [
                 'value' => 'created_asc',
-                'label' => __('Fecha de creación (menor a mayor)', 'homlity-plugin'),
+                'label' => __('Fecha de creación (menor a mayor)', 'homlity-real-estate'),
             ],
             [
                 'value' => 'price_desc',
-                'label' => __('Precio (mayor a menor)', 'homlity-plugin'),
+                'label' => __('Precio (mayor a menor)', 'homlity-real-estate'),
             ],
             [
                 'value' => 'price_asc',
-                'label' => __('Precio (menor a mayor)', 'homlity-plugin'),
+                'label' => __('Precio (menor a mayor)', 'homlity-real-estate'),
             ],
             [
                 'value' => 'modified_desc',
-                'label' => __('Fecha de actualización (mayor a menor)', 'homlity-plugin'),
+                'label' => __('Fecha de actualización (mayor a menor)', 'homlity-real-estate'),
             ],
             [
                 'value' => 'modified_asc',
-                'label' => __('Fecha de actualización (menor a mayor)', 'homlity-plugin'),
+                'label' => __('Fecha de actualización (menor a mayor)', 'homlity-real-estate'),
             ],
         ];
     }
@@ -322,11 +322,11 @@ class SettingsService implements ServiceInterface
         return [
             [
                 'value' => 'leaflet_map',
-                'label' => __('Leaflet Map', 'homlity-plugin'),
+                'label' => __('Leaflet Map', 'homlity-real-estate'),
             ],
             [
                 'value' => 'google_map',
-                'label' => __('Google Map', 'homlity-plugin'),
+                'label' => __('Google Map', 'homlity-real-estate'),
             ],
         ];
     }
@@ -336,11 +336,11 @@ class SettingsService implements ServiceInterface
         return [
             [
                 'value' => 'light_gallery',
-                'label' => __('Light Gallery', 'homlity-plugin'),
+                'label' => __('Light Gallery', 'homlity-real-estate'),
             ],
             [
                 'value' => 'owl_gallery',
-                'label' => __('Owl Gallery', 'homlity-plugin'),
+                'label' => __('Owl Gallery', 'homlity-real-estate'),
             ],
         ];
     }
@@ -361,7 +361,7 @@ class SettingsService implements ServiceInterface
             'base_currency' => 'USD',
             'listing_fields' => ['price', 'excerpt', 'features', 'whatsapp'],
             'company_name' => 'Ecosistema Inmobiliario Homlity',
-            'company_url' => 'https://github.com/homlity/homlity-plugin',
+            'company_url' => 'https://github.com/homlity/homlity-real-estate',
             'support_email' => '',
             'default_country' => 0,
             'default_state' => 0,
@@ -372,7 +372,7 @@ class SettingsService implements ServiceInterface
             'primary_color' => '#ff6752',
             'default_map_provider' => 'leaflet_map',
             'detail_gallery_mode' => 'light_gallery',
-            'show_powered_by' => false,
+            'enable_analytics' => false,
         ];
     }
 }

@@ -84,11 +84,11 @@ Meta de sincronización CRM (actuales):
 - CRM queue: `cron_schedules`, `homlity_plugin_crm_process_queue`
 
 ### 1.7 Endpoints REST existentes (resumen)
-- Settings: `/wp-json/homlity-plugin/v1/settings`
+- Settings: `/wp-json/homlity-real-estate/v1/settings`
 - Property tools:
-  - `/wp-json/homlity-plugin/v1/property-next-code`
-  - `/wp-json/homlity-plugin/v1/property-geocode`
-- Location terms: `/wp-json/homlity-plugin/v1/location-terms`
+  - `/wp-json/homlity-real-estate/v1/property-next-code`
+  - `/wp-json/homlity-real-estate/v1/property-geocode`
+- Location terms: `/wp-json/homlity-real-estate/v1/location-terms`
 - CRM:
   - `/wp-json/homlity/v1/crm/providers`
   - `/wp-json/homlity/v1/crm/schema/property`

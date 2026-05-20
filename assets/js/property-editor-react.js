@@ -310,7 +310,7 @@
       var postId = Number(app.postId || 0);
       if (!postId) return;
 
-      api('/homlity-plugin/v1/property-media-sync', { post_id: postId }).then(function (res) {
+      api('/homlity-real-estate/v1/property-media-sync', { post_id: postId }).then(function (res) {
         if (!res || res.ok !== true) return;
 
         var videos = normalizeUrlListFromMeta(res.videos);
@@ -391,7 +391,7 @@
         setStateOptions([]); setState(''); setCityOptions([]); setCity(''); setNeighborhoodOptions([]); setNeighborhood('');
         return;
       }
-      api('/homlity-plugin/v1/location-terms', { taxonomy: app.taxonomies.state, parent: country }).then(function (rows) {
+      api('/homlity-real-estate/v1/location-terms', { taxonomy: app.taxonomies.state, parent: country }).then(function (rows) {
         setStateOptions(rows || []);
         if (!(rows || []).some(function (t) { return String(t.id) === String(state); })) {
           setState(''); setCity(''); setNeighborhood(''); setCityOptions([]); setNeighborhoodOptions([]);
@@ -401,7 +401,7 @@
 
     useEffect(function () {
       if (!app.taxonomies || !state) { setCityOptions([]); setCity(''); setNeighborhoodOptions([]); setNeighborhood(''); return; }
-      api('/homlity-plugin/v1/location-terms', { taxonomy: app.taxonomies.city, parent: state }).then(function (rows) {
+      api('/homlity-real-estate/v1/location-terms', { taxonomy: app.taxonomies.city, parent: state }).then(function (rows) {
         setCityOptions(rows || []);
         if (!(rows || []).some(function (t) { return String(t.id) === String(city); })) {
           setCity(''); setNeighborhood(''); setNeighborhoodOptions([]);
@@ -411,7 +411,7 @@
 
     useEffect(function () {
       if (!app.taxonomies || !city) { setNeighborhoodOptions([]); setNeighborhood(''); return; }
-      api('/homlity-plugin/v1/location-terms', { taxonomy: app.taxonomies.neighborhood, parent: city }).then(function (rows) {
+      api('/homlity-real-estate/v1/location-terms', { taxonomy: app.taxonomies.neighborhood, parent: city }).then(function (rows) {
         setNeighborhoodOptions(rows || []);
         if (!(rows || []).some(function (t) { return String(t.id) === String(neighborhood); })) {
           setNeighborhood('');
@@ -421,7 +421,7 @@
 
     useEffect(function () {
       if (isSyncedProperty) return;
-      api('/homlity-plugin/v1/property-next-code', { operation: operation || 0, type: type || 0, post_id: app.postId || 0 })
+      api('/homlity-real-estate/v1/property-next-code', { operation: operation || 0, type: type || 0, post_id: app.postId || 0 })
         .then(function (res) {
           if (res && res.code) setCode(String(res.code));
         });
@@ -616,7 +616,7 @@
         setLongitude(String(Number(lng).toFixed(6)));
       }
 
-      return api('/homlity-plugin/v1/property-geocode', payload).then(function (res) {
+      return api('/homlity-real-estate/v1/property-geocode', payload).then(function (res) {
         if (res && res.lat && res.lng) {
           applyCoords(res.lat, res.lng);
           return true;

@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Technical sheet content.
  * Expected args: $post_id (int)
@@ -201,29 +203,29 @@ if (!is_wp_error($featureTerms) && $featureTerms) {
                 <img src="<?php echo esc_url($companyLogo); ?>" alt="<?php echo esc_attr($companyName); ?>" class="homlity-tech-sheet__hero-logo">
             <?php endif; ?>
             <div>
-                <p class="homlity-tech-sheet__brand-label"><?php esc_html_e('Ficha técnica inmueble', 'homlity-plugin'); ?></p>
+                <p class="homlity-tech-sheet__brand-label"><?php esc_html_e('Ficha técnica inmueble', 'homlity-real-estate'); ?></p>
                 <h1><?php echo esc_html($title); ?></h1>
                 <p class="homlity-tech-sheet__hero-subtitle"><?php echo esc_html($asText(get_post_meta($post_id, $meta['address'], true))); ?></p>
             </div>
         </div>
         <div class="homlity-tech-sheet__actions">
-            <a class="homlity-tech-sheet__back" href="<?php echo esc_url($permalink); ?>"><?php esc_html_e('Volver al inmueble', 'homlity-plugin'); ?></a>
-            <button type="button" class="homlity-tech-sheet__print" onclick="window.print()"><?php esc_html_e('Imprimir ficha', 'homlity-plugin'); ?></button>
+            <a class="homlity-tech-sheet__back" href="<?php echo esc_url($permalink); ?>"><?php esc_html_e('Volver al inmueble', 'homlity-real-estate'); ?></a>
+            <button type="button" class="homlity-tech-sheet__print" onclick="window.print()"><?php esc_html_e('Imprimir ficha', 'homlity-real-estate'); ?></button>
         </div>
     </div>
 
     <section class="homlity-tech-sheet__card">
-        <h2><?php esc_html_e('Información de la inmobiliaria', 'homlity-plugin'); ?></h2>
+        <h2><?php esc_html_e('Información de la inmobiliaria', 'homlity-real-estate'); ?></h2>
         <div class="homlity-tech-sheet__grid">
-            <div><strong><?php esc_html_e('Nombre', 'homlity-plugin'); ?>:</strong> <?php echo esc_html($asText($companyName)); ?></div>
-            <div><strong><?php esc_html_e('Web', 'homlity-plugin'); ?>:</strong> <a href="<?php echo esc_url($companyUrl); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($asText($companyUrl)); ?></a></div>
-            <div><strong><?php esc_html_e('Correo', 'homlity-plugin'); ?>:</strong> <?php echo esc_html($asText($companyEmail)); ?></div>
-            <div><strong><?php esc_html_e('URL inmueble', 'homlity-plugin'); ?>:</strong> <a href="<?php echo esc_url($permalink); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($permalink); ?></a></div>
+            <div><strong><?php esc_html_e('Nombre', 'homlity-real-estate'); ?>:</strong> <?php echo esc_html($asText($companyName)); ?></div>
+            <div><strong><?php esc_html_e('Web', 'homlity-real-estate'); ?>:</strong> <a href="<?php echo esc_url($companyUrl); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($asText($companyUrl)); ?></a></div>
+            <div><strong><?php esc_html_e('Correo', 'homlity-real-estate'); ?>:</strong> <?php echo esc_html($asText($companyEmail)); ?></div>
+            <div><strong><?php esc_html_e('URL inmueble', 'homlity-real-estate'); ?>:</strong> <a href="<?php echo esc_url($permalink); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($permalink); ?></a></div>
         </div>
     </section>
 
     <section class="homlity-tech-sheet__card homlity-tech-sheet__advisor">
-        <h2><?php esc_html_e('Información del asesor', 'homlity-plugin'); ?></h2>
+        <h2><?php esc_html_e('Información del asesor', 'homlity-real-estate'); ?></h2>
         <div class="homlity-tech-sheet__advisor-row">
             <div class="homlity-tech-sheet__advisor-avatar-wrap">
                 <?php if ($agentAvatar) : ?>
@@ -233,29 +235,29 @@ if (!is_wp_error($featureTerms) && $featureTerms) {
                 <?php endif; ?>
             </div>
             <div class="homlity-tech-sheet__grid homlity-tech-sheet__grid--advisor">
-                <div><strong><?php esc_html_e('Nombre', 'homlity-plugin'); ?>:</strong> <?php echo esc_html($asText($agentName)); ?></div>
+                <div><strong><?php esc_html_e('Nombre', 'homlity-real-estate'); ?>:</strong> <?php echo esc_html($asText($agentName)); ?></div>
                 <div>
-                    <strong><?php esc_html_e('Teléfono', 'homlity-plugin'); ?>:</strong>
+                    <strong><?php esc_html_e('Teléfono', 'homlity-real-estate'); ?>:</strong>
                     <?php if ($agentPhone) : ?>
                         <a href="<?php echo esc_attr('tel:' . preg_replace('/\s+/', '', (string) $agentPhone)); ?>" data-homlity-contact-type="phone" data-property-id="<?php echo esc_attr($post_id); ?>"><?php echo esc_html($agentPhone); ?></a>
                     <?php else : ?>
-                        <?php esc_html_e('Sin dato', 'homlity-plugin'); ?>
+                        <?php esc_html_e('Sin dato', 'homlity-real-estate'); ?>
                     <?php endif; ?>
                 </div>
                 <div>
-                    <strong><?php esc_html_e('Correo', 'homlity-plugin'); ?>:</strong>
+                    <strong><?php esc_html_e('Correo', 'homlity-real-estate'); ?>:</strong>
                     <?php if ($agentEmail) : ?>
                         <a href="<?php echo esc_attr('mailto:' . $agentEmail); ?>" data-homlity-contact-type="email" data-property-id="<?php echo esc_attr($post_id); ?>"><?php echo esc_html($agentEmail); ?></a>
                     <?php else : ?>
-                        <?php esc_html_e('Sin dato', 'homlity-plugin'); ?>
+                        <?php esc_html_e('Sin dato', 'homlity-real-estate'); ?>
                     <?php endif; ?>
                 </div>
                 <div>
-                    <strong><?php esc_html_e('WhatsApp', 'homlity-plugin'); ?>:</strong>
+                    <strong><?php esc_html_e('WhatsApp', 'homlity-real-estate'); ?>:</strong>
                     <?php if ($whatsAppUrl) : ?>
-                        <a href="<?php echo esc_url($whatsAppUrl); ?>" target="_blank" rel="noopener noreferrer" data-homlity-contact-type="whatsapp" data-property-id="<?php echo esc_attr($post_id); ?>"><?php esc_html_e('Contactar asesor', 'homlity-plugin'); ?></a>
+                        <a href="<?php echo esc_url($whatsAppUrl); ?>" target="_blank" rel="noopener noreferrer" data-homlity-contact-type="whatsapp" data-property-id="<?php echo esc_attr($post_id); ?>"><?php esc_html_e('Contactar asesor', 'homlity-real-estate'); ?></a>
                     <?php else : ?>
-                        <?php esc_html_e('Sin dato', 'homlity-plugin'); ?>
+                        <?php esc_html_e('Sin dato', 'homlity-real-estate'); ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -263,7 +265,7 @@ if (!is_wp_error($featureTerms) && $featureTerms) {
     </section>
 
     <section class="homlity-tech-sheet__card">
-        <h2><?php esc_html_e('Finanzas', 'homlity-plugin'); ?></h2>
+        <h2><?php esc_html_e('Finanzas', 'homlity-real-estate'); ?></h2>
         <div class="homlity-tech-sheet__stats">
             <?php foreach ($financeItems as $item) : ?>
                 <article class="homlity-tech-sheet__stat">
@@ -275,7 +277,7 @@ if (!is_wp_error($featureTerms) && $featureTerms) {
     </section>
 
     <section class="homlity-tech-sheet__card">
-        <h2><?php esc_html_e('Información general del inmueble', 'homlity-plugin'); ?></h2>
+        <h2><?php esc_html_e('Información general del inmueble', 'homlity-real-estate'); ?></h2>
         <div class="homlity-tech-sheet__grid">
             <?php foreach ($infoItems as $item) : ?>
                 <div><strong><?php echo esc_html($item[0]); ?>:</strong> <?php echo esc_html($asText($item[1])); ?></div>
@@ -284,7 +286,7 @@ if (!is_wp_error($featureTerms) && $featureTerms) {
     </section>
 
     <section class="homlity-tech-sheet__card">
-        <h2><?php esc_html_e('Dimensiones y ambientes', 'homlity-plugin'); ?></h2>
+        <h2><?php esc_html_e('Dimensiones y ambientes', 'homlity-real-estate'); ?></h2>
         <div class="homlity-tech-sheet__grid">
             <?php foreach ($dimensionItems as $item) :
                 $suffix = $item[2] !== '' && trim((string) $item[1]) !== '' ? ' ' . $item[2] : '';
@@ -295,12 +297,12 @@ if (!is_wp_error($featureTerms) && $featureTerms) {
     </section>
 
     <section class="homlity-tech-sheet__card">
-        <h2><?php esc_html_e('Descripción completa', 'homlity-plugin'); ?></h2>
+        <h2><?php esc_html_e('Descripción completa', 'homlity-real-estate'); ?></h2>
         <div class="homlity-tech-sheet__description"><?php echo wp_kses_post($description); ?></div>
     </section>
 
     <section class="homlity-tech-sheet__card">
-        <h2><?php esc_html_e('Características del inmueble', 'homlity-plugin'); ?></h2>
+        <h2><?php esc_html_e('Características del inmueble', 'homlity-real-estate'); ?></h2>
         <?php if ($features) : ?>
             <ul class="homlity-tech-sheet__features-list">
                 <?php foreach ($features as $feature) : ?>
@@ -308,15 +310,15 @@ if (!is_wp_error($featureTerms) && $featureTerms) {
                 <?php endforeach; ?>
             </ul>
         <?php else : ?>
-            <p><?php esc_html_e('Sin características registradas.', 'homlity-plugin'); ?></p>
+            <p><?php esc_html_e('Sin características registradas.', 'homlity-real-estate'); ?></p>
         <?php endif; ?>
     </section>
 
     <section class="homlity-tech-sheet__card">
-        <h2><?php esc_html_e('Catálogo multimedia', 'homlity-plugin'); ?></h2>
+        <h2><?php esc_html_e('Catálogo multimedia', 'homlity-real-estate'); ?></h2>
 
         <?php if ($images) : ?>
-            <h3><?php esc_html_e('Fotos', 'homlity-plugin'); ?></h3>
+            <h3><?php esc_html_e('Fotos', 'homlity-real-estate'); ?></h3>
             <div class="homlity-tech-sheet__gallery">
                 <?php foreach (array_slice($images, 0, 18) as $image) : ?>
                     <a href="<?php echo esc_url($image); ?>" target="_blank" rel="noopener noreferrer">
@@ -330,25 +332,25 @@ if (!is_wp_error($featureTerms) && $featureTerms) {
             <div class="homlity-tech-sheet__media-links">
                 <?php if ($videos) : ?>
                     <div>
-                        <h3><?php esc_html_e('Videos', 'homlity-plugin'); ?></h3>
+                        <h3><?php esc_html_e('Videos', 'homlity-real-estate'); ?></h3>
                         <ul><?php foreach ($videos as $url) : ?><li><a href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($url); ?></a></li><?php endforeach; ?></ul>
                     </div>
                 <?php endif; ?>
                 <?php if ($tours) : ?>
                     <div>
-                        <h3><?php esc_html_e('Recorridos 360', 'homlity-plugin'); ?></h3>
+                        <h3><?php esc_html_e('Recorridos 360', 'homlity-real-estate'); ?></h3>
                         <ul><?php foreach ($tours as $url) : ?><li><a href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($url); ?></a></li><?php endforeach; ?></ul>
                     </div>
                 <?php endif; ?>
                 <?php if ($photos360) : ?>
                     <div>
-                        <h3><?php esc_html_e('Fotos 360', 'homlity-plugin'); ?></h3>
+                        <h3><?php esc_html_e('Fotos 360', 'homlity-real-estate'); ?></h3>
                         <ul><?php foreach ($photos360 as $url) : ?><li><a href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($url); ?></a></li><?php endforeach; ?></ul>
                     </div>
                 <?php endif; ?>
                 <?php if ($brochure) : ?>
                     <div>
-                        <h3><?php esc_html_e('Brochure', 'homlity-plugin'); ?></h3>
+                        <h3><?php esc_html_e('Brochure', 'homlity-real-estate'); ?></h3>
                         <p><a href="<?php echo esc_url($brochure); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($brochure); ?></a></p>
                     </div>
                 <?php endif; ?>
@@ -359,7 +361,7 @@ if (!is_wp_error($featureTerms) && $featureTerms) {
     <section class="homlity-tech-sheet__card">
         <p class="homlity-tech-sheet__legal">
             <?php echo esc_html($companyName); ?> · <?php echo esc_html(date_i18n('Y-m-d H:i')); ?> ·
-            <?php esc_html_e('Propiedad sujeta a disponibilidad. Precio e información sujetos a cambios sin previo aviso.', 'homlity-plugin'); ?>
+            <?php esc_html_e('Propiedad sujeta a disponibilidad. Precio e información sujetos a cambios sin previo aviso.', 'homlity-real-estate'); ?>
         </p>
     </section>
 </main>

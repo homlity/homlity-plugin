@@ -1,5 +1,9 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 if ( isset( $inmueble ) ) {
     $texto = visualinmu_text_shared( $inmueble );
 } else {

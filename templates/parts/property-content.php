@@ -1,5 +1,10 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 if (!isset($post_id)) {
     $post_id = get_the_ID();
 }
@@ -10,9 +15,10 @@ if (!in_array($tag, ['div', 'section', 'article', 'p'], true)) {
 $contentHtml  = (string) apply_filters('the_content', get_post_field('post_content', $post_id));
 $contentPlain = trim(wp_strip_all_tags($contentHtml));
 $showAudio    = !empty($show_audio_player) && $contentPlain !== '';
-$audioHeading = isset($audio_player_heading) ? (string) $audio_player_heading : __('Escucha', 'homlity-plugin');
-$audioLabel   = isset($audio_player_label) ? (string) $audio_player_label : __('este inmueble', 'homlity-plugin');
+$audioHeading = isset($audio_player_heading) ? (string) $audio_player_heading : __('Escucha', 'homlity-real-estate');
+$audioLabel   = isset($audio_player_label) ? (string) $audio_player_label : __('este inmueble', 'homlity-real-estate');
 $audioRate    = isset($audio_default_rate) ? (float) $audio_default_rate : 1.0;
+$audioVoice   = isset($audio_voice) ? sanitize_key((string) $audio_voice) : 'auto';
 ?>
 <<?php echo esc_attr($tag); ?> class="property-content-widget">
     <?php echo $contentHtml; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -21,14 +27,15 @@ $audioRate    = isset($audio_default_rate) ? (float) $audio_default_rate : 1.0;
 <?php if ($showAudio) : ?>
 <div class="property-content-audio-bar"
      role="region"
-     aria-label="<?php esc_attr_e('Reproductor de audio', 'homlity-plugin'); ?>"
+     aria-label="<?php esc_attr_e('Reproductor de audio', 'homlity-real-estate'); ?>"
      data-text="<?php echo esc_attr($contentPlain); ?>"
-     data-rate="<?php echo esc_attr((string) $audioRate); ?>">
+     data-rate="<?php echo esc_attr((string) $audioRate); ?>"
+     data-voice="<?php echo esc_attr($audioVoice); ?>">
 
     <button type="button"
             class="property-content-audio-bar__play-btn"
             data-audio="play-pause"
-            aria-label="<?php esc_attr_e('Reproducir', 'homlity-plugin'); ?>">
+            aria-label="<?php esc_attr_e('Reproducir', 'homlity-real-estate'); ?>">
         <svg class="hca-icon-play" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
             <path d="M8 5v14l11-7z"/>
         </svg>
@@ -55,7 +62,7 @@ $audioRate    = isset($audio_default_rate) ? (float) $audio_default_rate : 1.0;
     <div class="property-content-audio-bar__rate-wrap">
         <select class="property-content-audio-bar__rate"
                 data-audio="rate"
-                aria-label="<?php esc_attr_e('Velocidad de reproducción', 'homlity-plugin'); ?>">
+                aria-label="<?php esc_attr_e('Velocidad de reproducción', 'homlity-real-estate'); ?>">
             <option value="0.75"<?php selected($audioRate, 0.75); ?>>0.75x</option>
             <option value="1"<?php selected($audioRate, 1.0); ?>>1x</option>
             <option value="1.25"<?php selected($audioRate, 1.25); ?>>1.25x</option>

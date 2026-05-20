@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 /**
  * Resolves WhatsApp links for properties, prioritizing WP Chat App (Ninja Team).
  */

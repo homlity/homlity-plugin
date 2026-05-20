@@ -19,7 +19,7 @@
         apiFetch.use(apiFetch.createNonceMiddleware(config.nonce));
     }
 
-    const root = document.getElementById('homlity-plugin-settings-app');
+    const root = document.getElementById('homlity-real-estate-settings-app');
     if (!root) {
         return;
     }
@@ -33,6 +33,8 @@
 
         merged.listing_fields = Array.isArray(merged.listing_fields) ? merged.listing_fields.slice() : [];
         merged.listing_fields = optionOrder.filter((value) => merged.listing_fields.includes(value));
+
+        merged.enable_analytics = !!merged.enable_analytics;
 
         ['default_country', 'default_state', 'default_city', 'default_neighborhood', 'archive_per_page'].forEach((key) => {
             if (merged[key] === '' || merged[key] === null || typeof merged[key] === 'undefined') {
@@ -164,6 +166,30 @@
                     [
                         el('strong', { key: 'label' }, props.label),
                         el('span', { key: 'description' }, props.description),
+                    ]
+                ),
+            ]
+        );
+    }
+
+    function Toggle(props) {
+        return el(
+            'label',
+            { className: 'homlity-settings__toggle-field' },
+            [
+                el('input', {
+                    key: 'input',
+                    type: 'checkbox',
+                    className: 'homlity-settings__toggle-input',
+                    checked: !!props.checked,
+                    onChange: props.onChange,
+                }),
+                el(
+                    'span',
+                    { key: 'copy', className: 'homlity-settings__toggle-copy' },
+                    [
+                        el('strong', { key: 'label' }, props.label),
+                        props.hint ? el('span', { key: 'hint', className: 'homlity-settings__field-hint' }, props.hint) : null,
                     ]
                 ),
             ]
@@ -313,12 +339,12 @@
             const next = normalizeSettings(config.defaults);
             setSettings(next);
             setStatus('idle');
-            setMessage(__('Valores restablecidos localmente. Guarda para aplicar los cambios.', 'homlity-plugin'));
+            setMessage(__('Valores restablecidos localmente. Guarda para aplicar los cambios.', 'homlity-real-estate'));
         }
 
         function saveSettings() {
             setStatus('saving');
-            setMessage(__('Guardando configuración…', 'homlity-plugin'));
+            setMessage(__('Guardando configuración…', 'homlity-real-estate'));
 
             apiFetch({
                 path: config.savePath,
@@ -329,10 +355,10 @@
                 setSettings(next);
                 setBaseline(JSON.stringify(next));
                 setStatus('saved');
-                setMessage(response.message || __('Configuración guardada correctamente.', 'homlity-plugin'));
+                setMessage(response.message || __('Configuración guardada correctamente.', 'homlity-real-estate'));
             }).catch((error) => {
                 setStatus('error');
-                setMessage((error && error.message) || __('No fue posible guardar la configuración.', 'homlity-plugin'));
+                setMessage((error && error.message) || __('No fue posible guardar la configuración.', 'homlity-real-estate'));
             });
         }
 
@@ -368,16 +394,16 @@
                                                 isDirty && status !== 'saving' && status !== 'error' && 'is-dirty'
                                             ),
                                         }, status === 'saving'
-                                            ? __('Guardando…', 'homlity-plugin')
+                                            ? __('Guardando…', 'homlity-real-estate')
                                             : status === 'saved'
-                                                ? __('Sincronizado', 'homlity-plugin')
+                                                ? __('Sincronizado', 'homlity-real-estate')
                                                 : status === 'error'
-                                                    ? __('Error', 'homlity-plugin')
+                                                    ? __('Error', 'homlity-real-estate')
                                                     : isDirty
-                                                        ? __('Cambios pendientes', 'homlity-plugin')
-                                                        : __('Estable', 'homlity-plugin')),
+                                                        ? __('Cambios pendientes', 'homlity-real-estate')
+                                                        : __('Estable', 'homlity-real-estate')),
                                         el('div', { key: 'swatch', className: 'homlity-settings__preview-swatch homlity-settings__preview-swatch--inline' }, [
-                                            el('span', { key: 'label' }, __('Color activo', 'homlity-plugin')),
+                                            el('span', { key: 'label' }, __('Color activo', 'homlity-real-estate')),
                                             el('strong', { key: 'value' }, normalized.primary_color),
                                         ]),
                                     ]
@@ -397,7 +423,7 @@
                                         onClick: saveSettings,
                                         disabled: status === 'saving',
                                     },
-                                    status === 'saving' ? __('Guardando…', 'homlity-plugin') : config.saveLabel
+                                    status === 'saving' ? __('Guardando…', 'homlity-real-estate') : config.saveLabel
                                 ),
                                 el(
                                     'button',
@@ -431,8 +457,8 @@
                             Section,
                             {
                                 key: 'experience',
-                                eyebrow: __('General', 'homlity-plugin'),
-                                title: __('Configuración principal', 'homlity-plugin'),
+                                eyebrow: __('General', 'homlity-real-estate'),
+                                title: __('Configuración principal', 'homlity-real-estate'),
                             },
                             el(
                                 'div',
@@ -440,27 +466,27 @@
                                 [
                                     el(ColorField, {
                                         key: 'primary_color',
-                                        label: __('Color principal de la inmobiliaria', 'homlity-plugin'),
+                                        label: __('Color principal de la inmobiliaria', 'homlity-real-estate'),
                                         value: normalized.primary_color,
                                         onChange: (event) => updateField('primary_color', event.target.value),
                                     }),
                                     el(Select, {
                                         key: 'currency',
-                                        label: __('Moneda por defecto', 'homlity-plugin'),
+                                        label: __('Moneda por defecto', 'homlity-real-estate'),
                                         value: normalized.base_currency,
                                         options: (config.currencies || []).map((currency) => ({ value: currency, label: currency })),
                                         onChange: (event) => updateField('base_currency', event.target.value),
                                     }),
                                     el(Select, {
                                         key: 'map_provider',
-                                        label: __('Mapa por defecto', 'homlity-plugin'),
+                                        label: __('Mapa por defecto', 'homlity-real-estate'),
                                         value: normalized.default_map_provider,
                                         options: config.mapProviderOptions || [],
                                         onChange: (event) => updateField('default_map_provider', event.target.value),
                                     }),
                                     el(Select, {
                                         key: 'gallery_mode',
-                                        label: __('Slider detalle inmueble', 'homlity-plugin'),
+                                        label: __('Slider detalle inmueble', 'homlity-real-estate'),
                                         value: normalized.detail_gallery_mode,
                                         options: config.galleryModeOptions || [],
                                         onChange: (event) => updateField('detail_gallery_mode', event.target.value),
@@ -473,8 +499,8 @@
                             Section,
                             {
                                 key: 'location',
-                                eyebrow: __('Geografía', 'homlity-plugin'),
-                                title: __('Ubicación base', 'homlity-plugin'),
+                                eyebrow: __('Geografía', 'homlity-real-estate'),
+                                title: __('Ubicación base', 'homlity-real-estate'),
                             },
                             el(
                                 'div',
@@ -482,36 +508,36 @@
                                 [
                                     el(LocationSelect, {
                                         key: 'country',
-                                        label: __('País', 'homlity-plugin'),
+                                        label: __('País', 'homlity-real-estate'),
                                         value: normalized.default_country,
                                         options: locationOptions.country,
-                                        placeholder: __('Selecciona país', 'homlity-plugin'),
+                                        placeholder: __('Selecciona país', 'homlity-real-estate'),
                                         onChange: (event) => updateLocationField('country', event.target.value),
                                     }),
                                     el(LocationSelect, {
                                         key: 'state',
-                                        label: __('Departamento / Provincia', 'homlity-plugin'),
+                                        label: __('Departamento / Provincia', 'homlity-real-estate'),
                                         value: normalized.default_state,
                                         options: locationOptions.state,
-                                        placeholder: __('Selecciona departamento / provincia', 'homlity-plugin'),
+                                        placeholder: __('Selecciona departamento / provincia', 'homlity-real-estate'),
                                         disabled: !normalized.default_country,
                                         onChange: (event) => updateLocationField('state', event.target.value),
                                     }),
                                     el(LocationSelect, {
                                         key: 'city',
-                                        label: __('Ciudad / Municipio', 'homlity-plugin'),
+                                        label: __('Ciudad / Municipio', 'homlity-real-estate'),
                                         value: normalized.default_city,
                                         options: locationOptions.city,
-                                        placeholder: __('Selecciona ciudad / municipio', 'homlity-plugin'),
+                                        placeholder: __('Selecciona ciudad / municipio', 'homlity-real-estate'),
                                         disabled: !normalized.default_state,
                                         onChange: (event) => updateLocationField('city', event.target.value),
                                     }),
                                     el(LocationSelect, {
                                         key: 'neighborhood',
-                                        label: __('Barrio', 'homlity-plugin'),
+                                        label: __('Barrio', 'homlity-real-estate'),
                                         value: normalized.default_neighborhood,
                                         options: locationOptions.neighborhood,
-                                        placeholder: __('Selecciona barrio', 'homlity-plugin'),
+                                        placeholder: __('Selecciona barrio', 'homlity-real-estate'),
                                         disabled: !normalized.default_city,
                                         onChange: (event) => updateLocationField('neighborhood', event.target.value),
                                     }),
@@ -523,8 +549,8 @@
                             Section,
                             {
                                 key: 'listing',
-                                eyebrow: __('Catálogo', 'homlity-plugin'),
-                                title: __('Configuración del catálogo', 'homlity-plugin'),
+                                eyebrow: __('Catálogo', 'homlity-real-estate'),
+                                title: __('Configuración del catálogo', 'homlity-real-estate'),
                             },
                             [
                                 el(
@@ -533,7 +559,7 @@
                                     [
                                         el(Input, {
                                             key: 'per-page',
-                                            label: __('Inmuebles por página', 'homlity-plugin'),
+                                            label: __('Inmuebles por página', 'homlity-real-estate'),
                                             type: 'number',
                                             min: 1,
                                             value: normalized.archive_per_page,
@@ -541,7 +567,7 @@
                                         }),
                                         el(Select, {
                                             key: 'order',
-                                            label: __('Orden por defecto', 'homlity-plugin'),
+                                            label: __('Orden por defecto', 'homlity-real-estate'),
                                             value: normalized.archive_order,
                                             options: config.archiveOrderOptions || [],
                                             onChange: (event) => updateField('archive_order', event.target.value),
@@ -562,6 +588,27 @@
                                     )
                                 ),
                             ]
+                        ),
+
+                        el(
+                            Section,
+                            {
+                                key: 'privacy',
+                                eyebrow: __('Privacidad', 'homlity-real-estate'),
+                                title: __('Analítica y seguimiento', 'homlity-real-estate'),
+                                description: __('Desactivado por defecto. Al habilitarlo, la analítica de inmuebles se almacena localmente. Eres responsable de obtener el consentimiento de los visitantes según la normativa aplicable (RGPD, CCPA, etc.).', 'homlity-real-estate'),
+                            },
+                            el(
+                                'div',
+                                { className: 'homlity-settings__field-grid homlity-settings__field-grid--one' },
+                                el(Toggle, {
+                                    key: 'enable_analytics',
+                                    label: __('Activar analítica interna de inmuebles', 'homlity-real-estate'),
+                                    hint: __('Registra visitas, clics de contacto y descargas de fichas técnicas. Los datos se guardan en la base de datos local y nunca se envían a servidores externos.', 'homlity-real-estate'),
+                                    checked: normalized.enable_analytics,
+                                    onChange: (event) => updateField('enable_analytics', event.target.checked),
+                                })
+                            )
                         ),
                     ]
                 ),

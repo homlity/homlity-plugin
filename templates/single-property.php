@@ -1,8 +1,12 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Single property template.
- * Can be overridden in theme at homlity-plugin/single-property.php
+ * Can be overridden in theme at homlity-real-estate/single-property.php
  */
 
 use Homlity\PluginInmobiliario\Services\CurrencyService;
@@ -38,9 +42,9 @@ $metaKeys = (new PropertyPostType())->metaKeys();
 $currencyService = new CurrencyService();
 
 $priceFields = [
-    'price_sale' => __('Precio venta', 'homlity-plugin'),
-    'price_rent' => __('Precio arriendo', 'homlity-plugin'),
-    'price_admin' => __('Precio administración', 'homlity-plugin'),
+    'price_sale' => __('Precio venta', 'homlity-real-estate'),
+    'price_rent' => __('Precio arriendo', 'homlity-real-estate'),
+    'price_admin' => __('Precio administración', 'homlity-real-estate'),
 ];
 
 $agentId = (int) get_post_meta(get_the_ID(), $metaKeys['agent_id'], true);

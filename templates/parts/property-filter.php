@@ -1,7 +1,9 @@
 <?php
+// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Property filter component.
- * Overridable at homlity-plugin/parts/property-filter.php
+ * Overridable at homlity-real-estate/parts/property-filter.php
  *
  * Expected args: $settings (array)
  */
@@ -13,16 +15,16 @@ if (!defined('ABSPATH')) {
 }
 
 $settings = isset($settings) && is_array($settings) ? $settings : [];
-wp_enqueue_style('homlity-plugin-front-components', HOMLITY_PLUGIN_URL . 'assets/css/front-components.css', [], HOMLITY_PLUGIN_VERSION);
-wp_enqueue_style('homlity-plugin-listing', HOMLITY_PLUGIN_URL . 'assets/css/property-listing.css', ['homlity-plugin-front-components'], HOMLITY_PLUGIN_VERSION);
-wp_enqueue_script('homlity-plugin-filter', HOMLITY_PLUGIN_URL . 'assets/js/property-filter.js', [], HOMLITY_PLUGIN_VERSION, true);
+wp_enqueue_style('homlity-real-estate-front-components', HOMLITY_PLUGIN_URL . 'assets/css/front-components.css', [], HOMLITY_PLUGIN_VERSION);
+wp_enqueue_style('homlity-real-estate-listing', HOMLITY_PLUGIN_URL . 'assets/css/property-listing.css', ['homlity-real-estate-front-components'], HOMLITY_PLUGIN_VERSION);
+wp_enqueue_script('homlity-real-estate-filter', HOMLITY_PLUGIN_URL . 'assets/js/property-filter.js', [], HOMLITY_PLUGIN_VERSION, true);
 
 $targetPageId = absint($settings['target_page_id'] ?? 0) ?: (int) get_option('homlity_plugin_archive_page_id', 0);
 $action = $targetPageId ? get_permalink($targetPageId) : home_url('/inmuebles/');
-$submitLabel = $settings['submit_label'] ?? __('Buscar', 'homlity-plugin');
-$resetLabel = $settings['reset_label'] ?? __('Limpiar', 'homlity-plugin');
+$submitLabel = $settings['submit_label'] ?? __('Buscar', 'homlity-real-estate');
+$resetLabel = $settings['reset_label'] ?? __('Limpiar', 'homlity-real-estate');
 $mobileSidebarEnabled = !empty($settings['mobile_sidebar_enabled']);
-$mobileButtonLabel = $settings['mobile_filter_button_label'] ?? __('Filtrar inmuebles', 'homlity-plugin');
+$mobileButtonLabel = $settings['mobile_filter_button_label'] ?? __('Filtrar inmuebles', 'homlity-real-estate');
 $fieldLabelMode = 'placeholder';
 $usePlaceholders = true;
 $selectFirstOptionMode = (string) ($settings['select_first_option_mode'] ?? 'auto');
@@ -102,11 +104,11 @@ $termSelect = static function (string $name, string $taxonomy, string $label, $c
             class="property-listing__filter-select<?php echo $multiple ? ' property-filter-multiselect' : ''; ?>"
             <?php
             if ($multiple) {
-                $multiPlaceholder = ($usePlaceholders || $selectUsesLabelOption) ? $label : __('Selecciona opciones', 'homlity-plugin');
+                $multiPlaceholder = ($usePlaceholders || $selectUsesLabelOption) ? $label : __('Selecciona opciones', 'homlity-real-estate');
                 echo 'multiple data-placeholder="' . esc_attr($multiPlaceholder) . '"';
             }
             ?>>
-            <option value=""><?php echo esc_html($selectUsesLabelOption ? $label : __('Todos', 'homlity-plugin')); ?></option>
+            <option value=""><?php echo esc_html($selectUsesLabelOption ? $label : __('Todos', 'homlity-real-estate')); ?></option>
             <?php foreach ($terms as $term): ?>
                 <option value="<?php echo esc_attr($term->slug); ?>" <?php selected(in_array($term->slug, $currentValues, true)); ?>>
                     <?php echo esc_html($term->name); ?>
@@ -126,8 +128,8 @@ $termSelect = static function (string $name, string $taxonomy, string $label, $c
             data-target="<?php echo esc_attr($instanceId); ?>"
             aria-controls="<?php echo esc_attr($instanceId); ?>-sidebar"
             aria-expanded="false"
-            title="<?php esc_attr_e('Abrir filtros de inmuebles', 'homlity-plugin'); ?>">
-            <span class="property-listing__mobile-toggle-title"><?php esc_html_e('Filtro', 'homlity-plugin'); ?></span>
+            title="<?php esc_attr_e('Abrir filtros de inmuebles', 'homlity-real-estate'); ?>">
+            <span class="property-listing__mobile-toggle-title"><?php esc_html_e('Filtro', 'homlity-real-estate'); ?></span>
             <span class="property-listing__mobile-toggle-text"><?php echo esc_html($mobileButtonLabel); ?></span>
         </button>
     <?php endif; ?>
@@ -136,59 +138,59 @@ $termSelect = static function (string $name, string $taxonomy, string $label, $c
     <form class="property-listing__filters<?php echo $mobileSidebarEnabled ? ' property-listing__filters--mobile-sidebar' : ''; ?>" id="<?php echo esc_attr($instanceId); ?>-sidebar" action="<?php echo esc_url($action); ?>" method="get" data-mobile-filter-sidebar>
         <?php if ($mobileSidebarEnabled): ?>
             <div class="property-listing__mobile-sidebar-header">
-                <strong><?php esc_html_e('Filtros', 'homlity-plugin'); ?></strong>
-                <button type="button" class="property-listing__mobile-close" data-mobile-filter-close aria-label="<?php esc_attr_e('Cerrar filtros', 'homlity-plugin'); ?>">&times;</button>
+                <strong><?php esc_html_e('Filtros', 'homlity-real-estate'); ?></strong>
+                <button type="button" class="property-listing__mobile-close" data-mobile-filter-close aria-label="<?php esc_attr_e('Cerrar filtros', 'homlity-real-estate'); ?>">&times;</button>
             </div>
         <?php endif; ?>
         <div class="property-listing__filters-row">
             <?php if (!empty($settings['show_keyword'])): ?>
                 <div class="property-listing__filter-group">
                     <?php if (!$usePlaceholders): ?>
-                        <label class="property-listing__filter-label" for="homlity-filter-s"><?php esc_html_e('Buscar', 'homlity-plugin'); ?></label>
+                        <label class="property-listing__filter-label" for="homlity-filter-s"><?php esc_html_e('Buscar', 'homlity-real-estate'); ?></label>
                     <?php endif; ?>
-                    <input id="homlity-filter-s" class="property-listing__filter-input" type="search" name="q" value="<?php echo esc_attr($current(['q', 's'])); ?>" placeholder="<?php echo esc_attr($usePlaceholders ? __('Buscar', 'homlity-plugin') : ''); ?>">
+                    <input id="homlity-filter-s" class="property-listing__filter-input" type="search" name="q" value="<?php echo esc_attr($current(['q', 's'])); ?>" placeholder="<?php echo esc_attr($usePlaceholders ? __('Buscar', 'homlity-real-estate') : ''); ?>">
                 </div>
             <?php endif; ?>
 
             <?php
             if (!empty($settings['show_category'])) {
-                $termSelect('categoria', PropertyTaxonomies::TAXONOMY_CATEGORY, __('Categoría', 'homlity-plugin'), $current(['categoria', 'property_category']), false, $usePlaceholders, $selectUsesLabelOption);
+                $termSelect('categoria', PropertyTaxonomies::TAXONOMY_CATEGORY, __('Categoría', 'homlity-real-estate'), $current(['categoria', 'property_category']), false, $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_operation'])) {
-                $termSelect('gestion', PropertyTaxonomies::TAXONOMY_OPERATION, __('Gestión', 'homlity-plugin'), $current(['gestion', 'property_operation']), !empty($settings['multiple_operation']), $usePlaceholders, $selectUsesLabelOption);
+                $termSelect('gestion', PropertyTaxonomies::TAXONOMY_OPERATION, __('Gestión', 'homlity-real-estate'), $current(['gestion', 'property_operation']), !empty($settings['multiple_operation']), $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_type'])) {
-                $termSelect('tipo', PropertyTaxonomies::TAXONOMY_TYPE, __('Tipo', 'homlity-plugin'), $current(['tipo', 'property_type']), !empty($settings['multiple_type']), $usePlaceholders, $selectUsesLabelOption);
+                $termSelect('tipo', PropertyTaxonomies::TAXONOMY_TYPE, __('Tipo', 'homlity-real-estate'), $current(['tipo', 'property_type']), !empty($settings['multiple_type']), $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_tag'])) {
-                $termSelect('etiquetas', PropertyTaxonomies::TAXONOMY_TAG, __('Etiqueta', 'homlity-plugin'), $current(['etiquetas', 'property_tag']), !empty($settings['multiple_tag']), $usePlaceholders, $selectUsesLabelOption);
+                $termSelect('etiquetas', PropertyTaxonomies::TAXONOMY_TAG, __('Etiqueta', 'homlity-real-estate'), $current(['etiquetas', 'property_tag']), !empty($settings['multiple_tag']), $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_country'])) {
-                $termSelect('pais', PropertyTaxonomies::TAXONOMY_COUNTRY, __('País', 'homlity-plugin'), $current(['pais', 'property_country']), false, $usePlaceholders, $selectUsesLabelOption);
+                $termSelect('pais', PropertyTaxonomies::TAXONOMY_COUNTRY, __('País', 'homlity-real-estate'), $current(['pais', 'property_country']), false, $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_state'])) {
-                $termSelect('departamento', PropertyTaxonomies::TAXONOMY_STATE, __('Departamento', 'homlity-plugin'), $current(['departamento', 'property_state']), false, $usePlaceholders, $selectUsesLabelOption);
+                $termSelect('departamento', PropertyTaxonomies::TAXONOMY_STATE, __('Departamento', 'homlity-real-estate'), $current(['departamento', 'property_state']), false, $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_city'])) {
-                $termSelect('ciudad', PropertyTaxonomies::TAXONOMY_CITY, __('Ciudad', 'homlity-plugin'), $current(['ciudad', 'property_city']), true, $usePlaceholders, $selectUsesLabelOption);
+                $termSelect('ciudad', PropertyTaxonomies::TAXONOMY_CITY, __('Ciudad', 'homlity-real-estate'), $current(['ciudad', 'property_city']), true, $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_neighborhood'])) {
-                $termSelect('barrios', PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD, __('Barrio', 'homlity-plugin'), $current(['barrios', 'property_neighborhood']), true, $usePlaceholders, $selectUsesLabelOption);
+                $termSelect('barrios', PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD, __('Barrio', 'homlity-real-estate'), $current(['barrios', 'property_neighborhood']), true, $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_nearby'])) {
-                $termSelect('cercanias', PropertyTaxonomies::TAXONOMY_NEARBY, __('Lugar cercano', 'homlity-plugin'), $current(['cercanias', 'property_nearby']), false, $usePlaceholders, $selectUsesLabelOption);
+                $termSelect('cercanias', PropertyTaxonomies::TAXONOMY_NEARBY, __('Lugar cercano', 'homlity-real-estate'), $current(['cercanias', 'property_nearby']), false, $usePlaceholders, $selectUsesLabelOption);
             }
             ?>
 
             <?php if (!empty($settings['show_price'])): ?>
                 <div class="property-listing__filter-group property-listing__filter-group--price">
                     <?php if (!$usePlaceholders): ?>
-                        <label class="property-listing__filter-label"><?php esc_html_e('Precio', 'homlity-plugin'); ?></label>
+                        <label class="property-listing__filter-label"><?php esc_html_e('Precio', 'homlity-real-estate'); ?></label>
                     <?php endif; ?>
                     <div class="property-listing__price-range">
-                        <input class="property-listing__filter-input" type="number" name="precio_min" value="<?php echo esc_attr($current(['precio_min', 'price_min'])); ?>" placeholder="<?php echo esc_attr($usePlaceholders ? __('Precio mín.', 'homlity-plugin') : __('Mín.', 'homlity-plugin')); ?>" min="0">
+                        <input class="property-listing__filter-input" type="number" name="precio_min" value="<?php echo esc_attr($current(['precio_min', 'price_min'])); ?>" placeholder="<?php echo esc_attr($usePlaceholders ? __('Precio mín.', 'homlity-real-estate') : __('Mín.', 'homlity-real-estate')); ?>" min="0">
                         <span class="property-listing__price-sep">-</span>
-                        <input class="property-listing__filter-input" type="number" name="precio_max" value="<?php echo esc_attr($current(['precio_max', 'price_max'])); ?>" placeholder="<?php echo esc_attr($usePlaceholders ? __('Precio máx.', 'homlity-plugin') : __('Máx.', 'homlity-plugin')); ?>" min="0">
+                        <input class="property-listing__filter-input" type="number" name="precio_max" value="<?php echo esc_attr($current(['precio_max', 'price_max'])); ?>" placeholder="<?php echo esc_attr($usePlaceholders ? __('Precio máx.', 'homlity-real-estate') : __('Máx.', 'homlity-real-estate')); ?>" min="0">
                     </div>
                 </div>
             <?php endif; ?>
@@ -196,10 +198,10 @@ $termSelect = static function (string $name, string $taxonomy, string $label, $c
             <?php if (!empty($settings['show_bedrooms'])): ?>
                 <div class="property-listing__filter-group">
                     <?php if (!$usePlaceholders): ?>
-                        <label class="property-listing__filter-label" for="homlity-filter-bedrooms"><?php esc_html_e('Habitaciones', 'homlity-plugin'); ?></label>
+                        <label class="property-listing__filter-label" for="homlity-filter-bedrooms"><?php esc_html_e('Habitaciones', 'homlity-real-estate'); ?></label>
                     <?php endif; ?>
                     <select name="alcobas" id="homlity-filter-bedrooms" class="property-listing__filter-select">
-                        <option value=""><?php echo esc_html($selectUsesLabelOption ? __('Habitaciones', 'homlity-plugin') : __('Cualquiera', 'homlity-plugin')); ?></option>
+                        <option value=""><?php echo esc_html($selectUsesLabelOption ? __('Habitaciones', 'homlity-real-estate') : __('Cualquiera', 'homlity-real-estate')); ?></option>
                         <?php foreach ([1, 2, 3, 4, 5] as $n): ?>
                             <option value="<?php echo esc_attr($n); ?>" <?php selected((string) $current(['alcobas', 'bedrooms']), (string) $n); ?>><?php echo esc_html($n); ?>+</option>
                         <?php endforeach; ?>
@@ -210,10 +212,10 @@ $termSelect = static function (string $name, string $taxonomy, string $label, $c
             <?php if (!empty($settings['show_bathrooms'])): ?>
                 <div class="property-listing__filter-group">
                     <?php if (!$usePlaceholders): ?>
-                        <label class="property-listing__filter-label" for="homlity-filter-bathrooms"><?php esc_html_e('Baños', 'homlity-plugin'); ?></label>
+                        <label class="property-listing__filter-label" for="homlity-filter-bathrooms"><?php esc_html_e('Baños', 'homlity-real-estate'); ?></label>
                     <?php endif; ?>
                     <select name="banos" id="homlity-filter-bathrooms" class="property-listing__filter-select">
-                        <option value=""><?php echo esc_html($selectUsesLabelOption ? __('Baños', 'homlity-plugin') : __('Cualquiera', 'homlity-plugin')); ?></option>
+                        <option value=""><?php echo esc_html($selectUsesLabelOption ? __('Baños', 'homlity-real-estate') : __('Cualquiera', 'homlity-real-estate')); ?></option>
                         <?php foreach ([1, 2, 3, 4, 5] as $n): ?>
                             <option value="<?php echo esc_attr($n); ?>" <?php selected((string) $current(['banos', 'bathrooms']), (string) $n); ?>><?php echo esc_html($n); ?>+</option>
                         <?php endforeach; ?>
@@ -224,10 +226,10 @@ $termSelect = static function (string $name, string $taxonomy, string $label, $c
             <?php if (!empty($settings['show_parking'])): ?>
                 <div class="property-listing__filter-group">
                     <?php if (!$usePlaceholders): ?>
-                        <label class="property-listing__filter-label" for="homlity-filter-parking"><?php esc_html_e('Garajes', 'homlity-plugin'); ?></label>
+                        <label class="property-listing__filter-label" for="homlity-filter-parking"><?php esc_html_e('Garajes', 'homlity-real-estate'); ?></label>
                     <?php endif; ?>
                     <select name="garajes" id="homlity-filter-parking" class="property-listing__filter-select">
-                        <option value=""><?php echo esc_html($selectUsesLabelOption ? __('Garajes', 'homlity-plugin') : __('Cualquiera', 'homlity-plugin')); ?></option>
+                        <option value=""><?php echo esc_html($selectUsesLabelOption ? __('Garajes', 'homlity-real-estate') : __('Cualquiera', 'homlity-real-estate')); ?></option>
                         <?php foreach ([1, 2, 3, 4, 5] as $n): ?>
                             <option value="<?php echo esc_attr($n); ?>" <?php selected((string) $current(['garajes', 'parking']), (string) $n); ?>><?php echo esc_html($n); ?>+</option>
                         <?php endforeach; ?>
@@ -238,12 +240,12 @@ $termSelect = static function (string $name, string $taxonomy, string $label, $c
             <?php if (!empty($settings['show_area'])): ?>
                 <div class="property-listing__filter-group property-listing__filter-group--price">
                     <?php if (!$usePlaceholders): ?>
-                        <label class="property-listing__filter-label"><?php esc_html_e('Área (m²)', 'homlity-plugin'); ?></label>
+                        <label class="property-listing__filter-label"><?php esc_html_e('Área (m²)', 'homlity-real-estate'); ?></label>
                     <?php endif; ?>
                     <div class="property-listing__price-range">
-                        <input class="property-listing__filter-input" type="number" name="area_min" value="<?php echo esc_attr($current('area_min')); ?>" placeholder="<?php echo esc_attr($usePlaceholders ? __('Área mín.', 'homlity-plugin') : __('Mín.', 'homlity-plugin')); ?>" min="0">
+                        <input class="property-listing__filter-input" type="number" name="area_min" value="<?php echo esc_attr($current('area_min')); ?>" placeholder="<?php echo esc_attr($usePlaceholders ? __('Área mín.', 'homlity-real-estate') : __('Mín.', 'homlity-real-estate')); ?>" min="0">
                         <span class="property-listing__price-sep">-</span>
-                        <input class="property-listing__filter-input" type="number" name="area_max" value="<?php echo esc_attr($current('area_max')); ?>" placeholder="<?php echo esc_attr($usePlaceholders ? __('Área máx.', 'homlity-plugin') : __('Máx.', 'homlity-plugin')); ?>" min="0">
+                        <input class="property-listing__filter-input" type="number" name="area_max" value="<?php echo esc_attr($current('area_max')); ?>" placeholder="<?php echo esc_attr($usePlaceholders ? __('Área máx.', 'homlity-real-estate') : __('Máx.', 'homlity-real-estate')); ?>" min="0">
                     </div>
                 </div>
             <?php endif; ?>

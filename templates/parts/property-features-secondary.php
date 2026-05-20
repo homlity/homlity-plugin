@@ -1,8 +1,12 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Secondary features component.
- * Overridable at homlity-plugin/parts/property-features-secondary.php
+ * Overridable at homlity-real-estate/parts/property-features-secondary.php
  *
  * Expected args: $post_id (int), $item_icon_html (string, optional)
  */
@@ -41,17 +45,17 @@ $items = [];
 
 $operationTerms = get_the_terms($post_id, PropertyTaxonomies::TAXONOMY_OPERATION);
 if ($operationTerms && !is_wp_error($operationTerms)) {
-    $items[] = ['label' => __('Gestión', 'homlity-plugin'), 'value' => implode(', ', wp_list_pluck($operationTerms, 'name'))];
+    $items[] = ['label' => __('Gestión', 'homlity-real-estate'), 'value' => implode(', ', wp_list_pluck($operationTerms, 'name'))];
 }
 
 if ($featureGroups['interior']) {
     foreach ($featureGroups['interior'] as $featureName) {
-        $items[] = ['label' => __('Características interiores', 'homlity-plugin'), 'value' => $featureName];
+        $items[] = ['label' => __('Características interiores', 'homlity-real-estate'), 'value' => $featureName];
     }
 }
 if ($featureGroups['exterior']) {
     foreach ($featureGroups['exterior'] as $featureName) {
-        $items[] = ['label' => __('Características exteriores', 'homlity-plugin'), 'value' => $featureName];
+        $items[] = ['label' => __('Características exteriores', 'homlity-real-estate'), 'value' => $featureName];
     }
 }
 if ($featureGroups['other']) {
@@ -60,7 +64,7 @@ if ($featureGroups['other']) {
     }
 }
 if ($nearby && !is_wp_error($nearby)) {
-    $items[] = ['label' => __('Lugares cercanos', 'homlity-plugin'), 'value' => implode(', ', wp_list_pluck($nearby, 'name'))];
+    $items[] = ['label' => __('Lugares cercanos', 'homlity-real-estate'), 'value' => implode(', ', wp_list_pluck($nearby, 'name'))];
 }
 
 if (empty($items)) {

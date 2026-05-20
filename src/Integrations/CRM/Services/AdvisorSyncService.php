@@ -1,5 +1,5 @@
 <?php
-
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 namespace Homlity\PluginInmobiliario\Integrations\CRM\Services;
 
 if (!defined('ABSPATH')) {

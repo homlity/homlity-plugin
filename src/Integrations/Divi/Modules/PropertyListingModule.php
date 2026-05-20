@@ -26,7 +26,7 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
 
     public function init(): void
     {
-        $this->name = esc_html__('Listado de inmuebles', 'homlity-plugin');
+        $this->name = esc_html__('Listado de inmuebles', 'homlity-real-estate');
     }
 
     public function get_fields(): array
@@ -36,40 +36,40 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
         return [
             // ── Presentación ──────────────────────────────────────────────────
             'template' => [
-                'label'           => esc_html__('Diseño de plantilla', 'homlity-plugin'),
+                'label'           => esc_html__('Diseño de plantilla', 'homlity-real-estate'),
                 'type'            => 'select',
                 'option_category' => 'layout',
                 'options'         => [
-                    'default'   => esc_html__('Predeterminado (CSS propio)', 'homlity-plugin'),
-                    'bootstrap' => esc_html__('Bootstrap 5',                 'homlity-plugin'),
+                    'default'   => esc_html__('Predeterminado (CSS propio)', 'homlity-real-estate'),
+                    'bootstrap' => esc_html__('Bootstrap 5',                 'homlity-real-estate'),
                 ],
                 'default'         => $defaults['template'],
                 'tab_slug'        => 'general',
                 'toggle_slug'     => 'main_content',
             ],
             'view' => [
-                'label'           => esc_html__('Vista por defecto', 'homlity-plugin'),
+                'label'           => esc_html__('Vista por defecto', 'homlity-real-estate'),
                 'type'            => 'select',
                 'option_category' => 'layout',
                 'options'         => [
-                    'grid' => esc_html__('Grilla / Cards', 'homlity-plugin'),
-                    'map'  => esc_html__('Mapa',           'homlity-plugin'),
+                    'grid' => esc_html__('Grilla / Cards', 'homlity-real-estate'),
+                    'map'  => esc_html__('Mapa',           'homlity-real-estate'),
                 ],
                 'default'         => $defaults['view'],
                 'tab_slug'        => 'general',
                 'toggle_slug'     => 'main_content',
             ],
             'view_toggle' => [
-                'label'           => esc_html__('Botón para cambiar de vista', 'homlity-plugin'),
+                'label'           => esc_html__('Botón para cambiar de vista', 'homlity-real-estate'),
                 'type'            => 'yes_no_button',
                 'option_category' => 'configuration',
-                'options'         => ['on' => esc_html__('Sí', 'homlity-plugin'), 'off' => esc_html__('No', 'homlity-plugin')],
+                'options'         => ['on' => esc_html__('Sí', 'homlity-real-estate'), 'off' => esc_html__('No', 'homlity-real-estate')],
                 'default'         => 'on',
                 'tab_slug'        => 'general',
                 'toggle_slug'     => 'main_content',
             ],
             'columns' => [
-                'label'           => esc_html__('Columnas en grilla', 'homlity-plugin'),
+                'label'           => esc_html__('Columnas en grilla', 'homlity-real-estate'),
                 'type'            => 'select',
                 'option_category' => 'layout',
                 'options'         => ['1' => '1', '2' => '2', '3' => '3', '4' => '4'],
@@ -80,7 +80,7 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
 
             // ── Consulta ──────────────────────────────────────────────────────
             'per_page' => [
-                'label'           => esc_html__('Inmuebles por página', 'homlity-plugin'),
+                'label'           => esc_html__('Inmuebles por página', 'homlity-real-estate'),
                 'type'            => 'text',
                 'option_category' => 'configuration',
                 'default'         => $defaults['per_page'],
@@ -88,30 +88,30 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
                 'toggle_slug'     => 'query',
             ],
             'orderby' => [
-                'label'           => esc_html__('Orden por defecto', 'homlity-plugin'),
+                'label'           => esc_html__('Orden por defecto', 'homlity-real-estate'),
                 'type'            => 'select',
                 'option_category' => 'configuration',
                 'options'         => [
-                    'date'       => esc_html__('Más recientes',         'homlity-plugin'),
-                    'price_asc'  => esc_html__('Precio: menor a mayor', 'homlity-plugin'),
-                    'price_desc' => esc_html__('Precio: mayor a menor', 'homlity-plugin'),
-                    'title'      => esc_html__('Nombre A–Z',            'homlity-plugin'),
+                    'date'       => esc_html__('Más recientes',         'homlity-real-estate'),
+                    'price_asc'  => esc_html__('Precio: menor a mayor', 'homlity-real-estate'),
+                    'price_desc' => esc_html__('Precio: mayor a menor', 'homlity-real-estate'),
+                    'title'      => esc_html__('Nombre A–Z',            'homlity-real-estate'),
                 ],
                 'default'         => $defaults['orderby'],
                 'tab_slug'        => 'general',
                 'toggle_slug'     => 'query',
             ],
             'featured' => [
-                'label'           => esc_html__('Solo destacados', 'homlity-plugin'),
+                'label'           => esc_html__('Solo destacados', 'homlity-real-estate'),
                 'type'            => 'yes_no_button',
                 'option_category' => 'configuration',
-                'options'         => ['on' => esc_html__('Sí', 'homlity-plugin'), 'off' => esc_html__('No', 'homlity-plugin')],
+                'options'         => ['on' => esc_html__('Sí', 'homlity-real-estate'), 'off' => esc_html__('No', 'homlity-real-estate')],
                 'default'         => 'off',
                 'tab_slug'        => 'general',
                 'toggle_slug'     => 'query',
             ],
             'operation' => [
-                'label'           => esc_html__('ID: Gestión fija', 'homlity-plugin'),
+                'label'           => esc_html__('ID: Gestión fija', 'homlity-real-estate'),
                 'type'            => 'text',
                 'option_category' => 'configuration',
                 'default'         => '0',
@@ -119,7 +119,7 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
                 'toggle_slug'     => 'query',
             ],
             'type' => [
-                'label'           => esc_html__('ID: Tipo fijo', 'homlity-plugin'),
+                'label'           => esc_html__('ID: Tipo fijo', 'homlity-real-estate'),
                 'type'            => 'text',
                 'option_category' => 'configuration',
                 'default'         => '0',
@@ -129,19 +129,19 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
 
             // ── Filtros ───────────────────────────────────────────────────────
             'filters' => [
-                'label'           => esc_html__('Mostrar panel de filtros', 'homlity-plugin'),
+                'label'           => esc_html__('Mostrar panel de filtros', 'homlity-real-estate'),
                 'type'            => 'yes_no_button',
                 'option_category' => 'configuration',
-                'options'         => ['on' => esc_html__('Sí', 'homlity-plugin'), 'off' => esc_html__('No', 'homlity-plugin')],
+                'options'         => ['on' => esc_html__('Sí', 'homlity-real-estate'), 'off' => esc_html__('No', 'homlity-real-estate')],
                 'default'         => 'on',
                 'tab_slug'        => 'general',
                 'toggle_slug'     => 'filters',
             ],
             'sort' => [
-                'label'           => esc_html__('Mostrar selector de orden', 'homlity-plugin'),
+                'label'           => esc_html__('Mostrar selector de orden', 'homlity-real-estate'),
                 'type'            => 'yes_no_button',
                 'option_category' => 'configuration',
-                'options'         => ['on' => esc_html__('Sí', 'homlity-plugin'), 'off' => esc_html__('No', 'homlity-plugin')],
+                'options'         => ['on' => esc_html__('Sí', 'homlity-real-estate'), 'off' => esc_html__('No', 'homlity-real-estate')],
                 'default'         => 'on',
                 'tab_slug'        => 'general',
                 'toggle_slug'     => 'filters',
@@ -149,7 +149,7 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
 
             // ── Mapa ──────────────────────────────────────────────────────────
             'map_height' => [
-                'label'           => esc_html__('Altura del mapa (px)', 'homlity-plugin'),
+                'label'           => esc_html__('Altura del mapa (px)', 'homlity-real-estate'),
                 'type'            => 'text',
                 'option_category' => 'configuration',
                 'default'         => $defaults['map_height'],
@@ -157,7 +157,7 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
                 'toggle_slug'     => 'map',
             ],
             'map_zoom' => [
-                'label'           => esc_html__('Zoom inicial del mapa', 'homlity-plugin'),
+                'label'           => esc_html__('Zoom inicial del mapa', 'homlity-real-estate'),
                 'type'            => 'text',
                 'option_category' => 'configuration',
                 'default'         => $defaults['map_zoom'],

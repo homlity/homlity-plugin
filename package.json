@@ -1,0 +1,13 @@
+{
+  "name": "homlity-real-estate",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "wp-scripts build assets/src/consignment/index.js --output-path=assets/dist",
+    "start": "wp-scripts start assets/src/consignment/index.js --output-path=assets/dist",
+    "build:all": "npm run build"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^30.0.0"
+  }
+}

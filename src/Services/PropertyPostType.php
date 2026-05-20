@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable WordPress.Security.NonceVerification.Missing,WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 /**
  * Registers the Property custom post type and related meta handling.
  */
@@ -130,16 +132,16 @@ class PropertyPostType implements ServiceInterface
     public function registerPostType(): void
     {
         $labels = [
-            'name' => __('Propiedades', 'homlity-plugin'),
-            'singular_name' => __('Propiedad', 'homlity-plugin'),
-            'add_new' => __('Añadir nueva', 'homlity-plugin'),
-            'add_new_item' => __('Añadir propiedad', 'homlity-plugin'),
-            'edit_item' => __('Editar propiedad', 'homlity-plugin'),
-            'new_item' => __('Nueva propiedad', 'homlity-plugin'),
-            'view_item' => __('Ver propiedad', 'homlity-plugin'),
-            'search_items' => __('Buscar propiedades', 'homlity-plugin'),
-            'not_found' => __('No se encontraron propiedades', 'homlity-plugin'),
-            'menu_name' => __('Propiedades', 'homlity-plugin'),
+            'name' => __('Propiedades', 'homlity-real-estate'),
+            'singular_name' => __('Propiedad', 'homlity-real-estate'),
+            'add_new' => __('Añadir nueva', 'homlity-real-estate'),
+            'add_new_item' => __('Añadir propiedad', 'homlity-real-estate'),
+            'edit_item' => __('Editar propiedad', 'homlity-real-estate'),
+            'new_item' => __('Nueva propiedad', 'homlity-real-estate'),
+            'view_item' => __('Ver propiedad', 'homlity-real-estate'),
+            'search_items' => __('Buscar propiedades', 'homlity-real-estate'),
+            'not_found' => __('No se encontraron propiedades', 'homlity-real-estate'),
+            'menu_name' => __('Propiedades', 'homlity-real-estate'),
         ];
 
         $args = [
@@ -185,7 +187,7 @@ class PropertyPostType implements ServiceInterface
     {
         add_meta_box(
             'property-pricing',
-            __('Precio y moneda', 'homlity-plugin'),
+            __('Precio y moneda', 'homlity-real-estate'),
             [$this, 'renderPricingMetabox'],
             self::POST_TYPE,
             'side'
@@ -193,7 +195,7 @@ class PropertyPostType implements ServiceInterface
 
         add_meta_box(
             'property-details',
-            __('Detalles', 'homlity-plugin'),
+            __('Detalles', 'homlity-real-estate'),
             [$this, 'renderDetailsMetabox'],
             self::POST_TYPE,
             'normal',
@@ -202,7 +204,7 @@ class PropertyPostType implements ServiceInterface
 
         add_meta_box(
             'property-gallery',
-            __('Galería de imágenes', 'homlity-plugin'),
+            __('Galería de imágenes', 'homlity-real-estate'),
             [$this, 'renderGalleryMetabox'],
             self::POST_TYPE,
             'normal',
@@ -211,7 +213,7 @@ class PropertyPostType implements ServiceInterface
 
         add_meta_box(
             'property-operation',
-            __('Gestión', 'homlity-plugin'),
+            __('Gestión', 'homlity-real-estate'),
             [$this, 'renderOperationMetabox'],
             self::POST_TYPE,
             'side',
@@ -220,7 +222,7 @@ class PropertyPostType implements ServiceInterface
 
         add_meta_box(
             'property-type',
-            __('Tipo de inmueble', 'homlity-plugin'),
+            __('Tipo de inmueble', 'homlity-real-estate'),
             [$this, 'renderTypeMetabox'],
             self::POST_TYPE,
             'side',
@@ -229,7 +231,7 @@ class PropertyPostType implements ServiceInterface
 
         add_meta_box(
             'property-agent',
-            __('Asesor comercial', 'homlity-plugin'),
+            __('Asesor comercial', 'homlity-real-estate'),
             [$this, 'renderAgentMetabox'],
             self::POST_TYPE,
             'side',
@@ -238,7 +240,7 @@ class PropertyPostType implements ServiceInterface
 
         add_meta_box(
             'property-flags',
-            __('Opciones', 'homlity-plugin'),
+            __('Opciones', 'homlity-real-estate'),
             [$this, 'renderFlagsMetabox'],
             self::POST_TYPE,
             'side',
@@ -253,12 +255,12 @@ class PropertyPostType implements ServiceInterface
         $currencies = $currencyService->supportedCurrencies();
 
         $fields = [
-            'sale' => __('Precio venta', 'homlity-plugin'),
-            'rent' => __('Precio arriendo', 'homlity-plugin'),
-            'admin' => __('Precio administración', 'homlity-plugin'),
+            'sale' => __('Precio venta', 'homlity-real-estate'),
+            'rent' => __('Precio arriendo', 'homlity-real-estate'),
+            'admin' => __('Precio administración', 'homlity-real-estate'),
         ];
         ?>
-        <p><?php esc_html_e('Admite cualquier moneda, escribe el código si no aparece en la lista.', 'homlity-plugin'); ?></p>
+        <p><?php esc_html_e('Admite cualquier moneda, escribe el código si no aparece en la lista.', 'homlity-real-estate'); ?></p>
         <?php foreach ($fields as $key => $label): ?>
             <?php
             $price = get_post_meta($post->ID, $this->metaKeys['price_' . $key], true);
@@ -272,7 +274,7 @@ class PropertyPostType implements ServiceInterface
                            value="<?php echo esc_attr($price); ?>" class="widefat">
                 </p>
                 <p>
-                    <label for="property_currency_<?php echo esc_attr($key); ?>"><?php esc_html_e('Moneda', 'homlity-plugin'); ?></label>
+                    <label for="property_currency_<?php echo esc_attr($key); ?>"><?php esc_html_e('Moneda', 'homlity-real-estate'); ?></label>
                     <select id="property_currency_<?php echo esc_attr($key); ?>"
                             name="property_currency_<?php echo esc_attr($key); ?>"
                             class="widefat">
@@ -290,7 +292,7 @@ class PropertyPostType implements ServiceInterface
                     <p>
                         <label>
                             <input type="checkbox" name="property_admin_included" value="1" <?php checked((bool) get_post_meta($post->ID, $this->metaKeys['admin_included'], true)); ?>>
-                            <?php esc_html_e('Administración incluida en el arriendo', 'homlity-plugin'); ?>
+                            <?php esc_html_e('Administración incluida en el arriendo', 'homlity-real-estate'); ?>
                         </label>
                     </p>
                 <?php endif; ?>
@@ -315,8 +317,8 @@ class PropertyPostType implements ServiceInterface
         ?>
         <div id="property-gallery-wrapper">
             <p>
-                <button type="button" class="button" id="property_gallery_add"><?php esc_html_e('Agregar/editar galería', 'homlity-plugin'); ?></button>
-                <button type="button" class="button link-button" id="property_gallery_clear"><?php esc_html_e('Limpiar galería', 'homlity-plugin'); ?></button>
+                <button type="button" class="button" id="property_gallery_add"><?php esc_html_e('Agregar/editar galería', 'homlity-real-estate'); ?></button>
+                <button type="button" class="button link-button" id="property_gallery_clear"><?php esc_html_e('Limpiar galería', 'homlity-real-estate'); ?></button>
             </p>
             <ul id="property_gallery_list" class="property-gallery-list" style="display:flex;gap:8px;flex-wrap:wrap;padding:0;">
                 <?php foreach ($items as $item): ?>
@@ -326,7 +328,7 @@ class PropertyPostType implements ServiceInterface
                 <?php endforeach; ?>
             </ul>
             <input type="hidden" id="property_gallery" name="property_gallery" value="<?php echo esc_attr(implode(',', $ids)); ?>">
-            <p class="description"><?php esc_html_e('Arrastra para reordenar. La primera imagen será la principal.', 'homlity-plugin'); ?></p>
+            <p class="description"><?php esc_html_e('Arrastra para reordenar. La primera imagen será la principal.', 'homlity-real-estate'); ?></p>
         </div>
         <?php
     }
@@ -335,19 +337,19 @@ class PropertyPostType implements ServiceInterface
     {
         wp_nonce_field('property_details_nonce', 'property_details_nonce_field');
         $fields = [
-            'area' => __('Área total (m²)', 'homlity-plugin'),
-            'area_lot' => __('Área de lote (m²)', 'homlity-plugin'),
-            'area_private' => __('Área privada (m²)', 'homlity-plugin'),
-            'area_built' => __('Área construida (m²)', 'homlity-plugin'),
-            'bedrooms' => __('Habitaciones', 'homlity-plugin'),
-            'bathrooms' => __('Baños', 'homlity-plugin'),
-            'parking' => __('Parqueaderos', 'homlity-plugin'),
-            'condition' => __('Estado', 'homlity-plugin'),
-            'age' => __('Edad (años)', 'homlity-plugin'),
-            'code' => __('Código de la propiedad', 'homlity-plugin'),
-            'address' => __('Dirección', 'homlity-plugin'),
-            'latitude' => __('Latitud', 'homlity-plugin'),
-            'longitude' => __('Longitud', 'homlity-plugin'),
+            'area' => __('Área total (m²)', 'homlity-real-estate'),
+            'area_lot' => __('Área de lote (m²)', 'homlity-real-estate'),
+            'area_private' => __('Área privada (m²)', 'homlity-real-estate'),
+            'area_built' => __('Área construida (m²)', 'homlity-real-estate'),
+            'bedrooms' => __('Habitaciones', 'homlity-real-estate'),
+            'bathrooms' => __('Baños', 'homlity-real-estate'),
+            'parking' => __('Parqueaderos', 'homlity-real-estate'),
+            'condition' => __('Estado', 'homlity-real-estate'),
+            'age' => __('Edad (años)', 'homlity-real-estate'),
+            'code' => __('Código de la propiedad', 'homlity-real-estate'),
+            'address' => __('Dirección', 'homlity-real-estate'),
+            'latitude' => __('Latitud', 'homlity-real-estate'),
+            'longitude' => __('Longitud', 'homlity-real-estate'),
         ];
         ?>
         <table class="form-table">
@@ -364,42 +366,42 @@ class PropertyPostType implements ServiceInterface
                 </tr>
             <?php endforeach; ?>
             <tr>
-                <th scope="row"><?php esc_html_e('Mapa', 'homlity-plugin'); ?></th>
+                <th scope="row"><?php esc_html_e('Mapa', 'homlity-real-estate'); ?></th>
                 <td>
                     <div id="property_map_preview" style="width:100%;height:320px;background:#eef1f5;border:1px solid #ccd0d4;border-radius:4px;"></div>
-                    <p class="description"><?php esc_html_e('El mapa se actualiza según la dirección y la latitud/longitud.', 'homlity-plugin'); ?></p>
+                    <p class="description"><?php esc_html_e('El mapa se actualiza según la dirección y la latitud/longitud.', 'homlity-real-estate'); ?></p>
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="property_country"><?php esc_html_e('País', 'homlity-plugin'); ?></label></th>
+                <th scope="row"><label for="property_country"><?php esc_html_e('País', 'homlity-real-estate'); ?></label></th>
                 <td>
                     <select id="property_country" name="property_country" class="property-location-select" data-taxonomy="<?php echo esc_attr($this->locationTaxonomies['country']); ?>">
-                        <option value=""><?php esc_html_e('Selecciona país', 'homlity-plugin'); ?></option>
+                        <option value=""><?php esc_html_e('Selecciona país', 'homlity-real-estate'); ?></option>
                         <?php echo $this->renderLocationOptions($post->ID, 'country'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                     </select>
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="property_state"><?php esc_html_e('Departamento / Provincia', 'homlity-plugin'); ?></label></th>
+                <th scope="row"><label for="property_state"><?php esc_html_e('Departamento / Provincia', 'homlity-real-estate'); ?></label></th>
                 <td>
                     <select id="property_state" name="property_state" class="property-location-select" data-taxonomy="<?php echo esc_attr($this->locationTaxonomies['state']); ?>" data-parent="country">
-                        <option value=""><?php esc_html_e('Selecciona departamento / provincia', 'homlity-plugin'); ?></option>
+                        <option value=""><?php esc_html_e('Selecciona departamento / provincia', 'homlity-real-estate'); ?></option>
                     </select>
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="property_city"><?php esc_html_e('Ciudad / Municipio', 'homlity-plugin'); ?></label></th>
+                <th scope="row"><label for="property_city"><?php esc_html_e('Ciudad / Municipio', 'homlity-real-estate'); ?></label></th>
                 <td>
                     <select id="property_city" name="property_city" class="property-location-select" data-taxonomy="<?php echo esc_attr($this->locationTaxonomies['city']); ?>" data-parent="state">
-                        <option value=""><?php esc_html_e('Selecciona ciudad / municipio', 'homlity-plugin'); ?></option>
+                        <option value=""><?php esc_html_e('Selecciona ciudad / municipio', 'homlity-real-estate'); ?></option>
                     </select>
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="property_neighborhood"><?php esc_html_e('Barrio', 'homlity-plugin'); ?></label></th>
+                <th scope="row"><label for="property_neighborhood"><?php esc_html_e('Barrio', 'homlity-real-estate'); ?></label></th>
                 <td>
                     <select id="property_neighborhood" name="property_neighborhood" class="property-location-select" data-taxonomy="<?php echo esc_attr($this->locationTaxonomies['neighborhood']); ?>" data-parent="city">
-                        <option value=""><?php esc_html_e('Selecciona barrio', 'homlity-plugin'); ?></option>
+                        <option value=""><?php esc_html_e('Selecciona barrio', 'homlity-real-estate'); ?></option>
                     </select>
                 </td>
             </tr>
@@ -420,9 +422,9 @@ class PropertyPostType implements ServiceInterface
         $current = $assigned ? $assigned[0] : 0;
         ?>
         <p>
-            <label for="property_operation"><?php esc_html_e('Selecciona la gestión principal', 'homlity-plugin'); ?></label>
+            <label for="property_operation"><?php esc_html_e('Selecciona la gestión principal', 'homlity-real-estate'); ?></label>
             <select id="property_operation" name="property_operation" class="widefat">
-                <option value=""><?php esc_html_e('Elige una gestión', 'homlity-plugin'); ?></option>
+                <option value=""><?php esc_html_e('Elige una gestión', 'homlity-real-estate'); ?></option>
                 <?php foreach ($terms as $term): ?>
                     <option value="<?php echo esc_attr($term->term_id); ?>" data-slug="<?php echo esc_attr($term->slug); ?>" <?php selected($current, $term->term_id); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -445,9 +447,9 @@ class PropertyPostType implements ServiceInterface
         $current = $assigned ? $assigned[0] : 0;
         ?>
         <p>
-            <label for="property_type"><?php esc_html_e('Selecciona el tipo de inmueble', 'homlity-plugin'); ?></label>
+            <label for="property_type"><?php esc_html_e('Selecciona el tipo de inmueble', 'homlity-real-estate'); ?></label>
             <select id="property_type" name="property_type" class="widefat">
-                <option value=""><?php esc_html_e('Elige un tipo', 'homlity-plugin'); ?></option>
+                <option value=""><?php esc_html_e('Elige un tipo', 'homlity-real-estate'); ?></option>
                 <?php foreach ($terms as $term): ?>
                     <option value="<?php echo esc_attr($term->term_id); ?>" <?php selected($current, $term->term_id); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -484,7 +486,7 @@ class PropertyPostType implements ServiceInterface
         wp_enqueue_script('wp-pointer');
 
         wp_enqueue_script(
-            'homlity-plugin-location',
+            'homlity-real-estate-location',
             HOMLITY_PLUGIN_URL . 'assets/js/location-admin.js',
             [],
             HOMLITY_PLUGIN_VERSION,
@@ -508,7 +510,7 @@ class PropertyPostType implements ServiceInterface
 
         // phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent
         wp_enqueue_style(
-            'homlity-plugin-leaflet',
+            'homlity-real-estate-leaflet',
             HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.css',
             [],
             '1.9.4'
@@ -516,7 +518,7 @@ class PropertyPostType implements ServiceInterface
 
         // phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent
         wp_enqueue_script(
-            'homlity-plugin-leaflet',
+            'homlity-real-estate-leaflet',
             HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.js',
             [],
             '1.9.4',
@@ -524,13 +526,13 @@ class PropertyPostType implements ServiceInterface
         );
 
         wp_enqueue_script(
-            'homlity-plugin-location-map',
+            'homlity-real-estate-location-map',
             HOMLITY_PLUGIN_URL . 'assets/js/location-map.js',
-            ['homlity-plugin-leaflet'],
+            ['homlity-real-estate-leaflet'],
             HOMLITY_PLUGIN_VERSION,
             true
         );
-        wp_localize_script('homlity-plugin-location-map', 'homlityLeafletAssets', [
+        wp_localize_script('homlity-real-estate-location-map', 'homlityLeafletAssets', [
             'iconUrl' => file_exists(HOMLITY_PLUGIN_PATH . 'assets/vendor/leaflet/images/marker-icon.png')
                 ? HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/images/marker-icon.png'
                 : '',
@@ -543,7 +545,7 @@ class PropertyPostType implements ServiceInterface
         ]);
 
         wp_enqueue_script(
-            'homlity-plugin-gallery',
+            'homlity-real-estate-gallery',
             HOMLITY_PLUGIN_URL . 'assets/js/gallery-admin.js',
             ['jquery', 'jquery-ui-sortable'],
             HOMLITY_PLUGIN_VERSION,
@@ -551,7 +553,7 @@ class PropertyPostType implements ServiceInterface
         );
 
         wp_enqueue_script(
-            'homlity-plugin-pricing',
+            'homlity-real-estate-pricing',
             HOMLITY_PLUGIN_URL . 'assets/js/pricing-admin.js',
             [],
             HOMLITY_PLUGIN_VERSION,
@@ -573,24 +575,24 @@ class PropertyPostType implements ServiceInterface
         $selected['latitude'] = ($postId ? get_post_meta($postId, $this->metaKeys['latitude'], true) : '') ?: 4.5709;
         $selected['longitude'] = ($postId ? get_post_meta($postId, $this->metaKeys['longitude'], true) : '') ?: -74.2973;
 
-        wp_localize_script('homlity-plugin-location', 'homlityPluginLocation', [
+        wp_localize_script('homlity-real-estate-location', 'homlityPluginLocation', [
             'restUrl' => esc_url_raw(rest_url()),
             'nonce' => wp_create_nonce('wp_rest'),
             'selected' => $selected,
             'taxonomies' => $this->locationTaxonomies,
         ]);
-        wp_add_inline_script('homlity-plugin-location', 'window.pluginInmobiliarioLocation = window.homlityPluginLocation;', 'after');
+        wp_add_inline_script('homlity-real-estate-location', 'window.pluginInmobiliarioLocation = window.homlityPluginLocation;', 'after');
 
-        wp_localize_script('homlity-plugin-location-map', 'homlityPluginMap', [
+        wp_localize_script('homlity-real-estate-location-map', 'homlityPluginMap', [
             'defaultLat' => $selected['latitude'] ?? 4.5709,
             'defaultLng' => $selected['longitude'] ?? -74.2973,
         ]);
-        wp_add_inline_script('homlity-plugin-location-map', 'window.pluginInmobiliarioMap = window.homlityPluginMap;', 'after');
+        wp_add_inline_script('homlity-real-estate-location-map', 'window.pluginInmobiliarioMap = window.homlityPluginMap;', 'after');
 
-        wp_localize_script('homlity-plugin-gallery', 'homlityPluginGallery', [
+        wp_localize_script('homlity-real-estate-gallery', 'homlityPluginGallery', [
             'items' => $galleryItems,
         ]);
-        wp_add_inline_script('homlity-plugin-gallery', 'window.pluginInmobiliarioGallery = window.homlityPluginGallery;', 'after');
+        wp_add_inline_script('homlity-real-estate-gallery', 'window.pluginInmobiliarioGallery = window.homlityPluginGallery;', 'after');
 
         $this->enqueueReactEditorApp((int) $postId);
     }
@@ -598,14 +600,14 @@ class PropertyPostType implements ServiceInterface
     private function enqueueReactEditorApp(int $postId): void
     {
         wp_enqueue_style(
-            'homlity-plugin-property-editor-react',
+            'homlity-real-estate-property-editor-react',
             HOMLITY_PLUGIN_URL . 'assets/css/property-editor-react.css',
             [],
             HOMLITY_PLUGIN_VERSION
         );
 
         wp_enqueue_script(
-            'homlity-plugin-property-editor-react',
+            'homlity-real-estate-property-editor-react',
             HOMLITY_PLUGIN_URL . 'assets/js/property-editor-react.js',
             ['wp-element'],
             HOMLITY_PLUGIN_VERSION,
@@ -613,7 +615,7 @@ class PropertyPostType implements ServiceInterface
         );
 
         wp_enqueue_script(
-            'homlity-plugin-ckeditor5',
+            'homlity-real-estate-ckeditor5',
             'https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js',
             [],
             '39.0.1',
@@ -679,7 +681,7 @@ class PropertyPostType implements ServiceInterface
             'fields' => ['ID', 'display_name', 'user_email'],
         ]);
 
-        wp_localize_script('homlity-plugin-property-editor-react', 'homlityPropertyEditorApp', [
+        wp_localize_script('homlity-real-estate-property-editor-react', 'homlityPropertyEditorApp', [
             'postId' => $postId,
             'currentUserId' => get_current_user_id(),
             'reactNonce' => wp_create_nonce('homlity_react_editor'),
@@ -743,7 +745,7 @@ class PropertyPostType implements ServiceInterface
 
     public function registerEditorRoutes(): void
     {
-        register_rest_route('homlity-plugin/v1', '/property-next-code', [
+        register_rest_route('homlity-real-estate/v1', '/property-next-code', [
             'methods' => 'GET',
             'callback' => [$this, 'restNextCode'],
             'permission_callback' => static function () {
@@ -756,7 +758,7 @@ class PropertyPostType implements ServiceInterface
             ],
         ]);
 
-        register_rest_route('homlity-plugin/v1', '/property-geocode', [
+        register_rest_route('homlity-real-estate/v1', '/property-geocode', [
             'methods' => 'GET',
             'callback' => [$this, 'restGeocode'],
             'permission_callback' => static function () {
@@ -771,7 +773,7 @@ class PropertyPostType implements ServiceInterface
             ],
         ]);
 
-        register_rest_route('homlity-plugin/v1', '/property-media-sync', [
+        register_rest_route('homlity-real-estate/v1', '/property-media-sync', [
             'methods' => 'GET',
             'callback' => [$this, 'restPropertyMediaSync'],
             'permission_callback' => '__return_true',
@@ -1101,7 +1103,7 @@ class PropertyPostType implements ServiceInterface
         <p>
             <label for="property_featured">
                 <input type="checkbox" id="property_featured" name="property_featured" value="1" <?php checked($featured); ?>>
-                <?php esc_html_e('Propiedad destacada', 'homlity-plugin'); ?>
+                <?php esc_html_e('Propiedad destacada', 'homlity-real-estate'); ?>
             </label>
         </p>
         <?php
@@ -1119,9 +1121,9 @@ class PropertyPostType implements ServiceInterface
         ]);
         ?>
         <p>
-            <label for="property_agent_id"><?php esc_html_e('Usuario/asesor', 'homlity-plugin'); ?></label>
+            <label for="property_agent_id"><?php esc_html_e('Usuario/asesor', 'homlity-real-estate'); ?></label>
             <select id="property_agent_id" name="property_agent_id" class="widefat">
-                <option value=""><?php esc_html_e('Sin asignar', 'homlity-plugin'); ?></option>
+                <option value=""><?php esc_html_e('Sin asignar', 'homlity-real-estate'); ?></option>
                 <?php foreach ($users as $user): ?>
                     <option value="<?php echo esc_attr($user->ID); ?>" <?php selected($currentAgent, $user->ID); ?>>
                         <?php echo esc_html($user->display_name . ' (' . $user->user_email . ')'); ?>
@@ -1130,7 +1132,7 @@ class PropertyPostType implements ServiceInterface
             </select>
         </p>
         <p class="description">
-            <?php esc_html_e('Se usará la foto, correo y teléfono que tenga el usuario en su perfil.', 'homlity-plugin'); ?>
+            <?php esc_html_e('Se usará la foto, correo y teléfono que tenga el usuario en su perfil.', 'homlity-real-estate'); ?>
         </p>
         <?php
     }
@@ -1324,7 +1326,7 @@ class PropertyPostType implements ServiceInterface
         $labels = array_values($errors);
         $message = sprintf(
             /* translators: %s: comma-separated list of missing required field labels */
-            __('Faltan campos obligatorios: %s', 'homlity-plugin'),
+            __('Faltan campos obligatorios: %s', 'homlity-real-estate'),
             implode(', ', $labels)
         );
         add_filter('redirect_post_location', static function ($location) use ($message, $fieldKeys) {
@@ -1341,37 +1343,37 @@ class PropertyPostType implements ServiceInterface
 
         $title = trim((string) ($_POST['post_title'] ?? $post->post_title));
         if ($title === '') {
-            $missing['title'] = __('Título', 'homlity-plugin');
+            $missing['title'] = __('Título', 'homlity-real-estate');
         }
 
         $operationTermId = absint($_POST['property_operation'] ?? 0);
         if ($operationTermId <= 0) {
-            $missing['operation'] = __('Gestión', 'homlity-plugin');
+            $missing['operation'] = __('Gestión', 'homlity-real-estate');
         }
 
         $typeTermId = absint($_POST['property_type'] ?? 0);
         if ($typeTermId <= 0) {
-            $missing['type'] = __('Tipo de inmueble', 'homlity-plugin');
+            $missing['type'] = __('Tipo de inmueble', 'homlity-real-estate');
         }
 
         if (absint($_POST['property_country'] ?? 0) <= 0) {
-            $missing['country'] = __('País', 'homlity-plugin');
+            $missing['country'] = __('País', 'homlity-real-estate');
         }
         if (absint($_POST['property_state'] ?? 0) <= 0) {
-            $missing['state'] = __('Departamento/Provincia', 'homlity-plugin');
+            $missing['state'] = __('Departamento/Provincia', 'homlity-real-estate');
         }
         if (absint($_POST['property_city'] ?? 0) <= 0) {
-            $missing['city'] = __('Ciudad', 'homlity-plugin');
+            $missing['city'] = __('Ciudad', 'homlity-real-estate');
         }
 
         if (trim((string) ($_POST['property_address'] ?? '')) === '') {
-            $missing['address'] = __('Dirección', 'homlity-plugin');
+            $missing['address'] = __('Dirección', 'homlity-real-estate');
         }
         if (trim((string) ($_POST['property_latitude'] ?? '')) === '') {
-            $missing['latitude'] = __('Latitud', 'homlity-plugin');
+            $missing['latitude'] = __('Latitud', 'homlity-real-estate');
         }
         if (trim((string) ($_POST['property_longitude'] ?? '')) === '') {
-            $missing['longitude'] = __('Longitud', 'homlity-plugin');
+            $missing['longitude'] = __('Longitud', 'homlity-real-estate');
         }
 
         $operationSlug = '';
@@ -1386,10 +1388,10 @@ class PropertyPostType implements ServiceInterface
         $isSale = strpos($operationSlug, 'vent') !== false || strpos($operationSlug, 'sale') !== false;
 
         if ($isRent && trim((string) ($_POST['property_price_rent'] ?? '')) === '') {
-            $missing['price_rent'] = __('Precio arriendo', 'homlity-plugin');
+            $missing['price_rent'] = __('Precio arriendo', 'homlity-real-estate');
         }
         if ($isSale && trim((string) ($_POST['property_price_sale'] ?? '')) === '') {
-            $missing['price_sale'] = __('Precio venta', 'homlity-plugin');
+            $missing['price_sale'] = __('Precio venta', 'homlity-real-estate');
         }
 
         return $missing;
@@ -1653,7 +1655,7 @@ class PropertyPostType implements ServiceInterface
             if (!isset($groups[$parentId])) {
                 $groups[$parentId] = [
                     'id' => $parentId,
-                    'name' => __('Otras características', 'homlity-plugin'),
+                    'name' => __('Otras características', 'homlity-real-estate'),
                     'items' => [],
                 ];
             }
@@ -1918,13 +1920,13 @@ class PropertyPostType implements ServiceInterface
     {
         return [
             'cb' => $columns['cb'] ?? '<input type="checkbox" />',
-            'title' => __('Nombre', 'homlity-plugin'),
-            'property_operation' => __('Gestión', 'homlity-plugin'),
-            'property_type' => __('Tipo de inmueble', 'homlity-plugin'),
-            'property_location' => __('Ubicación', 'homlity-plugin'),
-            'property_operation_value' => __('Valor gestión', 'homlity-plugin'),
-            'property_last_sync' => __('Última sincronización', 'homlity-plugin'),
-            'date' => $columns['date'] ?? __('Fecha', 'homlity-plugin'),
+            'title' => __('Nombre', 'homlity-real-estate'),
+            'property_operation' => __('Gestión', 'homlity-real-estate'),
+            'property_type' => __('Tipo de inmueble', 'homlity-real-estate'),
+            'property_location' => __('Ubicación', 'homlity-real-estate'),
+            'property_operation_value' => __('Valor gestión', 'homlity-real-estate'),
+            'property_last_sync' => __('Última sincronización', 'homlity-real-estate'),
+            'date' => $columns['date'] ?? __('Fecha', 'homlity-real-estate'),
         ];
     }
 

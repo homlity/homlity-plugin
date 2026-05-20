@@ -23,7 +23,7 @@ class PropertyRelatedWidget extends BasePropertyWidget
 
     public function get_title(): string
     {
-        return __('Propiedades relacionadas', 'homlity-plugin');
+        return __('Propiedades relacionadas', 'homlity-real-estate');
     }
 
     public function get_icon(): string
@@ -34,21 +34,21 @@ class PropertyRelatedWidget extends BasePropertyWidget
     protected function register_controls(): void
     {
         // ── Presentación ─────────────────────────────────────────────────────
-        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-plugin')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-real-estate')]);
         $this->register_property_control();
 
         $this->add_control('columns', [
-            'label'   => __('Columnas en grilla', 'homlity-plugin'),
-            'type'    => Controls_Manager::SELECT,
-            'options' => ['1' => '1', '2' => '2', '3' => '3', '4' => '4'],
-            'default' => '3',
+            'label'     => __('Columnas en grilla', 'homlity-real-estate'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => ['1' => '1', '2' => '2', '3' => '3', '4' => '4'],
+            'default'   => '3',
             'selectors' => [
-                '{{WRAPPER}} .property-related__grid' => 'grid-template-columns: repeat({{VALUE}}, 1fr);',
+                '{{WRAPPER}} .property-related__grid' => '--related-cols: {{VALUE}};',
             ],
         ]);
 
         $this->add_control('posts_per_page', [
-            'label'   => __('Cantidad de inmuebles', 'homlity-plugin'),
+            'label'   => __('Cantidad de inmuebles', 'homlity-real-estate'),
             'type'    => Controls_Manager::NUMBER,
             'min'     => 1,
             'max'     => 12,
@@ -62,11 +62,11 @@ class PropertyRelatedWidget extends BasePropertyWidget
 
         // ── Estilos del contenedor ────────────────────────────────────────────
         $this->start_controls_section('style_related', [
-            'label' => __('Contenedor', 'homlity-plugin'),
+            'label' => __('Contenedor', 'homlity-real-estate'),
             'tab'   => Controls_Manager::TAB_STYLE,
         ]);
         $this->add_control('related_bg', [
-            'label'     => __('Color fondo', 'homlity-plugin'),
+            'label'     => __('Color fondo', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-related' => 'background-color: {{VALUE}};'],
         ]);
@@ -79,19 +79,19 @@ class PropertyRelatedWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-related',
         ]);
         $this->add_responsive_control('related_padding', [
-            'label'      => __('Padding', 'homlity-plugin'),
+            'label'      => __('Padding', 'homlity-real-estate'),
             'type'       => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%', 'em'],
             'selectors'  => ['{{WRAPPER}} .property-related' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
         ]);
         $this->add_responsive_control('related_margin', [
-            'label'      => __('Margen', 'homlity-plugin'),
+            'label'      => __('Margen', 'homlity-real-estate'),
             'type'       => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%', 'em'],
             'selectors'  => ['{{WRAPPER}} .property-related' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
         ]);
         $this->add_responsive_control('related_grid_gap', [
-            'label'      => __('Espacio entre inmuebles', 'homlity-plugin'),
+            'label'      => __('Espacio entre inmuebles', 'homlity-real-estate'),
             'type'       => Controls_Manager::SLIDER,
             'size_units' => ['px', 'em', 'rem'],
             'range'      => ['px' => ['min' => 0, 'max' => 80]],
@@ -102,17 +102,17 @@ class PropertyRelatedWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-related__empty',
         ]);
         $this->add_control('related_empty_color', [
-            'label'     => __('Color mensaje vacío', 'homlity-plugin'),
+            'label'     => __('Color mensaje vacío', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-related__empty' => 'color: {{VALUE}};'],
         ]);
         $this->add_responsive_control('related_empty_align', [
-            'label'   => __('Alineación mensaje vacío', 'homlity-plugin'),
+            'label'   => __('Alineación mensaje vacío', 'homlity-real-estate'),
             'type'    => Controls_Manager::CHOOSE,
             'options' => [
-                'left'   => ['title' => __('Izquierda', 'homlity-plugin'), 'icon' => 'eicon-text-align-left'],
-                'center' => ['title' => __('Centro', 'homlity-plugin'),    'icon' => 'eicon-text-align-center'],
-                'right'  => ['title' => __('Derecha', 'homlity-plugin'),   'icon' => 'eicon-text-align-right'],
+                'left'   => ['title' => __('Izquierda', 'homlity-real-estate'), 'icon' => 'eicon-text-align-left'],
+                'center' => ['title' => __('Centro', 'homlity-real-estate'),    'icon' => 'eicon-text-align-center'],
+                'right'  => ['title' => __('Derecha', 'homlity-real-estate'),   'icon' => 'eicon-text-align-right'],
             ],
             'selectors' => ['{{WRAPPER}} .property-related__empty' => 'text-align: {{VALUE}};'],
         ]);

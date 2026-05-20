@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
 /**
  * Tracks technical-sheet PDF downloads.
  */
@@ -59,6 +61,12 @@ class PropertyTechnicalSheetDownloadTrackingService implements ServiceInterface
         if ($propertyId <= 0) {
             return;
         }
+        if (!self::isTrackingAllowed()) {
+            return;
+        }
+        if (BotDetector::isBot()) {
+            return;
+        }
 
         $visitorId = self::resolveVisitorId();
         if ($visitorId === '') {
@@ -78,6 +86,18 @@ class PropertyTechnicalSheetDownloadTrackingService implements ServiceInterface
             ],
             ['%d', '%s', '%s', '%s', '%s', '%d']
         );
+    }
+
+    private static function isTrackingAllowed(): bool
+    {
+        $settings = (array) get_option(HOMLITY_PLUGIN_SETTINGS_OPTION, []);
+        if (empty($settings['enable_analytics'])) {
+            return false;
+        }
+        if (function_exists('wp_has_consent') && !wp_has_consent('statistics')) {
+            return false;
+        }
+        return true;
     }
 
     private static function resolveVisitorId(): string

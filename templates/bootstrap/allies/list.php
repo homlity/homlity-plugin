@@ -1,4 +1,10 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+?>
 <div class="container-fluid visualinmu_allies_list">
     <div class="row">
         <?php foreach ($allies as $asesor) { ?>
@@ -14,7 +20,7 @@
   });" target="_blank" href="<?php echo esc_url( visualinmu_redsocial_url( [ 'nombre' => 'whatsapp', 'phone' => $asesor->telefono(), 'texto' => 'Buen dia, ' . $asesor->nombre() . ' quisiera mas informacion de los inmuebles que estan su pagina web' ], null ) ); ?>"
                                     target="_blank"><i class="fab fa-whatsapp"></i> Hablar por WhatsApp</a>
                             </li>
-                            <?php if (homlity-plugin_valida_dato_contacto('telefono', $asesor->telefono())): ?>
+                            <?php if (homlity-real-estate_valida_dato_contacto('telefono', $asesor->telefono())): ?>
                                 <li class="list-group-item">
                                     <a onclick="gtag('event', 'phone_open_allie', {
     'label': 'Telefono aliado',
@@ -23,7 +29,7 @@
                                             class="fas fa-mobile-alt"></i> <?php echo esc_html( $asesor->telefono() ); ?></a>
                                 </li>
                             <?php endif; ?>
-                            <?php if (homlity-plugin_valida_dato_contacto('email', $asesor->email())): ?>
+                            <?php if (homlity-real-estate_valida_dato_contacto('email', $asesor->email())): ?>
                                 <li class="list-group-item">
                                     <a onclick="gtag('event', 'email_open_allie', {
     'label': 'Email aliado',

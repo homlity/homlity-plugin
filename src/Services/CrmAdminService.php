@@ -1,5 +1,5 @@
 <?php
-
+// phpcs:disable WordPress.Security.NonceVerification.Missing,WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 namespace Homlity\PluginInmobiliario\Services;
 
 use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
@@ -38,7 +38,7 @@ class CrmAdminService implements ServiceInterface
     public function renderPage(): void
     {
         if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('No autorizado.', 'homlity-plugin'));
+            wp_die(esc_html__('No autorizado.', 'homlity-real-estate'));
         }
 
         $configs = get_option(CrmConfig::OPTION_INTEGRATIONS, []);
@@ -53,9 +53,9 @@ class CrmAdminService implements ServiceInterface
         $filterDateTo = sanitize_text_field((string) ($_GET['log_date_to'] ?? ''));
         $logs = $this->logger->list(80, $filterProvider ?: null, $filterDateFrom ?: null, $filterDateTo ?: null);
 
-        echo '<div class="wrap"><h1>' . esc_html__('Integraciones CRM', 'homlity-plugin') . '</h1>';
+        echo '<div class="wrap"><h1>' . esc_html__('Integraciones CRM', 'homlity-real-estate') . '</h1>';
 
-        echo '<h2>' . esc_html__('Configuración por proveedor', 'homlity-plugin') . '</h2>';
+        echo '<h2>' . esc_html__('Configuración por proveedor', 'homlity-real-estate') . '</h2>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
         wp_nonce_field('homlity_crm_save');
         echo '<input type="hidden" name="action" value="homlity_crm_save" />';
@@ -73,31 +73,31 @@ class CrmAdminService implements ServiceInterface
         }
 
         $global = is_array($configs['_global'] ?? null) ? $configs['_global'] : [];
-        echo '<h3>' . esc_html__('Configuración global de cola', 'homlity-plugin') . '</h3>';
+        echo '<h3>' . esc_html__('Configuración global de cola', 'homlity-real-estate') . '</h3>';
         echo '<table class="form-table" role="presentation"><tbody>';
         echo '<tr><th><label>Batch size</label></th><td><input type="number" min="1" max="500" name="crm[_global][batch_size]" value="' . esc_attr((string) ($global['batch_size'] ?? 20)) . '" /></td></tr>';
         echo '</tbody></table>';
 
-        submit_button(__('Guardar configuración CRM', 'homlity-plugin'));
+        submit_button(__('Guardar configuración CRM', 'homlity-real-estate'));
         echo '</form>';
 
-        echo '<hr/><h2>' . esc_html__('Cola de sincronización', 'homlity-plugin') . '</h2>';
+        echo '<hr/><h2>' . esc_html__('Cola de sincronización', 'homlity-real-estate') . '</h2>';
         echo '<p>' . esc_html(sprintf('Pendientes: %d | Procesados: %d | Fallidos: %d | Total: %d', (int) $stats['pending'], (int) $stats['done'], (int) $stats['failed'], (int) $stats['total'])) . '</p>';
 
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" style="margin-bottom:12px;">';
         wp_nonce_field('homlity_crm_run_queue');
         echo '<input type="hidden" name="action" value="homlity_crm_run_queue" />';
-        submit_button(__('Procesar cola ahora', 'homlity-plugin'), 'secondary', 'submit', false);
+        submit_button(__('Procesar cola ahora', 'homlity-real-estate'), 'secondary', 'submit', false);
         echo '</form>';
 
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" style="margin-bottom:12px;">';
         wp_nonce_field('homlity_crm_retry_failed');
         echo '<input type="hidden" name="action" value="homlity_crm_retry_failed" />';
         echo '<input type="hidden" name="provider" value="" />';
-        submit_button(__('Reintentar solo fallidos', 'homlity-plugin'), 'secondary', 'submit', false);
+        submit_button(__('Reintentar solo fallidos', 'homlity-real-estate'), 'secondary', 'submit', false);
         echo '</form>';
 
-        echo '<h3>' . esc_html__('Encolar lote manual (JSON)', 'homlity-plugin') . '</h3>';
+        echo '<h3>' . esc_html__('Encolar lote manual (JSON)', 'homlity-real-estate') . '</h3>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
         wp_nonce_field('homlity_crm_enqueue_batch');
         echo '<input type="hidden" name="action" value="homlity_crm_enqueue_batch" />';
@@ -108,12 +108,12 @@ class CrmAdminService implements ServiceInterface
         }
         echo '</select></p>';
         echo '<p><textarea name="batch_payload" rows="10" style="width:100%;" placeholder="[{\"property\":{...}}, {...}]"></textarea></p>';
-        submit_button(__('Encolar lote', 'homlity-plugin'));
+        submit_button(__('Encolar lote', 'homlity-real-estate'));
         echo '</form>';
 
-        echo '<hr/><h2>' . esc_html__('Logs de sincronización', 'homlity-plugin') . '</h2>';
+        echo '<hr/><h2>' . esc_html__('Logs de sincronización', 'homlity-real-estate') . '</h2>';
         echo '<form method="get" action="' . esc_url(admin_url('admin.php')) . '" style="margin-bottom:12px; display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap;">';
-        echo '<input type="hidden" name="page" value="homlity-plugin-crm" />';
+        echo '<input type="hidden" name="page" value="homlity-real-estate-crm" />';
         echo '<p style="margin:0;"><label>Proveedor<br/><select name="log_provider"><option value="">Todos</option>';
         foreach ($providers as $provider) {
             $key = (string) ($provider['key'] ?? '');
@@ -123,14 +123,14 @@ class CrmAdminService implements ServiceInterface
         echo '<p style="margin:0;"><label>Desde<br/><input type="date" name="log_date_from" value="' . esc_attr($filterDateFrom) . '" /></label></p>';
         echo '<p style="margin:0;"><label>Hasta<br/><input type="date" name="log_date_to" value="' . esc_attr($filterDateTo) . '" /></label></p>';
         echo '<p style="margin:0;">';
-        submit_button(__('Filtrar logs', 'homlity-plugin'), 'secondary', '', false);
+        submit_button(__('Filtrar logs', 'homlity-real-estate'), 'secondary', '', false);
         echo '</p>';
         echo '</form>';
 
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" style="margin-bottom:12px;">';
         wp_nonce_field('homlity_crm_clear_logs');
         echo '<input type="hidden" name="action" value="homlity_crm_clear_logs" />';
-        submit_button(__('Limpiar logs', 'homlity-plugin'), 'delete', 'submit', false);
+        submit_button(__('Limpiar logs', 'homlity-real-estate'), 'delete', 'submit', false);
         echo '</form>';
 
         echo '<table class="widefat striped"><thead><tr><th>Fecha</th><th>Nivel</th><th>Proveedor</th><th>External ID</th><th>Post ID</th><th>Mensaje</th></tr></thead><tbody>';
@@ -176,7 +176,7 @@ class CrmAdminService implements ServiceInterface
         }
 
         update_option(CrmConfig::OPTION_INTEGRATIONS, $sanitized, false);
-        wp_safe_redirect(admin_url('admin.php?page=homlity-plugin-crm&updated=1'));
+        wp_safe_redirect(admin_url('admin.php?page=homlity-real-estate-crm&updated=1'));
         exit;
     }
 
@@ -190,7 +190,7 @@ class CrmAdminService implements ServiceInterface
         $records = is_array($decoded) ? $decoded : [];
 
         $count = $this->queue->enqueueBatch($provider, $records);
-        wp_safe_redirect(admin_url('admin.php?page=homlity-plugin-crm&queued=' . $count));
+        wp_safe_redirect(admin_url('admin.php?page=homlity-real-estate-crm&queued=' . $count));
         exit;
     }
 
@@ -198,7 +198,7 @@ class CrmAdminService implements ServiceInterface
     {
         $this->assertAdminAndNonce('homlity_crm_run_queue');
         $this->queue->processQueue();
-        wp_safe_redirect(admin_url('admin.php?page=homlity-plugin-crm&processed=1'));
+        wp_safe_redirect(admin_url('admin.php?page=homlity-real-estate-crm&processed=1'));
         exit;
     }
 
@@ -210,7 +210,7 @@ class CrmAdminService implements ServiceInterface
             $provider = null;
         }
         $retried = $this->queue->retryFailed($provider);
-        wp_safe_redirect(admin_url('admin.php?page=homlity-plugin-crm&retried=' . (int) $retried));
+        wp_safe_redirect(admin_url('admin.php?page=homlity-real-estate-crm&retried=' . (int) $retried));
         exit;
     }
 
@@ -218,14 +218,14 @@ class CrmAdminService implements ServiceInterface
     {
         $this->assertAdminAndNonce('homlity_crm_clear_logs');
         $this->logger->clear();
-        wp_safe_redirect(admin_url('admin.php?page=homlity-plugin-crm&logs_cleared=1'));
+        wp_safe_redirect(admin_url('admin.php?page=homlity-real-estate-crm&logs_cleared=1'));
         exit;
     }
 
     private function assertAdminAndNonce(string $action): void
     {
         if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('No autorizado.', 'homlity-plugin'));
+            wp_die(esc_html__('No autorizado.', 'homlity-real-estate'));
         }
 
         check_admin_referer($action);

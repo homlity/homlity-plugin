@@ -1,7 +1,7 @@
 <?php
 /**
  * Contract that any CRM synchronizer must implement to participate in
- * homlity-plugin's on-demand property sync.
+ * homlity-real-estate's on-demand property sync.
  *
  * Usage — from an external sync plugin:
  *

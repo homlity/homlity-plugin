@@ -1,127 +1,151 @@
-=== Homlity Plugin ===
+=== Homlity Real Estate ===
 Contributors: homlity
-Tags: inmobiliaria, inmuebles, propiedades, real estate, finca raiz, listings, agentes
+Tags: real estate, property, listings, agents, property management
 Requires at least: 5.8
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 11.1.2
+Stable tag: 1.2.12
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Plugin inmobiliario creado por Ecosistema Inmobiliario Homlity para gestionar inmuebles, agentes, monedas y configuraciones multi-país en sitios WordPress para inmobiliarias.
-
-![Icono](FAVICON.ico)
+Real estate plugin to manage property listings, agents, currencies, and multi-country configurations in WordPress.
 
 == Description ==
 
-**Homlity Plugin** es un plugin especializado para el sector inmobiliario, desarrollado por **Ecosistema Inmobiliario Homlity** para crear y gestionar páginas web inmobiliarias profesionales sobre WordPress de forma fácil, rápida y escalable.
+**Homlity Real Estate** is a WordPress plugin built for the real estate industry. It allows agencies, brokers, and independent agents to create and manage professional property websites quickly and efficiently.
 
-Está pensado para inmobiliarias, brokers, agentes independientes y portales inmobiliarios que necesitan administrar inmuebles en diferentes países, manejar múltiples monedas y personalizar al máximo la forma en que muestran sus propiedades.
+Designed for multi-country and multi-currency operation, it adapts to the needs of real estate professionals across Latin America, Spain, and beyond.
 
-### Enfoque del plugin
+### Key Features
 
-El plugin nace con el objetivo de **mejorar el ecosistema de WordPress en el mercado hispanohablante**, aportando una solución inmobiliaria real, adaptada a las necesidades de las inmobiliarias de diferentes países (Colombia, México, Perú, Chile, España, etc.) y a la dinámica del negocio de finca raíz.
+- **Custom property post type** for structured listing management.
+- **Multi-country support** with country, city, zone, and neighborhood fields.
+- **Multi-currency support** (COP, MXN, EUR, USD, and more).
+- **Fully customizable**:
+  - Property types (houses, apartments, offices, retail, land, warehouses, etc.).
+  - Operation types (sale, rent, short-term, transfer, etc.).
+  - Custom attributes (bedrooms, bathrooms, parking, area, amenities, etc.).
+  - Property status (available, reserved, sold, rented, etc.).
+- **Agent management**: link properties to agents with per-property contact details.
+- **Real estate SEO**: clean URLs, metadata-ready structure, and JSON-LD/schema-friendly field layout.
+- **Page builder integrations**: Elementor widgets, Divi module, WPBakery, and shortcodes.
+- **Extensible architecture**: hooks, filters, and modular structure for ERP and CRM integrations.
 
-### Características principales
+### About Homlity
 
-- ✅ **Post type de inmuebles** para gestionar propiedades de forma estructurada.
-- ✅ **Orientado a múltiples países** (campos preparados para país, ciudad, zona, barrio, etc.).
-- ✅ **Soporte para múltiples monedas** (ej. COP, MXN, EUR, USD, etc.).
-- ✅ **Altamente personalizable**:
-  - Tipos de inmuebles (casas, apartamentos, oficinas, locales, lotes, bodegas, etc.).
-  - Tipos de gestión (venta, arriendo, temporada, traspaso, etc.).
-  - Características y atributos personalizados (habitaciones, baños, parqueaderos, estrato, antigüedad, metraje, amenities, etc.).
-  - Estados de inmueble (disponible, reservado, vendido, arrendado, etc.).
-- ✅ **Gestión de usuarios y asesores**:
-  - Relación entre inmuebles y asesores/agentes.
-  - Información de contacto del asesor por propiedad.
-- ✅ **Pensado para SEO inmobiliario**:
-  - URLs amigables para inmuebles.
-  - Estructura preparada para metadatos (título, descripción, imágenes destacadas).
-  - Campos que facilitan la implementación de schema/JSON-LD inmobiliario.
-- ✅ **Integración con temas y maquetadores**:
-  - Compatible con el ecosistema WordPress.
-  - Plantillas preparadas para personalización por tema hijo o desarrollador.
-- ✅ **Arquitectura extensible para desarrolladores**:
-  - Estructura modular pensada para integraciones con otros sistemas inmobiliarios y ERPs.
-  - Hooks y filtros para extender funcionalidad (según roadmap del plugin).
-
-### Beneficios para la inmobiliaria
-
-- Construir **páginas web inmobiliarias modernas** sobre WordPress sin reinventar la rueda.
-- Centralizar y organizar toda la información de sus inmuebles.
-- Adaptarse rápidamente a nuevos países, monedas y tipologías de inmuebles.
-- Reducir tiempos de implementación y mantenimiento técnico.
-- Contar con un plugin creado específicamente para el **mercado inmobiliario hispano**.
-
-### Acerca de Ecosistema Inmobiliario Homlity
-
-Ecosistema Inmobiliario Homlity es una iniciativa enfocada en soluciones digitales para el sector inmobiliario, especializada en:
-
-- Desarrollo de páginas web inmobiliarias.
-- Tiendas virtuales.
-- Aplicaciones web a medida.
-- Integraciones con sistemas inmobiliarios y ERPs.
-
-Este plugin forma parte de nuestro compromiso por aportar herramientas que eleven la calidad de las páginas web inmobiliarias en el ecosistema WordPress, especialmente en países hispanohablantes.
+Homlity is a digital ecosystem focused on real estate web solutions, specializing in property website development, custom web applications, and integrations with real estate systems and ERPs.
 
 == Installation ==
 
-1. Sube la carpeta del plugin al directorio `/wp-content/plugins/` o instálalo desde el panel de administración de WordPress.
-2. Activa el plugin desde el menú **Plugins** en WordPress.
-3. Ve al nuevo menú **Inmobiliario** o **Inmuebles** en el panel de administración.
-4. Configura:
-   - País o países donde operas.
-   - Moneda o monedas que vas a utilizar.
-   - Tipos de inmuebles.
-   - Tipos de gestión (venta, arriendo, etc.).
-   - Características personalizadas según tu modelo de negocio.
-5. Crea tu primera propiedad y publícala en tu sitio.
+1. Upload the plugin folder to `/wp-content/plugins/` or install it from the WordPress admin panel.
+2. Activate the plugin from the **Plugins** menu.
+3. Go to the **Real Estate** or **Properties** menu in the admin dashboard.
+4. Configure your countries, currencies, property types, and operation types.
+5. Create your first property and publish it.
 
 == Frequently Asked Questions ==
 
-= ¿Este plugin sirve solo para un país específico? =
+= Is this plugin limited to a specific country? =
 
-No. El plugin está pensado para funcionar en **diferentes países**, especialmente en el ecosistema hispanohablante. Puedes configurar países, ciudades y zonas según tus necesidades.
+No. The plugin supports multiple countries and regions. You can configure countries, cities, and zones to match your market.
 
-= ¿Puedo usar diferentes monedas? =
+= Can I use multiple currencies? =
 
-Sí. El plugin está diseñado para trabajar con **diferentes monedas** (por ejemplo, COP, MXN, USD, EUR, etc.) y mostrar los valores según la configuración de tu sitio inmobiliario.
+Yes. The plugin supports multiple currencies (COP, MXN, USD, EUR, etc.) and displays values based on your site configuration.
 
-= ¿Es compatible con cualquier tema de WordPress? =
+= Is it compatible with any WordPress theme? =
 
-El plugin está construido siguiendo los estándares de WordPress, por lo que es compatible con la mayoría de temas. Sin embargo, para sacar el máximo provecho, se recomienda trabajar con temas modernos y bien estructurados o con un tema desarrollado a medida.
+The plugin follows WordPress coding standards and works with most themes. For best results, use a modern or custom-built theme.
 
-= ¿Puedo personalizar los tipos de inmuebles y tipos de gestión? =
+= Can I customize property types and operation types? =
 
-Sí. Puedes definir tus propios tipos de inmuebles (casa, apartamento, lote, oficina, etc.) y tipos de gestión (venta, arriendo, temporada, etc.), de forma que el plugin se adapte a tu modelo de negocio inmobiliario.
+Yes. You can define your own property types (house, apartment, lot, office, etc.) and operation types (sale, rent, seasonal, etc.) to match your business model.
 
-= ¿El plugin es multiidioma? =
+= Is the plugin translation-ready? =
 
-El plugin está preparado para ser traducido mediante los mecanismos estándar de WordPress (`.po`/`.mo`) y es adecuado para proyectos en español. Puede integrarse con plugins de traducción habituales (WPML, Polylang, etc.) según la implementación del proyecto.
+Yes. The plugin uses standard WordPress translation mechanisms (.po/.mo files) and works with WPML and Polylang.
 
-= ¿Quién desarrolla y mantiene este plugin? =
+= Who develops and maintains this plugin? =
 
-El plugin es desarrollado y mantenido por **Ecosistema Inmobiliario Homlity**, una iniciativa especializada en páginas web inmobiliarias y soluciones digitales para el sector.
+Developed and maintained by **Ecosistema Inmobiliario Homlity**, a team specializing in real estate websites and digital solutions for the property sector.
 
 == Screenshots ==
 
-1. Listado de inmuebles en el panel de administración.
-2. Formulario de creación y edición de inmuebles.
-3. Configuración de tipos de inmuebles, tipos de gestión y características.
-4. Vista pública de un inmueble en la página web.
-5. Listado público de inmuebles en el sitio WordPress.
+1. Property listing in the WordPress admin dashboard.
+2. Property creation and editing form.
+3. Configuration of property types, operation types, and attributes.
+4. Public property detail page.
+5. Public property listing on the WordPress site.
 
 == Changelog ==
 
+= 12.0.3 =
+* WordPress.org compliance: readme translated to English.
+* Reduced tags to 5.
+* Updated "Tested up to" to WordPress 6.9.
+* Plugin name changed to Homlity Real Estate.
+
 = 1.0.0 =
-* Versión inicial del Homlity Plugin.
-* Gestión básica de inmuebles.
-* Configuración de tipos de inmuebles, tipos de gestión y características.
-* Soporte para múltiples países y múltiples monedas.
-* Integración básica con el panel de administración de WordPress.
+* Initial release.
+* Basic property management.
+* Property types, operation types, and custom attributes.
+* Multi-country and multi-currency support.
+* Basic WordPress admin panel integration.
+
+== Third-Party Libraries ==
+
+This plugin bundles the following open-source libraries:
+
+* **Guzzle HTTP** (guzzlehttp/guzzle) — MIT License. HTTP client used for CRM integrations.
+  https://github.com/guzzle/guzzle
+* **Guzzle Promises** (guzzlehttp/promises) — MIT License. Async promise support for Guzzle.
+  https://github.com/guzzle/promises
+* **Guzzle PSR-7** (guzzlehttp/psr7) — MIT License. PSR-7 HTTP message implementation.
+  https://github.com/guzzle/psr7
+* **Dompdf** (dompdf/dompdf) — LGPL-2.1 License. Generates PDF technical sheets for properties.
+  https://github.com/dompdf/dompdf
+* **PHP Font Library** (phenx/php-font-lib) — LGPL-2.1-or-later License. Font handling for Dompdf.
+  https://github.com/PhenX/php-font-lib
+* **PHP SVG Library** (phenx/php-svg-lib) — LGPL-3.0-or-later License. SVG rendering for Dompdf.
+  https://github.com/PhenX/php-svg-lib
+* **HTML5 PHP** (masterminds/html5) — MIT License. HTML5 parser used by Dompdf.
+  https://github.com/Masterminds/html5-php
+* **PSR HTTP Client** (psr/http-client) — MIT License. HTTP client interface.
+  https://github.com/php-fig/http-client
+* **PSR HTTP Factory** (psr/http-factory) — MIT License. HTTP factory interface.
+  https://github.com/php-fig/http-factory
+* **PSR HTTP Message** (psr/http-message) — MIT License. HTTP message interface.
+  https://github.com/php-fig/http-message
+* **PHP CSS Parser** (sabberworm/php-css-parser) — MIT License. CSS parsing for Dompdf.
+  https://github.com/sabberworm/PHP-CSS-Parser
+
+All MIT-licensed libraries are GPL-compatible. LGPL-licensed libraries (Dompdf, php-font-lib, php-svg-lib) are used as independent components and are compatible with GPL-2.0-or-later under the LGPL linking exception.
+
+== External Services ==
+
+This plugin may connect to the following external services:
+
+= OpenStreetMap Nominatim (Geocoding) =
+Used to convert property addresses into geographic coordinates (latitude/longitude).
+* **Data sent:** Street address, neighborhood, city, state/region, and country entered by the site administrator.
+* **When:** Only when the administrator explicitly clicks the "Geocode" button in the property editor. No data is sent automatically.
+* **Service:** Nominatim geocoding API, operated by the OpenStreetMap Foundation.
+* **Privacy policy:** https://osmfoundation.org/wiki/Privacy_Policy
+* **Terms of use:** https://operations.osmfoundation.org/policies/nominatim/
+
+= CRM Integrations (Optional) =
+When a CRM integration is configured and enabled by the site administrator, the plugin synchronizes property data with external real estate CRM platforms.
+* **Data sent:** Property details (title, description, price, location, media), agent information.
+* **When:** Only when the administrator enables and configures a CRM connection. Disabled by default.
+* **Note:** The specific privacy policy and terms of service depend on the CRM provider configured by the site administrator.
+
+= Analytics / Visit Tracking (Optional) =
+The plugin includes optional built-in analytics to count property visits, contact clicks, and PDF downloads. This feature is **disabled by default** and must be explicitly enabled by the site administrator.
+* **Data stored:** Anonymized visitor identifier (random cookie), hashed IP address (SHA-256), hashed user-agent string (SHA-256), and event timestamps. All data is stored locally in the WordPress database and is never transmitted to external servers.
+* **When:** Only when the "Enable Analytics" option is active in the plugin settings. The plugin respects the WP Consent API if a compatible consent plugin is installed.
+* **Important:** When enabling this feature, site administrators are responsible for obtaining visitor consent in accordance with applicable privacy laws (GDPR, CCPA, etc.) and updating their site's privacy policy accordingly.
 
 == Upgrade Notice ==
 
-= 1.0.0 =
-Versión inicial del plugin inmobiliario de Ecosistema Inmobiliario Homlity para la gestión de inmuebles en sitios WordPress.
+= 12.0.3 =
+Maintenance release with WordPress.org compliance fixes.

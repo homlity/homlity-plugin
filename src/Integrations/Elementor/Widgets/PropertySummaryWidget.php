@@ -17,7 +17,7 @@ class PropertySummaryWidget extends BasePropertyWidget
 
     public function get_title(): string
     {
-        return __('Resumen del inmueble', 'homlity-plugin');
+        return __('Resumen del inmueble', 'homlity-real-estate');
     }
 
     public function get_icon(): string
@@ -27,7 +27,7 @@ class PropertySummaryWidget extends BasePropertyWidget
 
     protected function register_controls(): void
     {
-        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-plugin')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-real-estate')]);
         $this->register_property_control();
         $this->end_controls_section();
     }

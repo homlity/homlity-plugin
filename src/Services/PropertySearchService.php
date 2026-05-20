@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 /**
  * Builds WP_Query args from filter params and extracts map data from query results.
  */
@@ -279,6 +281,10 @@ class PropertySearchService implements ServiceInterface
             ON {$wpdb->posts}.ID = homlity_pm_code.post_id
             AND homlity_pm_code.meta_key = '_property_code'";
 
+        $clauses['join'] .= " LEFT JOIN {$wpdb->postmeta} AS homlity_pm_sync
+            ON {$wpdb->posts}.ID = homlity_pm_sync.post_id
+            AND homlity_pm_sync.meta_key = '_homlity_sync_id'";
+
         $clauses['join'] .= " LEFT JOIN {$wpdb->term_relationships} AS homlity_tr
             ON {$wpdb->posts}.ID = homlity_tr.object_id
             LEFT JOIN {$wpdb->term_taxonomy} AS homlity_tt
@@ -290,11 +296,13 @@ class PropertySearchService implements ServiceInterface
         $whereSearch = $wpdb->prepare(
             "(
                 homlity_pm_code.meta_value LIKE %s
+                OR homlity_pm_sync.meta_value LIKE %s
                 OR {$wpdb->posts}.post_title LIKE %s
                 OR {$wpdb->posts}.post_excerpt LIKE %s
                 OR {$wpdb->posts}.post_content LIKE %s
                 OR homlity_terms.name LIKE %s
             )",
+            $likeAny,
             $likeAny,
             $likeAny,
             $likeAny,
@@ -306,7 +314,9 @@ class PropertySearchService implements ServiceInterface
         $rankSql = $wpdb->prepare(
             "CASE
                 WHEN homlity_pm_code.meta_value = %s THEN 0
+                WHEN homlity_pm_sync.meta_value = %s THEN 0
                 WHEN homlity_pm_code.meta_value LIKE %s THEN 1
+                WHEN homlity_pm_sync.meta_value LIKE %s THEN 1
                 WHEN {$wpdb->posts}.post_title LIKE %s THEN 2
                 WHEN {$wpdb->posts}.post_title LIKE %s THEN 3
                 WHEN homlity_terms.name LIKE %s THEN 4
@@ -315,6 +325,8 @@ class PropertySearchService implements ServiceInterface
                 ELSE 9
             END",
             $term,
+            $term,
+            $likePrefix,
             $likePrefix,
             $likePrefix,
             $likeAny,

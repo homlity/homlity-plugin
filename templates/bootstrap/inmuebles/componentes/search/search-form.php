@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 if ( isset( $widget ) ) {
@@ -8,7 +9,7 @@ if ( isset( $widget ) ) {
 }
 if ( isset( $form ) ) : ?>
     <div class="container">
-        <form class=" homlity-plugin-formulario-widget-inicio" id="<?php echo esc_attr( $form['id'] ); ?>" action="<?php echo esc_url( $form['action'] ); ?>" method="<?php echo esc_attr( $form['method'] ); ?>" x-data="VISUALINMU_SEARCH_FORM">
+        <form class=" homlity-real-estate-formulario-widget-inicio" id="<?php echo esc_attr( $form['id'] ); ?>" action="<?php echo esc_url( $form['action'] ); ?>" method="<?php echo esc_attr( $form['method'] ); ?>" x-data="VISUALINMU_SEARCH_FORM">
             <div class="row justify-content-md-center">
                 <div class="col-md-2 visua_inmueble_codigo">
                     <div class="form-floating">

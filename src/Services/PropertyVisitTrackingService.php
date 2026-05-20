@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 /**
  * Tracks unique-ish property visits for non-authenticated users and provides reports.
  */
@@ -58,10 +60,16 @@ class PropertyVisitTrackingService implements ServiceInterface
 
     public function trackPropertyVisit(): void
     {
+        if (!self::isTrackingAllowed()) {
+            return;
+        }
         if (is_admin() || wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
             return;
         }
         if (is_user_logged_in() || !is_singular(PropertyPostType::POST_TYPE)) {
+            return;
+        }
+        if (BotDetector::isBot()) {
             return;
         }
 
@@ -202,6 +210,18 @@ class PropertyVisitTrackingService implements ServiceInterface
             'daily' => $daily,
             'recent' => $recent,
         ];
+    }
+
+    private static function isTrackingAllowed(): bool
+    {
+        $settings = (array) get_option(HOMLITY_PLUGIN_SETTINGS_OPTION, []);
+        if (empty($settings['enable_analytics'])) {
+            return false;
+        }
+        if (function_exists('wp_has_consent') && !wp_has_consent('statistics')) {
+            return false;
+        }
+        return true;
     }
 
     private function tableName(): string

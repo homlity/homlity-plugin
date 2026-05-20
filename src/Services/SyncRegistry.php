@@ -12,7 +12,7 @@
  * valid post ID wins.
  *
  * Boot timing:
- *   homlity-plugin  bootstraps at plugins_loaded priority 20.
+ *   homlity-real-estate  bootstraps at plugins_loaded priority 20.
  *   SyncRegistry    fires 'homlity_plugin_register_sync_providers' at priority 30.
  *   External plugins hook into that action at their own priority 20 bootstrap,
  *   so their callbacks run when the action fires at priority 30.
@@ -76,7 +76,7 @@ class SyncRegistry implements ServiceInterface
     {
         $lastResult = [
             'status'  => 'not_found',
-            'message' => __('Inmueble no existe o no está disponible.', 'homlity-plugin'),
+            'message' => __('Inmueble no existe o no está disponible.', 'homlity-real-estate'),
         ];
 
         foreach (self::$providers as $provider) {

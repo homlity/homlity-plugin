@@ -27,6 +27,15 @@
         });
     }
 
+    function makeRelatedIcon() {
+        return window.L.divIcon({
+            className: 'homlity-related-marker',
+            html: '<span class="homlity-related-marker__dot"></span>',
+            iconSize: [18, 18],
+            iconAnchor: [9, 9],
+        });
+    }
+
     function initMap(node) {
         if (!window.L) {
             return;
@@ -36,9 +45,19 @@
         const lng = parseFloat(node.dataset.lng || '');
         const zoom = parseInt(node.dataset.zoom || '16', 10);
         const title = node.dataset.title || '';
+        let relatedMarkers = [];
 
         if (Number.isNaN(lat) || Number.isNaN(lng)) {
             return;
+        }
+
+        try {
+            relatedMarkers = JSON.parse(node.dataset.relatedMarkers || '[]');
+            if (!Array.isArray(relatedMarkers)) {
+                relatedMarkers = [];
+            }
+        } catch (e) {
+            relatedMarkers = [];
         }
 
         const map = window.L.map(node, {
@@ -61,15 +80,43 @@
             if (title) {
                 marker.bindPopup(title);
             }
+            return marker;
+        }
+
+        const boundsPoints = [[lat, lng]];
+
+        function addRelatedMarkers() {
+            relatedMarkers.forEach(function (item) {
+                const rLat = parseFloat(item && item.lat);
+                const rLng = parseFloat(item && item.lng);
+                if (Number.isNaN(rLat) || Number.isNaN(rLng)) {
+                    return;
+                }
+
+                const marker = window.L.marker([rLat, rLng], { icon: makeRelatedIcon() }).addTo(map);
+                const rTitle = (item && item.title) ? String(item.title) : '';
+                const rUrl = (item && item.url) ? String(item.url) : '';
+                if (rTitle && rUrl) {
+                    marker.bindPopup('<a href="' + rUrl + '">' + rTitle + '</a>');
+                } else if (rTitle) {
+                    marker.bindPopup(rTitle);
+                }
+                boundsPoints.push([rLat, rLng]);
+            });
+
+            if (boundsPoints.length > 1) {
+                map.fitBounds(boundsPoints, { padding: [28, 28], maxZoom: Number.isNaN(zoom) ? 16 : zoom });
+            }
         }
 
         if (iconUrl) {
             const img = new Image();
-            img.onload  = function () { addMarker(iconUrl); };
-            img.onerror = function () { addMarker(fallbackUrl); };
+            img.onload  = function () { addMarker(iconUrl); addRelatedMarkers(); };
+            img.onerror = function () { addMarker(fallbackUrl); addRelatedMarkers(); };
             img.src = iconUrl;
         } else {
             addMarker(fallbackUrl);
+            addRelatedMarkers();
         }
 
         node.addEventListener('homlity:map-resize', function () {

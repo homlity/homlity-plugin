@@ -188,7 +188,7 @@
     left: 38px;
     position: absolute;
     top: 38px;
-    z-index: 5;
+    z-index: 1000;
 }
 
 .property-map__tab {
@@ -238,6 +238,22 @@
 .property-map__leaflet {
     height: 420px;
     width: 100%;
+}
+
+.homlity-related-marker {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+.homlity-related-marker__dot {
+    background: #2563eb;
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.45);
+    display: block;
+    height: 14px;
+    width: 14px;
 }
 
 .property-map__powered-by {
@@ -1013,4 +1029,10 @@
   border: 0;
   background: none;
   padding: 0;
+}
+
+.property-related__grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(var(--related-cols, 3), minmax(0, 1fr));
 }

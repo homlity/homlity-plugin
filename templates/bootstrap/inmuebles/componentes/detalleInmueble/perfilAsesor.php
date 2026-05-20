@@ -16,7 +16,7 @@ onclick="gtag('event', 'open_advisor_detail', {
     'value': '<?php echo esc_js( $asesor->nombre() ); ?>'
   });" target="_blank" href="<?php echo esc_url( visualinmu_redsocial_url( [ 'nombre' => 'whatsapp', 'phone' => $asesor->telefono(), 'texto' => 'Buen dia, encontre esto en su pagina web y estoy interesado en ' . $nombre . ' código: ' . $codigo ], $route ) ); ?>" target="_blank"><i class="fab fa-whatsapp"></i> Hablar por WhatsApp</a>
     </li>
-    <?php if ( homlity-plugin_valida_dato_contacto( 'telefono', $asesor->telefono() ) ) : ?>
+    <?php if ( homlity-real-estate_valida_dato_contacto( 'telefono', $asesor->telefono() ) ) : ?>
         <li class="list-group-item">
             <a
             onclick="gtag('event', 'phone_open', {
@@ -27,7 +27,7 @@ onclick="gtag('event', 'open_advisor_detail', {
             href="tel:<?php echo esc_attr( visualinmu_formatear_telefono( $asesor->telefono() ) ); ?>" target="_blank"><i class="fas fa-mobile-alt"></i> Hablar por celular</a>
         </li>
     <?php endif; ?>
-    <?php if ( homlity-plugin_valida_dato_contacto( 'email', $asesor->email() ) ) : ?>
+    <?php if ( homlity-real-estate_valida_dato_contacto( 'email', $asesor->email() ) ) : ?>
         <li class="list-group-item">
             <a
             onclick="gtag('event', 'email_open', {

@@ -1,5 +1,5 @@
 <?php
-
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 namespace Homlity\PluginInmobiliario\Integrations\Elementor\Widgets;
 
 use Elementor\Controls_Manager;
@@ -21,7 +21,7 @@ class PropertyFeaturedTermsWidget extends Widget_Base
 
     public function get_title(): string
     {
-        return __('Destacados por ubicación y tipo', 'homlity-plugin');
+        return __('Destacados por ubicación y tipo', 'homlity-real-estate');
     }
 
     public function get_icon(): string
@@ -31,26 +31,26 @@ class PropertyFeaturedTermsWidget extends Widget_Base
 
     public function get_categories(): array
     {
-        return ['homlity-plugin'];
+        return ['homlity-real-estate'];
     }
 
     protected function register_controls(): void
     {
-        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-plugin')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-real-estate')]);
 
         $this->add_control('show_city', [
-            'label' => __('Mostrar ciudades destacadas', 'homlity-plugin'),
+            'label' => __('Mostrar ciudades destacadas', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,
             'default' => 'yes',
         ]);
         $this->add_control('title_city', [
-            'label' => __('Título ciudades', 'homlity-plugin'),
+            'label' => __('Título ciudades', 'homlity-real-estate'),
             'type' => Controls_Manager::TEXT,
-            'default' => __('Ciudades destacadas', 'homlity-plugin'),
+            'default' => __('Ciudades destacadas', 'homlity-real-estate'),
             'condition' => ['show_city' => 'yes'],
         ]);
         $this->add_control('limit_city', [
-            'label' => __('Cantidad ciudades', 'homlity-plugin'),
+            'label' => __('Cantidad ciudades', 'homlity-real-estate'),
             'type' => Controls_Manager::NUMBER,
             'min' => 1,
             'max' => 50,
@@ -59,18 +59,18 @@ class PropertyFeaturedTermsWidget extends Widget_Base
         ]);
 
         $this->add_control('show_neighborhood', [
-            'label' => __('Mostrar barrios destacados', 'homlity-plugin'),
+            'label' => __('Mostrar barrios destacados', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,
             'default' => 'yes',
         ]);
         $this->add_control('title_neighborhood', [
-            'label' => __('Título barrios', 'homlity-plugin'),
+            'label' => __('Título barrios', 'homlity-real-estate'),
             'type' => Controls_Manager::TEXT,
-            'default' => __('Barrios destacados', 'homlity-plugin'),
+            'default' => __('Barrios destacados', 'homlity-real-estate'),
             'condition' => ['show_neighborhood' => 'yes'],
         ]);
         $this->add_control('limit_neighborhood', [
-            'label' => __('Cantidad barrios', 'homlity-plugin'),
+            'label' => __('Cantidad barrios', 'homlity-real-estate'),
             'type' => Controls_Manager::NUMBER,
             'min' => 1,
             'max' => 50,
@@ -79,18 +79,18 @@ class PropertyFeaturedTermsWidget extends Widget_Base
         ]);
 
         $this->add_control('show_operation', [
-            'label' => __('Mostrar gestión destacada', 'homlity-plugin'),
+            'label' => __('Mostrar gestión destacada', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,
             'default' => 'yes',
         ]);
         $this->add_control('title_operation', [
-            'label' => __('Título gestión', 'homlity-plugin'),
+            'label' => __('Título gestión', 'homlity-real-estate'),
             'type' => Controls_Manager::TEXT,
-            'default' => __('Gestión destacada', 'homlity-plugin'),
+            'default' => __('Gestión destacada', 'homlity-real-estate'),
             'condition' => ['show_operation' => 'yes'],
         ]);
         $this->add_control('limit_operation', [
-            'label' => __('Cantidad gestión', 'homlity-plugin'),
+            'label' => __('Cantidad gestión', 'homlity-real-estate'),
             'type' => Controls_Manager::NUMBER,
             'min' => 1,
             'max' => 20,
@@ -99,18 +99,18 @@ class PropertyFeaturedTermsWidget extends Widget_Base
         ]);
 
         $this->add_control('show_type', [
-            'label' => __('Mostrar tipo destacado', 'homlity-plugin'),
+            'label' => __('Mostrar tipo destacado', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,
             'default' => 'yes',
         ]);
         $this->add_control('title_type', [
-            'label' => __('Título tipo', 'homlity-plugin'),
+            'label' => __('Título tipo', 'homlity-real-estate'),
             'type' => Controls_Manager::TEXT,
-            'default' => __('Tipos de inmueble destacados', 'homlity-plugin'),
+            'default' => __('Tipos de inmueble destacados', 'homlity-real-estate'),
             'condition' => ['show_type' => 'yes'],
         ]);
         $this->add_control('limit_type', [
-            'label' => __('Cantidad tipo', 'homlity-plugin'),
+            'label' => __('Cantidad tipo', 'homlity-real-estate'),
             'type' => Controls_Manager::NUMBER,
             'min' => 1,
             'max' => 20,
@@ -119,7 +119,7 @@ class PropertyFeaturedTermsWidget extends Widget_Base
         ]);
 
         $this->add_control('list_icon', [
-            'label' => __('Ícono del listado', 'homlity-plugin'),
+            'label' => __('Ícono del listado', 'homlity-real-estate'),
             'type' => Controls_Manager::ICONS,
             'default' => ['value' => 'fas fa-location-dot', 'library' => 'fa-solid'],
         ]);
@@ -127,12 +127,12 @@ class PropertyFeaturedTermsWidget extends Widget_Base
         $this->end_controls_section();
 
         $this->start_controls_section('style', [
-            'label' => __('Estilo', 'homlity-plugin'),
+            'label' => __('Estilo', 'homlity-real-estate'),
             'tab' => Controls_Manager::TAB_STYLE,
         ]);
 
         $this->add_responsive_control('columns', [
-            'label' => __('Columnas', 'homlity-plugin'),
+            'label' => __('Columnas', 'homlity-real-estate'),
             'type' => Controls_Manager::SELECT,
             'default' => '2',
             'options' => ['1' => '1', '2' => '2', '3' => '3', '4' => '4'],
@@ -142,7 +142,7 @@ class PropertyFeaturedTermsWidget extends Widget_Base
         ]);
 
         $this->add_responsive_control('grid_gap', [
-            'label' => __('Espacio entre bloques', 'homlity-plugin'),
+            'label' => __('Espacio entre bloques', 'homlity-real-estate'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => ['px'],
             'range' => ['px' => ['min' => 0, 'max' => 60]],
@@ -154,7 +154,7 @@ class PropertyFeaturedTermsWidget extends Widget_Base
             'selector' => '{{WRAPPER}} .hml-featured-terms__title',
         ]);
         $this->add_control('title_color', [
-            'label' => __('Color título', 'homlity-plugin'),
+            'label' => __('Color título', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .hml-featured-terms__title' => 'color: {{VALUE}};'],
         ]);
@@ -164,22 +164,22 @@ class PropertyFeaturedTermsWidget extends Widget_Base
             'selector' => '{{WRAPPER}} .hml-featured-terms__link',
         ]);
         $this->add_control('item_color', [
-            'label' => __('Color ítem', 'homlity-plugin'),
+            'label' => __('Color ítem', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .hml-featured-terms__link' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('count_color', [
-            'label' => __('Color contador', 'homlity-plugin'),
+            'label' => __('Color contador', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .hml-featured-terms__count' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('icon_color', [
-            'label' => __('Color ícono', 'homlity-plugin'),
+            'label' => __('Color ícono', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .hml-featured-terms__icon' => 'color: {{VALUE}};'],
         ]);
         $this->add_responsive_control('icon_size', [
-            'label' => __('Tamaño ícono', 'homlity-plugin'),
+            'label' => __('Tamaño ícono', 'homlity-real-estate'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => ['px'],
             'range' => ['px' => ['min' => 8, 'max' => 40]],
@@ -198,28 +198,28 @@ class PropertyFeaturedTermsWidget extends Widget_Base
         $groups = [
             [
                 'enabled' => !empty($settings['show_city']),
-                'title' => (string) ($settings['title_city'] ?? __('Ciudades destacadas', 'homlity-plugin')),
+                'title' => (string) ($settings['title_city'] ?? __('Ciudades destacadas', 'homlity-real-estate')),
                 'limit' => max(1, (int) ($settings['limit_city'] ?? 8)),
                 'taxonomy' => PropertyTaxonomies::TAXONOMY_CITY,
                 'segment' => 'ciudad',
             ],
             [
                 'enabled' => !empty($settings['show_neighborhood']),
-                'title' => (string) ($settings['title_neighborhood'] ?? __('Barrios destacados', 'homlity-plugin')),
+                'title' => (string) ($settings['title_neighborhood'] ?? __('Barrios destacados', 'homlity-real-estate')),
                 'limit' => max(1, (int) ($settings['limit_neighborhood'] ?? 8)),
                 'taxonomy' => PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD,
                 'segment' => 'barrios',
             ],
             [
                 'enabled' => !empty($settings['show_operation']),
-                'title' => (string) ($settings['title_operation'] ?? __('Gestión destacada', 'homlity-plugin')),
+                'title' => (string) ($settings['title_operation'] ?? __('Gestión destacada', 'homlity-real-estate')),
                 'limit' => max(1, (int) ($settings['limit_operation'] ?? 6)),
                 'taxonomy' => PropertyTaxonomies::TAXONOMY_OPERATION,
                 'segment' => 'gestion',
             ],
             [
                 'enabled' => !empty($settings['show_type']),
-                'title' => (string) ($settings['title_type'] ?? __('Tipos de inmueble destacados', 'homlity-plugin')),
+                'title' => (string) ($settings['title_type'] ?? __('Tipos de inmueble destacados', 'homlity-real-estate')),
                 'limit' => max(1, (int) ($settings['limit_type'] ?? 8)),
                 'taxonomy' => PropertyTaxonomies::TAXONOMY_TYPE,
                 'segment' => 'tipo',

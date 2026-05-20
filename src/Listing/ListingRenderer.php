@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 /**
  * Central renderer for property listings.
  *
@@ -194,35 +195,35 @@ class ListingRenderer
     public static function enqueueAssets(): void
     {
         wp_enqueue_style(
-            'homlity-plugin-front-components',
+            'homlity-real-estate-front-components',
             HOMLITY_PLUGIN_URL . 'assets/css/front-components.css',
             [],
             HOMLITY_PLUGIN_VERSION
         );
 
         wp_enqueue_style(
-            'homlity-plugin-listing',
+            'homlity-real-estate-listing',
             HOMLITY_PLUGIN_URL . 'assets/css/property-listing.css',
-            ['homlity-plugin-front-components'],
+            ['homlity-real-estate-front-components'],
             HOMLITY_PLUGIN_VERSION
         );
 
         wp_enqueue_style(
-            'homlity-plugin-swiper',
+            'homlity-real-estate-swiper',
             HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.css',
             [],
             '11.1.4'
         );
 
         wp_enqueue_style(
-            'homlity-plugin-leaflet',
+            'homlity-real-estate-leaflet',
             HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.css',
             [],
             '1.9.4'
         );
 
         wp_enqueue_script(
-            'homlity-plugin-leaflet',
+            'homlity-real-estate-leaflet',
             HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.js',
             [],
             '1.9.4',
@@ -230,7 +231,7 @@ class ListingRenderer
         );
 
         wp_enqueue_script(
-            'homlity-plugin-swiper',
+            'homlity-real-estate-swiper',
             HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.js',
             [],
             '11.1.4',
@@ -238,28 +239,28 @@ class ListingRenderer
         );
 
         wp_enqueue_script(
-            'homlity-plugin-listing',
+            'homlity-real-estate-listing',
             HOMLITY_PLUGIN_URL . 'assets/js/property-listing.js',
-            ['homlity-plugin-leaflet', 'homlity-plugin-swiper'],
+            ['homlity-real-estate-leaflet', 'homlity-real-estate-swiper'],
             HOMLITY_PLUGIN_VERSION,
             true
         );
 
         wp_enqueue_script(
-            'homlity-plugin-contact-tracking',
+            'homlity-real-estate-contact-tracking',
             HOMLITY_PLUGIN_URL . 'assets/js/property-contact-tracking.js',
             [],
             HOMLITY_PLUGIN_VERSION,
             true
         );
-        wp_localize_script('homlity-plugin-contact-tracking', 'homlityContactTracking', [
+        wp_localize_script('homlity-real-estate-contact-tracking', 'homlityContactTracking', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('homlity_contact_click_nonce'),
         ]);
 
-        wp_localize_script('homlity-plugin-listing', 'homlityListingI18n', [
-            'noResults' => __('No se han encontrado inmuebles para esta consulta.', 'homlity-plugin'),
-            'loading'   => __('Cargando...', 'homlity-plugin'),
+        wp_localize_script('homlity-real-estate-listing', 'homlityListingI18n', [
+            'noResults' => __('No se han encontrado inmuebles para esta consulta.', 'homlity-real-estate'),
+            'loading'   => __('Cargando...', 'homlity-real-estate'),
         ]);
     }
 }

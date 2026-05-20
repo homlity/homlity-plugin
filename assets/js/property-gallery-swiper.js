@@ -24,16 +24,18 @@
     var slidesCount = container.querySelectorAll('.swiper-wrapper > .swiper-slide').length;
     var maxSlidesPerView = Math.max(desktop, tablet, mobile);
     var canLoop = loop && slidesCount > maxSlidesPerView;
+    var thumbsPerView = parseInt(node.dataset.thumbsPerView || '4', 10);
+    if (isNaN(thumbsPerView) || thumbsPerView < 1) thumbsPerView = 4;
 
     if (layout === 'slider' && thumbsNode) {
       thumbsSwiper = new window.Swiper(thumbsNode, {
-        slidesPerView: Math.min(desktop + 1, 6),
+        slidesPerView: thumbsPerView,
         spaceBetween: 10,
         freeMode: true,
         watchSlidesProgress: true,
         breakpoints: {
-          768: { slidesPerView: Math.min(tablet + 1, 5) },
-          1024: { slidesPerView: Math.min(desktop + 1, 6) }
+          768: { slidesPerView: Math.max(Math.floor(thumbsPerView * 0.7), 2) },
+          1024: { slidesPerView: thumbsPerView }
         }
       });
     }

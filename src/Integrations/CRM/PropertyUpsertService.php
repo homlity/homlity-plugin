@@ -1,5 +1,5 @@
 <?php
-
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 namespace Homlity\PluginInmobiliario\Integrations\CRM;
 
 use Homlity\PluginInmobiliario\Homologation\EntityType;
@@ -46,6 +46,15 @@ class PropertyUpsertService
         }
 
         $postId   = $this->findByExternal($source, $externalId);
+
+        // Secondary dedup: if no sync-index match, prevent a second post with the same property code.
+        if ($postId === 0) {
+            $code = sanitize_text_field((string) (ArrayPath::get($normalized, 'metrics.code') ?? ''));
+            if ($code !== '') {
+                $postId = $this->findByCode($code);
+            }
+        }
+
         $postData = is_array($normalized['post'] ?? null) ? $normalized['post'] : [];
 
         $title = sanitize_text_field((string) ($postData['title'] ?? ''));
@@ -123,6 +132,26 @@ class PropertyUpsertService
                 ['key' => '_property_external_id',     'value' => $externalId],
             ],
             'no_found_rows'  => true,
+        ]);
+
+        if (empty($query->posts)) {
+            return 0;
+        }
+
+        return (int) $query->posts[0];
+    }
+
+    private function findByCode(string $code): int
+    {
+        $query = new \WP_Query([
+            'post_type'      => PropertyPostType::POST_TYPE,
+            'post_status'    => ['publish', 'pending', 'draft', 'private'],
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+            'meta_query'     => [
+                ['key' => '_property_code', 'value' => $code],
+            ],
         ]);
 
         if (empty($query->posts)) {

@@ -1,10 +1,14 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Property gallery component with tabs.
  * Tabs: Fotos, Videos, Fotos 360, Recorridos 360.
  * Each tab is shown only when it has content.
- * Overridable at homlity-plugin/parts/property-gallery.php
+ * Overridable at homlity-real-estate/parts/property-gallery.php
  */
 
 if (!function_exists('homlity_youtube_embed_url')) {
@@ -110,7 +114,7 @@ $style_preset = in_array($style_preset, ['minimal', 'rounded', 'shadow_card'], t
 
 // ── Photos ────────────────────────────────────────────────────────────────────
 // _property_gallery puede tener tres formatos según su origen:
-//   1. Array de URLs (plugin-homlity-sync sin import, o CRM de homlity-plugin)
+//   1. Array de URLs (plugin-homlity-sync sin import, o CRM de homlity-real-estate)
 //   2. Array de attachment IDs enteros (plugin-homlity-sync con import activado)
 //   3. String de IDs separados por coma, formato legado del CPT
 $images      = [];
@@ -283,10 +287,10 @@ if (!$photos360 || !$tours360 || !$videos) {
 
 // ── Build active tabs ─────────────────────────────────────────────────────────
 $tabs = [];
-if ($images)    $tabs[] = ['id' => 'photos',    'label' => __('Fotos', 'homlity-plugin'),          'icon' => 'eicon-image'];
-if ($videos)    $tabs[] = ['id' => 'videos',    'label' => __('Videos', 'homlity-plugin'),         'icon' => 'eicon-youtube'];
-if ($photos360) $tabs[] = ['id' => 'photos360', 'label' => __('Fotos 360°', 'homlity-plugin'),     'icon' => 'eicon-globe'];
-if ($tours360)  $tabs[] = ['id' => 'tours360',  'label' => __('Recorrido 360°', 'homlity-plugin'), 'icon' => 'eicon-eye'];
+if ($images)    $tabs[] = ['id' => 'photos',    'label' => __('Fotos', 'homlity-real-estate'),          'icon' => 'eicon-image'];
+if ($videos)    $tabs[] = ['id' => 'videos',    'label' => __('Videos', 'homlity-real-estate'),         'icon' => 'eicon-youtube'];
+if ($photos360) $tabs[] = ['id' => 'photos360', 'label' => __('Fotos 360°', 'homlity-real-estate'),     'icon' => 'eicon-globe'];
+if ($tours360)  $tabs[] = ['id' => 'tours360',  'label' => __('Recorrido 360°', 'homlity-real-estate'), 'icon' => 'eicon-eye'];
 
 if (!$tabs) {
     return;
@@ -300,7 +304,7 @@ $firstId = in_array($preferredFirstTab, $availableTabIds, true) ? $preferredFirs
 <div class="property-gallery-tabs<?php echo $useTabs ? '' : ' property-gallery-tabs--single'; ?>">
 
     <?php if ($useTabs) : ?>
-    <nav class="property-gallery-tabs__nav" role="tablist" aria-label="<?php esc_attr_e('Contenido multimedia', 'homlity-plugin'); ?>">
+    <nav class="property-gallery-tabs__nav" role="tablist" aria-label="<?php esc_attr_e('Contenido multimedia', 'homlity-real-estate'); ?>">
         <?php foreach ($tabs as $tab) : $isFirst = ($tab['id'] === $firstId); ?>
             <button class="property-gallery-tabs__btn<?php echo $isFirst ? ' is-active' : ''; ?>"
                     data-tab="<?php echo esc_attr($tab['id']); ?>"
@@ -328,6 +332,7 @@ $firstId = in_array($preferredFirstTab, $availableTabIds, true) ? $preferredFirs
              data-slides-desktop="<?php echo esc_attr((int) ($slides_desktop ?? 3)); ?>"
              data-slides-tablet="<?php echo esc_attr((int) ($slides_tablet ?? 2)); ?>"
              data-slides-mobile="<?php echo esc_attr((int) ($slides_mobile ?? 1)); ?>"
+             data-thumbs-per-view="<?php echo esc_attr((int) ($thumbs_per_view ?? 4)); ?>"
              data-loop="<?php echo !empty($loop) ? '1' : '0'; ?>"
              data-show-arrows="<?php echo !empty($show_arrows) ? '1' : '0'; ?>"
              data-show-pagination="<?php echo !empty($show_pagination) ? '1' : '0'; ?>"
@@ -392,7 +397,7 @@ $firstId = in_array($preferredFirstTab, $availableTabIds, true) ? $preferredFirs
             <?php foreach ($videos as $embedUrl) : ?>
                 <div class="property-gallery-tabs__video-wrap">
                     <iframe src="<?php echo esc_url($embedUrl); ?>"
-                            title="<?php esc_attr_e('Video del inmueble', 'homlity-plugin'); ?>"
+                            title="<?php esc_attr_e('Video del inmueble', 'homlity-real-estate'); ?>"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen
                             loading="lazy"></iframe>
@@ -426,13 +431,13 @@ $firstId = in_array($preferredFirstTab, $availableTabIds, true) ? $preferredFirs
                             <?php if (homlity_is_image_url((string) $url)) : ?>
                                 <a href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener">
                                     <img src="<?php echo esc_url($url); ?>"
-                                         alt="<?php esc_attr_e('Foto 360°', 'homlity-plugin'); ?>"
+                                         alt="<?php esc_attr_e('Foto 360°', 'homlity-real-estate'); ?>"
                                          loading="lazy">
                                     <span class="property-gallery-tabs__360-badge">360°</span>
                                 </a>
                             <?php else : ?>
                                 <iframe src="<?php echo esc_url($url); ?>"
-                                        title="<?php esc_attr_e('Foto 360°', 'homlity-plugin'); ?>"
+                                        title="<?php esc_attr_e('Foto 360°', 'homlity-real-estate'); ?>"
                                         allowfullscreen
                                         loading="lazy"></iframe>
                             <?php endif; ?>
@@ -469,7 +474,7 @@ $firstId = in_array($preferredFirstTab, $availableTabIds, true) ? $preferredFirs
                     <?php foreach ($tours360 as $url) : ?>
                         <div class="property-gallery-tabs__tour-wrap swiper-slide">
                             <iframe src="<?php echo esc_url($url); ?>"
-                                    title="<?php esc_attr_e('Recorrido 360°', 'homlity-plugin'); ?>"
+                                    title="<?php esc_attr_e('Recorrido 360°', 'homlity-real-estate'); ?>"
                                     allowfullscreen
                                     allow="xr-spatial-tracking; gyroscope; accelerometer"
                                     loading="lazy"></iframe>

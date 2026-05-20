@@ -18,7 +18,7 @@ class PropertyCardWidget extends BasePropertyWidget
 
     public function get_title(): string
     {
-        return __('Tarjeta de inmueble', 'homlity-plugin');
+        return __('Tarjeta de inmueble', 'homlity-real-estate');
     }
 
     public function get_icon(): string
@@ -28,12 +28,12 @@ class PropertyCardWidget extends BasePropertyWidget
 
     protected function register_controls(): void
     {
-        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-plugin')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-real-estate')]);
         $this->register_property_control();
         $this->add_control(
             'show_excerpt',
             [
-                'label' => __('Mostrar extracto', 'homlity-plugin'),
+                'label' => __('Mostrar extracto', 'homlity-real-estate'),
                 'type' => Controls_Manager::SWITCHER,
                 'default' => 'yes',
             ]

@@ -8,10 +8,10 @@
 </style>
 <div class="mapa-inmueble">
     
-    <div id="homlity-plugin-map">
-        <homlity-plugin-map></homlity-plugin-map>
+    <div id="homlity-real-estate-map">
+        <homlity-real-estate-map></homlity-real-estate-map>
     </div>
     <script type="text/javascript">
-        window.homlity-plugin_INMUEBLES = <?php echo wp_kses_post( $inmuebles ); ?>;
+        window.homlity-real-estate_INMUEBLES = <?php echo wp_kses_post( $inmuebles ); ?>;
     </script>
 </div>

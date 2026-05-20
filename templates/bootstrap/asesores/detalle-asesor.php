@@ -1,5 +1,5 @@
 <?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
-<div class="container homlity-plugin-detalle-asesor">
+<div class="container homlity-real-estate-detalle-asesor">
     <div class="section-perfil-asesor">
         <?php visualinmu_load_template("asesores/componentes/asesores/detalle.php", ["asesor" => $asesor]); ?>
         <div class="row mt-3">

@@ -1,8 +1,13 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Archive and search results for properties.
- * Can be overridden in theme at homlity-plugin/archive-property.php
+ * Can be overridden in theme at homlity-real-estate/archive-property.php
  */
 
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
@@ -69,15 +74,15 @@ $tags = get_terms([
             $archiveTitle = post_type_archive_title('', false);
             if (!$archiveTitle) {
                 $archivePageId = (int) get_option('homlity_plugin_archive_page_id', 0);
-                $archiveTitle  = $archivePageId ? get_the_title($archivePageId) : __('Propiedades', 'homlity-plugin');
+                $archiveTitle  = $archivePageId ? get_the_title($archivePageId) : __('Propiedades', 'homlity-real-estate');
             }
             echo esc_html($archiveTitle);
         ?></h1>
         <form method="get" class="property-archive__search">
             <input type="search" name="s" value="<?php echo esc_attr(get_search_query()); ?>"
-                   placeholder="<?php esc_attr_e('Buscar inmuebles', 'homlity-plugin'); ?>">
+                   placeholder="<?php esc_attr_e('Buscar inmuebles', 'homlity-real-estate'); ?>">
             <select name="property_category">
-                <option value=""><?php esc_html_e('Todas las categorías', 'homlity-plugin'); ?></option>
+                <option value=""><?php esc_html_e('Todas las categorías', 'homlity-real-estate'); ?></option>
                 <?php foreach ($categories as $term): ?>
                     <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($category, $term->slug); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -85,7 +90,7 @@ $tags = get_terms([
                 <?php endforeach; ?>
             </select>
             <select name="property_type">
-                <option value=""><?php esc_html_e('Todos los tipos', 'homlity-plugin'); ?></option>
+                <option value=""><?php esc_html_e('Todos los tipos', 'homlity-real-estate'); ?></option>
                 <?php foreach ($types as $term): ?>
                     <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($type, $term->slug); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -93,7 +98,7 @@ $tags = get_terms([
                 <?php endforeach; ?>
             </select>
             <select name="property_operation">
-                <option value=""><?php esc_html_e('Todas las gestiones', 'homlity-plugin'); ?></option>
+                <option value=""><?php esc_html_e('Todas las gestiones', 'homlity-real-estate'); ?></option>
                 <?php foreach ($operations as $term): ?>
                     <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($operation, $term->slug); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -101,7 +106,7 @@ $tags = get_terms([
                 <?php endforeach; ?>
             </select>
             <select name="property_city">
-                <option value=""><?php esc_html_e('Todas las ciudades', 'homlity-plugin'); ?></option>
+                <option value=""><?php esc_html_e('Todas las ciudades', 'homlity-real-estate'); ?></option>
                 <?php foreach ($cities as $term): ?>
                     <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($city, $term->slug); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -109,7 +114,7 @@ $tags = get_terms([
                 <?php endforeach; ?>
             </select>
             <select name="property_neighborhood">
-                <option value=""><?php esc_html_e('Todos los barrios', 'homlity-plugin'); ?></option>
+                <option value=""><?php esc_html_e('Todos los barrios', 'homlity-real-estate'); ?></option>
                 <?php foreach ($neighborhoods as $term): ?>
                     <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($neighborhood, $term->slug); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -117,7 +122,7 @@ $tags = get_terms([
                 <?php endforeach; ?>
             </select>
             <select name="property_nearby">
-                <option value=""><?php esc_html_e('Lugares cercanos', 'homlity-plugin'); ?></option>
+                <option value=""><?php esc_html_e('Lugares cercanos', 'homlity-real-estate'); ?></option>
                 <?php foreach ($nearbyTerms as $term): ?>
                     <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($nearby, $term->slug); ?>>
                         <?php echo esc_html($term->name); ?>
@@ -125,20 +130,20 @@ $tags = get_terms([
                 <?php endforeach; ?>
             </select>
             <select name="property_tag">
-                <option value=""><?php esc_html_e('Etiquetas', 'homlity-plugin'); ?></option>
+                <option value=""><?php esc_html_e('Etiquetas', 'homlity-real-estate'); ?></option>
                 <?php foreach ($tags as $term): ?>
                     <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($tag, $term->slug); ?>>
                         <?php echo esc_html($term->name); ?>
                     </option>
                 <?php endforeach; ?>
             </select>
-            <input type="number" name="price_min" value="<?php echo esc_attr($priceMin); ?>" placeholder="<?php esc_attr_e('Precio mínimo', 'homlity-plugin'); ?>" step="0.01">
-            <input type="number" name="price_max" value="<?php echo esc_attr($priceMax); ?>" placeholder="<?php esc_attr_e('Precio máximo', 'homlity-plugin'); ?>" step="0.01">
-            <input type="number" name="area_min" value="<?php echo esc_attr($areaMin); ?>" placeholder="<?php esc_attr_e('Área mínima (m²)', 'homlity-plugin'); ?>" step="0.01">
-            <input type="number" name="area_max" value="<?php echo esc_attr($areaMax); ?>" placeholder="<?php esc_attr_e('Área máxima (m²)', 'homlity-plugin'); ?>" step="0.01">
+            <input type="number" name="price_min" value="<?php echo esc_attr($priceMin); ?>" placeholder="<?php esc_attr_e('Precio mínimo', 'homlity-real-estate'); ?>" step="0.01">
+            <input type="number" name="price_max" value="<?php echo esc_attr($priceMax); ?>" placeholder="<?php esc_attr_e('Precio máximo', 'homlity-real-estate'); ?>" step="0.01">
+            <input type="number" name="area_min" value="<?php echo esc_attr($areaMin); ?>" placeholder="<?php esc_attr_e('Área mínima (m²)', 'homlity-real-estate'); ?>" step="0.01">
+            <input type="number" name="area_max" value="<?php echo esc_attr($areaMax); ?>" placeholder="<?php esc_attr_e('Área máxima (m²)', 'homlity-real-estate'); ?>" step="0.01">
             <input type="date" name="date_from" value="<?php echo esc_attr($dateFrom); ?>">
             <input type="date" name="date_to" value="<?php echo esc_attr($dateTo); ?>">
-            <button type="submit"><?php esc_html_e('Buscar', 'homlity-plugin'); ?></button>
+            <button type="submit"><?php esc_html_e('Buscar', 'homlity-real-estate'); ?></button>
         </form>
     </header>
 
@@ -152,7 +157,7 @@ $tags = get_terms([
             <?php the_posts_pagination(); ?>
         </div>
     <?php else : ?>
-        <p><?php esc_html_e('No hay inmuebles que coincidan con tu búsqueda.', 'homlity-plugin'); ?></p>
+        <p><?php esc_html_e('No hay inmuebles que coincidan con tu búsqueda.', 'homlity-real-estate'); ?></p>
     <?php endif; ?>
 </main>
 

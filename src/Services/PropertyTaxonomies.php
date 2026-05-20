@@ -37,10 +37,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_TYPE,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Tipo de propiedad', 'homlity-plugin'),
+                'label' => __('Tipo de propiedad', 'homlity-real-estate'),
                 'labels' => [
-                    'name' => __('Tipos de propiedad', 'homlity-plugin'),
-                    'singular_name' => __('Tipo de propiedad', 'homlity-plugin'),
+                    'name' => __('Tipos de propiedad', 'homlity-real-estate'),
+                    'singular_name' => __('Tipo de propiedad', 'homlity-real-estate'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -53,10 +53,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_OPERATION,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Gestión', 'homlity-plugin'),
+                'label' => __('Gestión', 'homlity-real-estate'),
                 'labels' => [
-                    'name' => __('Gestiones', 'homlity-plugin'),
-                    'singular_name' => __('Gestión', 'homlity-plugin'),
+                    'name' => __('Gestiones', 'homlity-real-estate'),
+                    'singular_name' => __('Gestión', 'homlity-real-estate'),
                 ],
                 'hierarchical' => false,
                 'show_in_rest' => true,
@@ -70,10 +70,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_LOCATION,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Ubicación', 'homlity-plugin'),
+                'label' => __('Ubicación', 'homlity-real-estate'),
                 'labels' => [
-                    'name' => __('Ubicaciones', 'homlity-plugin'),
-                    'singular_name' => __('Ubicación', 'homlity-plugin'),
+                    'name' => __('Ubicaciones', 'homlity-real-estate'),
+                    'singular_name' => __('Ubicación', 'homlity-real-estate'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -85,10 +85,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_CATEGORY,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Categoría', 'homlity-plugin'),
+                'label' => __('Categoría', 'homlity-real-estate'),
                 'labels' => [
-                    'name' => __('Categorías', 'homlity-plugin'),
-                    'singular_name' => __('Categoría', 'homlity-plugin'),
+                    'name' => __('Categorías', 'homlity-real-estate'),
+                    'singular_name' => __('Categoría', 'homlity-real-estate'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -100,10 +100,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_TAG,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Etiquetas', 'homlity-plugin'),
+                'label' => __('Etiquetas', 'homlity-real-estate'),
                 'labels' => [
-                    'name' => __('Etiquetas', 'homlity-plugin'),
-                    'singular_name' => __('Etiqueta', 'homlity-plugin'),
+                    'name' => __('Etiquetas', 'homlity-real-estate'),
+                    'singular_name' => __('Etiqueta', 'homlity-real-estate'),
                 ],
                 'hierarchical' => false,
                 'show_in_rest' => true,
@@ -115,10 +115,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_FEATURE,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Características', 'homlity-plugin'),
+                'label' => __('Características', 'homlity-real-estate'),
                 'labels' => [
-                    'name' => __('Características', 'homlity-plugin'),
-                    'singular_name' => __('Característica', 'homlity-plugin'),
+                    'name' => __('Características', 'homlity-real-estate'),
+                    'singular_name' => __('Característica', 'homlity-real-estate'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -131,10 +131,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_COUNTRY,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('País', 'homlity-plugin'),
+                'label' => __('País', 'homlity-real-estate'),
                 'labels' => [
-                    'name' => __('Países', 'homlity-plugin'),
-                    'singular_name' => __('País', 'homlity-plugin'),
+                    'name' => __('Países', 'homlity-real-estate'),
+                    'singular_name' => __('País', 'homlity-real-estate'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -147,10 +147,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_STATE,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Departamento / Provincia', 'homlity-plugin'),
+                'label' => __('Departamento / Provincia', 'homlity-real-estate'),
                 'labels' => [
-                    'name' => __('Departamentos / Provincias', 'homlity-plugin'),
-                    'singular_name' => __('Departamento / Provincia', 'homlity-plugin'),
+                    'name' => __('Departamentos / Provincias', 'homlity-real-estate'),
+                    'singular_name' => __('Departamento / Provincia', 'homlity-real-estate'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -163,10 +163,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_CITY,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Ciudad / Municipio', 'homlity-plugin'),
+                'label' => __('Ciudad / Municipio', 'homlity-real-estate'),
                 'labels' => [
-                    'name' => __('Ciudades / Municipios', 'homlity-plugin'),
-                    'singular_name' => __('Ciudad / Municipio', 'homlity-plugin'),
+                    'name' => __('Ciudades / Municipios', 'homlity-real-estate'),
+                    'singular_name' => __('Ciudad / Municipio', 'homlity-real-estate'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -179,10 +179,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_NEIGHBORHOOD,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Barrio', 'homlity-plugin'),
+                'label' => __('Barrio', 'homlity-real-estate'),
                 'labels' => [
-                    'name' => __('Barrios', 'homlity-plugin'),
-                    'singular_name' => __('Barrio', 'homlity-plugin'),
+                    'name' => __('Barrios', 'homlity-real-estate'),
+                    'singular_name' => __('Barrio', 'homlity-real-estate'),
                 ],
                 'hierarchical' => true,
                 'show_in_rest' => true,
@@ -195,10 +195,10 @@ class PropertyTaxonomies implements ServiceInterface
             self::TAXONOMY_NEARBY,
             [PropertyPostType::POST_TYPE],
             [
-                'label' => __('Lugares cercanos', 'homlity-plugin'),
+                'label' => __('Lugares cercanos', 'homlity-real-estate'),
                 'labels' => [
-                    'name' => __('Lugares cercanos', 'homlity-plugin'),
-                    'singular_name' => __('Lugar cercano', 'homlity-plugin'),
+                    'name' => __('Lugares cercanos', 'homlity-real-estate'),
+                    'singular_name' => __('Lugar cercano', 'homlity-real-estate'),
                 ],
                 'hierarchical' => false,
                 'show_in_rest' => true,

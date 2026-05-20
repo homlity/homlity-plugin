@@ -1,16 +1,19 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
-
-
-<div class="container homlity-plugin-detalle-inmueble ">
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+?>
+<div class="container homlity-real-estate-detalle-inmueble ">
   
     <div class="row">
         <?php
         /**
-         * @var \Codwelt\homlity-plugin\Core\Modelos\Inmueble $inmueble
+         * @var \Codwelt\homlity-real-estate\Core\Modelos\Inmueble $inmueble
          */
         if (isset($inmueble)) : ?>
-            <div class="col-xl-9 col-lg-9 col-md-8 homlity-plugin-inmueble-retirado">
+            <div class="col-xl-9 col-lg-9 col-md-8 homlity-real-estate-inmueble-retirado">
             <div id="overlay-retirado">
         <div class="overlay-container">
             <div class="overlay-message">

@@ -1,10 +1,11 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Property listing – Bootstrap 5 template.
  * Replicates the structure of templates/bootstrap/inmuebles/search.php but driven
  * by WordPress data (WP_Query + homlity taxonomy) and editable through Elementor.
  *
- * Overridable at homlity-plugin/parts/property-listing-bootstrap.php in theme or child theme.
+ * Overridable at homlity-real-estate/parts/property-listing-bootstrap.php in theme or child theme.
  *
  * Expected args:
  *   $config  (ListingConfig)
@@ -32,10 +33,10 @@ $mapTabId    = $uid . '-maptab';
 $mapData     = $search->getMapData($query);
 $cardOptions = $config->cardOptions();
 $sortOptions = [
-    'date'       => __('Más recientes',         'homlity-plugin'),
-    'price_asc'  => __('Precio: menor a mayor', 'homlity-plugin'),
-    'price_desc' => __('Precio: mayor a menor', 'homlity-plugin'),
-    'title'      => __('Nombre A–Z',            'homlity-plugin'),
+    'date'       => __('Más recientes',         'homlity-real-estate'),
+    'price_asc'  => __('Precio: menor a mayor', 'homlity-real-estate'),
+    'price_desc' => __('Precio: mayor a menor', 'homlity-real-estate'),
+    'title'      => __('Nombre A–Z',            'homlity-real-estate'),
 ];
 
 // Default view: map tab starts active if configured
@@ -50,7 +51,7 @@ $paramToAttr = static function ($value): string {
 };
 ?>
 <div id="<?php echo esc_attr($uid); ?>"
-     class="homlity-plugin-search property-listing property-listing--bootstrap"
+     class="homlity-real-estate-search property-listing property-listing--bootstrap"
      data-view="<?php echo esc_attr($config->defaultView()); ?>"
      data-per-page="<?php echo esc_attr($config->postsPerPage()); ?>"
      data-columns="<?php echo esc_attr($config->columns()); ?>"
@@ -154,7 +155,7 @@ $paramToAttr = static function ($value): string {
                                 <rect x="0" y="0" width="5" height="5" rx="1"/><rect x="7" y="0" width="5" height="5" rx="1"/><rect x="0" y="7" width="5" height="5" rx="1"/>
                                 <rect x="7" y="7" width="5" height="5" rx="1"/><rect x="0" y="0" width="5" height="5" rx="1" transform="translate(0,0)"/>
                             </svg>
-                            <?php esc_html_e('Listado', 'homlity-plugin'); ?>
+                            <?php esc_html_e('Listado', 'homlity-real-estate'); ?>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -169,7 +170,7 @@ $paramToAttr = static function ($value): string {
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true" class="me-1">
                                 <path d="M8 1C5.24 1 3 3.24 3 6c0 4 5 9 5 9s5-5 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 8 4a1.5 1.5 0 0 1 0 3.5z"/>
                             </svg>
-                            <?php esc_html_e('Mapa', 'homlity-plugin'); ?>
+                            <?php esc_html_e('Mapa', 'homlity-real-estate'); ?>
                         </button>
                     </li>
                 </ul>
@@ -181,7 +182,7 @@ $paramToAttr = static function ($value): string {
                 <div class="fst-italic text-muted">
                     <small class="property-listing__count">
                         <strong class="property-listing__count-number"><?php echo esc_html($query->found_posts); ?></strong>
-                        <?php esc_html_e('inmuebles encontrados', 'homlity-plugin'); ?>
+                        <?php esc_html_e('inmuebles encontrados', 'homlity-real-estate'); ?>
                     </small>
                 </div>
                 <?php endif; ?>
@@ -189,7 +190,7 @@ $paramToAttr = static function ($value): string {
                 <?php if ($config->showSort()) : ?>
                 <div class="visualinmu-btns-order">
                     <select class="form-select form-select-sm property-listing__sort"
-                            aria-label="<?php esc_attr_e('Ordenar por', 'homlity-plugin'); ?>">
+                            aria-label="<?php esc_attr_e('Ordenar por', 'homlity-real-estate'); ?>">
                         <?php foreach ($sortOptions as $value => $label) : ?>
                             <option value="<?php echo esc_attr($value); ?>"
                                 <?php selected($config->orderby(), $value); ?>>
@@ -234,7 +235,7 @@ $paramToAttr = static function ($value): string {
                         } else {
                             echo '<div class="col-12 text-center py-5">'
                                 . '<p class="text-muted property-listing__empty">'
-                                . esc_html__('No se han encontrado inmuebles para esta consulta.', 'homlity-plugin')
+                                . esc_html__('No se han encontrado inmuebles para esta consulta.', 'homlity-real-estate')
                                 . '</p></div>';
                         }
                         ?>
@@ -261,7 +262,7 @@ $paramToAttr = static function ($value): string {
         <div class="property-listing__pagination mt-4"
              data-current="1"
              data-pages="<?php echo esc_attr($query->max_num_pages); ?>">
-            <nav aria-label="<?php esc_attr_e('Paginación de inmuebles', 'homlity-plugin'); ?>">
+            <nav aria-label="<?php esc_attr_e('Paginación de inmuebles', 'homlity-real-estate'); ?>">
                 <ul class="pagination justify-content-center">
                     <?php for ($i = 1; $i <= $query->max_num_pages; $i++) : ?>
                     <li class="page-item<?php echo $i === 1 ? ' active' : ''; ?>">
@@ -282,8 +283,8 @@ $paramToAttr = static function ($value): string {
     <!-- ── Loading overlay ──────────────────────────────────────────────── -->
     <div class="property-listing__overlay" aria-hidden="true">
         <div class="spinner-border text-primary" role="status" style="width:2.5rem;height:2.5rem;">
-            <span class="visually-hidden"><?php esc_html_e('Cargando…', 'homlity-plugin'); ?></span>
+            <span class="visually-hidden"><?php esc_html_e('Cargando…', 'homlity-real-estate'); ?></span>
         </div>
     </div>
 
-</div><!-- /homlity-plugin-search -->
+</div><!-- /homlity-real-estate-search -->

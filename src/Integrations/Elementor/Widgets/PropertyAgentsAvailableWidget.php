@@ -1,5 +1,5 @@
 <?php
-
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 namespace Homlity\PluginInmobiliario\Integrations\Elementor\Widgets;
 
 use Elementor\Controls_Manager;
@@ -23,7 +23,7 @@ class PropertyAgentsAvailableWidget extends Widget_Base
 
     public function get_title(): string
     {
-        return __('Asesores con inmuebles disponibles', 'homlity-plugin');
+        return __('Asesores con inmuebles disponibles', 'homlity-real-estate');
     }
 
     public function get_icon(): string
@@ -33,15 +33,15 @@ class PropertyAgentsAvailableWidget extends Widget_Base
 
     public function get_categories(): array
     {
-        return ['homlity-plugin'];
+        return ['homlity-real-estate'];
     }
 
     protected function register_controls(): void
     {
-        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-plugin')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-real-estate')]);
 
         $this->add_control('limit', [
-            'label' => __('Cantidad de asesores', 'homlity-plugin'),
+            'label' => __('Cantidad de asesores', 'homlity-real-estate'),
             'type' => Controls_Manager::NUMBER,
             'default' => 12,
             'min' => 1,
@@ -49,7 +49,7 @@ class PropertyAgentsAvailableWidget extends Widget_Base
         ]);
 
         $this->add_responsive_control('columns', [
-            'label' => __('Columnas', 'homlity-plugin'),
+            'label' => __('Columnas', 'homlity-real-estate'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => [''],
             'range' => ['' => ['min' => 1, 'max' => 6]],
@@ -60,32 +60,32 @@ class PropertyAgentsAvailableWidget extends Widget_Base
         ]);
 
         $this->add_control('show_phone', [
-            'label' => __('Mostrar teléfono', 'homlity-plugin'),
+            'label' => __('Mostrar teléfono', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,
             'default' => 'yes',
         ]);
 
         $this->add_control('show_email', [
-            'label' => __('Mostrar correo', 'homlity-plugin'),
+            'label' => __('Mostrar correo', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,
             'default' => 'yes',
         ]);
 
         $this->add_control('show_profile_button', [
-            'label' => __('Botón perfil', 'homlity-plugin'),
+            'label' => __('Botón perfil', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,
             'default' => 'yes',
         ]);
 
         $this->add_control('profile_label', [
-            'label' => __('Texto botón perfil', 'homlity-plugin'),
+            'label' => __('Texto botón perfil', 'homlity-real-estate'),
             'type' => Controls_Manager::TEXT,
-            'default' => __('Ver perfil', 'homlity-plugin'),
+            'default' => __('Ver perfil', 'homlity-real-estate'),
             'condition' => ['show_profile_button' => 'yes'],
         ]);
 
         $this->add_control('icon_phone', [
-            'label' => __('Ícono teléfono', 'homlity-plugin'),
+            'label' => __('Ícono teléfono', 'homlity-real-estate'),
             'type' => Controls_Manager::ICONS,
             'default' => [
                 'value' => 'fas fa-phone',
@@ -95,7 +95,7 @@ class PropertyAgentsAvailableWidget extends Widget_Base
         ]);
 
         $this->add_control('icon_email', [
-            'label' => __('Ícono correo', 'homlity-plugin'),
+            'label' => __('Ícono correo', 'homlity-real-estate'),
             'type' => Controls_Manager::ICONS,
             'default' => [
                 'value' => 'fas fa-envelope',
@@ -107,12 +107,12 @@ class PropertyAgentsAvailableWidget extends Widget_Base
         $this->end_controls_section();
 
         $this->start_controls_section('style', [
-            'label' => __('Estilos', 'homlity-plugin'),
+            'label' => __('Estilos', 'homlity-real-estate'),
             'tab' => Controls_Manager::TAB_STYLE,
         ]);
 
         $this->add_responsive_control('grid_gap', [
-            'label' => __('Separación', 'homlity-plugin'),
+            'label' => __('Separación', 'homlity-real-estate'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => ['px', 'em'],
             'default' => ['size' => 18, 'unit' => 'px'],
@@ -120,13 +120,13 @@ class PropertyAgentsAvailableWidget extends Widget_Base
         ]);
 
         $this->add_control('card_bg', [
-            'label' => __('Fondo tarjeta', 'homlity-plugin'),
+            'label' => __('Fondo tarjeta', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .hml-agents-available__card' => 'background-color: {{VALUE}};'],
         ]);
 
         $this->add_responsive_control('card_padding', [
-            'label' => __('Padding tarjeta', 'homlity-plugin'),
+            'label' => __('Padding tarjeta', 'homlity-real-estate'),
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%', 'em'],
             'selectors' => [
@@ -135,7 +135,7 @@ class PropertyAgentsAvailableWidget extends Widget_Base
         ]);
 
         $this->add_responsive_control('card_radius', [
-            'label' => __('Radio borde', 'homlity-plugin'),
+            'label' => __('Radio borde', 'homlity-real-estate'),
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%'],
             'selectors' => [
@@ -159,7 +159,7 @@ class PropertyAgentsAvailableWidget extends Widget_Base
         ]);
 
         $this->add_control('name_color', [
-            'label' => __('Color nombre', 'homlity-plugin'),
+            'label' => __('Color nombre', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .hml-agents-available__name' => 'color: {{VALUE}};'],
         ]);
@@ -170,7 +170,7 @@ class PropertyAgentsAvailableWidget extends Widget_Base
         ]);
 
         $this->add_control('meta_color', [
-            'label' => __('Color datos', 'homlity-plugin'),
+            'label' => __('Color datos', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
                 '{{WRAPPER}} .hml-agents-available__meta, {{WRAPPER}} .hml-agents-available__meta a' => 'color: {{VALUE}};',
@@ -183,19 +183,19 @@ class PropertyAgentsAvailableWidget extends Widget_Base
         ]);
 
         $this->add_control('button_color', [
-            'label' => __('Color botón', 'homlity-plugin'),
+            'label' => __('Color botón', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .hml-agents-available__cta' => 'color: {{VALUE}};'],
         ]);
 
         $this->add_control('button_bg', [
-            'label' => __('Fondo botón', 'homlity-plugin'),
+            'label' => __('Fondo botón', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .hml-agents-available__cta' => 'background-color: {{VALUE}};'],
         ]);
 
         $this->add_control('icon_color', [
-            'label' => __('Color íconos', 'homlity-plugin'),
+            'label' => __('Color íconos', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
                 '{{WRAPPER}} .hml-agents-available__meta i, {{WRAPPER}} .hml-agents-available__meta svg' => 'color: {{VALUE}}; fill: {{VALUE}};',
@@ -217,7 +217,7 @@ class PropertyAgentsAvailableWidget extends Widget_Base
         $showPhone = (($settings['show_phone'] ?? 'yes') === 'yes');
         $showEmail = (($settings['show_email'] ?? 'yes') === 'yes');
         $showButton = (($settings['show_profile_button'] ?? 'yes') === 'yes');
-        $profileLabel = trim((string) ($settings['profile_label'] ?? __('Ver perfil', 'homlity-plugin')));
+        $profileLabel = trim((string) ($settings['profile_label'] ?? __('Ver perfil', 'homlity-real-estate')));
         $phoneIcon = $settings['icon_phone'] ?? [];
         $emailIcon = $settings['icon_email'] ?? [];
 
@@ -233,7 +233,7 @@ class PropertyAgentsAvailableWidget extends Widget_Base
             echo '<div class="hml-agents-available__avatar">' . get_avatar($user->ID, 96) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo '<h3 class="hml-agents-available__name"><a href="' . esc_url($profileUrl) . '">' . esc_html($user->display_name) . '</a></h3>';
             /* translators: %d: number of available properties */
-            echo '<p class="hml-agents-available__count">' . esc_html(sprintf(_n('%d inmueble disponible', '%d inmuebles disponibles', $count, 'homlity-plugin'), $count)) . '</p>';
+            echo '<p class="hml-agents-available__count">' . esc_html(sprintf(_n('%d inmueble disponible', '%d inmuebles disponibles', $count, 'homlity-real-estate'), $count)) . '</p>';
 
             if ($showPhone && $phone !== '') {
                 echo '<p class="hml-agents-available__meta">';

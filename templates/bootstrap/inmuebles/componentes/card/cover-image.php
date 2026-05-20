@@ -1,5 +1,9 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $checkLink = !(isset($attrs) && isset($attrs['withLinktoDetail']) && $attrs['withLinktoDetail'] == false);
 ?>
 <?php
@@ -11,7 +15,7 @@ endif;
     ?>
     <style>
     .property-noavaliable::after {
-        content: "<?php echo esc_html( $inmueble->gestion()->esAriendo() ?  __('ARRENDADO','homlity-plugin') : __('VENDIDO','homlity-plugin') ); ?>"; 
+        content: "<?php echo esc_html( $inmueble->gestion()->esAriendo() ?  __('ARRENDADO','homlity-real-estate') : __('VENDIDO','homlity-real-estate') ); ?>"; 
     }
     </style>
     <div class="imagenportada portada<?php echo esc_attr( $cont ); ?> <?php echo esc_attr( $inmueble->retirado() ? 'property-noavaliable' : '' );?>" style=" background: url(<?php echo esc_url( $inmueble->fotoPortada() ); ?>);  background-size: cover; background-position: center; ">

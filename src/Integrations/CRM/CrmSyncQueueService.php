@@ -39,7 +39,7 @@ class CrmSyncQueueService
         if (!isset($schedules['homlity_crm_minute'])) {
             $schedules['homlity_crm_minute'] = [
                 'interval' => 60,
-                'display' => __('Homlity CRM - cada minuto', 'homlity-plugin'),
+                'display' => __('Homlity CRM - cada minuto', 'homlity-real-estate'),
             ];
         }
 

@@ -25,30 +25,30 @@ class AdminBarService implements ServiceInterface
         }
 
         $adminBar->add_node([
-            'id' => 'homlity-plugin-links',
-            'title' => __('Homlity', 'homlity-plugin'),
+            'id' => 'homlity-real-estate-links',
+            'title' => __('Homlity', 'homlity-real-estate'),
             'href' => admin_url('edit.php?post_type=property'),
         ]);
 
         $adminBar->add_node([
-            'id' => 'homlity-plugin-settings',
-            'parent' => 'homlity-plugin-links',
-            'title' => __('Configuración del plugin', 'homlity-plugin'),
-            'href' => admin_url('admin.php?page=homlity-plugin-settings'),
+            'id' => 'homlity-real-estate-settings',
+            'parent' => 'homlity-real-estate-links',
+            'title' => __('Configuración del plugin', 'homlity-real-estate'),
+            'href' => admin_url('admin.php?page=homlity-real-estate-settings'),
         ]);
 
         $adminBar->add_node([
-            'id' => 'homlity-plugin-properties',
-            'parent' => 'homlity-plugin-links',
-            'title' => __('Ver todas las propiedades', 'homlity-plugin'),
+            'id' => 'homlity-real-estate-properties',
+            'parent' => 'homlity-real-estate-links',
+            'title' => __('Ver todas las propiedades', 'homlity-real-estate'),
             'href' => admin_url('edit.php?post_type=property'),
         ]);
 
         if ($this->syncPageIsAvailable() && current_user_can('manage_options')) {
             $adminBar->add_node([
-                'id' => 'homlity-plugin-sync-logs',
-                'parent' => 'homlity-plugin-links',
-                'title' => __('Sincronización de inmuebles', 'homlity-plugin'),
+                'id' => 'homlity-real-estate-sync-logs',
+                'parent' => 'homlity-real-estate-links',
+                'title' => __('Sincronización de inmuebles', 'homlity-real-estate'),
                 'href' => admin_url('admin.php?page=homlity-sync&tab=logs'),
             ]);
         }

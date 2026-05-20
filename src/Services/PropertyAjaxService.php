@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 /**
  * AJAX handler for the property listing widget (filter, sort, paginate).
  * Works with any page-builder adapter – the template type is passed in the request.

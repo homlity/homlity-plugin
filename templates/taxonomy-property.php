@@ -2,7 +2,7 @@
 <?php
 /**
  * Generic template for property taxonomies (category, type, operation, location).
- * Can be overridden in theme at homlity-plugin/taxonomy-property.php
+ * Can be overridden in theme at homlity-real-estate/taxonomy-property.php
  */
 
 use Homlity\PluginInmobiliario\Services\TemplateService;
@@ -27,7 +27,7 @@ get_header();
             <?php the_posts_pagination(); ?>
         </div>
     <?php else : ?>
-        <p><?php esc_html_e('No hay inmuebles en esta categoría.', 'homlity-plugin'); ?></p>
+        <p><?php esc_html_e('No hay inmuebles en esta categoría.', 'homlity-real-estate'); ?></p>
     <?php endif; ?>
 </main>
 

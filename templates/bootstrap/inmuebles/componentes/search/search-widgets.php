@@ -1,4 +1,10 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+?>
 <p>Podemos notificarte cuando encontremos inmuebles que se ajusten a tus necesidades, por favor llena el siguiente
     formulario y uno de nuestros asesores se comunicará con tigo.</p>
 <?php 

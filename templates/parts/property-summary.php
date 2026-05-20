@@ -1,8 +1,13 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Property summary component.
- * Overridable at homlity-plugin/parts/property-summary.php
+ * Overridable at homlity-real-estate/parts/property-summary.php
  *
  * Expected args: $post_id (int)
  */

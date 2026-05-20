@@ -1,0 +1,693 @@
+/* ── Homlity Consignment Form — styles.css ───────────────────────────────── */
+
+/* Custom properties (defaults overridden via PHP config) */
+#homlity-consignment-form-root {
+  --hcf-primary:    #2563eb;
+  --hcf-secondary:  #1e40af;
+  --hcf-background: #ffffff;
+  --hcf-text:       #1f2937;
+  --hcf-radius:     8px;
+  --hcf-border:     #d1d5db;
+  --hcf-error:      #dc2626;
+  --hcf-success:    #16a34a;
+  --hcf-muted:      #6b7280;
+  --hcf-surface:    #f9fafb;
+  --hcf-shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  --hcf-transition: 150ms ease;
+
+  font-family: inherit;
+  color: var(--hcf-text);
+  background: var(--hcf-background);
+  box-sizing: border-box;
+}
+
+#homlity-consignment-form-root *,
+#homlity-consignment-form-root *::before,
+#homlity-consignment-form-root *::after {
+  box-sizing: inherit;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+
+.hcf-wrapper {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.hcf-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.hcf-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--hcf-text);
+}
+
+.hcf-subtitle {
+  font-size: 1rem;
+  color: var(--hcf-muted);
+  margin: 0;
+}
+
+/* ── Progress ────────────────────────────────────────────────────────────── */
+
+.hcf-progress {
+  margin-bottom: 32px;
+}
+
+.hcf-progress__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.hcf-progress__item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hcf-progress__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  cursor: default;
+  color: var(--hcf-muted);
+}
+
+.hcf-progress__item--done .hcf-progress__btn {
+  cursor: pointer;
+  color: var(--hcf-primary);
+}
+
+.hcf-progress__item--active .hcf-progress__btn {
+  color: var(--hcf-primary);
+  font-weight: 600;
+}
+
+.hcf-progress__circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .75rem;
+  font-weight: 700;
+  background: transparent;
+  transition: background var(--hcf-transition), color var(--hcf-transition);
+}
+
+.hcf-progress__item--done .hcf-progress__circle {
+  background: var(--hcf-primary);
+  color: #fff;
+  border-color: var(--hcf-primary);
+}
+
+.hcf-progress__item--active .hcf-progress__circle {
+  background: var(--hcf-primary);
+  color: #fff;
+  border-color: var(--hcf-primary);
+}
+
+.hcf-progress__label {
+  font-size: .7rem;
+  white-space: nowrap;
+}
+
+.hcf-progress__connector {
+  height: 2px;
+  width: 16px;
+  background: var(--hcf-border);
+  display: block;
+}
+
+/* ── Step card ───────────────────────────────────────────────────────────── */
+
+.hcf-step-card {
+  background: var(--hcf-background);
+  border: 1px solid var(--hcf-border);
+  border-radius: var(--hcf-radius);
+  box-shadow: var(--hcf-shadow);
+  padding: 32px;
+  margin-bottom: 24px;
+}
+
+.hcf-step__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.hcf-step__desc {
+  color: var(--hcf-muted);
+  font-size: .9rem;
+  margin: 0 0 24px;
+}
+
+/* ── Fields ──────────────────────────────────────────────────────────────── */
+
+.hcf-field {
+  margin-bottom: 20px;
+}
+
+.hcf-label {
+  display: block;
+  font-size: .875rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--hcf-text);
+}
+
+.hcf-required {
+  color: var(--hcf-error);
+}
+
+.hcf-input,
+.hcf-select,
+.hcf-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--hcf-border);
+  border-radius: var(--hcf-radius);
+  font-size: 1rem;
+  color: var(--hcf-text);
+  background: #fff;
+  transition: border-color var(--hcf-transition), box-shadow var(--hcf-transition);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.hcf-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.hcf-input:focus,
+.hcf-select:focus,
+.hcf-textarea:focus {
+  outline: none;
+  border-color: var(--hcf-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--hcf-primary) 20%, transparent);
+}
+
+.hcf-input--error,
+.hcf-select--error,
+.hcf-textarea--error {
+  border-color: var(--hcf-error);
+}
+
+.hcf-hint {
+  font-size: .78rem;
+  color: var(--hcf-muted);
+  margin: 4px 0 0;
+}
+
+.hcf-error-msg {
+  font-size: .82rem;
+  color: var(--hcf-error);
+  margin: 4px 0 0;
+}
+
+/* Checkbox */
+.hcf-field--checkbox {
+  margin-bottom: 14px;
+}
+
+.hcf-checkbox-label {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: .9rem;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.hcf-checkbox {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  accent-color: var(--hcf-primary);
+  cursor: pointer;
+}
+
+/* Rows */
+.hcf-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.hcf-row--price {
+  grid-template-columns: 1fr 110px;
+}
+
+.hcf-row--inline {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Fieldsets */
+.hcf-fieldset {
+  border: 1px solid var(--hcf-border);
+  border-radius: var(--hcf-radius);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.hcf-fieldset__legend {
+  font-size: .85rem;
+  font-weight: 600;
+  padding: 0 6px;
+  color: var(--hcf-primary);
+}
+
+/* Consents */
+.hcf-consents {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--hcf-border);
+}
+
+/* ── Chips (features) ────────────────────────────────────────────────────── */
+
+.hcf-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.hcf-chip {
+  border: 1px solid var(--hcf-border);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: .82rem;
+  background: #fff;
+  color: var(--hcf-text);
+  cursor: pointer;
+  transition: all var(--hcf-transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hcf-chip:hover {
+  border-color: var(--hcf-primary);
+  color: var(--hcf-primary);
+}
+
+.hcf-chip--active {
+  background: var(--hcf-primary);
+  border-color: var(--hcf-primary);
+  color: #fff;
+}
+
+.hcf-chip__remove {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  opacity: .8;
+}
+
+.hcf-features-group {
+  margin-bottom: 20px;
+}
+
+.hcf-features-group__title {
+  font-size: .9rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--hcf-muted);
+}
+
+.hcf-features-custom {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--hcf-border);
+}
+
+.hcf-checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 4px;
+  margin-top: 12px;
+}
+
+/* ── File uploader ───────────────────────────────────────────────────────── */
+
+.hcf-uploader__input {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+}
+
+.hcf-dropzone {
+  border: 2px dashed var(--hcf-border);
+  border-radius: var(--hcf-radius);
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--hcf-transition), background var(--hcf-transition);
+  position: relative;
+}
+
+.hcf-dropzone:hover,
+.hcf-dropzone--active {
+  border-color: var(--hcf-primary);
+  background: color-mix(in srgb, var(--hcf-primary) 5%, transparent);
+}
+
+.hcf-dropzone--uploading {
+  cursor: not-allowed;
+  opacity: .7;
+}
+
+.hcf-uploader__icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.hcf-uploader__prompt p {
+  margin: 4px 0 0;
+  font-size: .9rem;
+}
+
+.hcf-progress-bar {
+  height: 8px;
+  background: var(--hcf-border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.hcf-progress-bar__fill {
+  height: 100%;
+  background: var(--hcf-primary);
+  transition: width .2s ease;
+}
+
+.hcf-uploader__list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hcf-uploader__item {
+  position: relative;
+  display: inline-flex;
+}
+
+.hcf-uploader__thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: calc(var(--hcf-radius) / 2);
+  border: 1px solid var(--hcf-border);
+  display: block;
+}
+
+.hcf-uploader__link {
+  font-size: .82rem;
+  color: var(--hcf-primary);
+  word-break: break-all;
+}
+
+.hcf-uploader__remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: var(--hcf-error);
+  color: #fff;
+  font-size: .9rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Video list ──────────────────────────────────────────────────────────── */
+
+.hcf-video-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hcf-video-list__row {
+  align-items: center;
+}
+
+/* ── Review ──────────────────────────────────────────────────────────────── */
+
+.hcf-review-card {
+  background: var(--hcf-surface);
+  border: 1px solid var(--hcf-border);
+  border-radius: var(--hcf-radius);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.hcf-review-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.hcf-review__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.hcf-review__row td {
+  padding: 6px 0;
+  font-size: .88rem;
+  border-bottom: 1px solid var(--hcf-border);
+  vertical-align: top;
+}
+
+.hcf-review__key {
+  color: var(--hcf-muted);
+  width: 38%;
+  padding-right: 12px;
+}
+
+.hcf-review-declarations {
+  margin-bottom: 20px;
+}
+
+.hcf-review-notice {
+  background: color-mix(in srgb, var(--hcf-primary) 8%, transparent);
+  border-left: 3px solid var(--hcf-primary);
+  border-radius: 0 var(--hcf-radius) var(--hcf-radius) 0;
+  padding: 12px 16px;
+  font-size: .88rem;
+}
+
+.hcf-review-notice p {
+  margin: 0;
+}
+
+/* ── Navigation ──────────────────────────────────────────────────────────── */
+
+.hcf-navigation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hcf-nav-spacer {
+  flex: 1;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+.hcf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: var(--hcf-radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--hcf-transition), opacity var(--hcf-transition);
+  text-decoration: none;
+}
+
+.hcf-btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.hcf-btn--primary {
+  background: var(--hcf-primary);
+  color: #fff;
+}
+
+.hcf-btn--primary:hover:not(:disabled) {
+  background: var(--hcf-secondary);
+}
+
+.hcf-btn--secondary {
+  background: var(--hcf-surface);
+  color: var(--hcf-text);
+  border: 1px solid var(--hcf-border);
+}
+
+.hcf-btn--secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.hcf-btn--submit {
+  background: var(--hcf-success);
+  color: #fff;
+}
+
+.hcf-btn--submit:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.hcf-btn--ghost {
+  background: none;
+  color: var(--hcf-muted);
+  border: 1px solid transparent;
+}
+
+.hcf-btn--ghost:hover:not(:disabled) {
+  background: var(--hcf-surface);
+  border-color: var(--hcf-border);
+}
+
+.hcf-btn--sm {
+  padding: 6px 14px;
+  font-size: .85rem;
+}
+
+/* ── Alerts ──────────────────────────────────────────────────────────────── */
+
+.hcf-alert {
+  padding: 12px 16px;
+  border-radius: var(--hcf-radius);
+  font-size: .9rem;
+  margin-bottom: 16px;
+}
+
+.hcf-alert--error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* ── Loading / Error / Success states ────────────────────────────────────── */
+
+.hcf-loading,
+.hcf-error-state,
+.hcf-success-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.hcf-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--hcf-border);
+  border-top-color: var(--hcf-primary);
+  border-radius: 50%;
+  animation: hcf-spin .7s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes hcf-spin {
+  to { transform: rotate(360deg); }
+}
+
+.hcf-success-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--hcf-success);
+  color: #fff;
+  font-size: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.hcf-success-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.hcf-success-message {
+  color: var(--hcf-muted);
+  margin: 0;
+}
+
+.hcf-step-placeholder {
+  padding: 40px;
+  text-align: center;
+  color: var(--hcf-muted);
+}
+
+.hcf-note {
+  color: var(--hcf-muted);
+  font-size: .9rem;
+  font-style: italic;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 540px) {
+  .hcf-step-card {
+    padding: 20px 16px;
+  }
+
+  .hcf-progress__label {
+    display: none;
+  }
+
+  .hcf-row--price {
+    grid-template-columns: 1fr;
+  }
+
+  .hcf-btn {
+    padding: 10px 16px;
+    font-size: .92rem;
+  }
+}

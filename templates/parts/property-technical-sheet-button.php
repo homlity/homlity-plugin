@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Technical sheet button for property.
  * Expected args: $post_id (int), $settings (array)
@@ -13,7 +14,7 @@ if (!isset($post_id) || !$post_id) {
 }
 
 $settings = isset($settings) && is_array($settings) ? $settings : [];
-$buttonText = (string) ($settings['button_text'] ?? __('Ver ficha técnica', 'homlity-plugin'));
+$buttonText = (string) ($settings['button_text'] ?? __('Ver ficha técnica', 'homlity-real-estate'));
 $openNewTab = ($settings['open_in_new_tab'] ?? 'yes') === 'yes';
 $sheetUrl = add_query_arg('homlity_sheet', '1', get_permalink($post_id));
 ?>

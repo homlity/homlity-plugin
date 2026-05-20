@@ -7,7 +7,7 @@ Usa este prompt para crear un nuevo adapter CRM en Homlity Plugin.
 Actúa como arquitecto backend senior de WordPress y PHP.
 
 Contexto del proyecto:
-- Plugin: `wp-content/plugins/homlity-plugin`
+- Plugin: `wp-content/plugins/homlity-real-estate`
 - Arquitectura de integraciones CRM ya existe en:
   - `src/Integrations/CRM/Contracts/CrmAdapterInterface.php`
   - `src/Integrations/CRM/CrmIntegrationManager.php`

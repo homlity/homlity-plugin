@@ -19,19 +19,19 @@ abstract class BasePropertyWidget extends Widget_Base
         $this->add_control(
             'use_current_property',
             [
-                'label' => __('Usar inmueble actual', 'homlity-plugin'),
+                'label' => __('Usar inmueble actual', 'homlity-real-estate'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Sí', 'homlity-plugin'),
-                'label_off' => __('No', 'homlity-plugin'),
+                'label_on' => __('Sí', 'homlity-real-estate'),
+                'label_off' => __('No', 'homlity-real-estate'),
                 'default' => 'yes',
-                'description' => __('Detecta automáticamente el inmueble según la consulta actual.', 'homlity-plugin'),
+                'description' => __('Detecta automáticamente el inmueble según la consulta actual.', 'homlity-real-estate'),
             ]
         );
 
         $this->add_control(
             'property_id',
             [
-                'label' => __('ID de la propiedad', 'homlity-plugin'),
+                'label' => __('ID de la propiedad', 'homlity-real-estate'),
                 'type' => Controls_Manager::NUMBER,
                 'default' => get_queried_object_id(),
                 'condition' => [
@@ -72,6 +72,6 @@ abstract class BasePropertyWidget extends Widget_Base
 
     public function get_categories(): array
     {
-        return ['homlity-plugin'];
+        return ['homlity-real-estate'];
     }
 }

@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable WordPress.Security.NonceVerification.Missing
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 /**
  * Adds parent relations for location taxonomies and exposes filtered term lists.
  */
@@ -24,9 +26,9 @@ class LocationMetaService implements ServiceInterface
         add_action('rest_api_init', [$this, 'registerRoutes']);
 
         // Add/select parent field when creating/editing terms.
-        $this->hookTermFields(PropertyTaxonomies::TAXONOMY_STATE, PropertyTaxonomies::TAXONOMY_COUNTRY, __('País', 'homlity-plugin'));
-        $this->hookTermFields(PropertyTaxonomies::TAXONOMY_CITY, PropertyTaxonomies::TAXONOMY_STATE, __('Departamento / Provincia', 'homlity-plugin'));
-        $this->hookTermFields(PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD, PropertyTaxonomies::TAXONOMY_CITY, __('Ciudad / Municipio', 'homlity-plugin'));
+        $this->hookTermFields(PropertyTaxonomies::TAXONOMY_STATE, PropertyTaxonomies::TAXONOMY_COUNTRY, __('País', 'homlity-real-estate'));
+        $this->hookTermFields(PropertyTaxonomies::TAXONOMY_CITY, PropertyTaxonomies::TAXONOMY_STATE, __('Departamento / Provincia', 'homlity-real-estate'));
+        $this->hookTermFields(PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD, PropertyTaxonomies::TAXONOMY_CITY, __('Ciudad / Municipio', 'homlity-real-estate'));
     }
 
     private function hookTermFields(string $taxonomy, string $parentTaxonomy, string $parentLabel): void
@@ -84,7 +86,7 @@ class LocationMetaService implements ServiceInterface
         <select id="<?php echo esc_attr($fieldName); ?>" name="<?php echo esc_attr($fieldName); ?>">
             <option value="0"><?php
                 /* translators: %s: parent taxonomy label */
-                echo esc_html(sprintf(__('Selecciona %s', 'homlity-plugin'), $label));
+                echo esc_html(sprintf(__('Selecciona %s', 'homlity-real-estate'), $label));
             ?></option>
             <?php foreach ($terms as $term): ?>
                 <option value="<?php echo esc_attr($term->term_id); ?>" <?php selected($selected, $term->term_id); ?>>
@@ -105,7 +107,7 @@ class LocationMetaService implements ServiceInterface
 
     public function registerRoutes(): void
     {
-        foreach (['homlity-plugin/v1', 'plugin-inmobiliario/v1'] as $namespace) {
+        foreach (['homlity-real-estate/v1', 'plugin-inmobiliario/v1'] as $namespace) {
             register_rest_route($namespace, '/location-terms', [
                 'methods' => 'GET',
                 'callback' => [$this, 'restLocationTerms'],

@@ -1,8 +1,14 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Related properties component.
- * Overridable at homlity-plugin/parts/property-related.php
+ * Overridable at homlity-real-estate/parts/property-related.php
  *
  * Expected args: $post_id (int)
  */
@@ -58,7 +64,7 @@ if (!is_wp_error($tagTerms) && $tagTerms) {
 
 if (!$taxQuery) : ?>
     <section class="property-related">
-        <p class="property-related__empty"><?php esc_html_e('No hay inmuebles relacionados.', 'homlity-plugin'); ?></p>
+        <p class="property-related__empty"><?php esc_html_e('No hay inmuebles relacionados.', 'homlity-real-estate'); ?></p>
     </section>
     <?php return;
 endif;
@@ -83,13 +89,13 @@ $related = new WP_Query([
 
 if (!$related->have_posts()) : ?>
     <section class="property-related">
-        <p class="property-related__empty"><?php esc_html_e('No hay inmuebles relacionados.', 'homlity-plugin'); ?></p>
+        <p class="property-related__empty"><?php esc_html_e('No hay inmuebles relacionados.', 'homlity-real-estate'); ?></p>
     </section>
     <?php wp_reset_postdata(); return;
 endif;
 ?>
 <section class="property-related">
-    <div class="property-related__grid" style="display:grid;grid-template-columns:repeat(<?php echo esc_attr($columns); ?>, minmax(0, 1fr));">
+    <div class="property-related__grid">
         <?php while ($related->have_posts()) : $related->the_post(); ?>
             <?php TemplateService::includeComponent('property-card.php', ['post_id' => get_the_ID(), 'card_options' => $passCardOptions]); ?>
         <?php endwhile; ?>

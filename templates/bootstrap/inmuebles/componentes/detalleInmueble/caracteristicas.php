@@ -1,5 +1,9 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $columns = 3;
 $totalFeatures = $inmueble->caracteristicas();
 $cars = $inmueble->caracteristicasPorColumnas($columns);

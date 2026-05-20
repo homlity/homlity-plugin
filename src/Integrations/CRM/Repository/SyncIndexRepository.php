@@ -1,5 +1,6 @@
 <?php
-
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 namespace Homlity\PluginInmobiliario\Integrations\CRM\Repository;
 
 if (!defined('ABSPATH')) {

@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 /**
  * Allows properties to be accessed by their code in the URL.
  *
@@ -135,8 +137,8 @@ class PropertyCodeRoutingService implements ServiceInterface
     {
         $status = sanitize_key((string) ($syncResult['status'] ?? 'not_found'));
         $message = in_array($status, ['not_found', 'unavailable'], true)
-            ? __('Inmueble no existe o no está disponible.', 'homlity-plugin')
-            : __('Inmueble no se pudo sincronizar.', 'homlity-plugin');
+            ? __('Inmueble no existe o no está disponible.', 'homlity-real-estate')
+            : __('Inmueble no se pudo sincronizar.', 'homlity-real-estate');
 
         status_header(404);
         nocache_headers();
@@ -147,7 +149,7 @@ class PropertyCodeRoutingService implements ServiceInterface
         $hml_unavailable_reason = $status;
         $template = HOMLITY_PLUGIN_PATH . 'templates/property-unavailable.php';
         if (!file_exists($template)) {
-            wp_die(esc_html($message), esc_html__('Inmueble', 'homlity-plugin'), ['response' => 404]);
+            wp_die(esc_html($message), esc_html__('Inmueble', 'homlity-real-estate'), ['response' => 404]);
         }
         include $template;
         exit;

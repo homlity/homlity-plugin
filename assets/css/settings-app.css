@@ -1,4 +1,4 @@
-body.toplevel_page_homlity-plugin-settings {
+body.toplevel_page_homlity-real-estate-settings {
     --homlity-bg: #fff;
     --homlity-surface: rgba(255, 255, 255, 0.94);
     --homlity-surface-strong: #fff;
@@ -18,8 +18,8 @@ body.toplevel_page_homlity-plugin-settings {
     background-size: auto, auto, 30px 30px, 30px 30px, auto;
 }
 
-body.toplevel_page_homlity-plugin-settings #wpcontent,
-body.toplevel_page_homlity-plugin-settings #wpbody-content {
+body.toplevel_page_homlity-real-estate-settings #wpcontent,
+body.toplevel_page_homlity-real-estate-settings #wpbody-content {
     background: transparent;
 }
 
@@ -328,6 +328,10 @@ body.toplevel_page_homlity-plugin-settings #wpbody-content {
     gap: 16px;
 }
 
+.homlity-settings__field-grid--one {
+    grid-template-columns: 1fr;
+}
+
 .homlity-settings__field-grid--two {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -493,6 +497,22 @@ body.toplevel_page_homlity-plugin-settings #wpbody-content {
 .homlity-settings__toggle-card.is-active .homlity-settings__toggle-dot {
     background: linear-gradient(135deg, var(--homlity-accent), var(--homlity-accent-2));
     box-shadow: 0 0 0 6px rgba(255, 103, 82, 0.14);
+}
+
+.homlity-settings__toggle-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.homlity-settings__toggle-input {
+    flex-shrink: 0;
+    margin-top: 3px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--homlity-primary, #ff6752);
 }
 
 .homlity-settings__toggle-copy {
@@ -767,7 +787,7 @@ body.toplevel_page_homlity-plugin-settings #wpbody-content {
 }
 
 /* Homlity admin visual guidelines alignment */
-body.toplevel_page_homlity-plugin-settings {
+body.toplevel_page_homlity-real-estate-settings {
     --homlity-primary: #ff6752;
     --homlity-primary-soft: #ff6652db;
     --homlity-primary-soft-2: #ff6652b1;
@@ -780,56 +800,56 @@ body.toplevel_page_homlity-plugin-settings {
     --homlity-muted: #555555;
 }
 
-body.toplevel_page_homlity-plugin-settings,
-body.toplevel_page_homlity-plugin-settings * {
+body.toplevel_page_homlity-real-estate-settings,
+body.toplevel_page_homlity-real-estate-settings * {
     font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-body.toplevel_page_homlity-plugin-settings .homlity-settings-page,
-body.toplevel_page_homlity-plugin-settings .homlity-settings__section-content,
-body.toplevel_page_homlity-plugin-settings .homlity-settings__field-hint,
-body.toplevel_page_homlity-plugin-settings .homlity-settings__input,
-body.toplevel_page_homlity-plugin-settings .homlity-settings__select {
+body.toplevel_page_homlity-real-estate-settings .homlity-settings-page,
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__section-content,
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__field-hint,
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__input,
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__select {
     font-size: 14px;
 }
 
-body.toplevel_page_homlity-plugin-settings .homlity-settings__hero,
-body.toplevel_page_homlity-plugin-settings .homlity-settings__section,
-body.toplevel_page_homlity-plugin-settings .homlity-settings__notice,
-body.toplevel_page_homlity-plugin-settings .homlity-settings__toggle-card,
-body.toplevel_page_homlity-plugin-settings .homlity-settings__metric {
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__hero,
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__section,
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__notice,
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__toggle-card,
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__metric {
     border: 1px dashed var(--homlity-line);
     box-shadow: none;
     background: var(--homlity-surface);
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-body.toplevel_page_homlity-plugin-settings .homlity-settings__section:hover,
-body.toplevel_page_homlity-plugin-settings .homlity-settings__toggle-card:hover,
-body.toplevel_page_homlity-plugin-settings .homlity-settings__metric:hover {
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__section:hover,
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__toggle-card:hover,
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__metric:hover {
     border-color: var(--homlity-primary-soft);
     box-shadow: 0 10px 22px rgba(255, 103, 82, 0.12);
     transform: translateY(-1px);
 }
 
-body.toplevel_page_homlity-plugin-settings .homlity-settings__button {
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__button {
     border-radius: 10px;
     font-size: 14px;
 }
 
-body.toplevel_page_homlity-plugin-settings .homlity-settings__button--primary {
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__button--primary {
     background: linear-gradient(45deg, var(--homlity-primary), var(--homlity-dark));
     box-shadow: 0 10px 22px rgba(255, 103, 82, 0.18);
 }
 
-body.toplevel_page_homlity-plugin-settings .homlity-settings__input {
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__input {
     background: #fff;
     border: 1px solid var(--homlity-line);
     color: var(--homlity-text);
 }
 
-body.toplevel_page_homlity-plugin-settings .homlity-settings__input:focus,
-body.toplevel_page_homlity-plugin-settings .homlity-settings__select:focus {
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__input:focus,
+body.toplevel_page_homlity-real-estate-settings .homlity-settings__select:focus {
     border-color: var(--homlity-primary);
     box-shadow: 0 0 0 2px rgba(255, 103, 82, 0.18);
 }

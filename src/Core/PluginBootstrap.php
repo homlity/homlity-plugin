@@ -12,6 +12,8 @@ use Homlity\PluginInmobiliario\Integrations\CF7\CF7IntegrationService;
 use Homlity\PluginInmobiliario\Integrations\Divi\DiviIntegrationService;
 use Homlity\PluginInmobiliario\Integrations\Shortcode\ShortcodeIntegrationService;
 use Homlity\PluginInmobiliario\Integrations\WPBakery\WPBakeryIntegrationService;
+use Homlity\PluginInmobiliario\Services\Ai\LlmsFullAdminService;
+use Homlity\PluginInmobiliario\Services\Ai\LlmsFullService;
 use Homlity\PluginInmobiliario\Services\AdminBarService;
 use Homlity\PluginInmobiliario\Services\AdminMenuService;
 use Homlity\PluginInmobiliario\Services\CapabilityService;
@@ -35,6 +37,8 @@ use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\SyncRegistry;
 use Homlity\PluginInmobiliario\Services\TemplateEditorService;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
+use Homlity\PluginInmobiliario\Services\SeoGeoSchemaService;
+use Homlity\PluginInmobiliario\Services\SeoGeoSettingsService;
 use Homlity\PluginInmobiliario\Services\SeoIntegrationService;
 use Homlity\PluginInmobiliario\Services\SeoService;
 use Homlity\PluginInmobiliario\Services\SettingsService;
@@ -68,6 +72,8 @@ class PluginBootstrap
             new CurrencyService(),
             new SeoService(),
             new SeoIntegrationService(),
+            new SeoGeoSettingsService(),
+            new SeoGeoSchemaService(),
             new CrmInfrastructureService(),
             new CrmIntegrationService(),
             new CrmAdminService(),
@@ -108,6 +114,10 @@ class PluginBootstrap
 
             // Admin template editor: Configuración → Plantillas
             new TemplateEditorService(),
+
+            // AI context: /llms-full.txt public endpoint + admin settings page
+            new LlmsFullService(),
+            new LlmsFullAdminService(),
         ];
 
         foreach ($this->services as $service) {

@@ -1,8 +1,12 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Primary features component.
- * Overridable at homlity-plugin/parts/property-features-primary.php
+ * Overridable at homlity-real-estate/parts/property-features-primary.php
  *
  * Expected args: $post_id (int), $settings (array, optional — Elementor widget settings)
  */
@@ -17,17 +21,17 @@ $meta = (new PropertyPostType())->metaKeys();
 $s    = $settings ?? [];
 
 $features = [
-    'area'         => ['label' => __('Área total',      'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['area'],         true), 'suffix' => ' m²'],
-    'area_lot'     => ['label' => __('Área de lote',    'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['area_lot'],     true), 'suffix' => ' m²'],
-    'area_private' => ['label' => __('Área privada',    'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['area_private'], true), 'suffix' => ' m²'],
-    'area_built'   => ['label' => __('Área construida', 'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['area_built'],   true), 'suffix' => ' m²'],
-    'bedrooms'     => ['label' => __('Habitaciones',    'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['bedrooms'],     true), 'suffix' => ''],
-    'bathrooms'    => ['label' => __('Baños',           'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['bathrooms'],    true), 'suffix' => ''],
-    'parking'      => ['label' => __('Parqueaderos',    'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['parking'],      true), 'suffix' => ''],
-    'condition'    => ['label' => __('Estado',          'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['condition'],    true), 'suffix' => ''],
-    'age'          => ['label' => __('Edad (años)',     'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['age'],          true), 'suffix' => ''],
-    'code'         => ['label' => __('Código',          'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['code'],         true), 'suffix' => ''],
-    'address'      => ['label' => __('Dirección',       'homlity-plugin'), 'value' => get_post_meta($post_id, $meta['address'],      true), 'suffix' => ''],
+    'area'         => ['label' => __('Área total',      'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['area'],         true), 'suffix' => ' m²'],
+    'area_lot'     => ['label' => __('Área de lote',    'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['area_lot'],     true), 'suffix' => ' m²'],
+    'area_private' => ['label' => __('Área privada',    'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['area_private'], true), 'suffix' => ' m²'],
+    'area_built'   => ['label' => __('Área construida', 'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['area_built'],   true), 'suffix' => ' m²'],
+    'bedrooms'     => ['label' => __('Habitaciones',    'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['bedrooms'],     true), 'suffix' => ''],
+    'bathrooms'    => ['label' => __('Baños',           'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['bathrooms'],    true), 'suffix' => ''],
+    'parking'      => ['label' => __('Parqueaderos',    'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['parking'],      true), 'suffix' => ''],
+    'condition'    => ['label' => __('Estado',          'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['condition'],    true), 'suffix' => ''],
+    'age'          => ['label' => __('Edad (años)',     'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['age'],          true), 'suffix' => ''],
+    'code'         => ['label' => __('Código',          'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['code'],         true), 'suffix' => ''],
+    'address'      => ['label' => __('Dirección',       'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['address'],      true), 'suffix' => ''],
 ];
 ?>
 <ul class="property-features property-features--primary">

@@ -1,7 +1,8 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Property share component.
- * Overridable at homlity-plugin/parts/property-share.php
+ * Overridable at homlity-real-estate/parts/property-share.php
  *
  * Expected args: $post_id (int), $settings (array, optional — Elementor widget settings)
  */
@@ -46,23 +47,23 @@ if ($title !== '') {
 }
 if ($bedrooms !== '') {
     /* translators: %s: number of bedrooms */
-    $summaryParts[] = sprintf(__('alcobas: %s', 'homlity-plugin'), $bedrooms);
+    $summaryParts[] = sprintf(__('alcobas: %s', 'homlity-real-estate'), $bedrooms);
 }
 if ($bathrooms !== '') {
     /* translators: %s: number of bathrooms */
-    $summaryParts[] = sprintf(__('baños: %s', 'homlity-plugin'), $bathrooms);
+    $summaryParts[] = sprintf(__('baños: %s', 'homlity-real-estate'), $bathrooms);
 }
 if ($parking !== '') {
     /* translators: %s: number of parking spaces */
-    $summaryParts[] = sprintf(__('parqueaderos: %s', 'homlity-plugin'), $parking);
+    $summaryParts[] = sprintf(__('parqueaderos: %s', 'homlity-real-estate'), $parking);
 }
 if ($area !== '') {
     /* translators: %s: property area in square meters */
-    $summaryParts[] = sprintf(__('área: %sm2', 'homlity-plugin'), $area);
+    $summaryParts[] = sprintf(__('área: %sm2', 'homlity-real-estate'), $area);
 }
 if ($displayPrice !== '') {
     /* translators: %s: formatted property price */
-    $summaryParts[] = sprintf(__('valor: %s', 'homlity-plugin'), $displayPrice);
+    $summaryParts[] = sprintf(__('valor: %s', 'homlity-real-estate'), $displayPrice);
 }
 
 $propertySummary = trim(implode(' | ', $summaryParts));
@@ -80,51 +81,51 @@ $shareText = trim((string) $shareText);
 if ($shareText === '') {
     $shareText = trim($propertySummary . ' ' . $url);
 }
-$headingText  = trim((string) ($s['heading_text'] ?? __('Compartir en:', 'homlity-plugin')));
+$headingText  = trim((string) ($s['heading_text'] ?? __('Compartir en:', 'homlity-real-estate')));
 
 $platforms = [
     'whatsapp'  => [
-        'label' => $s['label_whatsapp']  ?? __('WhatsApp',      'homlity-plugin'),
+        'label' => $s['label_whatsapp']  ?? __('WhatsApp',      'homlity-real-estate'),
         'href'  => 'https://api.whatsapp.com/send?text=' . rawurlencode($shareText . ' ' . $url),
         'copy'  => false,
     ],
     'facebook'  => [
-        'label' => $s['label_facebook']  ?? __('Facebook',      'homlity-plugin'),
+        'label' => $s['label_facebook']  ?? __('Facebook',      'homlity-real-estate'),
         'href'  => 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode($url),
         'copy'  => false,
     ],
     'x'         => [
-        'label' => $s['label_x']         ?? __('X',             'homlity-plugin'),
+        'label' => $s['label_x']         ?? __('X',             'homlity-real-estate'),
         'href'  => 'https://twitter.com/intent/tweet?text=' . rawurlencode($shareText) . '&url=' . rawurlencode($url),
         'copy'  => false,
     ],
     'linkedin'  => [
-        'label' => $s['label_linkedin']  ?? __('LinkedIn',      'homlity-plugin'),
+        'label' => $s['label_linkedin']  ?? __('LinkedIn',      'homlity-real-estate'),
         'href'  => 'https://www.linkedin.com/sharing/share-offsite/?url=' . rawurlencode($url),
         'copy'  => false,
     ],
     'telegram'  => [
-        'label' => $s['label_telegram']  ?? __('Telegram',      'homlity-plugin'),
+        'label' => $s['label_telegram']  ?? __('Telegram',      'homlity-real-estate'),
         'href'  => 'https://t.me/share/url?url=' . rawurlencode($url) . '&text=' . rawurlencode($shareText),
         'copy'  => false,
     ],
     'pinterest' => [
-        'label' => $s['label_pinterest'] ?? __('Pinterest',     'homlity-plugin'),
+        'label' => $s['label_pinterest'] ?? __('Pinterest',     'homlity-real-estate'),
         'href'  => 'https://pinterest.com/pin/create/button/?url=' . rawurlencode($url) . '&description=' . rawurlencode($shareText),
         'copy'  => false,
     ],
     'reddit'    => [
-        'label' => $s['label_reddit']    ?? __('Reddit',        'homlity-plugin'),
+        'label' => $s['label_reddit']    ?? __('Reddit',        'homlity-real-estate'),
         'href'  => 'https://www.reddit.com/submit?url=' . rawurlencode($url) . '&title=' . rawurlencode($title),
         'copy'  => false,
     ],
     'email'     => [
-        'label' => $s['label_email']     ?? __('Correo',        'homlity-plugin'),
+        'label' => $s['label_email']     ?? __('Correo',        'homlity-real-estate'),
         'href'  => 'mailto:?subject=' . rawurlencode($title) . '&body=' . rawurlencode($shareText . ' ' . $url),
         'copy'  => false,
     ],
     'copy'      => [
-        'label' => $s['label_copy']      ?? __('Copiar enlace', 'homlity-plugin'),
+        'label' => $s['label_copy']      ?? __('Copiar enlace', 'homlity-real-estate'),
         'href'  => $url,
         'copy'  => true,
     ],
@@ -155,7 +156,6 @@ $platforms = [
                         rel="noopener noreferrer"
                     <?php else: ?>
                         data-copy-url="<?php echo esc_url($url); ?>"
-                        onclick="event.preventDefault(); if(navigator.clipboard){navigator.clipboard.writeText(this.dataset.copyUrl).then(function(){},function(){});} this.classList.add('is-copied'); setTimeout(()=>this.classList.remove('is-copied'),1600);"
                     <?php endif; ?>
                     title="<?php echo esc_attr($platform['label']); ?>"
                     aria-label="<?php echo esc_attr($platform['label']); ?>"

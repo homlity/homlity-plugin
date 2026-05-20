@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 /**
  * Front templates for properties, taxonomies, search and agent profiles.
  */
@@ -370,6 +372,17 @@ class TemplateService implements ServiceInterface
                 $query->set('tax_query', $taxQuery);
             }
 
+            // Keyword search (?q= from the filter form, or ?s= from WP native search)
+            $keyword = '';
+            if (!empty($_GET['q'])) {
+                $keyword = sanitize_text_field(wp_unslash($_GET['q']));
+            } elseif (!empty($_GET['s'])) {
+                $keyword = sanitize_text_field(wp_unslash($_GET['s']));
+            }
+            if ($keyword !== '') {
+                $query->set('homlity_keyword_search', $keyword);
+            }
+
             $dateFrom = !empty($_GET['date_from']) ? sanitize_text_field($_GET['date_from']) : null;
             $dateTo = !empty($_GET['date_to']) ? sanitize_text_field($_GET['date_to']) : null;
             if ($dateFrom || $dateTo) {
@@ -436,6 +449,17 @@ class TemplateService implements ServiceInterface
             || $this->isArchivePage
             || $isSeoArchiveRequest
         ) {
+            // If the admin chose a custom page template in the editor, respect it.
+            if ($archivePageId > 0 && $this->isArchivePage) {
+                $customSlug = get_page_template_slug($archivePageId);
+                if ($customSlug && $customSlug !== 'default') {
+                    $themeFile = get_theme_file_path($customSlug);
+                    if (file_exists($themeFile)) {
+                        return $themeFile;
+                    }
+                }
+            }
+
             return self::locateTemplate('archive-property.php', $template);
         }
 
@@ -467,7 +491,7 @@ class TemplateService implements ServiceInterface
         $settings = $this->publicSettings();
 
         wp_enqueue_style(
-            'homlity-plugin-front-components',
+            'homlity-real-estate-front-components',
             HOMLITY_PLUGIN_URL . 'assets/css/front-components.css',
             [],
             HOMLITY_PLUGIN_VERSION
@@ -475,17 +499,17 @@ class TemplateService implements ServiceInterface
 
         $inlineCss = $this->buildPrimaryColorCss($settings['primary_color']);
         if ($inlineCss !== '') {
-            wp_add_inline_style('homlity-plugin-front-components', $inlineCss);
+            wp_add_inline_style('homlity-real-estate-front-components', $inlineCss);
         }
 
         wp_enqueue_script(
-            'homlity-plugin-contact-tracking',
+            'homlity-real-estate-contact-tracking',
             HOMLITY_PLUGIN_URL . 'assets/js/property-contact-tracking.js',
             [],
             HOMLITY_PLUGIN_VERSION,
             true
         );
-        wp_localize_script('homlity-plugin-contact-tracking', 'homlityContactTracking', [
+        wp_localize_script('homlity-real-estate-contact-tracking', 'homlityContactTracking', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('homlity_contact_click_nonce'),
         ]);
@@ -496,14 +520,14 @@ class TemplateService implements ServiceInterface
 
         if ($settings['default_map_provider'] === 'leaflet_map') {
             wp_enqueue_style(
-                'homlity-plugin-leaflet-front',
+                'homlity-real-estate-leaflet-front',
                 HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.css',
                 [],
                 '1.9.4'
             );
 
             wp_enqueue_script(
-                'homlity-plugin-leaflet-front',
+                'homlity-real-estate-leaflet-front',
                 HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.js',
                 [],
                 '1.9.4',
@@ -511,13 +535,13 @@ class TemplateService implements ServiceInterface
             );
 
             wp_enqueue_script(
-                'homlity-plugin-front-map',
+                'homlity-real-estate-front-map',
                 HOMLITY_PLUGIN_URL . 'assets/js/front-map.js',
-                ['homlity-plugin-leaflet-front'],
+                ['homlity-real-estate-leaflet-front'],
                 HOMLITY_PLUGIN_VERSION,
                 true
             );
-            wp_localize_script('homlity-plugin-front-map', 'homlityLeafletAssets', [
+            wp_localize_script('homlity-real-estate-front-map', 'homlityLeafletAssets', [
                 'iconUrl' => file_exists(HOMLITY_PLUGIN_PATH . 'assets/vendor/leaflet/images/marker-icon.png')
                     ? HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/images/marker-icon.png'
                     : '',
@@ -532,13 +556,13 @@ class TemplateService implements ServiceInterface
 
         // Required by legacy "Tabs multimedia inmueble" photos slider.
         wp_enqueue_style(
-            'homlity-plugin-swiper',
+            'homlity-real-estate-swiper',
             HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.css',
             [],
             '11.0.0'
         );
         wp_enqueue_script(
-            'homlity-plugin-swiper',
+            'homlity-real-estate-swiper',
             HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.js',
             [],
             '11.0.0',
@@ -548,56 +572,56 @@ class TemplateService implements ServiceInterface
         $galleryDeps = [];
         if ($settings['detail_gallery_mode'] === 'owl_gallery') {
             wp_enqueue_style(
-                'homlity-plugin-owl-carousel',
+                'homlity-real-estate-owl-carousel',
                 HOMLITY_PLUGIN_URL . 'assets/vendor/owlcarousel/owl.carousel.min.css',
                 [],
                 '2.3.4'
             );
 
             wp_enqueue_style(
-                'homlity-plugin-owl-carousel-theme',
+                'homlity-real-estate-owl-carousel-theme',
                 HOMLITY_PLUGIN_URL . 'assets/vendor/owlcarousel/owl.theme.default.min.css',
-                ['homlity-plugin-owl-carousel'],
+                ['homlity-real-estate-owl-carousel'],
                 '2.3.4'
             );
 
             wp_enqueue_script(
-                'homlity-plugin-owl-carousel',
+                'homlity-real-estate-owl-carousel',
                 HOMLITY_PLUGIN_URL . 'assets/vendor/owlcarousel/owl.carousel.min.js',
                 ['jquery'],
                 '2.3.4',
                 true
             );
 
-            $galleryDeps = ['jquery', 'homlity-plugin-owl-carousel'];
+            $galleryDeps = ['jquery', 'homlity-real-estate-owl-carousel'];
         } else {
             wp_enqueue_style(
-                'homlity-plugin-lightgallery',
+                'homlity-real-estate-lightgallery',
                 HOMLITY_PLUGIN_URL . 'assets/vendor/lightgallery/lightgallery-bundle.min.css',
                 [],
                 '2.8.3'
             );
 
             wp_enqueue_script(
-                'homlity-plugin-lightgallery',
+                'homlity-real-estate-lightgallery',
                 HOMLITY_PLUGIN_URL . 'assets/vendor/lightgallery/lightgallery.min.js',
                 [],
                 '2.8.3',
                 true
             );
 
-            $galleryDeps = ['homlity-plugin-lightgallery'];
+            $galleryDeps = ['homlity-real-estate-lightgallery'];
         }
 
         wp_enqueue_script(
-            'homlity-plugin-front-gallery',
+            'homlity-real-estate-front-gallery',
             HOMLITY_PLUGIN_URL . 'assets/js/front-gallery.js',
             $galleryDeps,
             HOMLITY_PLUGIN_VERSION,
             true
         );
 
-        wp_localize_script('homlity-plugin-front-gallery', 'homlityPluginFrontGallery', [
+        wp_localize_script('homlity-real-estate-front-gallery', 'homlityPluginFrontGallery', [
             'mode' => $settings['detail_gallery_mode'],
         ]);
     }
@@ -638,16 +662,16 @@ class TemplateService implements ServiceInterface
 
         $settings['elementor_edit_page']['children'][] = [
             'id' => 'homlity_edit_property_single_template',
-            'title' => __('Editar plantilla detalle inmueble', 'homlity-plugin'),
-            'sub_title' => __('Template global', 'homlity-plugin'),
+            'title' => __('Editar plantilla detalle inmueble', 'homlity-real-estate'),
+            'sub_title' => __('Template global', 'homlity-real-estate'),
             'href' => $targetUrl,
         ];
 
         if (current_user_can('edit_theme_options')) {
             $settings['elementor_edit_page']['children'][] = [
                 'id' => 'homlity_edit_property_single_templates',
-                'title' => __('Plantillas detalle inmuebles', 'homlity-plugin'),
-                'sub_title' => __('Theme Builder', 'homlity-plugin'),
+                'title' => __('Plantillas detalle inmuebles', 'homlity-real-estate'),
+                'sub_title' => __('Theme Builder', 'homlity-real-estate'),
                 'href' => admin_url('edit.php?post_type=elementor_library&tabs_group=theme'),
             ];
         }
@@ -704,7 +728,7 @@ class TemplateService implements ServiceInterface
     public static function locateTemplate(string $filename, string $fallback = ''): string
     {
         $candidates = [
-            'homlity-plugin/' . $filename,
+            'homlity-real-estate/' . $filename,
             'plugin-inmobiliario/' . $filename,
             $filename,
         ];

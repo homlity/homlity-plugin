@@ -1,6 +1,9 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $conVideo = !empty($slider["video"]);
 $conVideo360 = !empty($slider["video360"]);
 $conFotos360 = !empty($slider["s360"]) && count($slider["s360"]) > 0;
@@ -43,7 +46,7 @@ $firstVideo = visualinmu_configuracion_checkConfiguracion("filtros", "defaultSho
     <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade  <?php echo ($conVideo && $firstVideo) ? '' : 'show active' ?>" id="fotos"
             role="tabpanel" aria-labelledby="fotos-tab">
-            <?php if (\Codwelt\WordPress\homlity-plugin\Configuracion::checkConfiguracion("filtros", 'sliderDetalleInmueble') == 1) { ?>
+            <?php if (\Codwelt\WordPress\homlity-real-estate\Configuracion::checkConfiguracion("filtros", 'sliderDetalleInmueble') == 1) { ?>
                 <ul id="visualinmo-inmueble-slider" style="width: 100%;" class="pre-slider">
                     <?php foreach ($slider["fotos"] as $foto): ?>
                         <li data-thumb="<?php echo esc_url( $foto->url() ); ?>" data-src="<?php echo esc_url( $foto->url() ); ?>">
@@ -98,10 +101,10 @@ $firstVideo = visualinmu_configuracion_checkConfiguracion("filtros", "defaultSho
         </div>
         <?php if ($conFotos360) { ?>
             <div class="tab-pane fade" id="fotos360" role="tabpanel" aria-labelledby="fotos360-tab">
-                <homlity-plugin-slider360></homlity-plugin-slider360>
+                <homlity-real-estate-slider360></homlity-real-estate-slider360>
                 <script type="text/javascript">
-                    window.homlity-plugin_FOTOS = <?php echo json_encode($slider["s360"], JSON_PRETTY_PRINT); ?>;
-                    window.homlity-plugin_SITE_URL = "<?php echo esc_url( \get_site_url() ); ?>";
+                    window.homlity-real-estate_FOTOS = <?php echo json_encode($slider["s360"], JSON_PRETTY_PRINT); ?>;
+                    window.homlity-real-estate_SITE_URL = "<?php echo esc_url( \get_site_url() ); ?>";
                 </script>
             </div>
         <?php } ?>

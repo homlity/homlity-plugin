@@ -1,8 +1,12 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Agent info component.
- * Overridable at homlity-plugin/parts/property-agent-info.php
+ * Overridable at homlity-real-estate/parts/property-agent-info.php
  *
  * Expected args: $post_id (int), $settings (array, optional — Elementor widget settings)
  */
@@ -63,14 +67,14 @@ if ($source === 'dynamic') {
 
     if (($s['show_cta_whatsapp'] ?? 'yes') === 'yes' && $whatsAppUrl) {
         $ctas[] = [
-            'text'   => $s['cta_whatsapp_label'] ?? __('Contactar por WhatsApp', 'homlity-plugin'),
+            'text'   => $s['cta_whatsapp_label'] ?? __('Contactar por WhatsApp', 'homlity-real-estate'),
             'url'    => $whatsAppUrl,
             'target' => '_blank',
         ];
     }
     if (($s['show_cta_profile'] ?? 'yes') === 'yes' && $profileUrl) {
         $ctas[] = [
-            'text'   => $s['cta_profile_label'] ?? __('Ver perfil del asesor', 'homlity-plugin'),
+            'text'   => $s['cta_profile_label'] ?? __('Ver perfil del asesor', 'homlity-real-estate'),
             'url'    => $profileUrl,
             'target' => '_self',
         ];

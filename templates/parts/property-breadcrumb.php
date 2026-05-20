@@ -1,5 +1,9 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Breadcrumb for single property with filter links by operation and location.
  */
@@ -34,9 +38,9 @@ if ($operation instanceof \WP_Term) {
 
 $crumbs = [];
 if ($showHome) {
-    $crumbs[] = ['label' => __('Inicio', 'homlity-plugin'), 'url' => home_url('/')];
+    $crumbs[] = ['label' => __('Inicio', 'homlity-real-estate'), 'url' => home_url('/')];
 }
-$crumbs[] = ['label' => __('Inmuebles', 'homlity-plugin'), 'url' => $archiveUrl];
+$crumbs[] = ['label' => __('Inmuebles', 'homlity-real-estate'), 'url' => $archiveUrl];
 
 if ($operation instanceof \WP_Term) {
     $crumbs[] = [
@@ -63,7 +67,7 @@ if ($showTitle) {
     $crumbs[] = ['label' => get_the_title($post_id), 'url' => ''];
 }
 ?>
-<nav class="property-breadcrumb-widget" aria-label="<?php esc_attr_e('Breadcrumb', 'homlity-plugin'); ?>">
+<nav class="property-breadcrumb-widget" aria-label="<?php esc_attr_e('Breadcrumb', 'homlity-real-estate'); ?>">
     <?php foreach ($crumbs as $index => $crumb) : ?>
         <?php if ($index > 0) : ?>
             <span class="property-breadcrumb-widget__sep" aria-hidden="true">/</span>

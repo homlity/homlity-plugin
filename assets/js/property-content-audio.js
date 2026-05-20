@@ -1,6 +1,8 @@
 (function () {
     'use strict';
 
+    var ALLOWED_RATES = [0.75, 1, 1.25, 1.5, 1.75, 2];
+
     // Split text into sentences to work around Chrome's ~15s SpeechSynthesis cutoff.
     function splitSentences(text) {
         var parts = text.match(/[^.!?…\n]+[.!?…\n]+\s*/g) || [];
@@ -24,6 +26,25 @@
         return Math.max(1, seconds);
     }
 
+    function normalizeRate(rate) {
+        var safe = parseFloat(rate);
+        if (!isFinite(safe)) {
+            return 1;
+        }
+        for (var i = 0; i < ALLOWED_RATES.length; i++) {
+            if (Math.abs(ALLOWED_RATES[i] - safe) < 0.001) {
+                return ALLOWED_RATES[i];
+            }
+        }
+        return 1;
+    }
+
+    function normalizeVoicePreference(voice) {
+        var value = String(voice || 'auto').toLowerCase();
+        var allowed = ['auto', 'female', 'male', 'es-co', 'es-es', 'es-mx'];
+        return allowed.indexOf(value) !== -1 ? value : 'auto';
+    }
+
     function HomlityAudioPlayer(bar) {
         this.bar        = bar;
         this.text       = bar.getAttribute('data-text') || '';
@@ -40,16 +61,61 @@
         this.timeEl     = bar.querySelector('.property-content-audio-bar__time');
         this.playBtn    = bar.querySelector('[data-audio="play-pause"]');
         this.rateSelect = bar.querySelector('[data-audio="rate"]');
+        this.voicePreference = normalizeVoicePreference(bar.getAttribute('data-voice') || 'auto');
 
-        var defaultRate = parseFloat(bar.getAttribute('data-rate') || '1') || 1;
+        var defaultRate = normalizeRate(bar.getAttribute('data-rate') || '1');
         this.rate = defaultRate;
         this.estimatedDuration = estimateDurationSeconds(this.text, this.rate);
         if (this.rateSelect) {
-            this.rateSelect.value = String(defaultRate);
+            this.rateSelect.value = String(this.rate);
         }
 
         this._bindEvents();
     }
+
+    HomlityAudioPlayer.prototype._getPreferredVoice = function () {
+        var voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+        if (!voices || !voices.length) { return null; }
+
+        function isSpanish(v) {
+            return typeof v.lang === 'string' && v.lang.toLowerCase().indexOf('es') === 0;
+        }
+        function langIncludes(v, token) {
+            return typeof v.lang === 'string' && v.lang.toLowerCase().indexOf(token) !== -1;
+        }
+        function nameIncludes(v, token) {
+            return typeof v.name === 'string' && v.name.toLowerCase().indexOf(token) !== -1;
+        }
+        function pickFirst(list) {
+            return list.length ? list[0] : null;
+        }
+
+        var spanishVoices = voices.filter(isSpanish);
+        if (!spanishVoices.length) { return pickFirst(voices); }
+
+        var pref = this.voicePreference;
+        if (pref === 'es-co') {
+            return pickFirst(spanishVoices.filter(function (v) { return langIncludes(v, 'co'); })) || pickFirst(spanishVoices);
+        }
+        if (pref === 'es-es') {
+            return pickFirst(spanishVoices.filter(function (v) { return langIncludes(v, 'es-es'); })) || pickFirst(spanishVoices);
+        }
+        if (pref === 'es-mx') {
+            return pickFirst(spanishVoices.filter(function (v) { return langIncludes(v, 'mx'); })) || pickFirst(spanishVoices);
+        }
+        if (pref === 'female') {
+            return pickFirst(spanishVoices.filter(function (v) {
+                return nameIncludes(v, 'female') || nameIncludes(v, 'mujer') || nameIncludes(v, 'paulina') || nameIncludes(v, 'helena');
+            })) || pickFirst(spanishVoices);
+        }
+        if (pref === 'male') {
+            return pickFirst(spanishVoices.filter(function (v) {
+                return nameIncludes(v, 'male') || nameIncludes(v, 'hombre') || nameIncludes(v, 'jorge') || nameIncludes(v, 'diego');
+            })) || pickFirst(spanishVoices);
+        }
+
+        return pickFirst(spanishVoices);
+    };
 
     HomlityAudioPlayer.prototype._bindEvents = function () {
         var self = this;
@@ -67,11 +133,20 @@
 
         if (this.rateSelect) {
             this.rateSelect.addEventListener('change', function () {
-                self.rate = parseFloat(self.rateSelect.value) || 1;
+                self.rate = normalizeRate(self.rateSelect.value);
+                self.rateSelect.value = String(self.rate);
                 self.estimatedDuration = estimateDurationSeconds(self.text, self.rate);
                 self._renderTime();
                 self._updateProgress();
-                if (self.playing && !self.paused) { self.speakCurrent(); }
+                if (self.playing) {
+                    var keepPaused = self.paused;
+                    self.speakCurrent();
+                    if (keepPaused) {
+                        window.speechSynthesis.pause();
+                        self._pauseClock();
+                        self._setPlayState(true, true);
+                    }
+                }
             });
         }
     };
@@ -143,7 +218,13 @@
         }
 
         var utt = new SpeechSynthesisUtterance(self.sentences[self.index]);
-        utt.lang   = 'es-ES';
+        var preferredVoice = self._getPreferredVoice();
+        if (preferredVoice) {
+            utt.voice = preferredVoice;
+            utt.lang = preferredVoice.lang || 'es-ES';
+        } else {
+            utt.lang = 'es-ES';
+        }
         utt.rate   = self.rate;
         utt.volume = 1;
 

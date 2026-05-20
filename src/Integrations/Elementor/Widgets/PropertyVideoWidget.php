@@ -19,7 +19,7 @@ class PropertyVideoWidget extends BasePropertyWidget
 
     public function get_title(): string
     {
-        return __('Video del inmueble', 'homlity-plugin');
+        return __('Video del inmueble', 'homlity-real-estate');
     }
 
     public function get_icon(): string
@@ -29,16 +29,16 @@ class PropertyVideoWidget extends BasePropertyWidget
 
     protected function register_controls(): void
     {
-        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-plugin')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-real-estate')]);
         $this->register_property_control();
         $this->end_controls_section();
 
         $this->start_controls_section('style_video', [
-            'label' => __('Estilos video', 'homlity-plugin'),
+            'label' => __('Estilos video', 'homlity-real-estate'),
             'tab' => Controls_Manager::TAB_STYLE,
         ]);
         $this->add_responsive_control('video_height', [
-            'label' => __('Alto', 'homlity-plugin'),
+            'label' => __('Alto', 'homlity-real-estate'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => ['px', 'vh'],
             'range' => [
@@ -54,7 +54,7 @@ class PropertyVideoWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .homlity-property-video iframe, {{WRAPPER}} .homlity-property-video video',
         ]);
         $this->add_responsive_control('video_radius', [
-            'label' => __('Radio', 'homlity-plugin'),
+            'label' => __('Radio', 'homlity-real-estate'),
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%'],
             'selectors' => [
@@ -94,7 +94,7 @@ class PropertyVideoWidget extends BasePropertyWidget
         $embed = $this->youtubeEmbedUrl($url);
         echo '<div class="homlity-property-video">';
         if ($embed !== '') {
-            echo '<iframe src="' . esc_url($embed) . '" title="' . esc_attr__('Video del inmueble', 'homlity-plugin') . '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>';
+            echo '<iframe src="' . esc_url($embed) . '" title="' . esc_attr__('Video del inmueble', 'homlity-real-estate') . '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>';
         } elseif ($this->isDirectVideoUrl($url)) {
             echo '<video controls preload="metadata" src="' . esc_url($url) . '"></video>';
         } else {

@@ -1,11 +1,13 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
 /**
- * Plugin Name: Homlity Plugin
- * Description: Homlity Plugin, gestor de inmuebles, asesores y SEO listo para WordPress.
- * Version:     11.1.3
+ * Plugin Name: Homlity Real Estate
+ * Description: Homlity Real Estate, gestor de inmuebles, asesores, SEO y GEO listo para WordPress.
+ * Version:     1.3.0
  * Author:      Ecosistema Inmobiliario Homlity
- * Plugin URI:  https://github.com/homlity/homlity-plugin
- * Text Domain: homlity-plugin
+ * Author URI:  https://homlity.com/
+ * Plugin URI:  https://homlity.com/
+ * Text Domain: homlity-real-estate
  * License:     GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
@@ -14,28 +16,15 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('HOMLITY_PLUGIN_FILE', __FILE__);
-define('HOMLITY_PLUGIN_PATH', plugin_dir_path(__FILE__));
-define('HOMLITY_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('HOMLITY_PLUGIN_VERSION', '11.1.2');
-define('HOMLITY_PLUGIN_SLUG', 'homlity-plugin');
-define('HOMLITY_PLUGIN_TEXT_DOMAIN', 'homlity-plugin');
-define('HOMLITY_PLUGIN_SETTINGS_OPTION', 'homlity_plugin_settings');
-define('HOMLITY_PLUGIN_VERSION_OPTION', 'homlity_plugin_version');
-define('HOMLITY_PLUGIN_NAMESPACE_PREFIX', 'Homlity\\PluginInmobiliario\\');
-
-if (!defined('PLUGIN_INMOBILIARIO_PATH')) {
-    define('PLUGIN_INMOBILIARIO_PATH', HOMLITY_PLUGIN_PATH);
-}
-if (!defined('PLUGIN_INMOBILIARIO_URL')) {
-    define('PLUGIN_INMOBILIARIO_URL', HOMLITY_PLUGIN_URL);
-}
-if (!defined('PLUGIN_INMOBILIARIO_VERSION')) {
-    define('PLUGIN_INMOBILIARIO_VERSION', HOMLITY_PLUGIN_VERSION);
-}
-if (!defined('PLUGIN_INMOBILIARIO_SLUG')) {
-    define('PLUGIN_INMOBILIARIO_SLUG', HOMLITY_PLUGIN_SLUG);
-}
+if (!defined('HOMLITY_PLUGIN_FILE'))             define('HOMLITY_PLUGIN_FILE', __FILE__);
+if (!defined('HOMLITY_PLUGIN_PATH'))             define('HOMLITY_PLUGIN_PATH', plugin_dir_path(__FILE__));
+if (!defined('HOMLITY_PLUGIN_URL'))              define('HOMLITY_PLUGIN_URL', plugin_dir_url(__FILE__));
+if (!defined('HOMLITY_PLUGIN_VERSION'))          define('HOMLITY_PLUGIN_VERSION', '1.3.0');
+if (!defined('HOMLITY_PLUGIN_SLUG'))             define('HOMLITY_PLUGIN_SLUG', 'homlity-real-estate');
+if (!defined('HOMLITY_PLUGIN_TEXT_DOMAIN'))      define('HOMLITY_PLUGIN_TEXT_DOMAIN', 'homlity-real-estate');
+if (!defined('HOMLITY_PLUGIN_SETTINGS_OPTION'))  define('HOMLITY_PLUGIN_SETTINGS_OPTION', 'homlity_plugin_settings');
+if (!defined('HOMLITY_PLUGIN_VERSION_OPTION'))   define('HOMLITY_PLUGIN_VERSION_OPTION', 'homlity_plugin_version');
+if (!defined('HOMLITY_PLUGIN_NAMESPACE_PREFIX')) define('HOMLITY_PLUGIN_NAMESPACE_PREFIX', 'Homlity\\PluginInmobiliario\\');
 
 if (!function_exists('homlity_plugin_get_option')) {
     function homlity_plugin_get_option(string $optionName, string $legacyOptionName, $default = false)
@@ -103,38 +92,99 @@ if (!function_exists('homlity_plugin_apply_filters')) {
     }
 }
 
+// Shims for functions expected by the homy theme but not loaded
+// (companion plugin inactive or removed).
+
+// ere_get_format_money() — Easy Real Estate plugin
+if (!function_exists('ere_get_format_money')) {
+    function ere_get_format_money($value, $decimal_num = 0, $decimal = '.', $thousands_sep = ',', $prefix = '', $suffix = ''): string
+    {
+        if ($value === '' || $value === null) {
+            return '';
+        }
+        return (string) $prefix . number_format((float) $value, (int) $decimal_num, (string) $decimal, (string) $thousands_sep) . (string) $suffix;
+    }
+}
+
+// homy_get_social_icon() — homy companion plugin
+if (!function_exists('homy_get_social_icon')) {
+    function homy_get_social_icon($icon = '', $class = ''): string
+    {
+        return '';
+    }
+}
+
+// __DIR__ is resolved at compile time to this file's directory, so each plugin copy
+// registers its own autoloader pointing to its own src/ — regardless of which copy
+// set HOMLITY_PLUGIN_PATH first.
 spl_autoload_register(static function (string $class): void {
-    if (strpos($class, HOMLITY_PLUGIN_NAMESPACE_PREFIX) !== 0) {
+    if (strpos($class, 'Homlity\\PluginInmobiliario\\') !== 0) {
         return;
     }
 
-    $relativeClass = substr($class, strlen(HOMLITY_PLUGIN_NAMESPACE_PREFIX));
-    $path = HOMLITY_PLUGIN_PATH . 'src/' . str_replace('\\', '/', $relativeClass) . '.php';
+    $relativeClass = substr($class, strlen('Homlity\\PluginInmobiliario\\'));
+    $path = __DIR__ . '/src/' . str_replace('\\', '/', $relativeClass) . '.php';
 
     if (file_exists($path)) {
         require_once $path;
     }
 });
 
-// Autoload de Composer
-if (file_exists(HOMLITY_PLUGIN_PATH . 'vendor/autoload.php')) {
-    require HOMLITY_PLUGIN_PATH . 'vendor/autoload.php';
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require __DIR__ . '/vendor/autoload.php';
 }
 
-// Bootstrap principal del plugin
-add_action('plugins_loaded', static function () {
-    load_plugin_textdomain(
-        HOMLITY_PLUGIN_TEXT_DOMAIN,
-        false,
-        dirname(plugin_basename(HOMLITY_PLUGIN_FILE)) . '/languages'
-    );
-}, 1);
+// Bootstrap principal del plugin — guarded so only the first loaded copy runs init().
+if (!defined('HOMLITY_PLUGIN_BOOTSTRAP_REGISTERED')) {
+    define('HOMLITY_PLUGIN_BOOTSTRAP_REGISTERED', true);
+    add_action('plugins_loaded', static function () {
+        $plugin = new Homlity\PluginInmobiliario\Core\PluginBootstrap();
+        $plugin->init();
+    }, 20);
+}
 
-add_action('plugins_loaded', static function () {
-    $plugin = new Homlity\PluginInmobiliario\Core\PluginBootstrap();
-    $plugin->init();
-}, 20);
+// Schema.org JSON-LD module — loaded after the main bootstrap (priority 25).
+if (!defined('HOMLITY_SCHEMA_BOOTSTRAP_REGISTERED')) {
+    define('HOMLITY_SCHEMA_BOOTSTRAP_REGISTERED', true);
+    add_action('plugins_loaded', static function () {
+        $schema_dir = __DIR__ . '/includes/schema/';
+        require_once $schema_dir . 'class-homlity-schema-helpers.php';
+        require_once $schema_dir . 'class-homlity-property-schema.php';
+        require_once $schema_dir . 'class-homlity-property-list-schema.php';
+        require_once $schema_dir . 'class-homlity-agency-schema.php';
+        require_once $schema_dir . 'class-homlity-schema-manager.php';
+        require_once $schema_dir . 'class-homlity-schema-admin.php';
+        Homlity_Schema_Manager::init();
+        Homlity_Schema_Admin::init();
+    }, 25);
+}
 
+// Elementor FAQ widget module — loaded at priority 30, after Elementor itself.
+if (!defined('HOMLITY_ELEMENTOR_FAQ_REGISTERED')) {
+    define('HOMLITY_ELEMENTOR_FAQ_REGISTERED', true);
+    add_action('plugins_loaded', static function () {
+        require_once __DIR__ . '/includes/elementor/class-homlity-elementor-manager.php';
+        Homlity_Elementor_Manager::init();
+    }, 30);
+}
+
+// Consignment form module — loaded at priority 35.
+if (!defined('HOMLITY_CONSIGNMENT_BOOTSTRAP_REGISTERED')) {
+    define('HOMLITY_CONSIGNMENT_BOOTSTRAP_REGISTERED', true);
+    add_action('plugins_loaded', static function () {
+        $dir = __DIR__ . '/includes/consignment/';
+        require_once $dir . 'class-homlity-consignment-notifications.php';
+        require_once $dir . 'class-homlity-consignment-validator.php';
+        require_once $dir . 'class-homlity-consignment-payload-builder.php';
+        require_once $dir . 'class-homlity-consignment-media-handler.php';
+        require_once $dir . 'class-homlity-consignment-rest-controller.php';
+        require_once $dir . 'class-homlity-consignment-admin.php';
+        require_once $dir . 'class-homlity-consignment-manager.php';
+        Homlity_Consignment_Manager::init();
+    }, 35);
+}
+
+// register_activation_hook is keyed to __FILE__, so it only fires for its own copy.
 register_activation_hook(__FILE__, static function () {
     // Ensure CPT and taxonomies exist before seeding terms.
     (new Homlity\PluginInmobiliario\Services\PropertyPostType())->registerPostType();
@@ -146,5 +196,12 @@ register_activation_hook(__FILE__, static function () {
     // Create homologation table (safe: uses IF NOT EXISTS via dbDelta).
     Homlity\PluginInmobiliario\Homologation\HomologationRepository::createTable();
 
+    // Register /llms-full.txt rewrite rule before flushing.
+    Homlity\PluginInmobiliario\Services\Ai\LlmsFullService::activate();
+
     flush_rewrite_rules();
+});
+
+register_deactivation_hook(__FILE__, static function () {
+    Homlity\PluginInmobiliario\Services\Ai\LlmsFullService::deactivate();
 });

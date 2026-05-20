@@ -1,8 +1,12 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Operation & price component.
- * Overridable at homlity-plugin/parts/property-operation-price.php
+ * Overridable at homlity-real-estate/parts/property-operation-price.php
  *
  * Expected args: $post_id (int), $settings (array, optional — Elementor widget settings)
  */
@@ -51,23 +55,23 @@ $rawPrices = [
 
 $items = [
     'operation'   => [
-        'label' => __('Gestión',        'homlity-plugin'),
+        'label' => __('Gestión',        'homlity-real-estate'),
         'value' => $operationName,
     ],
     'price_sale'  => [
-        'label' => __('Venta',          'homlity-plugin'),
+        'label' => __('Venta',          'homlity-real-estate'),
         'value' => ($priceSale !== '' && $priceSale !== null)
             ? homlity_plugin_apply_filters('homlity_plugin_format_price', null, $priceSale, $currencySale)
             : '',
     ],
     'price_rent'  => [
-        'label' => __('Arriendo',       'homlity-plugin'),
+        'label' => __('Arriendo',       'homlity-real-estate'),
         'value' => ($priceRent !== '' && $priceRent !== null)
             ? homlity_plugin_apply_filters('homlity_plugin_format_price', null, $priceRent, $currencyRent)
             : '',
     ],
     'price_admin' => [
-        'label' => __('Administración', 'homlity-plugin'),
+        'label' => __('Administración', 'homlity-real-estate'),
         'value' => ($priceAdmin !== '' && $priceAdmin !== null)
             ? homlity_plugin_apply_filters('homlity_plugin_format_price', null, $priceAdmin, $currencyAdmin)
             : '',

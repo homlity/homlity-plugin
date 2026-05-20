@@ -1,8 +1,12 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Agent profile page, reachable via /property-agent/{user_nicename}.
- * Can be overridden in theme at homlity-plugin/property-agent.php
+ * Can be overridden in theme at homlity-real-estate/property-agent.php
  */
 
 use Homlity\PluginInmobiliario\Services\TemplateService;
@@ -13,7 +17,7 @@ $agentSlug = get_query_var('property_agent');
 $agent = $agentSlug ? get_user_by('slug', $agentSlug) : null;
 
 if (!$agent) {
-    echo '<main class="property-agent"><p>' . esc_html__('Asesor no encontrado.', 'homlity-plugin') . '</p></main>';
+    echo '<main class="property-agent"><p>' . esc_html__('Asesor no encontrado.', 'homlity-real-estate') . '</p></main>';
     get_footer();
     return;
 }

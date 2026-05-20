@@ -21,7 +21,7 @@ class PropertyBreadcrumbWidget extends BasePropertyWidget
 
     public function get_title(): string
     {
-        return __('Breadcrumb inmueble', 'homlity-plugin');
+        return __('Breadcrumb inmueble', 'homlity-real-estate');
     }
 
     public function get_icon(): string
@@ -31,22 +31,22 @@ class PropertyBreadcrumbWidget extends BasePropertyWidget
 
     protected function register_controls(): void
     {
-        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-plugin')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-real-estate')]);
         $this->register_property_control();
         $this->add_control('show_home', [
-            'label' => __('Mostrar Inicio', 'homlity-plugin'),
+            'label' => __('Mostrar Inicio', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,
             'default' => 'yes',
         ]);
         $this->add_control('show_property_title', [
-            'label' => __('Mostrar título del inmueble', 'homlity-plugin'),
+            'label' => __('Mostrar título del inmueble', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,
             'default' => 'yes',
         ]);
         $this->end_controls_section();
 
         $this->start_controls_section('style', [
-            'label' => __('Estilos', 'homlity-plugin'),
+            'label' => __('Estilos', 'homlity-real-estate'),
             'tab' => Controls_Manager::TAB_STYLE,
         ]);
         $this->add_group_control(Group_Control_Typography::get_type(), [
@@ -54,19 +54,19 @@ class PropertyBreadcrumbWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-breadcrumb-widget',
         ]);
         $this->add_responsive_control('align', [
-            'label' => __('Alineación', 'homlity-plugin'),
+            'label' => __('Alineación', 'homlity-real-estate'),
             'type' => Controls_Manager::CHOOSE,
             'options' => [
-                'left' => ['title' => __('Izquierda', 'homlity-plugin'), 'icon' => 'eicon-text-align-left'],
-                'center' => ['title' => __('Centro', 'homlity-plugin'), 'icon' => 'eicon-text-align-center'],
-                'right' => ['title' => __('Derecha', 'homlity-plugin'), 'icon' => 'eicon-text-align-right'],
+                'left' => ['title' => __('Izquierda', 'homlity-real-estate'), 'icon' => 'eicon-text-align-left'],
+                'center' => ['title' => __('Centro', 'homlity-real-estate'), 'icon' => 'eicon-text-align-center'],
+                'right' => ['title' => __('Derecha', 'homlity-real-estate'), 'icon' => 'eicon-text-align-right'],
             ],
             'selectors' => [
                 '{{WRAPPER}} .property-breadcrumb-widget' => 'justify-content: {{VALUE}};',
             ],
         ]);
         $this->add_control('background_color', [
-            'label' => __('Fondo', 'homlity-plugin'),
+            'label' => __('Fondo', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
                 '{{WRAPPER}} .property-breadcrumb-widget' => 'background-color: {{VALUE}};',
@@ -77,7 +77,7 @@ class PropertyBreadcrumbWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-breadcrumb-widget',
         ]);
         $this->add_responsive_control('border_radius', [
-            'label' => __('Radio borde', 'homlity-plugin'),
+            'label' => __('Radio borde', 'homlity-real-estate'),
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%'],
             'selectors' => [
@@ -85,7 +85,7 @@ class PropertyBreadcrumbWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_responsive_control('padding', [
-            'label' => __('Padding', 'homlity-plugin'),
+            'label' => __('Padding', 'homlity-real-estate'),
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%', 'em'],
             'selectors' => [
@@ -93,7 +93,7 @@ class PropertyBreadcrumbWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_responsive_control('item_gap', [
-            'label' => __('Espaciado entre migas', 'homlity-plugin'),
+            'label' => __('Espaciado entre migas', 'homlity-real-estate'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => ['px'],
             'range' => ['px' => ['min' => 0, 'max' => 48]],
@@ -106,59 +106,59 @@ class PropertyBreadcrumbWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-breadcrumb-widget',
         ]);
         $this->add_control('text_color', [
-            'label' => __('Color texto', 'homlity-plugin'),
+            'label' => __('Color texto', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
                 '{{WRAPPER}} .property-breadcrumb-widget' => 'color: {{VALUE}};',
             ],
         ]);
         $this->add_control('current_color', [
-            'label' => __('Color miga actual', 'homlity-plugin'),
+            'label' => __('Color miga actual', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
                 '{{WRAPPER}} .property-breadcrumb-widget [aria-current="page"]' => 'color: {{VALUE}};',
             ],
         ]);
         $this->add_control('link_color', [
-            'label' => __('Color enlaces', 'homlity-plugin'),
+            'label' => __('Color enlaces', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
                 '{{WRAPPER}} .property-breadcrumb-widget a' => 'color: {{VALUE}};',
             ],
         ]);
         $this->add_control('link_hover_color', [
-            'label' => __('Color enlaces (hover)', 'homlity-plugin'),
+            'label' => __('Color enlaces (hover)', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
                 '{{WRAPPER}} .property-breadcrumb-widget a:hover' => 'color: {{VALUE}};',
             ],
         ]);
         $this->add_control('link_decoration', [
-            'label' => __('Decoración enlace', 'homlity-plugin'),
+            'label' => __('Decoración enlace', 'homlity-real-estate'),
             'type' => Controls_Manager::SELECT,
             'default' => 'none',
             'options' => [
-                'none' => __('Ninguna', 'homlity-plugin'),
-                'underline' => __('Subrayado', 'homlity-plugin'),
+                'none' => __('Ninguna', 'homlity-real-estate'),
+                'underline' => __('Subrayado', 'homlity-real-estate'),
             ],
             'selectors' => [
                 '{{WRAPPER}} .property-breadcrumb-widget a' => 'text-decoration: {{VALUE}};',
             ],
         ]);
         $this->add_control('link_hover_decoration', [
-            'label' => __('Decoración enlace hover', 'homlity-plugin'),
+            'label' => __('Decoración enlace hover', 'homlity-real-estate'),
             'type' => Controls_Manager::SELECT,
             'default' => 'underline',
             'options' => [
-                'none' => __('Ninguna', 'homlity-plugin'),
-                'underline' => __('Subrayado', 'homlity-plugin'),
+                'none' => __('Ninguna', 'homlity-real-estate'),
+                'underline' => __('Subrayado', 'homlity-real-estate'),
             ],
             'selectors' => [
                 '{{WRAPPER}} .property-breadcrumb-widget a:hover' => 'text-decoration: {{VALUE}};',
             ],
         ]);
         $this->add_control('separator_color', [
-            'label' => __('Color separador', 'homlity-plugin'),
+            'label' => __('Color separador', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
                 '{{WRAPPER}} .property-breadcrumb-widget__sep' => 'color: {{VALUE}};',

@@ -59,7 +59,7 @@ class NinjaWhatsAppPropertyOverrideService implements ServiceInterface
             }
         }
         if ($advisorName === '') {
-            $advisorName = __('Asesor', 'homlity-plugin');
+            $advisorName = __('Asesor', 'homlity-real-estate');
         }
 
         $message = sprintf(

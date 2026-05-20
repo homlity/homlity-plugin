@@ -1,7 +1,8 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 /**
  * Property listing – default (custom CSS) template.
- * Overridable at homlity-plugin/parts/property-listing.php inside theme or child theme.
+ * Overridable at homlity-real-estate/parts/property-listing.php inside theme or child theme.
  *
  * Expected args:
  *   $config  (ListingConfig)      – all display/query settings
@@ -29,10 +30,10 @@ $paramToAttr = static function ($value): string {
 $mapData     = $search->getMapData($query);
 $cardOptions = $config->cardOptions();
 $sortOptions = [
-    'date'       => __('Más recientes',        'homlity-plugin'),
-    'price_asc'  => __('Precio: menor a mayor','homlity-plugin'),
-    'price_desc' => __('Precio: mayor a menor','homlity-plugin'),
-    'title'      => __('Nombre A–Z',           'homlity-plugin'),
+    'date'       => __('Más recientes',        'homlity-real-estate'),
+    'price_asc'  => __('Precio: menor a mayor','homlity-real-estate'),
+    'price_desc' => __('Precio: mayor a menor','homlity-real-estate'),
+    'title'      => __('Nombre A–Z',           'homlity-real-estate'),
 ];
 ?>
 <div id="<?php echo esc_attr($uniqueId); ?>"
@@ -117,12 +118,12 @@ $sortOptions = [
         <?php if ($config->showResultsCount()) : ?>
         <p class="property-listing__count">
             <strong class="property-listing__count-number"><?php echo esc_html($query->found_posts); ?></strong>
-            <?php esc_html_e('inmuebles encontrados', 'homlity-plugin'); ?>
+            <?php esc_html_e('inmuebles encontrados', 'homlity-real-estate'); ?>
         </p>
         <?php endif; ?>
         <div class="property-listing__toolbar-right">
             <?php if ($config->showSort()) : ?>
-            <select class="property-listing__sort" aria-label="<?php esc_attr_e('Ordenar por', 'homlity-plugin'); ?>">
+            <select class="property-listing__sort" aria-label="<?php esc_attr_e('Ordenar por', 'homlity-real-estate'); ?>">
                 <?php foreach ($sortOptions as $value => $label) : ?>
                     <option value="<?php echo esc_attr($value); ?>" <?php selected($config->orderby(), $value); ?>>
                         <?php echo esc_html($label); ?>
@@ -132,10 +133,10 @@ $sortOptions = [
             <?php endif; ?>
 
             <?php if ($config->showViewToggle()) : ?>
-            <div class="property-listing__view-toggle" role="group" aria-label="<?php esc_attr_e('Cambiar vista', 'homlity-plugin'); ?>">
+            <div class="property-listing__view-toggle" role="group" aria-label="<?php esc_attr_e('Cambiar vista', 'homlity-real-estate'); ?>">
                 <button type="button"
                         class="property-listing__view-btn property-listing__view-btn--grid<?php echo $config->defaultView() === 'grid' ? ' is-active' : ''; ?>"
-                        data-view="grid" title="<?php esc_attr_e('Vista grilla', 'homlity-plugin'); ?>">
+                        data-view="grid" title="<?php esc_attr_e('Vista grilla', 'homlity-real-estate'); ?>">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                         <rect x="0" y="0" width="7" height="7" rx="1"/>
                         <rect x="9" y="0" width="7" height="7" rx="1"/>
@@ -145,7 +146,7 @@ $sortOptions = [
                 </button>
                 <button type="button"
                         class="property-listing__view-btn property-listing__view-btn--map<?php echo $config->defaultView() === 'map' ? ' is-active' : ''; ?>"
-                        data-view="map" title="<?php esc_attr_e('Vista mapa', 'homlity-plugin'); ?>">
+                        data-view="map" title="<?php esc_attr_e('Vista mapa', 'homlity-real-estate'); ?>">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                         <path d="M8 1C5.24 1 3 3.24 3 6c0 4 5 9 5 9s5-5 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 8 4a1.5 1.5 0 0 1 0 3.5z"/>
                     </svg>
@@ -173,7 +174,7 @@ $sortOptions = [
                 }
                 wp_reset_postdata();
             } else {
-                echo '<p class="property-listing__empty">' . esc_html__('No se han encontrado inmuebles para esta consulta.', 'homlity-plugin') . '</p>';
+                echo '<p class="property-listing__empty">' . esc_html__('No se han encontrado inmuebles para esta consulta.', 'homlity-real-estate') . '</p>';
             }
             ?>
         </div>

@@ -57,7 +57,7 @@ class CapabilityService implements ServiceInterface
 
         $assessor = get_role(self::ROLE_ASSESSOR);
         if (!$assessor) {
-            $assessor = add_role(self::ROLE_ASSESSOR, __('Asesor Comercial', 'homlity-plugin'));
+            $assessor = add_role(self::ROLE_ASSESSOR, __('Asesor Comercial', 'homlity-real-estate'));
         }
         if ($assessor) {
             $assessorCaps = [
@@ -83,7 +83,7 @@ class CapabilityService implements ServiceInterface
     private function ensureRole(): void
     {
         if (!get_role(self::ROLE_ASSESSOR)) {
-            add_role(self::ROLE_ASSESSOR, __('Asesor Comercial', 'homlity-plugin'));
+            add_role(self::ROLE_ASSESSOR, __('Asesor Comercial', 'homlity-real-estate'));
         }
     }
 }

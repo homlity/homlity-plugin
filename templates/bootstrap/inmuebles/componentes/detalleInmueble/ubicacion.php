@@ -1,5 +1,5 @@
 <?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
-<!--- <h3 class="homlity-plugin-titulos-ubicacion">Ubicación de <?php // echo $nombre; ?></h3> ---->
+<!--- <h3 class="homlity-real-estate-titulos-ubicacion">Ubicación de <?php // echo $nombre; ?></h3> ---->
 <section>
 <?php visualinmu_load_template("inmuebles/componentes/detalleInmueble/ubicacion-header.php",["mapa" => $mapa]);?>
     <ul class="nav nav-pills mb-3 tabs-media" id="pills-tab" role="tablist">

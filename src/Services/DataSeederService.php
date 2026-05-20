@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 /**
  * Seeds default terms and data on activation.
  */
@@ -187,7 +188,7 @@ class DataSeederService
         }
 
         $pageId = wp_insert_post([
-            'post_title'     => __('Resultados de inmuebles', 'homlity-plugin'),
+            'post_title'     => __('Resultados de inmuebles', 'homlity-real-estate'),
             'post_name'      => 'inmuebles',
             'post_content'   => '',
             'post_status'    => 'publish',
@@ -218,7 +219,7 @@ class DataSeederService
         $data = [
             $this->elementorSection([
                 $this->elementorWidget('heading', [
-                    'title' => __('Resultados de inmuebles', 'homlity-plugin'),
+                    'title' => __('Resultados de inmuebles', 'homlity-real-estate'),
                     'header_size' => 'h1',
                 ]),
                 $this->elementorWidget('property_filter', [
@@ -229,8 +230,8 @@ class DataSeederService
                     'show_city' => 'yes',
                     'show_price' => 'yes',
                     'show_reset' => 'yes',
-                    'submit_label' => __('Buscar', 'homlity-plugin'),
-                    'reset_label' => __('Limpiar', 'homlity-plugin'),
+                    'submit_label' => __('Buscar', 'homlity-real-estate'),
+                    'reset_label' => __('Limpiar', 'homlity-real-estate'),
                 ]),
                 $this->elementorWidget('property_listing', [
                     'template' => 'default',
@@ -281,7 +282,7 @@ class DataSeederService
 
         // Nothing found — create the template for the first time.
         $templateId = wp_insert_post([
-            'post_title'     => __('Detalle de inmueble', 'homlity-plugin'),
+            'post_title'     => __('Detalle de inmueble', 'homlity-real-estate'),
             'post_name'      => 'homlity-detalle-inmueble',
             'post_status'    => 'publish',
             'post_type'      => 'elementor_library',
@@ -359,7 +360,7 @@ class DataSeederService
             update_option($optionKey, $pageId);
         } else {
             $pageId = wp_insert_post([
-                'post_title' => __('Perfil del asesor', 'homlity-plugin'),
+                'post_title' => __('Perfil del asesor', 'homlity-real-estate'),
                 'post_name' => 'perfil-asesor',
                 'post_content' => '',
                 'post_status' => 'publish',
@@ -415,7 +416,7 @@ class DataSeederService
             update_option($optionKey, $pageId);
         } else {
             $pageId = wp_insert_post([
-                'post_title' => __('Inmueble no disponible', 'homlity-plugin'),
+                'post_title' => __('Inmueble no disponible', 'homlity-real-estate'),
                 'post_name' => 'inmueble-no-disponible',
                 'post_content' => '',
                 'post_status' => 'publish',
@@ -447,16 +448,16 @@ class DataSeederService
         $data = [
             $this->elementorSection([
                 $this->elementorWidget('heading', [
-                    'title' => __('Inmueble no disponible', 'homlity-plugin'),
+                    'title' => __('Inmueble no disponible', 'homlity-real-estate'),
                     'header_size' => 'h1',
                     'align' => 'center',
                 ]),
                 $this->elementorWidget('text-editor', [
-                    'editor' => __('El inmueble que buscas fue retirado o está fuera de publicación. Explora otras opciones disponibles.', 'homlity-plugin'),
+                    'editor' => __('El inmueble que buscas fue retirado o está fuera de publicación. Explora otras opciones disponibles.', 'homlity-real-estate'),
                     'align' => 'center',
                 ]),
                 $this->elementorWidget('button', [
-                    'text' => __('Ver otros inmuebles', 'homlity-plugin'),
+                    'text' => __('Ver otros inmuebles', 'homlity-real-estate'),
                     'link' => [
                         'url' => $buttonUrl,
                         'is_external' => '',

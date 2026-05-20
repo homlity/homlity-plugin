@@ -94,8 +94,8 @@ class ElementorIntegrationService implements ServiceInterface
 
     public function registerCategory($elementsManager): void
     {
-        $elementsManager->add_category('homlity-plugin', [
-            'title' => __('Homlity Plugin', 'homlity-plugin'),
+        $elementsManager->add_category('homlity-real-estate', [
+            'title' => __('Homlity Plugin', 'homlity-real-estate'),
             'icon'  => 'fa fa-home',
         ]);
     }
@@ -174,28 +174,28 @@ class ElementorIntegrationService implements ServiceInterface
     public function enqueuePreviewAssets(): void
     {
         wp_enqueue_style(
-            'homlity-plugin-front-components',
+            'homlity-real-estate-front-components',
             HOMLITY_PLUGIN_URL . 'assets/css/front-components.css',
             [],
             HOMLITY_PLUGIN_VERSION
         );
 
         wp_enqueue_style(
-            'homlity-plugin-listing',
+            'homlity-real-estate-listing',
             HOMLITY_PLUGIN_URL . 'assets/css/property-listing.css',
-            ['homlity-plugin-front-components'],
+            ['homlity-real-estate-front-components'],
             HOMLITY_PLUGIN_VERSION
         );
 
         wp_enqueue_style(
-            'homlity-plugin-leaflet',
+            'homlity-real-estate-leaflet',
             HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.css',
             [],
             '1.9.4'
         );
 
         wp_enqueue_script(
-            'homlity-plugin-leaflet',
+            'homlity-real-estate-leaflet',
             HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.js',
             [],
             '1.9.4',
@@ -203,9 +203,9 @@ class ElementorIntegrationService implements ServiceInterface
         );
 
         wp_enqueue_script(
-            'homlity-plugin-listing',
+            'homlity-real-estate-listing',
             HOMLITY_PLUGIN_URL . 'assets/js/property-listing.js',
-            ['homlity-plugin-leaflet'],
+            ['homlity-real-estate-leaflet'],
             HOMLITY_PLUGIN_VERSION,
             true
         );

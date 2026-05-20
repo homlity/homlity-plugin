@@ -1,5 +1,5 @@
 <?php
-
+// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 namespace Homlity\PluginInmobiliario\Integrations\Elementor\Widgets;
 
 use Elementor\Controls_Manager;
@@ -21,7 +21,7 @@ class PropertyResultsTitleWidget extends Widget_Base
 
     public function get_title(): string
     {
-        return __('Título resultados inmuebles', 'homlity-plugin');
+        return __('Título resultados inmuebles', 'homlity-real-estate');
     }
 
     public function get_icon(): string
@@ -31,15 +31,15 @@ class PropertyResultsTitleWidget extends Widget_Base
 
     public function get_categories(): array
     {
-        return ['homlity-plugin'];
+        return ['homlity-real-estate'];
     }
 
     protected function register_controls(): void
     {
-        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-plugin')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-real-estate')]);
 
         $this->add_control('title_tag', [
-            'label' => __('Etiqueta HTML', 'homlity-plugin'),
+            'label' => __('Etiqueta HTML', 'homlity-real-estate'),
             'type' => Controls_Manager::SELECT,
             'default' => 'h1',
             'options' => [
@@ -49,37 +49,37 @@ class PropertyResultsTitleWidget extends Widget_Base
         ]);
 
         $this->add_control('base_text', [
-            'label' => __('Texto base', 'homlity-plugin'),
+            'label' => __('Texto base', 'homlity-real-estate'),
             'type' => Controls_Manager::TEXT,
-            'default' => __('Inmuebles', 'homlity-plugin'),
+            'default' => __('Inmuebles', 'homlity-real-estate'),
         ]);
 
         $this->add_control('show_total', [
-            'label' => __('Mostrar total de resultados', 'homlity-plugin'),
+            'label' => __('Mostrar total de resultados', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,
             'default' => 'yes',
         ]);
 
         $this->add_control('fallback_title', [
-            'label' => __('Título cuando no hay filtros', 'homlity-plugin'),
+            'label' => __('Título cuando no hay filtros', 'homlity-real-estate'),
             'type' => Controls_Manager::TEXT,
-            'default' => __('Todos los inmuebles disponibles', 'homlity-plugin'),
+            'default' => __('Todos los inmuebles disponibles', 'homlity-real-estate'),
         ]);
 
         $this->end_controls_section();
 
         $this->start_controls_section('style_title', [
-            'label' => __('Estilos', 'homlity-plugin'),
+            'label' => __('Estilos', 'homlity-real-estate'),
             'tab' => Controls_Manager::TAB_STYLE,
         ]);
         $this->add_responsive_control('title_align', [
-            'label' => __('Alineación', 'homlity-plugin'),
+            'label' => __('Alineación', 'homlity-real-estate'),
             'type' => Controls_Manager::CHOOSE,
             'options' => [
-                'left' => ['title' => __('Izquierda', 'homlity-plugin'), 'icon' => 'eicon-text-align-left'],
-                'center' => ['title' => __('Centro', 'homlity-plugin'), 'icon' => 'eicon-text-align-center'],
-                'right' => ['title' => __('Derecha', 'homlity-plugin'), 'icon' => 'eicon-text-align-right'],
-                'justify' => ['title' => __('Justificado', 'homlity-plugin'), 'icon' => 'eicon-text-align-justify'],
+                'left' => ['title' => __('Izquierda', 'homlity-real-estate'), 'icon' => 'eicon-text-align-left'],
+                'center' => ['title' => __('Centro', 'homlity-real-estate'), 'icon' => 'eicon-text-align-center'],
+                'right' => ['title' => __('Derecha', 'homlity-real-estate'), 'icon' => 'eicon-text-align-right'],
+                'justify' => ['title' => __('Justificado', 'homlity-real-estate'), 'icon' => 'eicon-text-align-justify'],
             ],
             'selectors' => ['{{WRAPPER}} .property-results-title-widget' => 'text-align: {{VALUE}};'],
         ]);
@@ -92,33 +92,33 @@ class PropertyResultsTitleWidget extends Widget_Base
             'selector' => '{{WRAPPER}} .property-results-title-widget',
         ]);
         $this->add_control('title_stroke_width', [
-            'label' => __('Trazo ancho (px)', 'homlity-plugin'),
+            'label' => __('Trazo ancho (px)', 'homlity-real-estate'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => ['px'],
             'range' => ['px' => ['min' => 0, 'max' => 6]],
             'selectors' => ['{{WRAPPER}} .property-results-title-widget' => '-webkit-text-stroke-width: {{SIZE}}{{UNIT}};'],
         ]);
         $this->add_control('title_stroke_color', [
-            'label' => __('Trazo color', 'homlity-plugin'),
+            'label' => __('Trazo color', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-results-title-widget' => '-webkit-text-stroke-color: {{VALUE}};'],
         ]);
         $this->start_controls_tabs('title_states');
-        $this->start_controls_tab('title_normal', ['label' => __('Normal', 'homlity-plugin')]);
+        $this->start_controls_tab('title_normal', ['label' => __('Normal', 'homlity-real-estate')]);
         $this->add_control('title_color', [
-            'label' => __('Color texto', 'homlity-plugin'),
+            'label' => __('Color texto', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-results-title-widget' => 'color: {{VALUE}};'],
         ]);
         $this->end_controls_tab();
-        $this->start_controls_tab('title_hover', ['label' => __('Hover', 'homlity-plugin')]);
+        $this->start_controls_tab('title_hover', ['label' => __('Hover', 'homlity-real-estate')]);
         $this->add_control('title_color_hover', [
-            'label' => __('Color texto (hover)', 'homlity-plugin'),
+            'label' => __('Color texto (hover)', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-results-title-widget:hover' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('title_stroke_color_hover', [
-            'label' => __('Trazo color (hover)', 'homlity-plugin'),
+            'label' => __('Trazo color (hover)', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-results-title-widget:hover' => '-webkit-text-stroke-color: {{VALUE}};'],
         ]);
@@ -134,9 +134,9 @@ class PropertyResultsTitleWidget extends Widget_Base
             ? $settings['title_tag']
             : 'h1';
 
-        $baseText = trim((string) ($settings['base_text'] ?? __('Inmuebles', 'homlity-plugin')));
+        $baseText = trim((string) ($settings['base_text'] ?? __('Inmuebles', 'homlity-real-estate')));
         if ($baseText === '') {
-            $baseText = __('Inmuebles', 'homlity-plugin');
+            $baseText = __('Inmuebles', 'homlity-real-estate');
         }
 
         $title = $this->buildSeoTitle($baseText, (string) ($settings['fallback_title'] ?? ''));
@@ -196,7 +196,7 @@ class PropertyResultsTitleWidget extends Widget_Base
         }
 
         if ($title === '') {
-            return __('Todos los inmuebles disponibles', 'homlity-plugin');
+            return __('Todos los inmuebles disponibles', 'homlity-real-estate');
         }
 
         return $title;

@@ -1,0 +1,276 @@
+/* ── Homlity SEO & GEO admin panel styles ──────────────────────────────── */
+
+.homlity-seo-geo-admin {
+  max-width: 1100px;
+}
+
+/* ── Tab navigation ─────────────────────────────────────────────────────── */
+.homlity-tabs-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-bottom: 0;
+  border-bottom: 1px solid #c3c4c7;
+}
+
+.homlity-tabs-nav .nav-tab {
+  font-size: 0.85rem;
+  padding: 6px 14px;
+}
+
+/* ── Tab panels ─────────────────────────────────────────────────────────── */
+.homlity-seo-tab {
+  display: none;
+  background: #fff;
+  border: 1px solid #c3c4c7;
+  border-top: none;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.homlity-seo-tab.is-active {
+  display: block;
+}
+
+/* ── Section headings inside form tables ────────────────────────────────── */
+.homlity-section-heading {
+  border-bottom: 1px solid #eee;
+  color: #1d2327;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 24px 0 8px;
+  padding-bottom: 6px;
+}
+
+/* ── Image upload fields ────────────────────────────────────────────────── */
+.homlity-img-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.homlity-img-field .homlity-img-url {
+  flex: 1;
+  min-width: 200px;
+}
+
+.homlity-img-preview-wrap {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.homlity-img-preview {
+  display: block;
+  height: auto;
+  max-height: 80px;
+  max-width: 200px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* ── Variables info box ─────────────────────────────────────────────────── */
+.homlity-variables-box {
+  background: #f6f7f7;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  font-size: 0.88rem;
+}
+
+.homlity-variables-box code {
+  background: #e8e8e8;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  margin: 2px;
+  padding: 2px 6px;
+}
+
+/* ── Info box ───────────────────────────────────────────────────────────── */
+.homlity-info-box {
+  background: #f0f6fc;
+  border: 1px solid #a8c0da;
+  border-radius: 4px;
+  margin-top: 20px;
+  padding: 12px 16px;
+  font-size: 0.88rem;
+}
+
+.homlity-info-box ul {
+  margin: 8px 0 8px 16px;
+  list-style: disc;
+}
+
+/* ── Repeater ───────────────────────────────────────────────────────────── */
+.homlity-repeater {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.homlity-repeater-row {
+  border: 1px solid #c3c4c7;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.homlity-repeater-header {
+  align-items: center;
+  background: #f6f7f7;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 12px;
+}
+
+.homlity-repeater-title {
+  flex: 1;
+  font-weight: 600;
+  min-width: 160px;
+  font-size: 0.9rem;
+}
+
+.homlity-repeater-body {
+  padding: 14px 16px;
+}
+
+.homlity-repeater-body.is-collapsed {
+  display: none;
+}
+
+/* ── Coverage zone grid ─────────────────────────────────────────────────── */
+.homlity-zone-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.homlity-zone-grid label,
+.homlity-zone-desc-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #3c434a;
+}
+
+.homlity-zone-desc-label {
+  margin-top: 4px;
+}
+
+/* ── FAQ grid ───────────────────────────────────────────────────────────── */
+.homlity-faq-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.homlity-faq-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.homlity-faq-meta-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #3c434a;
+}
+
+.homlity-faq-question-label,
+.homlity-faq-answer-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #3c434a;
+}
+
+.homlity-faq-active-toggle,
+.homlity-faq-schema-toggle,
+.homlity-zone-active-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+}
+
+/* ── Diagnostics ────────────────────────────────────────────────────────── */
+.homlity-diag-header {
+  margin-bottom: 20px;
+}
+
+.homlity-diag-header h2 {
+  margin-bottom: 8px;
+}
+
+.homlity-progress-bar {
+  background: #e0e0e0;
+  border-radius: 4px;
+  height: 10px;
+  max-width: 400px;
+  overflow: hidden;
+}
+
+.homlity-progress-fill {
+  background: #00a32a;
+  border-radius: 4px;
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.homlity-diag-table {
+  margin-top: 8px;
+}
+
+.homlity-diag-ok {
+  color: #00a32a;
+  font-weight: 600;
+}
+
+.homlity-diag-missing {
+  color: #d63638;
+}
+
+.homlity-badge {
+  border-radius: 3px;
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+}
+
+.homlity-badge-required {
+  background: #fcf0f1;
+  border: 1px solid #f0a1a8;
+  color: #8a1f24;
+}
+
+.homlity-badge-recommended {
+  background: #f0f6e8;
+  border: 1px solid #9ec867;
+  color: #3a5c16;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 782px) {
+  .homlity-seo-tab {
+    padding: 16px;
+  }
+
+  .homlity-zone-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .homlity-faq-meta-row {
+    flex-direction: column;
+  }
+}

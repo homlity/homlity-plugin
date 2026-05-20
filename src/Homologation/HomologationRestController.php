@@ -136,14 +136,14 @@ class HomologationRestController implements ServiceInterface
 
         if (!EntityType::isValid($entityType)) {
             return new \WP_REST_Response(
-                ['error' => __('Tipo de entidad no válido.', 'homlity-plugin')],
+                ['error' => __('Tipo de entidad no válido.', 'homlity-real-estate')],
                 400
             );
         }
 
         if (empty($source) || empty($sourceId) || $canonicalTermId <= 0) {
             return new \WP_REST_Response(
-                ['error' => __('Parámetros incompletos: source, source_id y canonical_term_id son obligatorios.', 'homlity-plugin')],
+                ['error' => __('Parámetros incompletos: source, source_id y canonical_term_id son obligatorios.', 'homlity-real-estate')],
                 400
             );
         }
@@ -159,7 +159,7 @@ class HomologationRestController implements ServiceInterface
 
         if (!$this->service->deleteMapping($id)) {
             return new \WP_REST_Response(
-                ['error' => __('No se encontró el mapeo o no se pudo eliminar.', 'homlity-plugin')],
+                ['error' => __('No se encontró el mapeo o no se pudo eliminar.', 'homlity-real-estate')],
                 404
             );
         }
@@ -174,7 +174,7 @@ class HomologationRestController implements ServiceInterface
 
         if ($taxonomy === null) {
             return new \WP_REST_Response(
-                ['error' => __('Tipo de entidad sin taxonomía asociada.', 'homlity-plugin')],
+                ['error' => __('Tipo de entidad sin taxonomía asociada.', 'homlity-real-estate')],
                 400
             );
         }
@@ -204,7 +204,7 @@ class HomologationRestController implements ServiceInterface
 
         if (empty($entityType) || empty($source) || empty($sourceId)) {
             return new \WP_REST_Response(
-                ['error' => __('Se requieren entity_type, source y source_id.', 'homlity-plugin')],
+                ['error' => __('Se requieren entity_type, source y source_id.', 'homlity-real-estate')],
                 400
             );
         }

@@ -1,5 +1,9 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $checkLink = !(isset($attrs) && isset($attrs['withLinktoDetail']) && $attrs['withLinktoDetail'] == false);
 ?>
 <div class="row">
@@ -27,7 +31,7 @@ $checkLink = !(isset($attrs) && isset($attrs['withLinktoDetail']) && $attrs['wit
     </div>
     <div class="col-sm-12">
         <?php
-        $nameFull = $inmueble->tipoInmueble()->nombreSingular() . " " . __('en', 'homlity-plugin') . " " . $inmueble->barrio()->nombre() . " " . __('en', 'homlity-plugin');
+        $nameFull = $inmueble->tipoInmueble()->nombreSingular() . " " . __('en', 'homlity-real-estate') . " " . $inmueble->barrio()->nombre() . " " . __('en', 'homlity-real-estate');
 
         $nameFull .= $inmueble->gestion()->nombre();
         ?>

@@ -13,7 +13,7 @@
                                         'origin': 'search',
                                         'label': 'Mostrar Listado inmuebles'                                        
                                     });">
-                                <i class="icon-homlity icon-uniE911"></i> <?php echo esc_html__( "Inmuebles en Listado", "homlity-plugin" ); ?>
+                                <i class="icon-homlity icon-uniE911"></i> <?php echo esc_html__( "Inmuebles en Listado", "homlity-real-estate" ); ?>
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -23,7 +23,7 @@
                                         'origin': 'search',
                                         'label': 'Mostrar Mapas inmuebles'                                        
                                     });">
-                                <i class="icon-homlity icon-uniE9C1"></i> <?php echo esc_html__( "Inmuebles en Mapa", "homlity-plugin" ); ?>
+                                <i class="icon-homlity icon-uniE9C1"></i> <?php echo esc_html__( "Inmuebles en Mapa", "homlity-real-estate" ); ?>
                             </a>
                         </li>
                     </ul>

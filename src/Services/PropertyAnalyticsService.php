@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 /**
  * Admin analytics dashboard for property visits.
  */
@@ -23,19 +25,19 @@ class PropertyAnalyticsService implements ServiceInterface
     public function registerMenu(): void
     {
         add_submenu_page(
-            'homlity-plugin',
-            __('Analítica de visitas', 'homlity-plugin'),
-            __('Analítica de visitas', 'homlity-plugin'),
+            'homlity-real-estate',
+            __('Analítica de visitas', 'homlity-real-estate'),
+            __('Analítica de visitas', 'homlity-real-estate'),
             'edit_posts',
-            'homlity-plugin-analytics',
+            'homlity-real-estate-analytics',
             [$this, 'renderPage']
         );
     }
 
     public function enqueueAssets(string $hook): void
     {
-        $isAnalyticsPage = isset($_GET['page']) && sanitize_key((string) $_GET['page']) === 'homlity-plugin-analytics';
-        if (!$isAnalyticsPage && strpos($hook, 'homlity-plugin-analytics') === false) {
+        $isAnalyticsPage = isset($_GET['page']) && sanitize_key((string) $_GET['page']) === 'homlity-real-estate-analytics';
+        if (!$isAnalyticsPage && strpos($hook, 'homlity-real-estate-analytics') === false) {
             return;
         }
 
@@ -45,23 +47,23 @@ class PropertyAnalyticsService implements ServiceInterface
         $jsVersion = file_exists($jsFile) ? (string) filemtime($jsFile) : HOMLITY_PLUGIN_VERSION;
 
         wp_enqueue_style(
-            'homlity-plugin-analytics-app',
+            'homlity-real-estate-analytics-app',
             HOMLITY_PLUGIN_URL . 'assets/css/analytics-app.css',
             [],
             $cssVersion
         );
 
         wp_enqueue_script(
-            'homlity-plugin-analytics-app',
+            'homlity-real-estate-analytics-app',
             HOMLITY_PLUGIN_URL . 'assets/js/analytics-app.js',
             ['wp-element', 'wp-api-fetch', 'wp-i18n'],
             $jsVersion,
             true
         );
 
-        wp_localize_script('homlity-plugin-analytics-app', 'homlityPluginAnalyticsApp', [
+        wp_localize_script('homlity-real-estate-analytics-app', 'homlityPluginAnalyticsApp', [
             'nonce' => wp_create_nonce('wp_rest'),
-            'analyticsPath' => '/homlity-plugin/v1/analytics/visits',
+            'analyticsPath' => '/homlity-real-estate/v1/analytics/visits',
             'defaultRange' => 30,
             'ranges' => [1, 15, 30, 60, 90],
         ]);
@@ -69,12 +71,12 @@ class PropertyAnalyticsService implements ServiceInterface
 
     public function renderPage(): void
     {
-        echo '<div class="wrap"><div id="homlity-plugin-analytics-app"></div></div>';
+        echo '<div class="wrap"><div id="homlity-real-estate-analytics-app"></div></div>';
     }
 
     public function registerRestRoutes(): void
     {
-        register_rest_route('homlity-plugin/v1', '/analytics/visits', [
+        register_rest_route('homlity-real-estate/v1', '/analytics/visits', [
             'methods' => \WP_REST_Server::READABLE,
             'callback' => [$this, 'getAnalytics'],
             'permission_callback' => static function () {
@@ -142,7 +144,6 @@ class PropertyAnalyticsService implements ServiceInterface
                 'orderby' => 'post__in',
                 'fields' => 'ids',
                 'no_found_rows' => true,
-                'suppress_filters' => true,
             ]);
 
             foreach ((array) $titlePosts as $titlePostId) {

@@ -1,5 +1,5 @@
 <?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
-<div class="container homlity-plugin-detalle-inmueble homlity-plugin_detalle_inmueble">
+<div class="container homlity-real-estate-detalle-inmueble homlity-real-estate_detalle_inmueble">
     <div class="row">
         <div class="col-md-12 breadcrumbSection">
             <!-- BREADCRUMB -->
@@ -10,7 +10,7 @@
     <div class="row">
         <?php
         /**
-         * @var \Codwelt\homlity-plugin\Core\Modelos\Inmueble $inmueble
+         * @var \Codwelt\homlity-real-estate\Core\Modelos\Inmueble $inmueble
          */
         if (isset($inmueble)): ?>
             <div class="col-xl-9 col-lg-9 col-md-8">
@@ -52,11 +52,11 @@
     'label': 'Escuchar inmueble',
     'value': '<?php echo esc_attr($inmueble->nombre()); ?>' // Este valor puede ser un número
   });">
-                            <homlity-plugin-narracion></homlity-plugin-narracion>
+                            <homlity-real-estate-narracion></homlity-real-estate-narracion>
                         </div>
 
                         <script type="text/javascript">
-                            window.homlity-plugin_INMUEBLE = <?php echo wp_kses_post( $inmuebleJson ); ?>;
+                            window.homlity-real-estate_INMUEBLE = <?php echo wp_kses_post( $inmuebleJson ); ?>;
                         </script>
                         <!-- REDES SOCIALES -->
                         <?php visualinmu_load_template("inmuebles/componentes/detalleInmueble/redesSociales.php", ["inmueble" => $inmueble, "nombre" => $inmueble->nombre(), "codigo" => $inmueble->codigo(), "descripcion" => $inmueble->descripcion(), "route" => visualinmu_route_detalleInmueble($inmueble->slug())]); ?>
@@ -68,7 +68,7 @@
                     </div>
                     <div class="col-md-12 mt-3 mb-3">
                         <div class="row">
-                            <h2 class="h2"><?php echo esc_html__( 'Características del inmueble', 'homlity-plugin' ); ?></h2>
+                            <h2 class="h2"><?php echo esc_html__( 'Características del inmueble', 'homlity-real-estate' ); ?></h2>
                             <div class="col-md-12 sectionCarcateristicasPrincipales">
                                 <!-- CARACTERÍSTICAS PRINCIPALES-->
                                 <?php visualinmu_load_template("inmuebles/componentes/detalleInmueble/caracteristicasPrincipales.php", ["nombre" => $inmueble->nombre(), "caracteristicas" => ["areaLote" => $inmueble->areaLote(), "areaConstruida" => $inmueble->areaConstruida(), "banos" => $inmueble->nBaños(), "alcobas" => $inmueble->nAlcobas(), "garajes" => $inmueble->nGarajes(), "estrato" => $inmueble->estrato(), "edad" => $inmueble->edad()]]); ?>
@@ -116,7 +116,7 @@
                     <!-- PROPIEDADES SIMILARES -->
                     <div class="row">
                         <div class="col-md-12">
-                            <h2 class="homlity-plugin-titulos-propiedades-similares h2">Inmuebles <span
+                            <h2 class="homlity-real-estate-titulos-propiedades-similares h2">Inmuebles <span
                                     style="text-transform: lowercase;">similares al <?php echo esc_html( $inmueble->nombre() ); ?></span>
                             </h2>
                         </div>

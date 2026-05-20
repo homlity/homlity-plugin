@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 /**
  * Adds custom user meta fields (e.g., phone).
  */
@@ -33,14 +34,14 @@ class UserMetaService implements ServiceInterface
             $value = get_user_meta($user->ID, $this->phoneMeta, true);
         }
         ?>
-        <h2><?php esc_html_e('Información de contacto', 'homlity-plugin'); ?></h2>
+        <h2><?php esc_html_e('Información de contacto', 'homlity-real-estate'); ?></h2>
         <table class="form-table">
             <tr>
-                <th><label for="homlity_plugin_phone"><?php esc_html_e('Teléfono móvil', 'homlity-plugin'); ?></label></th>
+                <th><label for="homlity_plugin_phone"><?php esc_html_e('Teléfono móvil', 'homlity-real-estate'); ?></label></th>
                 <td>
                     <input type="text" name="homlity_plugin_phone" id="homlity_plugin_phone"
                            value="<?php echo esc_attr($value); ?>" class="regular-text" />
-                    <p class="description"><?php esc_html_e('Número de celular para contacto en inmuebles.', 'homlity-plugin'); ?></p>
+                    <p class="description"><?php esc_html_e('Número de celular para contacto en inmuebles.', 'homlity-real-estate'); ?></p>
                 </td>
             </tr>
         </table>

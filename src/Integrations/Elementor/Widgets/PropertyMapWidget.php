@@ -22,7 +22,7 @@ class PropertyMapWidget extends BasePropertyWidget
 
     public function get_title(): string
     {
-        return __('Mapa y Street View', 'homlity-plugin');
+        return __('Mapa y Street View', 'homlity-real-estate');
     }
 
     public function get_icon(): string
@@ -32,10 +32,10 @@ class PropertyMapWidget extends BasePropertyWidget
 
     protected function register_controls(): void
     {
-        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-plugin')]);
+        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-real-estate')]);
         $this->register_property_control();
         $this->add_control('map_tab_icon_map', [
-            'label' => __('Icono tab Mapa', 'homlity-plugin'),
+            'label' => __('Icono tab Mapa', 'homlity-real-estate'),
             'type' => Controls_Manager::ICONS,
             'default' => [
                 'value' => 'fas fa-map-marked-alt',
@@ -43,7 +43,7 @@ class PropertyMapWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_control('map_tab_icon_street', [
-            'label' => __('Icono tab Street View', 'homlity-plugin'),
+            'label' => __('Icono tab Street View', 'homlity-real-estate'),
             'type' => Controls_Manager::ICONS,
             'default' => [
                 'value' => 'fas fa-street-view',
@@ -53,7 +53,7 @@ class PropertyMapWidget extends BasePropertyWidget
         $this->end_controls_section();
 
         $this->start_controls_section('style_map', [
-            'label' => __('Estilos', 'homlity-plugin'),
+            'label' => __('Estilos', 'homlity-real-estate'),
             'tab' => Controls_Manager::TAB_STYLE,
         ]);
         $this->add_group_control(Group_Control_Typography::get_type(), [
@@ -61,12 +61,12 @@ class PropertyMapWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-map h2',
         ]);
         $this->add_control('map_title_color', [
-            'label' => __('Color título', 'homlity-plugin'),
+            'label' => __('Color título', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map h2' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('map_bg', [
-            'label' => __('Color fondo', 'homlity-plugin'),
+            'label' => __('Color fondo', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map' => 'background-color: {{VALUE}};'],
         ]);
@@ -75,13 +75,13 @@ class PropertyMapWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-map',
         ]);
         $this->add_responsive_control('map_padding', [
-            'label' => __('Padding', 'homlity-plugin'),
+            'label' => __('Padding', 'homlity-real-estate'),
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%', 'em'],
             'selectors' => ['{{WRAPPER}} .property-map' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
         ]);
         $this->add_responsive_control('map_margin', [
-            'label' => __('Margen', 'homlity-plugin'),
+            'label' => __('Margen', 'homlity-real-estate'),
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%', 'em'],
             'selectors' => ['{{WRAPPER}} .property-map' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
@@ -95,7 +95,7 @@ class PropertyMapWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-map__frame',
         ]);
         $this->add_responsive_control('map_panel_height', [
-            'label' => __('Altura panel Mapa', 'homlity-plugin'),
+            'label' => __('Altura panel Mapa', 'homlity-real-estate'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => ['px', 'vh'],
             'range' => [
@@ -108,7 +108,7 @@ class PropertyMapWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_responsive_control('street_panel_height', [
-            'label' => __('Altura panel Street View', 'homlity-plugin'),
+            'label' => __('Altura panel Street View', 'homlity-real-estate'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => ['px', 'vh'],
             'range' => [
@@ -124,38 +124,38 @@ class PropertyMapWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-map__actions a',
         ]);
         $this->add_control('map_actions_color', [
-            'label' => __('Color enlaces acciones', 'homlity-plugin'),
+            'label' => __('Color enlaces acciones', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map__actions a' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('map_actions_bg', [
-            'label' => __('Fondo acciones', 'homlity-plugin'),
+            'label' => __('Fondo acciones', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map__actions a' => 'background-color: {{VALUE}};'],
         ]);
 
         $this->add_control('map_actions_hover_color', [
-            'label' => __('Color enlaces acciones (hover)', 'homlity-plugin'),
+            'label' => __('Color enlaces acciones (hover)', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map__actions a:hover' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('map_actions_hover_bg', [
-            'label' => __('Fondo acciones (hover)', 'homlity-plugin'),
+            'label' => __('Fondo acciones (hover)', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map__actions a:hover' => 'background-color: {{VALUE}};'],
         ]);
         $this->end_controls_section();
 
         $this->start_controls_section('style_tabs', [
-            'label' => __('Estilos tabs mapa', 'homlity-plugin'),
+            'label' => __('Estilos tabs mapa', 'homlity-real-estate'),
             'tab' => Controls_Manager::TAB_STYLE,
         ]);
         $this->add_control('map_tabs_wrap_heading', [
-            'label' => __('Contenedor tabs', 'homlity-plugin'),
+            'label' => __('Contenedor tabs', 'homlity-real-estate'),
             'type' => Controls_Manager::HEADING,
         ]);
         $this->add_control('map_tabs_wrap_bg_color', [
-            'label' => __('Fondo contenedor', 'homlity-plugin'),
+            'label' => __('Fondo contenedor', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map__tabs' => 'background-color: {{VALUE}};'],
         ]);
@@ -164,7 +164,7 @@ class PropertyMapWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-map__tabs',
         ]);
         $this->add_responsive_control('map_tabs_wrap_radius', [
-            'label' => __('Radio contenedor', 'homlity-plugin'),
+            'label' => __('Radio contenedor', 'homlity-real-estate'),
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%'],
             'selectors' => [
@@ -172,7 +172,7 @@ class PropertyMapWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_responsive_control('map_tabs_wrap_padding', [
-            'label' => __('Padding contenedor', 'homlity-plugin'),
+            'label' => __('Padding contenedor', 'homlity-real-estate'),
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%', 'em'],
             'selectors' => [
@@ -184,19 +184,19 @@ class PropertyMapWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-map__tabs',
         ]);
         $this->add_responsive_control('map_tabs_justify', [
-            'label' => __('Alineación tabs', 'homlity-plugin'),
+            'label' => __('Alineación tabs', 'homlity-real-estate'),
             'type' => Controls_Manager::CHOOSE,
             'options' => [
-                'flex-start' => ['title' => __('Izquierda', 'homlity-plugin'), 'icon' => 'eicon-h-align-left'],
-                'center' => ['title' => __('Centro', 'homlity-plugin'), 'icon' => 'eicon-h-align-center'],
-                'flex-end' => ['title' => __('Derecha', 'homlity-plugin'), 'icon' => 'eicon-h-align-right'],
+                'flex-start' => ['title' => __('Izquierda', 'homlity-real-estate'), 'icon' => 'eicon-h-align-left'],
+                'center' => ['title' => __('Centro', 'homlity-real-estate'), 'icon' => 'eicon-h-align-center'],
+                'flex-end' => ['title' => __('Derecha', 'homlity-real-estate'), 'icon' => 'eicon-h-align-right'],
             ],
             'selectors' => [
                 '{{WRAPPER}} .property-map__tabs' => 'justify-content: {{VALUE}};',
             ],
         ]);
         $this->add_responsive_control('map_tab_flex_grow', [
-            'label' => __('Tabs ancho completo', 'homlity-plugin'),
+            'label' => __('Tabs ancho completo', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,
             'return_value' => 'yes',
             'selectors' => [
@@ -208,7 +208,7 @@ class PropertyMapWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_control('map_tabs_item_heading', [
-            'label' => __('Items tab', 'homlity-plugin'),
+            'label' => __('Items tab', 'homlity-real-estate'),
             'type' => Controls_Manager::HEADING,
             'separator' => 'before',
         ]);
@@ -217,22 +217,22 @@ class PropertyMapWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-map__tab',
         ]);
         $this->add_control('map_tabs_text_color', [
-            'label' => __('Color texto', 'homlity-plugin'),
+            'label' => __('Color texto', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map__tab' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('map_tabs_bg_color', [
-            'label' => __('Fondo', 'homlity-plugin'),
+            'label' => __('Fondo', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map__tab' => 'background-color: {{VALUE}};'],
         ]);
         $this->add_control('map_tab_icon_heading', [
-            'label' => __('Icono', 'homlity-plugin'),
+            'label' => __('Icono', 'homlity-real-estate'),
             'type' => Controls_Manager::HEADING,
             'separator' => 'before',
         ]);
         $this->add_control('map_tab_icon_color', [
-            'label' => __('Color icono', 'homlity-plugin'),
+            'label' => __('Color icono', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
                 '{{WRAPPER}} .property-map__tab .property-map__tab-icon i'    => 'color: {{VALUE}};',
@@ -240,7 +240,7 @@ class PropertyMapWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_responsive_control('map_tab_icon_size', [
-            'label' => __('Tamaño icono', 'homlity-plugin'),
+            'label' => __('Tamaño icono', 'homlity-real-estate'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => ['px', 'em'],
             'range' => ['px' => ['min' => 8, 'max' => 60]],
@@ -250,7 +250,7 @@ class PropertyMapWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_responsive_control('map_tab_icon_padding', [
-            'label' => __('Padding icono', 'homlity-plugin'),
+            'label' => __('Padding icono', 'homlity-real-estate'),
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', 'em'],
             'selectors' => [
@@ -258,14 +258,14 @@ class PropertyMapWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_control('map_tab_icon_bg', [
-            'label' => __('Fondo icono', 'homlity-plugin'),
+            'label' => __('Fondo icono', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
                 '{{WRAPPER}} .property-map__tab .property-map__tab-icon' => 'background-color: {{VALUE}};',
             ],
         ]);
         $this->add_responsive_control('map_tab_icon_radius', [
-            'label' => __('Radio icono', 'homlity-plugin'),
+            'label' => __('Radio icono', 'homlity-real-estate'),
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%'],
             'selectors' => [
@@ -277,7 +277,7 @@ class PropertyMapWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-map__tab',
         ]);
         $this->add_responsive_control('map_tabs_radius', [
-            'label' => __('Radio', 'homlity-plugin'),
+            'label' => __('Radio', 'homlity-real-estate'),
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%'],
             'selectors' => [
@@ -285,7 +285,7 @@ class PropertyMapWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_responsive_control('map_tabs_padding', [
-            'label' => __('Padding', 'homlity-plugin'),
+            'label' => __('Padding', 'homlity-real-estate'),
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%', 'em'],
             'selectors' => [
@@ -293,7 +293,7 @@ class PropertyMapWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_responsive_control('map_tabs_gap', [
-            'label' => __('Separación entre tabs', 'homlity-plugin'),
+            'label' => __('Separación entre tabs', 'homlity-real-estate'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => ['px'],
             'range' => ['px' => ['min' => 0, 'max' => 40]],
@@ -305,22 +305,22 @@ class PropertyMapWidget extends BasePropertyWidget
         ]);
 
         $this->add_control('map_tabs_hover_heading', [
-            'label' => __('Hover', 'homlity-plugin'),
+            'label' => __('Hover', 'homlity-real-estate'),
             'type' => Controls_Manager::HEADING,
             'separator' => 'before',
         ]);
         $this->add_control('map_tabs_hover_text_color', [
-            'label' => __('Color texto (hover)', 'homlity-plugin'),
+            'label' => __('Color texto (hover)', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map__tab:hover, {{WRAPPER}} .property-map__tab:focus-visible' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('map_tabs_hover_bg_color', [
-            'label' => __('Fondo (hover)', 'homlity-plugin'),
+            'label' => __('Fondo (hover)', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map__tab:hover, {{WRAPPER}} .property-map__tab:focus-visible' => 'background-color: {{VALUE}};'],
         ]);
         $this->add_control('map_tab_icon_color_hover', [
-            'label' => __('Color icono (hover)', 'homlity-plugin'),
+            'label' => __('Color icono (hover)', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
                 '{{WRAPPER}} .property-map__tab:hover .property-map__tab-icon i, {{WRAPPER}} .property-map__tab:focus-visible .property-map__tab-icon i'   => 'color: {{VALUE}};',
@@ -328,28 +328,28 @@ class PropertyMapWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_control('map_tabs_hover_border_color', [
-            'label' => __('Color borde (hover)', 'homlity-plugin'),
+            'label' => __('Color borde (hover)', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map__tab:hover, {{WRAPPER}} .property-map__tab:focus-visible' => 'border-color: {{VALUE}};'],
         ]);
 
         $this->add_control('map_tabs_active_heading', [
-            'label' => __('Activo', 'homlity-plugin'),
+            'label' => __('Activo', 'homlity-real-estate'),
             'type' => Controls_Manager::HEADING,
             'separator' => 'before',
         ]);
         $this->add_control('map_tabs_active_text_color', [
-            'label' => __('Color texto (activo)', 'homlity-plugin'),
+            'label' => __('Color texto (activo)', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map__tab.is-active' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('map_tabs_active_bg_color', [
-            'label' => __('Fondo (activo)', 'homlity-plugin'),
+            'label' => __('Fondo (activo)', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map__tab.is-active' => 'background-color: {{VALUE}};'],
         ]);
         $this->add_control('map_tab_icon_color_active', [
-            'label' => __('Color icono (activo)', 'homlity-plugin'),
+            'label' => __('Color icono (activo)', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
                 '{{WRAPPER}} .property-map__tab.is-active .property-map__tab-icon i'   => 'color: {{VALUE}};',
@@ -357,18 +357,18 @@ class PropertyMapWidget extends BasePropertyWidget
             ],
         ]);
         $this->add_control('map_tabs_active_border_color', [
-            'label' => __('Color borde (activo)', 'homlity-plugin'),
+            'label' => __('Color borde (activo)', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map__tab.is-active' => 'border-color: {{VALUE}};'],
         ]);
 
         $this->add_control('map_tabs_position_heading', [
-            'label' => __('Posición tabs', 'homlity-plugin'),
+            'label' => __('Posición tabs', 'homlity-real-estate'),
             'type' => Controls_Manager::HEADING,
             'separator' => 'before',
         ]);
         $this->add_responsive_control('map_tabs_offset_top', [
-            'label' => __('Distancia superior', 'homlity-plugin'),
+            'label' => __('Distancia superior', 'homlity-real-estate'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => ['px', '%'],
             'range' => [
@@ -378,7 +378,7 @@ class PropertyMapWidget extends BasePropertyWidget
             'selectors' => ['{{WRAPPER}} .property-map__tabs' => 'top: {{SIZE}}{{UNIT}};'],
         ]);
         $this->add_responsive_control('map_tabs_offset_left', [
-            'label' => __('Distancia izquierda', 'homlity-plugin'),
+            'label' => __('Distancia izquierda', 'homlity-real-estate'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => ['px', '%'],
             'range' => [
@@ -395,6 +395,14 @@ class PropertyMapWidget extends BasePropertyWidget
         if (class_exists('\Elementor\Icons_Manager')) {
             Icons_Manager::enqueue_shim();
         }
+
+        wp_enqueue_script(
+            'homlity-real-estate-map-tabs',
+            HOMLITY_PLUGIN_URL . 'assets/js/property-map-tabs.js',
+            [],
+            HOMLITY_PLUGIN_VERSION,
+            true
+        );
 
         $settings = $this->get_settings_for_display();
         TemplateService::includeComponent('property-map.php', [

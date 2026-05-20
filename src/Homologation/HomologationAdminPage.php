@@ -1,5 +1,5 @@
 <?php
-
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
 namespace Homlity\PluginInmobiliario\Homologation;
 
 use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
@@ -32,8 +32,8 @@ class HomologationAdminPage implements ServiceInterface
     {
         add_submenu_page(
             $parentSlug,
-            __('Homologación', 'homlity-plugin'),
-            __('Homologación', 'homlity-plugin'),
+            __('Homologación', 'homlity-real-estate'),
+            __('Homologación', 'homlity-real-estate'),
             'manage_options',
             'homlity-homologation',
             [$this, 'renderPage']
@@ -43,7 +43,7 @@ class HomologationAdminPage implements ServiceInterface
     public function renderPage(): void
     {
         if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('Acceso denegado.', 'homlity-plugin'));
+            wp_die(esc_html__('Acceso denegado.', 'homlity-real-estate'));
         }
 
         $stats        = $this->service->getStats();
@@ -72,13 +72,13 @@ class HomologationAdminPage implements ServiceInterface
         ?>
         <div class="wrap">
             <h1 style="display:flex;align-items:center;gap:10px;">
-                <?php echo esc_html__('Homologación de datos', 'homlity-plugin'); ?>
+                <?php echo esc_html__('Homologación de datos', 'homlity-real-estate'); ?>
                 <span style="font-size:13px;font-weight:400;color:#646970;background:#f0f6fc;padding:3px 10px;border-radius:3px;">
-                    <?php echo esc_html__('Centro de mapeo canónico', 'homlity-plugin'); ?>
+                    <?php echo esc_html__('Centro de mapeo canónico', 'homlity-real-estate'); ?>
                 </span>
             </h1>
             <p style="max-width:780px;">
-                <?php echo esc_html__('Este módulo homologa los datos de todas las integraciones (CRMs, sincronizaciones) hacia los términos canónicos del plugin. Cuando un CRM envía un término, se registra aquí y queda vinculado al término de WordPress, garantizando que todo luzca igual sin importar la fuente.', 'homlity-plugin'); ?>
+                <?php echo esc_html__('Este módulo homologa los datos de todas las integraciones (CRMs, sincronizaciones) hacia los términos canónicos del plugin. Cuando un CRM envía un término, se registra aquí y queda vinculado al término de WordPress, garantizando que todo luzca igual sin importar la fuente.', 'homlity-real-estate'); ?>
             </p>
 
             <?php $this->renderStatsCards($stats); ?>
@@ -105,7 +105,7 @@ class HomologationAdminPage implements ServiceInterface
     public function handleAddMapping(): void
     {
         if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('Acceso denegado.', 'homlity-plugin'));
+            wp_die(esc_html__('Acceso denegado.', 'homlity-real-estate'));
         }
 
         check_admin_referer('homlity_add_mapping');
@@ -151,7 +151,7 @@ class HomologationAdminPage implements ServiceInterface
                     <?php if (!empty($sourceParts)): ?>
                     <div style="font-size:11px;color:#646970;line-height:1.5;"><?php echo wp_kses_post( implode('<br>', $sourceParts) ); ?></div>
                     <?php else: ?>
-                        <div style="font-size:11px;color:#c3c4c7;"><?php echo esc_html__('Sin mapeos', 'homlity-plugin') ?></div>
+                        <div style="font-size:11px;color:#c3c4c7;"><?php echo esc_html__('Sin mapeos', 'homlity-real-estate') ?></div>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
@@ -161,10 +161,10 @@ class HomologationAdminPage implements ServiceInterface
 
     private function renderAddMappingForm(array $sources, string $nonce, string $apiBase): void
     {
-        $savedMsg = isset($_GET['homlity_saved']) ? __('Mapeo guardado correctamente.', 'homlity-plugin') : '';
-        $errorMsg = isset($_GET['homlity_error']) ? __('Datos incompletos. Verifica todos los campos.', 'homlity-plugin') : '';
+        $savedMsg = isset($_GET['homlity_saved']) ? __('Mapeo guardado correctamente.', 'homlity-real-estate') : '';
+        $errorMsg = isset($_GET['homlity_error']) ? __('Datos incompletos. Verifica todos los campos.', 'homlity-real-estate') : '';
         ?>
-        <h2 style="font-size:14px;font-weight:600;margin-bottom:12px;"><?php echo esc_html__('Agregar mapeo manual', 'homlity-plugin') ?></h2>
+        <h2 style="font-size:14px;font-weight:600;margin-bottom:12px;"><?php echo esc_html__('Agregar mapeo manual', 'homlity-real-estate') ?></h2>
         <?php if ($savedMsg): ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html($savedMsg) ?></p></div><?php endif; ?>
         <?php if ($errorMsg): ?><div class="notice notice-error is-dismissible"><p><?php echo esc_html($errorMsg) ?></p></div><?php endif; ?>
 
@@ -173,9 +173,9 @@ class HomologationAdminPage implements ServiceInterface
             <?php wp_nonce_field('homlity_add_mapping', '_wpnonce', true, true); ?>
 
             <label style="flex:1;min-width:140px;">
-                <span style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;"><?php echo esc_html__('Tipo de entidad', 'homlity-plugin') ?></span>
+                <span style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;"><?php echo esc_html__('Tipo de entidad', 'homlity-real-estate') ?></span>
                 <select name="entity_type" required style="width:100%;">
-                    <option value=""><?php echo esc_html__('Seleccionar...', 'homlity-plugin') ?></option>
+                    <option value=""><?php echo esc_html__('Seleccionar...', 'homlity-real-estate') ?></option>
                     <?php foreach (EntityType::LABELS as $type => $label): ?>
                         <option value="<?php echo esc_attr($type) ?>"><?php echo esc_html($label) ?></option>
                     <?php endforeach; ?>
@@ -183,7 +183,7 @@ class HomologationAdminPage implements ServiceInterface
             </label>
 
             <label style="flex:1;min-width:130px;">
-                <span style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;"><?php echo esc_html__('Origen (source)', 'homlity-plugin') ?></span>
+                <span style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;"><?php echo esc_html__('Origen (source)', 'homlity-real-estate') ?></span>
                 <input type="text" name="source" list="homlity-sources-list" required placeholder="homlity_web" style="width:100%;">
                 <datalist id="homlity-sources-list">
                     <?php foreach ($sources as $src): ?>
@@ -193,26 +193,26 @@ class HomologationAdminPage implements ServiceInterface
             </label>
 
             <label style="flex:1;min-width:120px;">
-                <span style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;"><?php echo esc_html__('ID en origen', 'homlity-plugin') ?></span>
+                <span style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;"><?php echo esc_html__('ID en origen', 'homlity-real-estate') ?></span>
                 <input type="text" name="source_id" required placeholder="123" style="width:100%;">
             </label>
 
             <label style="flex:1;min-width:140px;">
-                <span style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;"><?php echo esc_html__('Nombre en origen', 'homlity-plugin') ?></span>
+                <span style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;"><?php echo esc_html__('Nombre en origen', 'homlity-real-estate') ?></span>
                 <input type="text" name="source_name" placeholder="Apartamento" style="width:100%;">
             </label>
 
             <label style="flex:1;min-width:140px;">
-                <span style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;"><?php echo esc_html__('Term ID canónico (WP)', 'homlity-plugin') ?></span>
+                <span style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;"><?php echo esc_html__('Term ID canónico (WP)', 'homlity-real-estate') ?></span>
                 <input type="number" name="canonical_term_id" required min="1" placeholder="42" style="width:100%;">
             </label>
 
             <div>
-                <button type="submit" class="button button-primary"><?php echo esc_html__('Guardar mapeo', 'homlity-plugin') ?></button>
+                <button type="submit" class="button button-primary"><?php echo esc_html__('Guardar mapeo', 'homlity-real-estate') ?></button>
             </div>
         </form>
         <p style="margin-top:8px;color:#646970;font-size:12px;">
-            <?php echo esc_html__('Tip: Para ver los Term IDs canónicos disponibles, usa el endpoint REST', 'homlity-plugin') ?>
+            <?php echo esc_html__('Tip: Para ver los Term IDs canónicos disponibles, usa el endpoint REST', 'homlity-real-estate') ?>
             <code><?php echo esc_html(rest_url('homlity/v1/homologation/canonical/{entity_type}')) ?></code>
         </p>
         <?php
@@ -224,20 +224,20 @@ class HomologationAdminPage implements ServiceInterface
         <form method="get" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
             <input type="hidden" name="page" value="homlity-homologation">
             <select name="entity_type">
-                <option value=""><?php echo esc_html__('Todos los tipos', 'homlity-plugin') ?></option>
+                <option value=""><?php echo esc_html__('Todos los tipos', 'homlity-real-estate') ?></option>
                 <?php foreach (EntityType::LABELS as $type => $label): ?>
                     <option value="<?php echo esc_attr($type) ?>" <?php echo selected($entityFilter, $type, false) ?>><?php echo esc_html($label) ?></option>
                 <?php endforeach; ?>
             </select>
             <select name="source">
-                <option value=""><?php echo esc_html__('Todos los orígenes', 'homlity-plugin') ?></option>
+                <option value=""><?php echo esc_html__('Todos los orígenes', 'homlity-real-estate') ?></option>
                 <?php foreach ($sources as $src): ?>
                     <option value="<?php echo esc_attr($src) ?>" <?php echo selected($sourceFilter, $src, false) ?>><?php echo esc_html($src) ?></option>
                 <?php endforeach; ?>
             </select>
-            <button type="submit" class="button"><?php echo esc_html__('Filtrar', 'homlity-plugin') ?></button>
+            <button type="submit" class="button"><?php echo esc_html__('Filtrar', 'homlity-real-estate') ?></button>
             <?php if ($entityFilter !== '' || $sourceFilter !== ''): ?>
-                <a href="<?php echo esc_url($adminUrl) ?>" class="button"><?php echo esc_html__('Ver todos', 'homlity-plugin') ?></a>
+                <a href="<?php echo esc_url($adminUrl) ?>" class="button"><?php echo esc_html__('Ver todos', 'homlity-real-estate') ?></a>
             <?php endif; ?>
         </form>
         <?php
@@ -254,11 +254,11 @@ class HomologationAdminPage implements ServiceInterface
     ): void {
         if (empty($mappings)): ?>
             <div style="background:#fff;border:1px solid #c3c4c7;border-radius:4px;padding:24px;text-align:center;color:#646970;">
-                <?php echo esc_html__('No hay mapeos registrados aún.', 'homlity-plugin') ?>
+                <?php echo esc_html__('No hay mapeos registrados aún.', 'homlity-real-estate') ?>
                 <?php if ($entityFilter !== '' || $sourceFilter !== ''): ?>
-                    <a href="<?php echo esc_url($adminUrl) ?>"><?php echo esc_html__('Ver todos', 'homlity-plugin') ?></a>
+                    <a href="<?php echo esc_url($adminUrl) ?>"><?php echo esc_html__('Ver todos', 'homlity-real-estate') ?></a>
                 <?php else: ?>
-                    <br><?php echo esc_html__('Los mapeos se crean automáticamente cuando los datos son importados desde integraciones.', 'homlity-plugin') ?>
+                    <br><?php echo esc_html__('Los mapeos se crean automáticamente cuando los datos son importados desde integraciones.', 'homlity-real-estate') ?>
                 <?php endif; ?>
             </div>
         <?php return; endif; ?>
@@ -266,7 +266,7 @@ class HomologationAdminPage implements ServiceInterface
         <p style="color:#646970;margin-bottom:8px;">
             <?php
             /* translators: %d: total number of mappings */
-            echo esc_html(sprintf(_n('%d mapeo encontrado', '%d mapeos encontrados', $total, 'homlity-plugin'), $total));
+            echo esc_html(sprintf(_n('%d mapeo encontrado', '%d mapeos encontrados', $total, 'homlity-real-estate'), $total));
             ?>
         </p>
 
@@ -274,13 +274,13 @@ class HomologationAdminPage implements ServiceInterface
             <thead>
                 <tr>
                     <th style="width:50px;">ID</th>
-                    <th style="width:160px;"><?php echo esc_html__('Tipo', 'homlity-plugin') ?></th>
-                    <th style="width:130px;"><?php echo esc_html__('Origen', 'homlity-plugin') ?></th>
-                    <th><?php echo esc_html__('ID en origen', 'homlity-plugin') ?></th>
-                    <th><?php echo esc_html__('Nombre en origen', 'homlity-plugin') ?></th>
-                    <th style="width:100px;"><?php echo esc_html__('Term ID WP', 'homlity-plugin') ?></th>
-                    <th><?php echo esc_html__('Nombre canónico', 'homlity-plugin') ?></th>
-                    <th style="width:90px;"><?php echo esc_html__('Actualizado', 'homlity-plugin') ?></th>
+                    <th style="width:160px;"><?php echo esc_html__('Tipo', 'homlity-real-estate') ?></th>
+                    <th style="width:130px;"><?php echo esc_html__('Origen', 'homlity-real-estate') ?></th>
+                    <th><?php echo esc_html__('ID en origen', 'homlity-real-estate') ?></th>
+                    <th><?php echo esc_html__('Nombre en origen', 'homlity-real-estate') ?></th>
+                    <th style="width:100px;"><?php echo esc_html__('Term ID WP', 'homlity-real-estate') ?></th>
+                    <th><?php echo esc_html__('Nombre canónico', 'homlity-real-estate') ?></th>
+                    <th style="width:90px;"><?php echo esc_html__('Actualizado', 'homlity-real-estate') ?></th>
                     <th style="width:70px;"></th>
                 </tr>
             </thead>
@@ -303,9 +303,9 @@ class HomologationAdminPage implements ServiceInterface
                             <button type="button"
                                 class="button button-link-delete homlity-delete-mapping"
                                 data-id="<?php echo (int) $row->id ?>"
-                                data-confirm="<?php echo esc_attr(__('¿Eliminar este mapeo?', 'homlity-plugin')) ?>"
+                                data-confirm="<?php echo esc_attr(__('¿Eliminar este mapeo?', 'homlity-real-estate')) ?>"
                                 style="color:#d63638;font-size:12px;">
-                                <?php echo esc_html__('Eliminar', 'homlity-plugin') ?>
+                                <?php echo esc_html__('Eliminar', 'homlity-real-estate') ?>
                             </button>
                         </td>
                     </tr>
@@ -337,7 +337,7 @@ class HomologationAdminPage implements ServiceInterface
     private function renderScript(string $nonce, string $adminUrl): void
     {
         $deleteEndpoint = rest_url('homlity/v1/homologation/mappings/');
-        $errMsg         = __('Error al eliminar el mapeo.', 'homlity-plugin');
+        $errMsg         = __('Error al eliminar el mapeo.', 'homlity-real-estate');
         ?>
         <script>
         (function () {

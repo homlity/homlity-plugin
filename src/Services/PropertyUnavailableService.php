@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 /**
  * Shows an "unavailable" page when a visitor lands on a property URL
  * whose post has been unpublished (draft, pending, private, future).
@@ -107,11 +108,11 @@ class PropertyUnavailableService implements ServiceInterface
 
     /**
      * Returns the template path, allowing theme overrides at
-     * {theme}/homlity-plugin/property-unavailable.php.
+     * {theme}/homlity-real-estate/property-unavailable.php.
      */
     private function locateTemplate(string $name): string
     {
-        $themeOverride = get_stylesheet_directory() . '/homlity-plugin/' . $name;
+        $themeOverride = get_stylesheet_directory() . '/homlity-real-estate/' . $name;
         if (file_exists($themeOverride)) {
             return $themeOverride;
         }

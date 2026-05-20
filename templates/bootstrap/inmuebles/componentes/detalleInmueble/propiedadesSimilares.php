@@ -1,11 +1,17 @@
-<?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+?>
 <div class="row">
     <div class="col-md-12">
-        <h3 class="homlity-plugin-titulos-propiedades-similares h4">Inmuebles similares</h3>
+        <h3 class="homlity-real-estate-titulos-propiedades-similares h4">Inmuebles similares</h3>
     </div>
     <?php
     /**
-     * @var \Codwelt\homlity-plugin\Core\Modelos\Inmueble $inmueble
+     * @var \Codwelt\homlity-real-estate\Core\Modelos\Inmueble $inmueble
      */
     foreach ($similares as $cont => $inmueble) : ?>
         <div class="col-sm-12 col-md-6">
