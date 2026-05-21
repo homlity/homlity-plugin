@@ -16,6 +16,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Unique constants — never guarded, always point to this plugin's own directory.
+define('HOMLITY_RE_PLUGIN_FILE', __FILE__);
+define('HOMLITY_RE_PLUGIN_PATH', plugin_dir_path(__FILE__));
+define('HOMLITY_RE_PLUGIN_URL',  plugin_dir_url(__FILE__));
+
 if (!defined('HOMLITY_PLUGIN_FILE'))             define('HOMLITY_PLUGIN_FILE', __FILE__);
 if (!defined('HOMLITY_PLUGIN_PATH'))             define('HOMLITY_PLUGIN_PATH', plugin_dir_path(__FILE__));
 if (!defined('HOMLITY_PLUGIN_URL'))              define('HOMLITY_PLUGIN_URL', plugin_dir_url(__FILE__));

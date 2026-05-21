@@ -24,8 +24,11 @@ class LocationMetaService implements ServiceInterface
     public function register(): void
     {
         add_action('rest_api_init', [$this, 'registerRoutes']);
+        add_action('init', [$this, 'registerTermFields'], 12);
+    }
 
-        // Add/select parent field when creating/editing terms.
+    public function registerTermFields(): void
+    {
         $this->hookTermFields(PropertyTaxonomies::TAXONOMY_STATE, PropertyTaxonomies::TAXONOMY_COUNTRY, __('País', 'homlity-real-estate'));
         $this->hookTermFields(PropertyTaxonomies::TAXONOMY_CITY, PropertyTaxonomies::TAXONOMY_STATE, __('Departamento / Provincia', 'homlity-real-estate'));
         $this->hookTermFields(PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD, PropertyTaxonomies::TAXONOMY_CITY, __('Ciudad / Municipio', 'homlity-real-estate'));

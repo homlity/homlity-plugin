@@ -28,6 +28,6 @@ class DiviIntegrationService implements ServiceInterface
             return;
         }
 
-        require_once HOMLITY_PLUGIN_PATH . 'src/Integrations/Divi/Modules/PropertyListingModule.php';
+        require_once __DIR__ . '/Modules/PropertyListingModule.php';
     }
 }

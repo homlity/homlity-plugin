@@ -25,7 +25,7 @@ class SeoGeoSettingsService implements ServiceInterface
         add_action('admin_post_homlity_seo_geo_save', [$this, 'handleSave']);
         add_action('admin_enqueue_scripts', [$this, 'enqueueAssets']);
 
-        require_once HOMLITY_PLUGIN_PATH . 'includes/seo-geo-helpers.php';
+        require_once dirname(__DIR__, 2) . '/includes/seo-geo-helpers.php';
     }
 
     public function registerMenu(string $parentSlug): void
@@ -46,7 +46,7 @@ class SeoGeoSettingsService implements ServiceInterface
             wp_die(esc_html__('No tienes permisos para acceder a esta página.', 'homlity-real-estate'));
         }
         $settings = self::getSettings();
-        require HOMLITY_PLUGIN_PATH . 'includes/admin/views/seo-geo-settings.php';
+        require dirname(__DIR__, 2) . '/includes/admin/views/seo-geo-settings.php';
     }
 
     public function handleSave(): void

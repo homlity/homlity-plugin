@@ -596,21 +596,21 @@ class TemplateService implements ServiceInterface
             $galleryDeps = ['jquery', 'homlity-real-estate-owl-carousel'];
         } else {
             wp_enqueue_style(
-                'homlity-real-estate-lightgallery',
-                HOMLITY_PLUGIN_URL . 'assets/vendor/lightgallery/lightgallery-bundle.min.css',
+                'homlity-real-estate-glightbox',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/glightbox/glightbox.min.css',
                 [],
-                '2.8.3'
+                '3.3.1'
             );
 
             wp_enqueue_script(
-                'homlity-real-estate-lightgallery',
-                HOMLITY_PLUGIN_URL . 'assets/vendor/lightgallery/lightgallery.min.js',
+                'homlity-real-estate-glightbox',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/glightbox/glightbox.min.js',
                 [],
-                '2.8.3',
+                '3.3.1',
                 true
             );
 
-            $galleryDeps = ['homlity-real-estate-lightgallery'];
+            $galleryDeps = ['homlity-real-estate-glightbox'];
         }
 
         wp_enqueue_script(

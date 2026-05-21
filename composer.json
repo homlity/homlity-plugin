@@ -7,7 +7,7 @@
   "require": {
     "php": ">=8.0",
     "guzzlehttp/guzzle": "^7.10",
-    "dompdf/dompdf": "^2.0"
+    "dompdf/dompdf": "^3.0"
   },
   "autoload": {
     "psr-4": {

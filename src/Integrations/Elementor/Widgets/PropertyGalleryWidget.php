@@ -344,22 +344,22 @@ class PropertyGalleryWidget extends BasePropertyWidget
 
         if ($layout === 'light_gallery') {
             wp_enqueue_style(
-                'homlity-real-estate-lightgallery',
-                HOMLITY_PLUGIN_URL . 'assets/vendor/lightgallery/lightgallery-bundle.min.css',
+                'homlity-real-estate-glightbox',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/glightbox/glightbox.min.css',
                 [],
-                '2.7.2'
+                '3.3.1'
             );
             wp_enqueue_script(
-                'homlity-real-estate-lightgallery',
-                HOMLITY_PLUGIN_URL . 'assets/vendor/lightgallery/lightgallery.min.js',
+                'homlity-real-estate-glightbox',
+                HOMLITY_PLUGIN_URL . 'assets/vendor/glightbox/glightbox.min.js',
                 [],
-                '2.7.2',
+                '3.3.1',
                 true
             );
             wp_enqueue_script(
                 'homlity-real-estate-front-gallery',
                 HOMLITY_PLUGIN_URL . 'assets/js/front-gallery.js',
-                ['homlity-real-estate-lightgallery'],
+                ['homlity-real-estate-glightbox'],
                 HOMLITY_PLUGIN_VERSION,
                 true
             );

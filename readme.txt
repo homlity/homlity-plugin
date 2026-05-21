@@ -96,6 +96,8 @@ Developed and maintained by **Ecosistema Inmobiliario Homlity**, a team speciali
 
 This plugin bundles the following open-source libraries:
 
+* **GLightbox** — MIT License. Lightbox gallery for property photos.
+  https://github.com/biati-digital/glightbox
 * **Guzzle HTTP** (guzzlehttp/guzzle) — MIT License. HTTP client used for CRM integrations.
   https://github.com/guzzle/guzzle
 * **Guzzle Promises** (guzzlehttp/promises) — MIT License. Async promise support for Guzzle.
@@ -104,10 +106,10 @@ This plugin bundles the following open-source libraries:
   https://github.com/guzzle/psr7
 * **Dompdf** (dompdf/dompdf) — LGPL-2.1 License. Generates PDF technical sheets for properties.
   https://github.com/dompdf/dompdf
-* **PHP Font Library** (phenx/php-font-lib) — LGPL-2.1-or-later License. Font handling for Dompdf.
-  https://github.com/PhenX/php-font-lib
-* **PHP SVG Library** (phenx/php-svg-lib) — LGPL-3.0-or-later License. SVG rendering for Dompdf.
-  https://github.com/PhenX/php-svg-lib
+* **PHP Font Library** (dompdf/php-font-lib) — LGPL-2.1-or-later License. Font handling for Dompdf.
+  https://github.com/dompdf/php-font-lib
+* **PHP SVG Library** (dompdf/php-svg-lib) — LGPL-3.0-or-later License. SVG rendering for Dompdf.
+  https://github.com/dompdf/php-svg-lib
 * **HTML5 PHP** (masterminds/html5) — MIT License. HTML5 parser used by Dompdf.
   https://github.com/Masterminds/html5-php
 * **PSR HTTP Client** (psr/http-client) — MIT License. HTTP client interface.
@@ -124,6 +126,30 @@ All MIT-licensed libraries are GPL-compatible. LGPL-licensed libraries (Dompdf, 
 == External Services ==
 
 This plugin may connect to the following external services:
+
+= WhatsApp (Meta Platforms, Inc.) =
+Used to generate contact links that open a WhatsApp conversation with a property agent, and to generate share links so visitors can send a property listing via WhatsApp.
+* **Data sent:** The agent's phone number and an optional pre-filled text message (property title and URL) are included in the link URL. No data is sent to WhatsApp servers unless the visitor clicks the link.
+* **When:** The link is generated on every property detail page that has an agent with a phone number configured. Data is only transmitted to WhatsApp when the visitor clicks the button.
+* **Service provider:** Meta Platforms, Inc.
+* **Privacy policy:** https://www.whatsapp.com/legal/privacy-policy
+* **Terms of service:** https://www.whatsapp.com/legal/terms-of-service
+
+= Google Maps (Google LLC) =
+Used to display an interactive map of the property location, a Street View preview, and a "Get directions" link on property detail pages.
+* **Data sent:** The property's geographic coordinates (latitude and longitude) stored by the site administrator. The visitor's IP address and browser information may be collected by Google when the map or Street View iframe loads.
+* **When:** Only on property detail pages where geographic coordinates have been saved. The map iframe is loaded automatically when the visitor opens the page.
+* **Service provider:** Google LLC.
+* **Privacy policy:** https://policies.google.com/privacy
+* **Terms of service:** https://developers.google.com/maps/terms-20180207
+
+= YouTube (Google LLC) =
+Used to embed property video tours directly on property detail pages.
+* **Data sent:** The YouTube video ID is included in the iframe URL. The visitor's IP address and browser information may be collected by YouTube/Google when the iframe loads.
+* **When:** Only on property detail pages that have a YouTube video URL saved. The iframe is loaded automatically when the visitor opens the page.
+* **Service provider:** Google LLC.
+* **Privacy policy:** https://policies.google.com/privacy
+* **Terms of service:** https://www.youtube.com/t/terms
 
 = OpenStreetMap Nominatim (Geocoding) =
 Used to convert property addresses into geographic coordinates (latitude/longitude).
