@@ -55,9 +55,13 @@
                             <homlity-real-estate-narracion></homlity-real-estate-narracion>
                         </div>
 
-                        <script type="text/javascript">
-                            window.homlity-real-estate_INMUEBLE = <?php echo wp_kses_post( $inmuebleJson ); ?>;
-                        </script>
+                        <?php
+                        wp_add_inline_script(
+                            'homlity-real-estate-contact-tracking',
+                            'window["homlity-real-estate_INMUEBLE"] = ' . wp_kses_post( $inmuebleJson ) . ';',
+                            'before'
+                        );
+                        ?>
                         <!-- REDES SOCIALES -->
                         <?php visualinmu_load_template("inmuebles/componentes/detalleInmueble/redesSociales.php", ["inmueble" => $inmueble, "nombre" => $inmueble->nombre(), "codigo" => $inmueble->codigo(), "descripcion" => $inmueble->descripcion(), "route" => visualinmu_route_detalleInmueble($inmueble->slug())]); ?>
 

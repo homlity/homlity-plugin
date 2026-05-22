@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Homlity Real Estate
  * Description: Homlity Real Estate, gestor de inmuebles, asesores, SEO y GEO listo para WordPress.
- * Version:     1.3.3
+ * Version:     1.3.4
  * Author:      Ecosistema Inmobiliario Homlity
  * Author URI:  https://homlity.com/
  * Plugin URI:  https://homlity.com/plugin-integracion-homlity-real-estate-para-wordpress/

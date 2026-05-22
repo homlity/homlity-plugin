@@ -69,8 +69,37 @@ class TemplateEditorService implements ServiceInterface
         wp_enqueue_style('wp-codemirror');
         wp_enqueue_script('wp-theme-plugin-editor');
 
-        // Pass runtime config to the inline JS rendered in renderPage().
-        // We store it on window so the inline <script> block can pick it up.
+        wp_add_inline_style(
+            'wp-codemirror',
+            '#homlity-template-editor-wrap .description { margin-bottom: 16px; }
+#homlity-tpl-layout { display: flex; gap: 16px; margin-top: 16px; }
+#homlity-tpl-sidebar { width: 240px; flex-shrink: 0; }
+#homlity-tpl-sidebar-inner { background: #fff; border: 1px solid #c3c4c7; border-radius: 4px; max-height: 680px; overflow-y: auto; }
+.homlity-tpl-group { border-bottom: 1px solid #f0f0f1; }
+.homlity-tpl-group:last-child { border-bottom: none; }
+.homlity-tpl-group-label { font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: #50575e; padding: 8px 12px 4px; background: #f6f7f7; }
+.homlity-tpl-group ul { margin: 0; padding: 4px 0; list-style: none; }
+.homlity-tpl-group li { margin: 0; }
+.homlity-file-link { display: block; padding: 4px 12px; font-size: 13px; text-decoration: none; color: #2271b1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.homlity-file-link:hover, .homlity-file-link.active { background: #f0f6fc; color: #135e96; }
+.homlity-file-link.active { font-weight: 600; }
+.homlity-file-missing { display: block; padding: 4px 12px; font-size: 13px; color: #999; text-decoration: line-through; }
+#homlity-tpl-main { flex: 1; min-width: 0; }
+#homlity-tpl-toolbar { display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: #fff; border: 1px solid #c3c4c7; border-radius: 4px 4px 0 0; border-bottom: none; }
+#homlity-tpl-filename { flex: 1; font-size: 13px; font-family: monospace; color: #50575e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#homlity-tpl-placeholder { background: #fff; border: 1px solid #c3c4c7; border-radius: 0 0 4px 4px; padding: 60px; text-align: center; color: #888; }
+#homlity-tpl-editor-area .CodeMirror { border: 1px solid #c3c4c7; border-radius: 0 0 4px 4px; height: 640px; font-size: 13px; }
+#homlity-tpl-notices .notice { margin: 0 0 12px; }'
+        );
+
+        wp_enqueue_script(
+            'homlity-template-editor',
+            HOMLITY_PLUGIN_URL . 'assets/js/admin-template-editor.js',
+            ['wp-theme-plugin-editor', 'jquery'],
+            HOMLITY_PLUGIN_VERSION,
+            true
+        );
+
         wp_add_inline_script(
             'wp-theme-plugin-editor',
             sprintf(
@@ -227,144 +256,6 @@ class TemplateEditorService implements ServiceInterface
 
             </div><!-- #homlity-tpl-layout -->
         </div><!-- .wrap -->
-
-        <style>
-        #homlity-template-editor-wrap .description { margin-bottom: 16px; }
-        #homlity-tpl-layout { display: flex; gap: 16px; margin-top: 16px; }
-        #homlity-tpl-sidebar { width: 240px; flex-shrink: 0; }
-        #homlity-tpl-sidebar-inner { background: #fff; border: 1px solid #c3c4c7; border-radius: 4px; max-height: 680px; overflow-y: auto; }
-        .homlity-tpl-group { border-bottom: 1px solid #f0f0f1; }
-        .homlity-tpl-group:last-child { border-bottom: none; }
-        .homlity-tpl-group-label { font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: #50575e; padding: 8px 12px 4px; background: #f6f7f7; }
-        .homlity-tpl-group ul { margin: 0; padding: 4px 0; list-style: none; }
-        .homlity-tpl-group li { margin: 0; }
-        .homlity-file-link { display: block; padding: 4px 12px; font-size: 13px; text-decoration: none; color: #2271b1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .homlity-file-link:hover, .homlity-file-link.active { background: #f0f6fc; color: #135e96; }
-        .homlity-file-link.active { font-weight: 600; }
-        .homlity-file-missing { display: block; padding: 4px 12px; font-size: 13px; color: #999; text-decoration: line-through; }
-        #homlity-tpl-main { flex: 1; min-width: 0; }
-        #homlity-tpl-toolbar { display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: #fff; border: 1px solid #c3c4c7; border-radius: 4px 4px 0 0; border-bottom: none; }
-        #homlity-tpl-filename { flex: 1; font-size: 13px; font-family: monospace; color: #50575e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        #homlity-tpl-placeholder { background: #fff; border: 1px solid #c3c4c7; border-radius: 0 0 4px 4px; padding: 60px; text-align: center; color: #888; }
-        #homlity-tpl-editor-area .CodeMirror { border: 1px solid #c3c4c7; border-radius: 0 0 4px 4px; height: 640px; font-size: 13px; }
-        #homlity-tpl-notices .notice { margin: 0 0 12px; }
-        </style>
-
-        <script>
-        (function ($) {
-            var cfg     = window.homlityTemplateEditor || {};
-            var editor  = null;
-            var current = null;
-            var dirty   = false;
-
-            function showNotice(type, msg) {
-                var $n = $('<div class="notice notice-' + type + ' is-dismissible"><p>' + msg + '</p></div>');
-                $('#homlity-tpl-notices').html($n);
-                if (type === 'success') {
-                    setTimeout(function () { $n.fadeOut(400, function () { $n.remove(); }); }, 3000);
-                }
-            }
-
-            function setDirty(val) {
-                dirty = val;
-                if (current) {
-                    $('#homlity-tpl-filename').text(dirty ? '* ' + current : current);
-                }
-            }
-
-            function loadFile(relative) {
-                $.post(cfg.ajaxUrl, {
-                    action : cfg.loadAction,
-                    nonce  : cfg.loadNonce,
-                    file   : relative
-                }, function (res) {
-                    if (!res.success) {
-                        showNotice('error', res.data ? res.data.message : cfg.i18n.errorLoading);
-                        return;
-                    }
-
-                    var content = res.data.content;
-
-                    if (!editor) {
-                        $('#homlity-tpl-placeholder').hide();
-                        $('#homlity-tpl-editor-area').show();
-                        editor = wp.codeEditor.initialize(
-                            document.getElementById('homlity-tpl-content'),
-                            cfg.editorSettings
-                        );
-                        editor.codemirror.on('change', function () { setDirty(true); });
-                    }
-
-                    editor.codemirror.setValue(content);
-                    editor.codemirror.clearHistory();
-                    editor.codemirror.refresh();
-
-                    current = relative;
-                    setDirty(false);
-
-                    $('#homlity-tpl-filename').text(relative);
-                    $('#homlity-tpl-save').prop('disabled', false);
-                    $('.homlity-file-link').removeClass('active');
-                    $('[data-file="' + CSS.escape(relative) + '"]').addClass('active');
-                }).fail(function () {
-                    showNotice('error', cfg.i18n.connError);
-                });
-            }
-
-            function saveFile() {
-                if (!current || !editor) { return; }
-
-                var $btn    = $('#homlity-tpl-save');
-                var content = editor.codemirror.getValue();
-
-                $btn.prop('disabled', true).text(cfg.i18n.saving);
-
-                $.post(cfg.ajaxUrl, {
-                    action  : cfg.saveAction,
-                    nonce   : cfg.saveNonce,
-                    file    : current,
-                    content : content
-                }, function (res) {
-                    if (res.success) {
-                        setDirty(false);
-                        showNotice('success', cfg.i18n.saved);
-                    } else {
-                        showNotice('error', res.data ? res.data.message : cfg.i18n.errorSaving);
-                    }
-                }).fail(function () {
-                    showNotice('error', cfg.i18n.connError);
-                }).always(function () {
-                    $btn.prop('disabled', false).text(cfg.i18n.saveBtn);
-                });
-            }
-
-            // Events
-            $(document).on('click', '.homlity-file-link', function (e) {
-                e.preventDefault();
-                var file = $(this).data('file');
-                if (file === current) { return; }
-                if (dirty && !confirm(cfg.i18n.unsavedChanges)) { return; }
-                loadFile(file);
-            });
-
-            $('#homlity-tpl-save').on('click', saveFile);
-
-            $(document).on('keydown', function (e) {
-                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                    e.preventDefault();
-                    saveFile();
-                }
-            });
-
-            window.addEventListener('beforeunload', function (e) {
-                if (dirty) {
-                    e.preventDefault();
-                    e.returnValue = '';
-                }
-            });
-
-        }(jQuery));
-        </script>
         <?php
     }
 

@@ -13,12 +13,9 @@ if ($checkLink) :
     <?php
 endif;
     ?>
-    <style>
-    .property-noavaliable::after {
-        content: "<?php echo esc_html( $inmueble->gestion()->esAriendo() ?  __('ARRENDADO','homlity-real-estate') : __('VENDIDO','homlity-real-estate') ); ?>"; 
-    }
-    </style>
-    <div class="imagenportada portada<?php echo esc_attr( $cont ); ?> <?php echo esc_attr( $inmueble->retirado() ? 'property-noavaliable' : '' );?>" style=" background: url(<?php echo esc_url( $inmueble->fotoPortada() ); ?>);  background-size: cover; background-position: center; ">
+    <div class="imagenportada portada<?php echo esc_attr( $cont ); ?> <?php echo esc_attr( $inmueble->retirado() ? 'property-noavaliable' : '' );?>"
+        data-unavailable-label="<?php echo esc_attr( $inmueble->gestion()->esAriendo() ? __('ARRENDADO','homlity-real-estate') : __('VENDIDO','homlity-real-estate') ); ?>"
+        style=" background: url(<?php echo esc_url( $inmueble->fotoPortada() ); ?>);  background-size: cover; background-position: center; ">
         <?php if ($inmueble->gestion()->esArriendoVenta()) : ?>
             <span class="badge rounded-pill bg-primary">Venta</span>
             <span class="badge rounded-pill bg-primary">Arriendo</span>

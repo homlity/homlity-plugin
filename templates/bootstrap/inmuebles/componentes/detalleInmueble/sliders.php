@@ -68,44 +68,25 @@ $firstVideo = visualinmu_configuracion_checkConfiguracion("filtros", "defaultSho
                     <div class="swiper-button-prev"></div>
                     <div class="swiper-button-next"></div>
                 </div>
-                <script>
-                    (function () {
-                        function initHomlityLegacyPhotosSwiper() {
-                            var container = document.querySelector('.homlity-property-photos-swiper');
-                            if (!container || typeof window.Swiper !== 'function' || container.dataset.swiperReady === '1') {
-                                return;
-                            }
-                            container.dataset.swiperReady = '1';
-                            new window.Swiper(container, {
-                                slidesPerView: 1,
-                                spaceBetween: 8,
-                                loop: true,
-                                pagination: {
-                                    el: container.querySelector('.swiper-pagination'),
-                                    clickable: true
-                                },
-                                navigation: {
-                                    nextEl: container.querySelector('.swiper-button-next'),
-                                    prevEl: container.querySelector('.swiper-button-prev')
-                                }
-                            });
-                        }
-                        if (document.readyState === 'loading') {
-                            document.addEventListener('DOMContentLoaded', initHomlityLegacyPhotosSwiper);
-                        } else {
-                            initHomlityLegacyPhotosSwiper();
-                        }
-                    })();
-                </script>
+                <?php
+                wp_add_inline_script(
+                    'homlity-real-estate-swiper',
+                    '(function(){function i(){var c=document.querySelector(".homlity-property-photos-swiper");if(!c||typeof window.Swiper!=="function"||c.dataset.swiperReady==="1")return;c.dataset.swiperReady="1";new window.Swiper(c,{slidesPerView:1,spaceBetween:8,loop:true,pagination:{el:c.querySelector(".swiper-pagination"),clickable:true},navigation:{nextEl:c.querySelector(".swiper-button-next"),prevEl:c.querySelector(".swiper-button-prev")}});}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",i);}else{i();}})();'
+                );
+                ?>
             <?php } ?>
         </div>
         <?php if ($conFotos360) { ?>
             <div class="tab-pane fade" id="fotos360" role="tabpanel" aria-labelledby="fotos360-tab">
                 <homlity-real-estate-slider360></homlity-real-estate-slider360>
-                <script type="text/javascript">
-                    window.homlity-real-estate_FOTOS = <?php echo json_encode($slider["s360"], JSON_PRETTY_PRINT); ?>;
-                    window.homlity-real-estate_SITE_URL = "<?php echo esc_url( \get_site_url() ); ?>";
-                </script>
+                <?php
+                wp_add_inline_script(
+                    'homlity-real-estate-contact-tracking',
+                    'window["homlity-real-estate_FOTOS"]=' . wp_json_encode( $slider['s360'] ) . ';' .
+                    'window["homlity-real-estate_SITE_URL"]=' . wp_json_encode( \get_site_url() ) . ';',
+                    'before'
+                );
+                ?>
             </div>
         <?php } ?>
         <?php if ($conVideo):

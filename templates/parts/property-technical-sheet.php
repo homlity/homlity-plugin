@@ -189,13 +189,12 @@ if (!is_wp_error($featureTerms) && $featureTerms) {
     }
 }
 ?>
-<main class="homlity-tech-sheet">
-    <style>
-        .homlity-tech-sheet {
-            --sheet-primary: <?php echo esc_html($primaryColor); ?>;
-            --sheet-primary-rgb: <?php echo esc_html((string) hexdec(substr(ltrim($primaryColor, '#'), 0, 2))); ?>, <?php echo esc_html((string) hexdec(substr(ltrim($primaryColor, '#'), 2, 2))); ?>, <?php echo esc_html((string) hexdec(substr(ltrim($primaryColor, '#'), 4, 2))); ?>;
-        }
-    </style>
+<?php
+$_r = (int) hexdec( substr( ltrim( $primaryColor, '#' ), 0, 2 ) );
+$_g = (int) hexdec( substr( ltrim( $primaryColor, '#' ), 2, 2 ) );
+$_b = (int) hexdec( substr( ltrim( $primaryColor, '#' ), 4, 2 ) );
+?>
+<main class="homlity-tech-sheet" style="--sheet-primary:<?php echo esc_attr( $primaryColor ); ?>;--sheet-primary-rgb:<?php echo esc_attr( "$_r,$_g,$_b" ); ?>">
 
     <div class="homlity-tech-sheet__hero">
         <div class="homlity-tech-sheet__hero-brand">

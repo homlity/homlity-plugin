@@ -26,6 +26,28 @@ class HomologationAdminPage implements ServiceInterface
     {
         add_action('homlity_plugin_register_integration_submenus', [$this, 'registerSubmenu']);
         add_action('admin_post_homlity_homologation_add', [$this, 'handleAddMapping']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueueAdminScript']);
+    }
+
+    public function enqueueAdminScript(string $hookSuffix): void
+    {
+        if (strpos($hookSuffix, 'homlity-homologation') === false) {
+            return;
+        }
+
+        wp_enqueue_script(
+            'homlity-homologation-admin',
+            HOMLITY_PLUGIN_URL . 'assets/js/admin-homologation.js',
+            [],
+            HOMLITY_PLUGIN_VERSION,
+            true
+        );
+
+        wp_localize_script('homlity-homologation-admin', 'homlityHomologation', [
+            'endpoint' => rest_url('homlity/v1/homologation/mappings/'),
+            'nonce'    => wp_create_nonce('wp_rest'),
+            'errMsg'   => __('Error al eliminar el mapeo.', 'homlity-real-estate'),
+        ]);
     }
 
     public function registerSubmenu(string $parentSlug): void
@@ -94,7 +116,6 @@ class HomologationAdminPage implements ServiceInterface
             <?php $this->renderTable($mappings, $total, $totalPages, $currentPage, $entityFilter, $sourceFilter, $adminUrl); ?>
         </div>
 
-        <?php $this->renderScript($nonce, $adminUrl); ?>
         <?php
     }
 
@@ -334,38 +355,4 @@ class HomologationAdminPage implements ServiceInterface
         <?php
     }
 
-    private function renderScript(string $nonce, string $adminUrl): void
-    {
-        $deleteEndpoint = rest_url('homlity/v1/homologation/mappings/');
-        $errMsg         = __('Error al eliminar el mapeo.', 'homlity-real-estate');
-        ?>
-        <script>
-        (function () {
-            document.querySelectorAll('.homlity-delete-mapping').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    var id      = this.getAttribute('data-id');
-                    var confirm = this.getAttribute('data-confirm') || '¿Eliminar?';
-                    var row     = this.closest('tr');
-
-                    if (!window.confirm(confirm)) return;
-
-                    fetch('<?php echo esc_js($deleteEndpoint); ?>' + id, {
-                        method:  'DELETE',
-                        headers: { 'X-WP-Nonce': '<?php echo esc_js($nonce) ?>' }
-                    }).then(function (r) {
-                        if (r.ok) {
-                            row.style.opacity = '0.4';
-                            setTimeout(function () { row.remove(); }, 300);
-                        } else {
-                            alert('<?php echo esc_js($errMsg); ?>');
-                        }
-                    }).catch(function () {
-                        alert('<?php echo esc_js($errMsg); ?>');
-                    });
-                });
-            });
-        })();
-        </script>
-        <?php
-    }
 }

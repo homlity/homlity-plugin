@@ -90,7 +90,8 @@ class CF7IntegrationService implements ServiceInterface
         \WPCF7_TagGenerator::get_instance()->add(
             'homlity_property_code',
             __('Código de Inmueble', 'homlity-real-estate'),
-            [$this, 'renderTagGeneratorPanel']
+            [$this, 'renderTagGeneratorPanel'],
+            ['version' => 2]
         );
     }
 

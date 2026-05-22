@@ -36,17 +36,3 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 	<?php } ?>
 </div>
-<style>
-	.card-asesor {
-		font-size: var(--e-global-typography-e92d54e-font-size);
-		font-family: var(--e-global-typography-e92d54e-font-family), Sans-serif;
-	}
-	.btn-whatsapp-homlity{
-		background-color: var(--e-global-color-primary);
-		color: #fff !important;
-		border:none;
-	}
-	.card-asesor a {
-		color: var(--e-global-color-primary);
-	}
-</style>
