@@ -4,7 +4,7 @@ Tags: real estate, property, listings, agents, property management
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.4
+Stable tag: 1.3.12
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -158,6 +158,15 @@ Used to convert property addresses into geographic coordinates (latitude/longitu
 * **Service:** Nominatim geocoding API, operated by the OpenStreetMap Foundation.
 * **Privacy policy:** https://osmfoundation.org/wiki/Privacy_Policy
 * **Terms of use:** https://operations.osmfoundation.org/policies/nominatim/
+
+= CKEditor 5 (CKSource / Mateusz Bukowski Foundation) =
+Used to provide a rich-text description editor for property listings inside the WordPress admin dashboard.
+* **Data sent:** No property or user data is sent to CKEditor's servers. The browser downloads the CKEditor 5 JavaScript library file from the CDN when an administrator opens the property editor. The download request includes the visitor's IP address and browser information as standard HTTP headers.
+* **When:** Only when an administrator opens the property editing screen in wp-admin. End users on the public website are never affected.
+* **URL loaded:** https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js
+* **Service provider:** CKSource Sp. z o.o. (operating as Mateusz Bukowski Foundation).
+* **Privacy policy:** https://ckeditor.com/legal/privacy-policy/
+* **Terms of service:** https://ckeditor.com/legal/ckeditor-oss-license/
 
 = CRM Integrations (Optional) =
 When a CRM integration is configured and enabled by the site administrator, the plugin synchronizes property data with external real estate CRM platforms.
