@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Homlity Real Estate
  * Description: Homlity Real Estate, gestor de inmuebles, asesores, SEO y GEO listo para WordPress.
- * Version:     1.3.13
+ * Version:     1.3.14
  * Author:      Ecosistema Inmobiliario Homlity
  * Author URI:  https://homlity.com/
  * Plugin URI:  https://homlity.com/plugin-integracion-homlity-real-estate-para-wordpress/
@@ -24,7 +24,7 @@ define('HOMLITY_RE_PLUGIN_URL',  plugin_dir_url(__FILE__));
 if (!defined('HOMLITY_PLUGIN_FILE'))             define('HOMLITY_PLUGIN_FILE', __FILE__);
 if (!defined('HOMLITY_PLUGIN_PATH'))             define('HOMLITY_PLUGIN_PATH', plugin_dir_path(__FILE__));
 if (!defined('HOMLITY_PLUGIN_URL'))              define('HOMLITY_PLUGIN_URL', plugin_dir_url(__FILE__));
-if (!defined('HOMLITY_PLUGIN_VERSION'))          define('HOMLITY_PLUGIN_VERSION', '1.3.13');
+if (!defined('HOMLITY_PLUGIN_VERSION'))          define('HOMLITY_PLUGIN_VERSION', '1.3.14');
 if (!defined('HOMLITY_PLUGIN_SLUG'))             define('HOMLITY_PLUGIN_SLUG', 'homlity-real-estate');
 if (!defined('HOMLITY_PLUGIN_TEXT_DOMAIN'))      define('HOMLITY_PLUGIN_TEXT_DOMAIN', 'homlity-real-estate');
 if (!defined('HOMLITY_PLUGIN_SETTINGS_OPTION'))  define('HOMLITY_PLUGIN_SETTINGS_OPTION', 'homlity_plugin_settings');
@@ -204,8 +204,42 @@ register_activation_hook(__FILE__, static function () {
     // Register /llms-full.txt rewrite rule before flushing.
     Homlity\PluginInmobiliario\Services\Ai\LlmsFullService::activate();
 
+    // Auto-create the public consignment page on first activation.
+    // Uses a self-contained helper so the full manager doesn't need to be loaded.
+    homlity_activation_create_consignment_page();
+
     flush_rewrite_rules();
 });
+
+/**
+ * Creates the consignment page during plugin activation without requiring the full
+ * consignment manager (which loads on plugins_loaded, after the activation hook).
+ */
+function homlity_activation_create_consignment_page(): void
+{
+    $option = 'homlity_consignment_page_id';
+    $existing_id = (int) get_option($option, 0);
+
+    if ($existing_id > 0) {
+        $status = get_post_status($existing_id);
+        if ($status !== false && $status !== 'trash') {
+            return; // Page already exists
+        }
+    }
+
+    $page_id = wp_insert_post([
+        'post_type'    => 'page',
+        'post_title'   => 'Consigna tu Inmueble',
+        'post_name'    => 'consigna-tu-inmueble',
+        'post_content' => '[homlity_consignment_form]',
+        'post_status'  => 'publish',
+        'post_author'  => (int) get_option('default_post_author', 1),
+    ]);
+
+    if (!is_wp_error($page_id) && $page_id > 0) {
+        update_option($option, $page_id, false);
+    }
+}
 
 register_deactivation_hook(__FILE__, static function () {
     Homlity\PluginInmobiliario\Services\Ai\LlmsFullService::deactivate();
