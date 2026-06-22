@@ -853,3 +853,53 @@ body.toplevel_page_homlity-real-estate-settings .homlity-settings__select:focus 
     border-color: var(--homlity-primary);
     box-shadow: 0 0 0 2px rgba(255, 103, 82, 0.18);
 }
+
+.homlity-settings__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.homlity-settings__tab {
+    appearance: none;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--homlity-line-strong);
+    border-radius: 999px;
+    color: var(--homlity-text);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    min-height: 42px;
+    padding: 0 16px;
+    transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.homlity-settings__tab:hover {
+    transform: translateY(-1px);
+}
+
+.homlity-settings__tab.is-active {
+    background: linear-gradient(135deg, var(--homlity-accent), var(--homlity-accent-2));
+    border-color: transparent;
+    color: #fff;
+}
+
+.homlity-settings__field--full {
+    grid-column: 1 / -1;
+}
+
+.homlity-settings__textarea {
+    min-height: 118px;
+    resize: vertical;
+}
+
+.homlity-settings__checkbox {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    min-height: 48px;
+}
+
+.homlity-settings__checkbox input {
+    margin: 0;
+}

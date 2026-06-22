@@ -150,7 +150,8 @@ class PropertySearchService implements ServiceInterface
         $priceMin = absint($params['price_min'] ?? 0);
         $priceMax = absint($params['price_max'] ?? 0);
         if ($priceMin || $priceMax) {
-            $priceQuery = ['key' => '_property_price_sale', 'type' => 'NUMERIC'];
+            $priceMeta = $this->resolvePriceMetaKey($params);
+            $priceQuery = ['key' => $priceMeta, 'type' => 'NUMERIC'];
             if ($priceMin && $priceMax) {
                 $priceQuery['compare'] = 'BETWEEN';
                 $priceQuery['value']   = [$priceMin, $priceMax];
@@ -236,12 +237,12 @@ class PropertySearchService implements ServiceInterface
         switch ($orderby) {
             case 'price_asc':
                 $args['orderby']  = 'meta_value_num';
-                $args['meta_key'] = '_property_price_sale';
+                $args['meta_key'] = $this->resolvePriceMetaKey($params);
                 $args['order']    = 'ASC';
                 break;
             case 'price_desc':
                 $args['orderby']  = 'meta_value_num';
-                $args['meta_key'] = '_property_price_sale';
+                $args['meta_key'] = $this->resolvePriceMetaKey($params);
                 $args['order']    = 'DESC';
                 break;
             case 'title':
@@ -549,6 +550,30 @@ class PropertySearchService implements ServiceInterface
         }
 
         return array_values(array_unique($valid));
+    }
+
+    /**
+     * Returns the price meta key to use for ordering/filtering based on the
+     * operation filter. If the active operation is rent-type, returns
+     * `_property_price_rent`; otherwise falls back to `_property_price_sale`.
+     */
+    private function resolvePriceMetaKey(array $params): string
+    {
+        $operationIds = $this->extractTermIds($params['operation'] ?? null);
+        foreach ($operationIds as $termId) {
+            $term = get_term($termId, PropertyTaxonomies::TAXONOMY_OPERATION);
+            if (!($term instanceof \WP_Term)) {
+                continue;
+            }
+            $text = strtolower(remove_accents($term->slug . ' ' . $term->name));
+            if (
+                strpos($text, 'arriendo') !== false || strpos($text, 'alquil') !== false
+                || strpos($text, 'renta') !== false  || strpos($text, 'rent') !== false
+            ) {
+                return '_property_price_rent';
+            }
+        }
+        return '_property_price_sale';
     }
 
     public function getMapData(\WP_Query $query): array

@@ -1,6 +1,5 @@
 <?php
-// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.Security.NonceVerification.Recommended
 /**
  * Front templates for properties, taxonomies, search and agent profiles.
  */
@@ -53,7 +52,9 @@ class TemplateService implements ServiceInterface
             return;
         }
 
-        $sheetFlag = (string) ($_GET['homlity_sheet'] ?? get_query_var('homlity_sheet', ''));
+        $sheetFlag = isset($_GET['homlity_sheet'])
+            ? sanitize_key(wp_unslash((string) $_GET['homlity_sheet']))
+            : sanitize_key((string) get_query_var('homlity_sheet', ''));
         if ($sheetFlag !== '1') {
             return;
         }
@@ -92,7 +93,7 @@ class TemplateService implements ServiceInterface
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
         $filename = sanitize_title(get_the_title($postId)) ?: 'ficha-tecnica';
-        $forceDownload = (string) ($_GET['download'] ?? '') === '1';
+        $forceDownload = (isset($_GET['download']) ? sanitize_key(wp_unslash((string) $_GET['download'])) : '') === '1';
         if ($forceDownload) {
             PropertyTechnicalSheetDownloadTrackingService::trackDownload($postId);
         }
@@ -135,7 +136,7 @@ class TemplateService implements ServiceInterface
             return $queryVars;
         }
 
-        $requestUri = (string) ($_SERVER['REQUEST_URI'] ?? '');
+        $requestUri = isset($_SERVER['REQUEST_URI']) ? esc_url_raw(wp_unslash((string) $_SERVER['REQUEST_URI'])) : '';
         $path = trim((string) wp_parse_url($requestUri, PHP_URL_PATH), '/');
         if ($path === '') {
             return $queryVars;
@@ -220,7 +221,10 @@ class TemplateService implements ServiceInterface
             return;
         }
 
-        $requestPath = trim((string) wp_parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
+        $requestPath = trim((string) wp_parse_url(
+            isset($_SERVER['REQUEST_URI']) ? esc_url_raw(wp_unslash((string) $_SERVER['REQUEST_URI'])) : '',
+            PHP_URL_PATH
+        ), '/');
 
         if (in_array($requestPath, ['properties', 'propiedades'], true)) {
             $archivePageId = (int) get_option('homlity_plugin_archive_page_id', 0);
@@ -292,10 +296,11 @@ class TemplateService implements ServiceInterface
 
             foreach ($taxMap as $param => $taxonomy) {
                 if (!empty($_GET[$param])) {
+                    $terms = array_map('sanitize_text_field', (array) wp_unslash($_GET[$param]));
                     $taxQuery[] = [
                         'taxonomy' => $taxonomy,
                         'field' => 'slug',
-                        'terms' => array_map('sanitize_text_field', (array) $_GET[$param]),
+                        'terms' => $terms,
                     ];
                 }
             }
@@ -311,10 +316,11 @@ class TemplateService implements ServiceInterface
                 if ($qvValue === '') {
                     continue;
                 }
+                $terms = [sanitize_title($qvValue)];
                 $taxQuery[] = [
                     'taxonomy' => $taxonomy,
                     'field' => 'slug',
-                    'terms' => [sanitize_title($qvValue)],
+                    'terms' => $terms,
                 ];
             }
 
@@ -383,8 +389,8 @@ class TemplateService implements ServiceInterface
                 $query->set('homlity_keyword_search', $keyword);
             }
 
-            $dateFrom = !empty($_GET['date_from']) ? sanitize_text_field($_GET['date_from']) : null;
-            $dateTo = !empty($_GET['date_to']) ? sanitize_text_field($_GET['date_to']) : null;
+            $dateFrom = !empty($_GET['date_from']) ? sanitize_text_field(wp_unslash((string) $_GET['date_from'])) : null;
+            $dateTo   = !empty($_GET['date_to'])   ? sanitize_text_field(wp_unslash((string) $_GET['date_to']))   : null;
             if ($dateFrom || $dateTo) {
                 $dateQuery = [];
                 if ($dateFrom) {
@@ -428,7 +434,8 @@ class TemplateService implements ServiceInterface
         }
 
         if (is_singular(PropertyPostType::POST_TYPE)) {
-            if ((string) ($_GET['homlity_sheet'] ?? '') === '1' || (string) get_query_var('homlity_sheet', '') === '1') {
+            if ((isset($_GET['homlity_sheet']) ? sanitize_key(wp_unslash((string) $_GET['homlity_sheet'])) : '') === '1'
+                || sanitize_key((string) get_query_var('homlity_sheet', '')) === '1') {
                 return self::locateTemplate('property-technical-sheet.php', $template);
             }
             return self::locateTemplate('single-property.php', $template);
@@ -860,7 +867,7 @@ class TemplateService implements ServiceInterface
             return true;
         }
 
-        if (isset($_GET['action']) && sanitize_key((string) $_GET['action']) === 'elementor') {
+        if (isset($_GET['action']) && sanitize_key(wp_unslash((string) $_GET['action'])) === 'elementor') {
             return true;
         }
 
@@ -868,7 +875,7 @@ class TemplateService implements ServiceInterface
             return true;
         }
 
-        if (isset($_GET['preview']) && (string) $_GET['preview'] === 'true') {
+        if (isset($_GET['preview']) && sanitize_key(wp_unslash((string) $_GET['preview'])) === 'true') {
             return true;
         }
 

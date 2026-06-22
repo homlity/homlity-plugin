@@ -248,6 +248,7 @@
     var _af = useState(String(meta.condition || '')), condition = _af[0], setCondition = _af[1];
     var _af2 = useState((selected.features || []).map(function (id) { return String(id); })), selectedFeatures = _af2[0], setSelectedFeatures = _af2[1];
     var _af3 = useState((selected.nearby || []).map(function (id) { return String(id); })), selectedNearby = _af3[0], setSelectedNearby = _af3[1];
+    var _af4 = useState((selected.tags || []).map(function (id) { return String(id); })), selectedTags = _af4[0], setSelectedTags = _af4[1];
 
     var defaultAgent = String(meta.agent_id || app.currentUserId || '');
     var _ag = useState(String(meta.gallery || '')), gallery = _ag[0], setGallery = _ag[1];
@@ -292,19 +293,24 @@
     var recentVisits = Array.isArray(visitStats.recent) ? visitStats.recent : [];
     var maxDailyVisit = dailyVisits.reduce(function (max, row) { return Math.max(max, Number(row.visits || 0)); }, 0) || 1;
 
-    var syncedVideos = normalizeUrlListFromMeta(meta.videos);
-    var syncedPhotos360 = normalizeUrlListFromMeta(meta.photos_360);
-    var syncedTours360 = normalizeUrlListFromMeta(meta.tour_360);
-    var syncedBrochure = normalizeSingleUrlFromMeta(meta.brochure);
-
     var currencyOptions = (opts.currencies || []).map(function (c) { return { id: c, name: c }; });
     var users = (opts.users || []).map(function (u) { return { id: u.id, name: u.label }; });
     var featureGroups = opts.feature_groups || [];
     var nearbyOptions = opts.nearby_options || [];
+    var tagOptions = opts.tag_options || [];
     var selectedOperation = (opts.operations || []).find(function (o) { return String(o.id) === String(operation); });
     var operationSlug = String((selectedOperation && (selectedOperation.slug || selectedOperation.name)) || '').toLowerCase();
     var isRent = operationSlug.indexOf('arr') !== -1 || operationSlug.indexOf('alquil') !== -1 || operationSlug.indexOf('rent') !== -1;
     var isSale = operationSlug.indexOf('vent') !== -1 || operationSlug.indexOf('sale') !== -1;
+
+    // Capture initial media state so the closure below ([] deps, runs once) can reference them.
+    // We only want to fill fields that PHP couldn't populate from primary meta — specifically those
+    // still empty after the initial DB read. Fields that already have a value (from the DB via
+    // app.meta) must NOT be overwritten, so we compare against the initial state captured here.
+    var initialVideosText   = normalizeUrlListFromMeta(meta.videos).join('\n');
+    var initialPhotos360Text = normalizeUrlListFromMeta(meta.photos_360).join('\n');
+    var initialTours360Text = normalizeUrlListFromMeta(meta.tour_360).join('\n');
+    var initialBrochure     = normalizeSingleUrlFromMeta(meta.brochure);
 
     useEffect(function () {
       var postId = Number(app.postId || 0);
@@ -313,15 +319,19 @@
       api('/homlity-real-estate/v1/property-media-sync', { post_id: postId }).then(function (res) {
         if (!res || res.ok !== true) return;
 
-        var videos = normalizeUrlListFromMeta(res.videos);
+        var videos    = normalizeUrlListFromMeta(res.videos);
         var photos360 = normalizeUrlListFromMeta(res.photos_360);
-        var tours360 = normalizeUrlListFromMeta(res.tour_360);
+        var tours360  = normalizeUrlListFromMeta(res.tour_360);
         var brochureUrl = normalizeSingleUrlFromMeta(res.brochure);
 
-        if (videos.length) setVideosText(videos.join('\n'));
-        if (photos360.length) setPhotos360Text(photos360.join('\n'));
-        if (tours360.length) setTours360Text(tours360.join('\n'));
-        if (brochureUrl) setBrochure(brochureUrl);
+        // Only fill fields that were empty at mount time (primary DB meta was absent).
+        // Never overwrite a value already loaded from the database — that would hide
+        // edits the user made since the page loaded or restore old CRM data on top of
+        // a value they intentionally cleared.
+        if (videos.length    && !initialVideosText.trim())    setVideosText(videos.join('\n'));
+        if (photos360.length && !initialPhotos360Text.trim()) setPhotos360Text(photos360.join('\n'));
+        if (tours360.length  && !initialTours360Text.trim())  setTours360Text(tours360.join('\n'));
+        if (brochureUrl      && !initialBrochure.trim())      setBrochure(brochureUrl);
       });
     }, []);
 
@@ -830,6 +840,24 @@
           hidden('property_features', selectedFeatures.join(','))
         ),
         h('section', { className: 'hpe-card hpe-span-2' },
+          h('h2', null, 'Etiquetas'),
+          h('p', { className: 'description' }, 'Selecciona una o varias etiquetas para clasificar el inmueble.'),
+          h(MultiSelectChips, {
+            options: tagOptions,
+            value: selectedTags,
+            onChange: setSelectedTags,
+            placeholder: 'Buscar etiquetas...'
+          }),
+          hidden('property_tags', selectedTags.join(',')),
+          h('p', { className: 'description' },
+            h('a', {
+              href: app.manageTagsUrl || '#',
+              target: '_blank',
+              rel: 'noopener noreferrer'
+            }, 'Administrar etiquetas')
+          )
+        ),
+        h('section', { className: 'hpe-card hpe-span-2' },
           h('h2', null, 'Lugares cercanos'),
           h(MultiSelectChips, {
             options: nearbyOptions,
@@ -849,8 +877,7 @@
             h('button', { type: 'button', className: 'button' + (mediaTab === 'photos' ? ' button-primary' : ''), onClick: function () { setMediaTab('photos'); } }, 'Fotos'),
             h('button', { type: 'button', className: 'button' + (mediaTab === 'videos' ? ' button-primary' : ''), onClick: function () { setMediaTab('videos'); } }, 'Videos'),
             h('button', { type: 'button', className: 'button' + (mediaTab === 'vr360' ? ' button-primary' : ''), onClick: function () { setMediaTab('vr360'); } }, '360'),
-            h('button', { type: 'button', className: 'button' + (mediaTab === 'brochure' ? ' button-primary' : ''), onClick: function () { setMediaTab('brochure'); } }, 'Brochure'),
-            h('button', { type: 'button', className: 'button' + (mediaTab === 'synced' ? ' button-primary' : ''), onClick: function () { setMediaTab('synced'); } }, 'Sincronizado')
+            h('button', { type: 'button', className: 'button' + (mediaTab === 'brochure' ? ' button-primary' : ''), onClick: function () { setMediaTab('brochure'); } }, 'Brochure')
           ),
           mediaTab === 'photos' && h('div', null,
             h(Field, { label: 'Fotos del inmueble' },
@@ -906,35 +933,26 @@
               })
             )
           ),
-          mediaTab === 'videos' && h(Field, { label: 'Video de YouTube (solo 1 URL)' },
-            h(Input, { value: videosText, onChange: setVideosText, placeholder: 'https://www.youtube.com/watch?v=...' })
+          mediaTab === 'videos' && h('div', null,
+            h(Field, { label: 'Video del inmueble (URL de YouTube, Vimeo u otro)' },
+              h(Input, { value: videosText, onChange: setVideosText, placeholder: 'https://www.youtube.com/watch?v=...' })
+            ),
+            h('p', { className: 'description' }, 'Ingresa una URL. Se admiten YouTube, Vimeo y videos directos (.mp4). Si el inmueble está sincronizado con un CRM, el valor se completa automáticamente.')
           ),
           mediaTab === 'vr360' && h('div', null,
-            h(Field, { label: 'Foto(s) 360 (una URL por línea)' },
+            h(Field, { label: 'Foto(s) 360° (una URL por línea)' },
               h('textarea', { rows: 4, value: photos360Text, onChange: function (e) { setPhotos360Text(e.target.value); }, placeholder: 'https://...' })
             ),
-            h(Field, { label: 'Recorrido(s) 360 (una URL por línea)' },
+            h(Field, { label: 'Recorrido(s) 360° (una URL por línea)' },
               h('textarea', { rows: 4, value: tours360Text, onChange: function (e) { setTours360Text(e.target.value); }, placeholder: 'https://...' })
-            )
-          ),
-          mediaTab === 'brochure' && h(Field, { label: 'Brochure (URL)' },
-            h(Input, { name: 'property_brochure', value: brochure, onChange: setBrochure, placeholder: 'https://...' })
-          ),
-          mediaTab === 'synced' && h('div', { className: 'hpe-synced-urls' },
-            h('h3', null, 'Información sincronizada desde CRM'),
-            (!syncedVideos.length && !syncedPhotos360.length && !syncedTours360.length && !syncedBrochure) && h('p', { className: 'description' }, 'No hay URLs sincronizadas en este inmueble.'),
-            !!syncedVideos.length && h('div', null,
-              h('strong', null, 'Videos sincronizados'),
-              h('ul', null, syncedVideos.map(function (url) { return h('li', { key: 'v-' + url }, h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, url)); }))
             ),
-            !!syncedPhotos360.length && h('div', null,
-              h('strong', null, 'Fotos 360 sincronizadas'),
-              h('ul', null, syncedPhotos360.map(function (url) { return h('li', { key: 'p-' + url }, h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, url)); }))
+            h('p', { className: 'description' }, 'Acepta URLs de Matterport, Kuula, CloudPano u otras plataformas 360°. Si el inmueble viene de un CRM, estos campos se completan automáticamente.')
+          ),
+          mediaTab === 'brochure' && h('div', null,
+            h(Field, { label: 'Brochure / ficha técnica (URL del PDF o documento)' },
+              h(Input, { value: brochure, onChange: setBrochure, placeholder: 'https://...' })
             ),
-            !!syncedTours360.length && h('div', null,
-              h('strong', null, 'Recorridos 360 sincronizados'),
-              h('ul', null, syncedTours360.map(function (url) { return h('li', { key: 't-' + url }, h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, url)); }))
-            )
+            h('p', { className: 'description' }, 'URL directa al brochure del inmueble. Se muestra como enlace de descarga en la ficha del inmueble. Se completa automáticamente si el inmueble está sincronizado.')
           ),
           hidden('property_gallery', existingGalleryItems.map(function (i) { return i.id; }).filter(function (id) { return !!id; }).join(',')),
           hidden('property_gallery_existing', existingGalleryItems.map(function (i) { return i.id; }).filter(function (id) { return !!id; }).join(',')),
@@ -1015,7 +1033,13 @@
     var el = root();
     if (!el) return;
     hideOldUi();
-    wpEl.render(h(App), el);
+    // React 18 (WP 6.2+) exposes createRoot on wp.element; fall back to the
+    // legacy render() for older WordPress installations.
+    if (wpEl.createRoot) {
+      wpEl.createRoot(el).render(h(App));
+    } else {
+      wpEl.render(h(App), el);
+    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

@@ -3,9 +3,9 @@
     if (list.dataset.faqReady === '1') return;
     list.dataset.faqReady = '1';
 
-    var layout        = list.dataset.layout         || 'accordion';
-    var firstOpen     = list.dataset.firstOpen      === 'true';
-    var allowMultiple = list.dataset.allowMultiple  === 'true';
+    var layout        = list.dataset.layout        || 'accordion';
+    var firstOpen     = list.dataset.firstOpen     === 'true';
+    var allowMultiple = list.dataset.allowMultiple === 'true';
     var isAccordion   = layout === 'accordion';
 
     var items = Array.prototype.slice.call(list.querySelectorAll('.homlity-property-faq-item'));
@@ -66,22 +66,38 @@
     document.querySelectorAll('.homlity-property-faq-list').forEach(initFaqList);
   }
 
+  // Register Elementor widget-ready handler (once only).
+  var elementorHandlerRegistered = false;
+  function registerElementorHandler() {
+    if (elementorHandlerRegistered) return;
+    if (!window.elementorFrontend || !window.elementorFrontend.hooks) return;
+    elementorHandlerRegistered = true;
+    window.elementorFrontend.hooks.addAction(
+      'frontend/element_ready/homlity_property_faq.default',
+      function ($el) {
+        // $el is a jQuery object; $el[0] is the native DOM node.
+        var root = $el && $el[0] ? $el[0] : $el;
+        if (root) root.querySelectorAll('.homlity-property-faq-list').forEach(initFaqList);
+      }
+    );
+  }
+
+  // Boot on DOMContentLoaded (front-end, no Elementor).
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);
   } else {
     boot();
   }
 
-  window.addEventListener('elementor/frontend/init', function () {
-    if (!window.elementorFrontend || !window.elementorFrontend.hooks) return;
-    window.elementorFrontend.hooks.addAction(
-      'frontend/element_ready/homlity_property_faq.default',
-      function ($el) {
-        $el[0].querySelectorAll('.homlity-property-faq-list').forEach(function (list) {
-          list.dataset.faqReady = '';
-          initFaqList(list);
-        });
-      }
-    );
-  });
+  // Register the Elementor element_ready hook.
+  // Elementor may fire 'elementor/frontend/init' via jQuery (older) or native
+  // CustomEvent (newer). Support both, plus the case where it already fired.
+  if (window.elementorFrontend) {
+    registerElementorHandler();
+  } else {
+    window.addEventListener('elementor/frontend/init', registerElementorHandler);
+    if (window.jQuery) {
+      window.jQuery(window).on('elementor/frontend/init', registerElementorHandler);
+    }
+  }
 })();

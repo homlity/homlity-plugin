@@ -31,7 +31,7 @@ class Homlity_Property_FAQ_Widget extends \Elementor\Widget_Base
 
     public function get_categories(): array
     {
-        return ['homlity'];
+        return ['homlity-real-estate'];
     }
 
     public function get_keywords(): array
@@ -906,7 +906,7 @@ class Homlity_Property_FAQ_Widget extends \Elementor\Widget_Base
                 'mainEntity'  => $entities,
             ], $faqs, $post_id);
 
-            echo '<script type="application/ld+json">' . wp_json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>' . "\n"; // phpcs:ignore
+            echo '<script type="application/ld+json">' . wp_json_encode($schema, JSON_UNESCAPED_UNICODE) . '</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON-LD output; wp_json_encode handles XSS escaping.
         }, 20);
     }
 

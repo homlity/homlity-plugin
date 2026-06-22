@@ -165,15 +165,27 @@ class PropertyPostType implements ServiceInterface
 
     public function registerMeta(): void
     {
+        // Meta keys stored as arrays of URLs — sanitize_text_field() strips arrays to ''
+        // so these must use a null sanitize_callback (sanitization happens in saveMeta()).
+        $arrayMetaKeys = [
+            $this->metaKeys['videos'],
+            $this->metaKeys['photos_360'],
+            $this->metaKeys['tour_360'],
+        ];
+
         foreach ($this->metaKeys as $metaKey) {
-            $isBoolean = in_array($metaKey, [$this->metaKeys['featured'], $this->metaKeys['admin_included']], true);
+            $isBoolean  = in_array($metaKey, [$this->metaKeys['featured'], $this->metaKeys['admin_included']], true);
+            $isArrayMeta = in_array($metaKey, $arrayMetaKeys, true);
+
             register_post_meta(self::POST_TYPE, $metaKey, [
-                'type' => $isBoolean ? 'boolean' : 'string',
+                'type'   => $isBoolean ? 'boolean' : 'string',
                 'single' => true,
                 'show_in_rest' => true,
+                // Array-typed meta: do NOT use sanitize_text_field — it converts arrays to ''.
+                // Sanitization for these fields is handled in saveMeta() via sanitizeUrlList().
                 'sanitize_callback' => $isBoolean
                     ? 'rest_sanitize_boolean'
-                    : ($metaKey === $this->metaKeys['gallery']
+                    : ($isArrayMeta || $metaKey === $this->metaKeys['gallery']
                         ? null
                         : 'sanitize_text_field'),
                 'auth_callback' => static function () {
@@ -635,6 +647,7 @@ class PropertyPostType implements ServiceInterface
         $typeTerms = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_TYPE, ['fields' => 'ids']);
         $featureTerms = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_FEATURE, ['fields' => 'ids']);
         $nearbyTerms = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_NEARBY, ['fields' => 'ids']);
+        $tagTerms = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_TAG, ['fields' => 'ids']);
 
         $location = [];
         foreach ($this->locationTaxonomies as $key => $taxonomy) {
@@ -702,6 +715,7 @@ class PropertyPostType implements ServiceInterface
                 'neighborhood' => $location['neighborhood'] ?? 0,
                 'features' => array_map('intval', is_array($featureTerms) ? $featureTerms : []),
                 'nearby' => array_map('intval', is_array($nearbyTerms) ? $nearbyTerms : []),
+                'tags' => array_map('intval', is_array($tagTerms) ? $tagTerms : []),
             ],
             'options' => [
                 'operations' => $this->termsToOptions(PropertyTaxonomies::TAXONOMY_OPERATION),
@@ -720,10 +734,12 @@ class PropertyPostType implements ServiceInterface
                 'gallery_items' => $galleryItems,
                 'feature_groups' => $this->featureGroupsOptions(),
                 'nearby_options' => $this->termsToOptions(PropertyTaxonomies::TAXONOMY_NEARBY),
+                'tag_options' => $this->termsToOptions(PropertyTaxonomies::TAXONOMY_TAG),
             ],
             'restUrl' => esc_url_raw(rest_url()),
             'nonce' => wp_create_nonce('wp_rest'),
             'taxonomies' => $this->locationTaxonomies,
+            'manageTagsUrl' => admin_url('edit-tags.php?taxonomy=' . PropertyTaxonomies::TAXONOMY_TAG . '&post_type=' . self::POST_TYPE),
             'validation' => [
                 'message' => sanitize_text_field(wp_unslash((string) ($_GET['homlity_validation_error'] ?? ''))),
                 'fields' => array_values(array_filter(array_map('sanitize_key', explode(',', sanitize_text_field(wp_unslash((string) ($_GET['homlity_validation_fields'] ?? ''))))))),
@@ -868,19 +884,55 @@ class PropertyPostType implements ServiceInterface
      */
     private function normalizeMediaMetaForEditor(int $postId, array $meta): array
     {
-        $videos = $this->extractUrlList($meta['videos'] ?? null);
-        $photos360 = $this->extractUrlList($meta['photos_360'] ?? null);
-        $tour360 = $this->extractUrlList($meta['tour_360'] ?? null);
-        $brochure = $this->extractSingleUrl($meta['brochure'] ?? null);
+        // Raw values from get_post_meta():
+        //   ''  (empty string) → meta key never existed in DB → eligible for sync-payload fallback
+        //   []  (empty array)  → user explicitly cleared the field → respect it, skip fallback
+        //   [urls…]            → has a saved value → use it, skip fallback
+        $videosRaw    = $meta['videos']     ?? '';
+        $photos360Raw = $meta['photos_360'] ?? '';
+        $tour360Raw   = $meta['tour_360']   ?? '';
+        $brochureRaw  = $meta['brochure']   ?? '';
 
-        if (!empty($videos) && !empty($photos360) && !empty($tour360) && $brochure !== '') {
-            $meta['videos'] = $videos;
+        $videos    = $this->extractUrlList($videosRaw);
+        $photos360 = $this->extractUrlList($photos360Raw);
+        $tour360   = $this->extractUrlList($tour360Raw);
+        $brochure  = $this->extractSingleUrl($brochureRaw);
+
+        // Optimization: if all four fields already have data from primary meta, no fallback needed.
+        $needsFallback = empty($videos) || empty($photos360) || empty($tour360) || $brochure === '';
+        if (!$needsFallback) {
+            $meta['videos']     = $videos;
             $meta['photos_360'] = $photos360;
-            $meta['tour_360'] = $tour360;
-            $meta['brochure'] = $brochure;
+            $meta['tour_360']   = $tour360;
+            $meta['brochure']   = $brochure;
             return $meta;
         }
 
+        // Determine which empty fields are eligible for sync-payload fallback.
+        //
+        // For array-typed fields (videos, photos_360, tour_360):
+        //   get_post_meta returns '' when the DB row never existed, and [] when it was saved empty.
+        //   '' vs [] is unambiguous — we can skip fallback whenever the raw value is not ''.
+        //
+        // For brochure (stored as a plain string):
+        //   get_post_meta returns '' both when the row is absent AND when it was saved as ''.
+        //   '' alone is therefore ambiguous, so we call metadata_exists() to check the DB row.
+        $videosFallbackOk    = $videosRaw === '' && empty($videos);
+        $photos360FallbackOk = $photos360Raw === '' && empty($photos360);
+        $tour360FallbackOk   = $tour360Raw === '' && empty($tour360);
+        $brochureFallbackOk  = $brochure === ''
+            && !metadata_exists('post', $postId, '_property_brochure');
+
+        if (!$videosFallbackOk && !$photos360FallbackOk && !$tour360FallbackOk && !$brochureFallbackOk) {
+            // All empty fields were explicitly cleared — no payload lookup needed.
+            $meta['videos']     = $videos;
+            $meta['photos_360'] = $photos360;
+            $meta['tour_360']   = $tour360;
+            $meta['brochure']   = $brochure;
+            return $meta;
+        }
+
+        // One or more fields were never saved — check sync payload and dedicated sync meta keys.
         $rawPayload = get_post_meta($postId, '_property_sync_payload', true);
         if (!is_string($rawPayload) || trim($rawPayload) === '') {
             $rawPayload = get_post_meta($postId, '_homlity_sync_payload', true);
@@ -895,60 +947,64 @@ class PropertyPostType implements ServiceInterface
         }
 
         $property = is_array($payload['property'] ?? null) ? $payload['property'] : $payload;
-        $media = is_array($property['media'] ?? null) ? $property['media'] : [];
+        $media    = is_array($property['media']   ?? null) ? $property['media']   : [];
 
-        if (empty($videos)) {
+        if ($videosFallbackOk) {
             $videos = $this->extractUrlList($media['videos'] ?? ($property['videos'] ?? null));
         }
-        if (empty($photos360)) {
+        if ($photos360FallbackOk) {
             $photos360 = $this->extractUrlList($media['photos_360'] ?? null);
         }
-        if (empty($tour360)) {
+        if ($tour360FallbackOk) {
             $tour360 = $this->extractUrlList($media['tour_360'] ?? null);
         }
-        if ($brochure === '') {
+        if ($brochureFallbackOk) {
             $brochure = $this->extractSingleUrl($media['brochure'] ?? ($property['brochure'] ?? null));
         }
 
         // Direct fallback from plugin-homlity-sync dedicated media metas.
-        if (empty($videos)) {
+        if ($videosFallbackOk && empty($videos)) {
             $videos = $this->extractUrlList(get_post_meta($postId, '_homlity_sync_media_videos', true));
         }
-        if (empty($photos360)) {
+        if ($photos360FallbackOk && empty($photos360)) {
             $photos360 = $this->extractUrlList(get_post_meta($postId, '_homlity_sync_media_photos_360', true));
         }
-        if (empty($tour360)) {
+        if ($tour360FallbackOk && empty($tour360)) {
             $tour360 = $this->extractUrlList(get_post_meta($postId, '_homlity_sync_media_tour_360', true));
         }
-        if ($brochure === '') {
+        if ($brochureFallbackOk && $brochure === '') {
             $brochure = $this->extractSingleUrl(get_post_meta($postId, '_homlity_sync_media_brochure', true));
         }
 
-        // Final fallback: query homlity-sync API detail by external sync ID
-        // when local meta/payload are missing multimedia.
-        if (empty($videos) && empty($photos360) && empty($tour360) && $brochure === '') {
+        // Final fallback: query homlity-sync API when all eligible fields are still empty.
+        $anyStillMissing = ($videosFallbackOk && empty($videos))
+            || ($photos360FallbackOk && empty($photos360))
+            || ($tour360FallbackOk && empty($tour360))
+            || ($brochureFallbackOk && $brochure === '');
+
+        if ($anyStillMissing) {
             $externalId = sanitize_text_field((string) get_post_meta($postId, '_homlity_sync_id', true));
             if ($externalId !== '') {
                 $remoteMedia = $this->fetchMediaFromHomlitySync($externalId);
-                if (!empty($remoteMedia['videos'])) {
+                if ($videosFallbackOk && empty($videos) && !empty($remoteMedia['videos'])) {
                     $videos = $this->extractUrlList($remoteMedia['videos']);
                 }
-                if (!empty($remoteMedia['photos_360'])) {
+                if ($photos360FallbackOk && empty($photos360) && !empty($remoteMedia['photos_360'])) {
                     $photos360 = $this->extractUrlList($remoteMedia['photos_360']);
                 }
-                if (!empty($remoteMedia['tour_360'])) {
+                if ($tour360FallbackOk && empty($tour360) && !empty($remoteMedia['tour_360'])) {
                     $tour360 = $this->extractUrlList($remoteMedia['tour_360']);
                 }
-                if ($brochure === '' && !empty($remoteMedia['brochure'])) {
+                if ($brochureFallbackOk && $brochure === '' && !empty($remoteMedia['brochure'])) {
                     $brochure = $this->extractSingleUrl($remoteMedia['brochure']);
                 }
             }
         }
 
-        $meta['videos'] = $videos;
+        $meta['videos']     = $videos;
         $meta['photos_360'] = $photos360;
-        $meta['tour_360'] = $tour360;
-        $meta['brochure'] = $brochure;
+        $meta['tour_360']   = $tour360;
+        $meta['brochure']   = $brochure;
 
         return $meta;
     }
@@ -1139,25 +1195,30 @@ class PropertyPostType implements ServiceInterface
 
     public function saveMeta(int $postId, \WP_Post $post): void
     {
-        $hasLegacyNonces = isset(
-            $_POST['property_price_nonce_field'],
-            $_POST['property_details_nonce_field'],
-            $_POST['property_gallery_nonce_field'],
-            $_POST['property_operation_nonce_field'],
-            $_POST['property_type_nonce_field']
-        );
-        $hasReactNonce = isset($_POST['homlity_react_editor_nonce']) &&
-            wp_verify_nonce((string) $_POST['homlity_react_editor_nonce'], 'homlity_react_editor');
-
-        if ($hasLegacyNonces) {
-            if (!wp_verify_nonce((string) $_POST['property_price_nonce_field'], 'property_price_nonce') ||
-                !wp_verify_nonce((string) $_POST['property_details_nonce_field'], 'property_details_nonce') ||
-                !wp_verify_nonce((string) $_POST['property_gallery_nonce_field'], 'property_gallery_nonce') ||
-                !wp_verify_nonce((string) $_POST['property_operation_nonce_field'], 'property_operation_nonce') ||
-                !wp_verify_nonce((string) $_POST['property_type_nonce_field'], 'property_type_nonce')) {
+        // React editor path: verify nonce first, fail fast if missing or invalid.
+        if (isset($_POST['homlity_react_editor_nonce'])) {
+            if (!wp_verify_nonce(
+                sanitize_text_field(wp_unslash($_POST['homlity_react_editor_nonce'])),
+                'homlity_react_editor'
+            )) {
                 return;
             }
-        } elseif (!$hasReactNonce) {
+        } elseif (
+            isset(
+                $_POST['property_price_nonce_field'],
+                $_POST['property_details_nonce_field'],
+                $_POST['property_gallery_nonce_field'],
+                $_POST['property_operation_nonce_field'],
+                $_POST['property_type_nonce_field']
+            )
+            && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['property_price_nonce_field'])), 'property_price_nonce')
+            && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['property_details_nonce_field'])), 'property_details_nonce')
+            && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['property_gallery_nonce_field'])), 'property_gallery_nonce')
+            && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['property_operation_nonce_field'])), 'property_operation_nonce')
+            && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['property_type_nonce_field'])), 'property_type_nonce')
+        ) {
+            // Legacy nonces verified — continue below.
+        } else {
             return;
         }
 
@@ -1270,7 +1331,11 @@ class PropertyPostType implements ServiceInterface
         $isSyncedProperty = $this->isSyncedProperty($postId);
 
         foreach ($this->metaKeys as $key => $metaKey) {
-            $value = $_POST['property_' . $key] ?? null;
+            // wp_unslash() is required because WordPress applies addslashes() (wp_magic_quotes)
+            // to all $_POST values. Without it, JSON strings sent from JavaScript are corrupted:
+            // '["https://..."]' becomes '[\"https://...\"]', which json_decode() cannot parse.
+            $rawPost = $_POST['property_' . $key] ?? null;
+            $value   = $rawPost !== null ? wp_unslash($rawPost) : null;
             // For checkboxes/booleans ensure a default value is stored.
             if (in_array($key, ['featured', 'admin_included'], true) && $value === null) {
                 $value = 0;
@@ -1296,11 +1361,13 @@ class PropertyPostType implements ServiceInterface
         $this->saveGalleryFromRequest($postId);
         $this->saveFeatureTerms($postId);
         $this->saveNearbyTerms($postId);
+        $this->saveTagTerms($postId);
 
         $this->saveLocationTerms($postId);
         $this->saveOperationTerm($postId);
         $this->saveTypeTerm($postId);
         $this->saveAutomaticCodeIfNeeded($postId);
+        $this->maybeNormalizePublishedSlug($postId);
 
         if (!empty($validationErrors)) {
             $this->appendValidationErrorToRedirect($validationErrors);
@@ -1341,7 +1408,7 @@ class PropertyPostType implements ServiceInterface
     {
         $missing = [];
 
-        $title = trim((string) ($_POST['post_title'] ?? $post->post_title));
+        $title = trim(sanitize_text_field(wp_unslash((string) ($_POST['post_title'] ?? $post->post_title))));
         if ($title === '') {
             $missing['title'] = __('Título', 'homlity-real-estate');
         }
@@ -1580,6 +1647,20 @@ class PropertyPostType implements ServiceInterface
         wp_set_object_terms($postId, $nearbyIds, PropertyTaxonomies::TAXONOMY_NEARBY, false);
     }
 
+    private function saveTagTerms(int $postId): void
+    {
+        $raw = $_POST['property_tags'] ?? [];
+        $tagIds = [];
+        if (is_array($raw)) {
+            $tagIds = array_map('absint', $raw);
+        } else {
+            $tagIds = array_map('absint', array_filter(array_map('trim', explode(',', (string) $raw))));
+        }
+
+        $tagIds = array_values(array_filter($tagIds));
+        wp_set_object_terms($postId, $tagIds, PropertyTaxonomies::TAXONOMY_TAG, false);
+    }
+
     /**
      * @param mixed $value
      * @return array<int, string>
@@ -1590,7 +1671,10 @@ class PropertyPostType implements ServiceInterface
         if (is_array($value)) {
             $items = $value;
         } else {
-            $raw = (string) $value;
+            // wp_unslash() strips the addslashes() that WordPress applies via wp_magic_quotes()
+            // before every request. Without this, JSON sent from JavaScript is corrupted and
+            // json_decode() returns null, causing URLs to be silently dropped.
+            $raw = wp_unslash((string) $value);
             $decoded = json_decode($raw, true);
             if (is_array($decoded)) {
                 $items = $decoded;
@@ -1828,6 +1912,70 @@ class PropertyPostType implements ServiceInterface
         return (string) $num;
     }
 
+    private function maybeNormalizePublishedSlug(int $postId): void
+    {
+        $post = get_post($postId);
+        if (!$post instanceof \WP_Post || $post->post_type !== self::POST_TYPE) {
+            return;
+        }
+
+        if ($post->post_status !== 'publish') {
+            return;
+        }
+
+        $title = trim((string) $post->post_title);
+        if ($title === '') {
+            return;
+        }
+
+        $currentSlug = sanitize_title((string) $post->post_name);
+        if (!$this->shouldReplacePlaceholderSlug($currentSlug)) {
+            return;
+        }
+
+        $desiredSlug = sanitize_title($title);
+        if ($desiredSlug === '') {
+            return;
+        }
+
+        $uniqueSlug = wp_unique_post_slug(
+            $desiredSlug,
+            $postId,
+            $post->post_status,
+            $post->post_type,
+            (int) $post->post_parent
+        );
+
+        if ($uniqueSlug === '' || $uniqueSlug === $post->post_name) {
+            return;
+        }
+
+        remove_action('save_post_' . self::POST_TYPE, [$this, 'saveMeta'], 10);
+        wp_update_post([
+            'ID' => $postId,
+            'post_name' => $uniqueSlug,
+        ]);
+        add_action('save_post_' . self::POST_TYPE, [$this, 'saveMeta'], 10, 2);
+    }
+
+    private function shouldReplacePlaceholderSlug(string $slug): bool
+    {
+        if ($slug === '') {
+            return true;
+        }
+
+        $placeholders = [
+            'auto-draft',
+            'borrador-automatico',
+        ];
+
+        if (in_array($slug, $placeholders, true)) {
+            return true;
+        }
+
+        return (bool) preg_match('/^(auto-draft|borrador-automatico)(-\d+)?$/', $slug);
+    }
+
     private function saveLocationTerms(int $postId): void
     {
         foreach ($this->locationTaxonomies as $key => $taxonomy) {
@@ -1985,7 +2133,7 @@ class PropertyPostType implements ServiceInterface
             $priceAdmin = (string) get_post_meta($postId, '_property_price_admin', true);
 
             $value = '';
-            if (str_contains($operation, 'arriendo') || str_contains($operation, 'rent')) {
+            if (strpos($operation, 'arriendo') !== false || strpos($operation, 'rent') !== false) {
                 $value = $priceRent !== '' ? $priceRent : $priceSale;
             } else {
                 $value = $priceSale !== '' ? $priceSale : $priceRent;

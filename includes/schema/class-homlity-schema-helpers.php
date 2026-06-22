@@ -280,7 +280,11 @@ class Homlity_Schema_Helpers
         }
 
         $gallery_raw = get_post_meta($post_id, self::meta_key('gallery'), true);
-        $ids = array_filter(array_map('absint', explode(',', (string) $gallery_raw)));
+        if (is_array($gallery_raw)) {
+            $ids = array_filter(array_map('absint', $gallery_raw));
+        } else {
+            $ids = array_filter(array_map('absint', explode(',', (string) $gallery_raw)));
+        }
         foreach ($ids as $att_id) {
             if ($att_id === $thumb || isset($urls[$att_id])) {
                 continue;

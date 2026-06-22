@@ -525,11 +525,20 @@
     }
 
     // Re-init when Elementor renders a widget in the editor
-    if (window.elementorFrontend) {
-        window.elementorFrontend.hooks.addAction(
+    function bindElementorHook() {
+        var ef = window.elementorFrontend;
+        if (!ef) {
+            return;
+        }
+        var hooks = ef.hooks;
+        if (!hooks || typeof hooks.addAction !== 'function') {
+            return;
+        }
+        hooks.addAction(
             'frontend/element_ready/property_listing.default',
             function ($scope) {
-                $scope[0].querySelectorAll('.property-listing').forEach(function (el) {
+                var scopeNode = $scope && $scope[0] ? $scope[0] : document;
+                scopeNode.querySelectorAll('.property-listing').forEach(function (el) {
                     if (!el.dataset.hlInit) {
                         el.dataset.hlInit = '1';
                         new PropertyListing(el);
@@ -538,4 +547,7 @@
             }
         );
     }
+
+    bindElementorHook();
+    window.addEventListener('elementor/frontend/init', bindElementorHook);
 })();

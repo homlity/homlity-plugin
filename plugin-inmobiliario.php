@@ -3,11 +3,12 @@
 /**
  * Plugin Name: Homlity Real Estate
  * Description: Homlity Real Estate, gestor de inmuebles, asesores, SEO y GEO listo para WordPress.
- * Version:     1.3.15
+ * Version:     1.4.0
  * Author:      Ecosistema Inmobiliario Homlity
  * Author URI:  https://homlity.com/
  * Plugin URI:  https://homlity.com/plugin-integracion-homlity-real-estate-para-wordpress/
  * Text Domain: homlity-real-estate
+ * Domain Path: /languages
  * License:     GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
@@ -24,12 +25,20 @@ define('HOMLITY_RE_PLUGIN_URL',  plugin_dir_url(__FILE__));
 if (!defined('HOMLITY_PLUGIN_FILE'))             define('HOMLITY_PLUGIN_FILE', __FILE__);
 if (!defined('HOMLITY_PLUGIN_PATH'))             define('HOMLITY_PLUGIN_PATH', plugin_dir_path(__FILE__));
 if (!defined('HOMLITY_PLUGIN_URL'))              define('HOMLITY_PLUGIN_URL', plugin_dir_url(__FILE__));
-if (!defined('HOMLITY_PLUGIN_VERSION'))          define('HOMLITY_PLUGIN_VERSION', '1.3.15');
+if (!defined('HOMLITY_PLUGIN_VERSION'))          define('HOMLITY_PLUGIN_VERSION', '1.4.0');
 if (!defined('HOMLITY_PLUGIN_SLUG'))             define('HOMLITY_PLUGIN_SLUG', 'homlity-real-estate');
 if (!defined('HOMLITY_PLUGIN_TEXT_DOMAIN'))      define('HOMLITY_PLUGIN_TEXT_DOMAIN', 'homlity-real-estate');
 if (!defined('HOMLITY_PLUGIN_SETTINGS_OPTION'))  define('HOMLITY_PLUGIN_SETTINGS_OPTION', 'homlity_plugin_settings');
 if (!defined('HOMLITY_PLUGIN_VERSION_OPTION'))   define('HOMLITY_PLUGIN_VERSION_OPTION', 'homlity_plugin_version');
 if (!defined('HOMLITY_PLUGIN_NAMESPACE_PREFIX')) define('HOMLITY_PLUGIN_NAMESPACE_PREFIX', 'Homlity\\PluginInmobiliario\\');
+
+add_action('init', static function (): void {
+    load_plugin_textdomain(
+        HOMLITY_PLUGIN_TEXT_DOMAIN,
+        false,
+        dirname(plugin_basename(__FILE__)) . '/languages/'
+    );
+});
 
 if (!function_exists('homlity_plugin_get_option')) {
     function homlity_plugin_get_option(string $optionName, string $legacyOptionName, $default = false)
@@ -94,6 +103,20 @@ if (!function_exists('homlity_plugin_apply_filters')) {
         $GLOBALS['homlity_plugin_filter_bridge'] = $bridgeState;
 
         return $value;
+    }
+}
+
+if (!function_exists('homlity_render_simulator')) {
+    function homlity_render_simulator(string $mode): string
+    {
+        return \Homlity\PluginInmobiliario\Services\SimulatorService::renderSimulator($mode);
+    }
+}
+
+if (!function_exists('codwelt_homlity_render_simulator')) {
+    function codwelt_homlity_render_simulator(string $mode): string
+    {
+        return homlity_render_simulator($mode);
     }
 }
 

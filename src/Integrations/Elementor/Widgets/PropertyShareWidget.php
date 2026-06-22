@@ -61,6 +61,29 @@ class PropertyShareWidget extends BasePropertyWidget
             'type' => Controls_Manager::TEXT,
             'default' => __('Compartir en:', 'homlity-real-estate'),
         ]);
+        $this->add_control('show_labels', [
+            'label'     => __('Mostrar etiqueta', 'homlity-real-estate'),
+            'type'      => Controls_Manager::SWITCHER,
+            'default'   => 'yes',
+            'separator' => 'before',
+        ]);
+        $this->add_control('show_label_toggle', [
+            'label'       => __('Botón alternar etiquetas', 'homlity-real-estate'),
+            'type'        => Controls_Manager::SWITCHER,
+            'description' => __('Añade un botón en el frontend para que el visitante muestre u oculte las etiquetas.', 'homlity-real-estate'),
+        ]);
+        $this->add_control('label_toggle_hide_text', [
+            'label'     => __('Texto "ocultar"', 'homlity-real-estate'),
+            'type'      => Controls_Manager::TEXT,
+            'default'   => __('Ocultar etiquetas', 'homlity-real-estate'),
+            'condition' => ['show_label_toggle' => 'yes'],
+        ]);
+        $this->add_control('label_toggle_show_text', [
+            'label'     => __('Texto "mostrar"', 'homlity-real-estate'),
+            'type'      => Controls_Manager::TEXT,
+            'default'   => __('Mostrar etiquetas', 'homlity-real-estate'),
+            'condition' => ['show_label_toggle' => 'yes'],
+        ]);
 
         foreach ($this->platformsConfig() as $key => $platform) {
             $this->add_control('show_' . $key, [
@@ -192,12 +215,18 @@ class PropertyShareWidget extends BasePropertyWidget
         $this->add_control('icon_color', [
             'label'     => __('Color', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-share__icon' => 'color: {{VALUE}};'],
+            'selectors' => [
+                '{{WRAPPER}} .property-share__icon'     => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-share__icon svg' => 'fill: {{VALUE}};',
+            ],
         ]);
         $this->add_control('icon_color_hover', [
             'label'     => __('Color (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-share__link:hover .property-share__icon' => 'color: {{VALUE}};'],
+            'selectors' => [
+                '{{WRAPPER}} .property-share__link:hover .property-share__icon'     => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-share__link:hover .property-share__icon svg' => 'fill: {{VALUE}};',
+            ],
         ]);
         $this->add_responsive_control('icon_size', [
             'label'      => __('Tamaño', 'homlity-real-estate'),
@@ -215,20 +244,75 @@ class PropertyShareWidget extends BasePropertyWidget
             'label'     => __('Texto', 'homlity-real-estate'),
             'type'      => Controls_Manager::HEADING,
             'separator' => 'before',
+            'condition' => ['show_labels' => 'yes'],
         ]);
         $this->add_group_control(Group_Control_Typography::get_type(), [
-            'name'     => 'label_typography',
-            'selector' => '{{WRAPPER}} .property-share__label',
+            'name'      => 'label_typography',
+            'selector'  => '{{WRAPPER}} .property-share__label',
+            'condition' => ['show_labels' => 'yes'],
         ]);
         $this->add_control('label_color', [
             'label'     => __('Color', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-share__label' => 'color: {{VALUE}};'],
+            'condition' => ['show_labels' => 'yes'],
         ]);
         $this->add_control('label_color_hover', [
             'label'     => __('Color (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-share__link:hover .property-share__label' => 'color: {{VALUE}};'],
+            'condition' => ['show_labels' => 'yes'],
+        ]);
+
+        // — Botón alternar etiquetas —
+        $this->add_control('toggle_btn_heading', [
+            'label'     => __('Botón alternar etiquetas', 'homlity-real-estate'),
+            'type'      => Controls_Manager::HEADING,
+            'separator' => 'before',
+            'condition' => ['show_label_toggle' => 'yes'],
+        ]);
+        $this->add_group_control(Group_Control_Typography::get_type(), [
+            'name'      => 'toggle_btn_typography',
+            'selector'  => '{{WRAPPER}} .property-share__toggle-btn',
+            'condition' => ['show_label_toggle' => 'yes'],
+        ]);
+        $this->add_control('toggle_btn_color', [
+            'label'     => __('Color texto', 'homlity-real-estate'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-share__toggle-btn' => 'color: {{VALUE}};'],
+            'condition' => ['show_label_toggle' => 'yes'],
+        ]);
+        $this->add_control('toggle_btn_bg', [
+            'label'     => __('Fondo', 'homlity-real-estate'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-share__toggle-btn' => 'background-color: {{VALUE}};'],
+            'condition' => ['show_label_toggle' => 'yes'],
+        ]);
+        $this->add_control('toggle_btn_color_hover', [
+            'label'     => __('Color texto (hover)', 'homlity-real-estate'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-share__toggle-btn:hover' => 'color: {{VALUE}};'],
+            'condition' => ['show_label_toggle' => 'yes'],
+        ]);
+        $this->add_control('toggle_btn_bg_hover', [
+            'label'     => __('Fondo (hover)', 'homlity-real-estate'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-share__toggle-btn:hover' => 'background-color: {{VALUE}};'],
+            'condition' => ['show_label_toggle' => 'yes'],
+        ]);
+        $this->add_responsive_control('toggle_btn_padding', [
+            'label'      => __('Padding', 'homlity-real-estate'),
+            'type'       => Controls_Manager::DIMENSIONS,
+            'size_units' => ['px', 'em', '%'],
+            'selectors'  => ['{{WRAPPER}} .property-share__toggle-btn' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
+            'condition'  => ['show_label_toggle' => 'yes'],
+        ]);
+        $this->add_responsive_control('toggle_btn_radius', [
+            'label'      => __('Radio borde', 'homlity-real-estate'),
+            'type'       => Controls_Manager::DIMENSIONS,
+            'size_units' => ['px', '%'],
+            'selectors'  => ['{{WRAPPER}} .property-share__toggle-btn' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
+            'condition'  => ['show_label_toggle' => 'yes'],
         ]);
 
         // — Valor (URL compartida) —

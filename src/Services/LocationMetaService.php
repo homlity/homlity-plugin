@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.Security.NonceVerification.Missing
 // phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 /**
  * Adds parent relations for location taxonomies and exposes filtered term lists.
@@ -36,28 +35,45 @@ class LocationMetaService implements ServiceInterface
 
     private function hookTermFields(string $taxonomy, string $parentTaxonomy, string $parentLabel): void
     {
-        add_action($taxonomy . '_add_form_fields', function () use ($parentTaxonomy, $parentLabel) {
+        $nonceAction = 'homlrees_location_parent_' . $taxonomy;
+        $nonceName   = '_homlrees_location_nonce_' . $taxonomy;
+
+        add_action($taxonomy . '_add_form_fields', function () use ($parentTaxonomy, $parentLabel, $taxonomy, $nonceAction, $nonceName) {
             $this->renderParentField('parent_' . $taxonomy, $parentTaxonomy, $parentLabel, 0);
+            wp_nonce_field($nonceAction, $nonceName);
         });
 
-        add_action($taxonomy . '_edit_form_fields', function ($term) use ($parentTaxonomy, $parentLabel, $taxonomy) {
+        add_action($taxonomy . '_edit_form_fields', function ($term) use ($parentTaxonomy, $parentLabel, $taxonomy, $nonceAction, $nonceName) {
             $parentId = (int) get_term_meta($term->term_id, self::META_KEYS[$taxonomy] ?? '', true);
             ?>
             <tr class="form-field">
                 <th scope="row"><label><?php echo esc_html($parentLabel); ?></label></th>
                 <td>
-                    <?php $this->renderParentSelect('parent_' . $taxonomy, $parentTaxonomy, $parentLabel, $parentId); ?>
+                    <?php
+                    $this->renderParentSelect('parent_' . $taxonomy, $parentTaxonomy, $parentLabel, $parentId);
+                    wp_nonce_field($nonceAction, $nonceName);
+                    ?>
                 </td>
             </tr>
             <?php
         });
 
-        $saveCallback = function ($termId) use ($taxonomy, $parentTaxonomy) {
+        $saveCallback = function ($termId) use ($taxonomy, $parentTaxonomy, $nonceAction, $nonceName) {
+            if (!isset($_POST[$nonceName]) ||
+                !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST[$nonceName])), $nonceAction)
+            ) {
+                return;
+            }
+
+            if (!current_user_can('manage_categories')) {
+                return;
+            }
+
             $metaKey = self::META_KEYS[$taxonomy] ?? '';
             if (!$metaKey) {
                 return;
             }
-            $field = 'parent_' . $taxonomy;
+            $field      = 'parent_' . $taxonomy;
             $legacyField = 'parent_' . $parentTaxonomy;
             $value = isset($_POST[$field])
                 ? absint($_POST[$field])

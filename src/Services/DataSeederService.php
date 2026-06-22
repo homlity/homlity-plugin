@@ -37,6 +37,7 @@ class DataSeederService
         ]);
 
         $this->seedTaxonomy(PropertyTaxonomies::TAXONOMY_TAG, [
+            'Destacado',
             'Nueva',
             'Remodelada',
             'Amoblada',

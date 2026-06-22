@@ -83,6 +83,11 @@ if ($shareText === '') {
 }
 $headingText  = trim((string) ($s['heading_text'] ?? __('Compartir en:', 'homlity-real-estate')));
 
+$showLabels      = ($s['show_labels']       ?? 'yes') === 'yes';
+$showToggle      = ($s['show_label_toggle'] ?? '')    === 'yes';
+$toggleHideText  = trim((string) ($s['label_toggle_hide_text'] ?? __('Ocultar etiquetas',  'homlity-real-estate')));
+$toggleShowText  = trim((string) ($s['label_toggle_show_text'] ?? __('Mostrar etiquetas', 'homlity-real-estate')));
+
 $platforms = [
     'whatsapp'  => [
         'label' => $s['label_whatsapp']  ?? __('WhatsApp',      'homlity-real-estate'),
@@ -131,10 +136,25 @@ $platforms = [
     ],
 ];
 
+$wrapperClass = 'property-share-widget property-share-widget--inline';
+if (!$showLabels) {
+    $wrapperClass .= ' property-share-widget--labels-hidden';
+}
 ?>
-<div class="property-share-widget property-share-widget--inline">
+<div class="<?php echo esc_attr($wrapperClass); ?>">
     <?php if ($headingText !== ''): ?>
         <p class="property-share-widget__heading"><?php echo esc_html($headingText); ?></p>
+    <?php endif; ?>
+    <?php if ($showToggle): ?>
+        <button
+            type="button"
+            class="property-share__toggle-btn"
+            data-label-hide="<?php echo esc_attr($toggleHideText); ?>"
+            data-label-show="<?php echo esc_attr($toggleShowText); ?>"
+            aria-pressed="<?php echo $showLabels ? 'true' : 'false'; ?>"
+        >
+            <?php echo esc_html($showLabels ? $toggleHideText : $toggleShowText); ?>
+        </button>
     <?php endif; ?>
     <ul class="property-share-widget__list">
         <?php foreach ($platforms as $key => $platform): ?>
@@ -167,7 +187,7 @@ $platforms = [
                     <?php else: ?>
                         <span class="property-share__icon" aria-hidden="true">•</span>
                     <?php endif; ?>
-                    <span class="screen-reader-text"><?php echo esc_html($platform['label']); ?></span>
+                    <span class="property-share__label"><?php echo esc_html($platform['label']); ?></span>
                 </a>
             </li>
         <?php endforeach; ?>

@@ -123,6 +123,7 @@ $cardOptions = array_merge([
     'feature_icon_age' => 'clock',
     'feature_icon_condition' => 'diamond',
     'feature_icon_code' => 'hash',
+    'link_new_tab' => false,
 ], $cardOptions);
 
 // Pricing
@@ -236,7 +237,7 @@ $hoverClass = ' property-card--hover-' . sanitize_html_class($hoverEffect);
             </span>
         <?php endif; ?>
 
-        <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="text-decoration-none">
+        <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="text-decoration-none"<?php if (!empty($cardOptions['link_new_tab'])): ?> target="_blank" rel="noopener noreferrer"<?php endif; ?>>
             <?php if (!empty($tagTerms)): ?>
                 <div class="property-card__media-tags">
                     <?php foreach ($tagTerms as $tagName): ?>
@@ -333,7 +334,7 @@ $hoverClass = ' property-card--hover-' . sanitize_html_class($hoverEffect);
             <?php endif; ?>
 
             <?php if (!$isCoverOverlayPreset && !empty($cardOptions['show_title'])) : ?>
-                <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="text-decoration-none text-dark">
+                <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="text-decoration-none text-dark"<?php if (!empty($cardOptions['link_new_tab'])): ?> target="_blank" rel="noopener noreferrer"<?php endif; ?>>
                     <p class="card-title fs-6 mb-0 fw-semibold" itemprop="name">
                         <?php echo esc_html(get_the_title($post_id)); ?>
                     </p>

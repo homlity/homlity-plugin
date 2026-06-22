@@ -35,9 +35,11 @@ class Homlity_Consignment_Manager
         require_once $dir . '/class-homlity-consignment-notifications.php';
         require_once $dir . '/class-homlity-consignment-rest-controller.php';
         require_once $dir . '/class-homlity-consignment-admin.php';
+        require_once $dir . '/class-homlity-consignacion-rest-controller.php';
 
         // REST routes
         add_action('rest_api_init', ['Homlity_Consignment_Rest_Controller', 'register_routes']);
+        add_action('rest_api_init', ['Homlity_Consignacion_Rest_Controller', 'register_routes']);
 
         // Shortcode
         add_shortcode('homlity_consignment_form', [self::class, 'renderShortcode']);
@@ -45,6 +47,10 @@ class Homlity_Consignment_Manager
         // Admin submenu via existing hook
         add_action('homlity_plugin_register_integration_submenus', ['Homlity_Consignment_Admin', 'registerMenu']);
         add_action('admin_post_homlity_consignment_save', ['Homlity_Consignment_Admin', 'handleSave']);
+        add_action('admin_post_homlity_consignment_create_page', ['Homlity_Consignment_Admin', 'handleCreatePage']);
+
+        // Admin notice when the consignment page is missing
+        add_action('admin_notices', [self::class, 'maybeShowPageNotice']);
 
         // Elementor widget (no-op if Elementor is absent)
         add_action('elementor/widgets/register', [self::class, 'registerElementorWidget']);
@@ -56,35 +62,60 @@ class Homlity_Consignment_Manager
     public static function renderShortcode($raw_atts): string
     {
         $atts = shortcode_atts([
-            'provider'     => self::option('provider', 'public-consignment'),
-            'redirect_url' => self::option('redirect_url', ''),
-            'layout'       => 'default',
-            'theme'        => 'light',
-            'title'        => '',
+            'provider'       => self::option('provider', 'public-consignment'),
+            'redirect_url'   => self::option('redirect_url', ''),
+            'primary_color'  => self::option('primary_color', '#2563eb'),
+            'text_color'     => self::option('text_color', '#1f2937'),
         ], (array) $raw_atts, 'homlity_consignment_form');
 
         self::enqueueAssets();
 
-        $provider     = sanitize_key($atts['provider']);
-        $redirect_url = esc_url_raw($atts['redirect_url']);
-        $layout       = sanitize_key($atts['layout']);
-        $theme        = in_array($atts['theme'], ['light', 'dark'], true) ? $atts['theme'] : 'light';
+        $primary_color = sanitize_hex_color($atts['primary_color']) ?: '#2563eb';
+        $text_color    = sanitize_hex_color($atts['text_color'])    ?: '#1f2937';
 
-        wp_localize_script('homlity-consignment-form', 'homlityConsignmentConfig', [
-            'restBase'    => esc_url_raw(rest_url('homlity/v1/consignment')),
-            'nonce'       => wp_create_nonce('wp_rest'),
-            'provider'    => $provider,
-            'redirectUrl' => $redirect_url,
-            'layout'      => $layout,
-            'theme'       => $theme,
-            'siteTitle'   => get_bloginfo('name'),
+        // The configuracion object is injected after the element mounts.
+        // urlPlugin must be without trailing slash: /wp-json/homlity
+        $url_plugin   = untrailingslashit(rest_url('homlity'));
+        $configuracion = wp_json_encode([
+            'urlPlugin'       => $url_plugin,
+            'theme'           => [
+                'color' => [
+                    'primary' => $primary_color,
+                    'text'    => $text_color,
+                ],
+            ],
+            'georeferencing'  => [
+                'country' => [
+                    'id'   => 1,
+                    'name' => sanitize_text_field(self::option('default_country', 'Colombia')),
+                ],
+            ],
         ]);
 
+        // Unique ID to support multiple shortcodes on same page
+        static $instance = 0;
+        $instance++;
+        $el_id = 'homlity-consignacion-' . $instance;
+
+        // Inject config as an inline script that runs AFTER the Vue bundle.
+        // wp_add_inline_script appends JS to the bundle's script tag in the footer,
+        // so by the time it executes the custom element is already defined and mounted.
+        wp_add_inline_script(
+            'homlity-consignacion',
+            '(function(){var el=document.getElementById(' . wp_json_encode($el_id) . ');'
+            . 'if(el){el.configuracion=' . $configuracion . ';}})()',
+            'after'
+        );
+
+        // --primary se inyecta como inline style para que el color sea visible
+        // desde el primer render, sin esperar al watcher de Vue.
         return sprintf(
-            '<div id="homlity-consignment-form-root" class="homlity-consignment-form" data-provider="%s" data-theme="%s" data-layout="%s"></div>',
-            esc_attr($provider),
-            esc_attr($theme),
-            esc_attr($layout)
+            '<div class="homlity-consignment-wrap" style="--primary:%s;--homlity-text:%s;">' .
+            '<homlity-consignacion id="%s"></homlity-consignacion>' .
+            '</div>',
+            esc_attr($primary_color),
+            esc_attr($text_color),
+            esc_attr($el_id)
         );
     }
 
@@ -95,17 +126,11 @@ class Homlity_Consignment_Manager
         $dist = HOMLITY_PLUGIN_URL . 'assets/dist/';
         $ver  = HOMLITY_PLUGIN_VERSION;
 
-        wp_enqueue_style(
-            'homlity-consignment-form',
-            $dist . 'consignment.css',
-            [],
-            $ver
-        );
-
+        // Vue web component bundle (self-contained, no dependencies)
         wp_enqueue_script(
-            'homlity-consignment-form',
-            $dist . 'consignment.js',
-            ['wp-element', 'wp-api-fetch', 'wp-i18n'],
+            'homlity-consignacion',
+            $dist . 'homlity-consignacion.js',
+            [],
             $ver,
             true
         );
@@ -214,5 +239,98 @@ class Homlity_Consignment_Manager
             'text_color'           => '#1f2937',
             'border_radius'        => '8',
         ];
+    }
+
+    // ── Consignment page management ───────────────────────────────────────
+
+    const PAGE_ID_OPTION = 'homlity_consignment_page_id';
+
+    /**
+     * Creates the public consignment page if it doesn't already exist.
+     * Safe to call multiple times: returns existing page ID if the page is still live.
+     *
+     * @return int  Post ID on success, 0 on failure.
+     */
+    public static function createConsignmentPage(): int
+    {
+        $existing_id = (int) get_option(self::PAGE_ID_OPTION, 0);
+
+        // If the stored page still exists and is not trashed/deleted, return it.
+        if ($existing_id > 0) {
+            $status = get_post_status($existing_id);
+            if ($status !== false && $status !== 'trash') {
+                return $existing_id;
+            }
+        }
+
+        $page_id = wp_insert_post([
+            'post_type'    => 'page',
+            'post_title'   => __('Consigna tu Inmueble', 'homlity-real-estate'),
+            'post_name'    => 'consigna-tu-inmueble',
+            'post_content' => '[homlity_consignment_form]',
+            'post_status'  => 'publish',
+            'post_author'  => (int) get_option('default_post_author', 1),
+        ], true);
+
+        if (is_wp_error($page_id) || $page_id <= 0) {
+            return 0;
+        }
+
+        update_option(self::PAGE_ID_OPTION, $page_id, false);
+        return $page_id;
+    }
+
+    /**
+     * Forces recreation of the consignment page (ignores existing stored ID).
+     *
+     * @return int  New post ID, 0 on failure.
+     */
+    public static function recreateConsignmentPage(): int
+    {
+        delete_option(self::PAGE_ID_OPTION);
+        return self::createConsignmentPage();
+    }
+
+    /**
+     * Returns the stored consignment page ID (0 if not set or deleted).
+     */
+    public static function getConsignmentPageId(): int
+    {
+        $id = (int) get_option(self::PAGE_ID_OPTION, 0);
+        if ($id <= 0) {
+            return 0;
+        }
+        $status = get_post_status($id);
+        return ($status !== false && $status !== 'trash') ? $id : 0;
+    }
+
+    /**
+     * Shows a one-time admin notice on Homlity screens when the consignment
+     * page has never been created or was deleted.
+     */
+    public static function maybeShowPageNotice(): void
+    {
+        // Only on Homlity admin pages
+        $screen = get_current_screen();
+        if (!$screen || strpos($screen->id, 'homlity') === false) {
+            return;
+        }
+
+        if (self::getConsignmentPageId() > 0) {
+            return;
+        }
+
+        $create_url = wp_nonce_url(
+            admin_url('admin-post.php?action=homlity_consignment_create_page'),
+            'homlity_consignment_create_page'
+        );
+        printf(
+            '<div class="notice notice-warning"><p>'
+            . '<strong>%s</strong> %s &nbsp; <a href="%s" class="button button-primary">%s</a></p></div>',
+            esc_html__('Homlity Consignación:', 'homlity-real-estate'),
+            esc_html__('No existe la página pública de consignación de inmuebles.', 'homlity-real-estate'),
+            esc_url($create_url),
+            esc_html__('Crear página ahora', 'homlity-real-estate')
+        );
     }
 }

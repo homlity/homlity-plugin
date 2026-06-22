@@ -6,6 +6,7 @@ use Elementor\Controls_Manager;
 use Elementor\Group_Control_Text_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Widget_Base;
+use Homlity\PluginInmobiliario\Services\PropertySearchService;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 
 if (!defined('ABSPATH')) {
@@ -143,8 +144,14 @@ class PropertyResultsTitleWidget extends Widget_Base
         $suffix = '';
 
         if (($settings['show_total'] ?? 'yes') === 'yes') {
-            global $wp_query;
-            $total = isset($wp_query->found_posts) ? (int) $wp_query->found_posts : 0;
+            $search = new PropertySearchService();
+            $args   = $search->buildQueryArgs($search->currentQueryParams());
+            $args['fields']         = 'ids';
+            $args['no_found_rows']  = false;
+            $args['posts_per_page'] = 1;
+            $countQuery = new \WP_Query($args);
+            wp_reset_postdata();
+            $total  = (int) $countQuery->found_posts;
             $suffix = ' (' . number_format_i18n($total) . ')';
         }
 
@@ -211,7 +218,7 @@ class PropertyResultsTitleWidget extends Widget_Base
             }
 
             if (isset($_GET[$key])) {
-                return $this->normalizeValues(wp_unslash($_GET[$key]));
+                return $this->normalizeValues(sanitize_text_field(wp_unslash((string) $_GET[$key])));
             }
         }
 

@@ -92,8 +92,8 @@ class PropertyVisitTrackingService implements ServiceInterface
         }
 
         global $wpdb;
-        $ipHash = hash('sha256', (string) ($_SERVER['REMOTE_ADDR'] ?? ''));
-        $uaHash = hash('sha256', (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''));
+        $ipHash = hash('sha256', sanitize_text_field(wp_unslash((string) ($_SERVER['REMOTE_ADDR'] ?? ''))));
+        $uaHash = hash('sha256', sanitize_text_field(wp_unslash((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''))));
         $nowTs = time();
         $visitedAt = current_time('mysql');
 

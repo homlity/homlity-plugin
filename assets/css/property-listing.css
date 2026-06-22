@@ -715,24 +715,28 @@
 
 .hpf-multi__trigger {
     align-items: center;
-    background: #fff;
-    border: 2px solid #c8c8c8;
-    border-radius: 9px;
+    appearance: none;
+    background: #f7f8fa;
+    border: 1px solid var(--homlity-border);
+    border-radius: 8px;
+    color: var(--homlity-text);
     cursor: pointer;
     display: flex;
     font-family: inherit;
     gap: 8px;
-    min-height: 54px;
-    padding: 9px 14px;
+    font-size: 0.9rem;
+    min-height: 42px;
+    padding: 8px 14px;
     text-align: left;
+    transition: border-color 0.18s, box-shadow 0.18s;
     width: 100%;
-    transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .hpf-multi.is-open .hpf-multi__trigger,
 .hpf-multi:focus-within .hpf-multi__trigger {
-    border-color: #5ba86c;
-    box-shadow: 0 0 0 1px rgba(91, 168, 108, 0.15);
+    border-color: var(--homlity-primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--homlity-primary-rgb), 0.14);
+    outline: none;
 }
 
 .hpf-multi__chips {
@@ -746,17 +750,17 @@
 }
 
 .hpf-multi__placeholder {
-    color: #7a7a7a;
+    color: var(--homlity-text-soft);
     font-family: inherit;
     font-size: 0.9rem;
 }
 
 .hpf-multi__summary {
-    color: #3f7f4c;
+    color: var(--homlity-text);
     display: inline-block;
     font-family: inherit;
-    font-size: 0.84rem;
-    font-weight: 600;
+    font-size: 0.9rem;
+    font-weight: 400;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -765,17 +769,17 @@
 
 .hpf-multi__chip {
     align-items: center;
-    border: 2px solid #88be91;
-    border-radius: 999px;
-    color: #4f9e61;
+    background: #fff;
+    border: 1px solid var(--homlity-border);
+    border-radius: 8px;
+    color: var(--homlity-text);
     display: inline-flex;
     font-family: inherit;
-    font-size: 0.95rem;
-    font-weight: 600;
-    gap: 7px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    gap: 6px;
     line-height: 1;
-    padding: 8px 13px;
-    background: #f9fffa;
+    padding: 6px 10px;
     max-width: 100%;
     min-width: 0;
     white-space: nowrap;
@@ -790,33 +794,36 @@
 }
 
 .hpf-multi__chip-remove {
-    background: #9ccca4;
+    align-items: center;
+    background: transparent;
     border: none;
     border-radius: 50%;
-    color: #fff;
+    color: var(--homlity-text-soft);
     cursor: pointer;
+    display: inline-flex;
     font-family: inherit;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
-    height: 22px;
-    line-height: 22px;
+    height: 16px;
+    justify-content: center;
+    line-height: 1;
     padding: 0;
-    width: 22px;
+    width: 16px;
 }
 
 .hpf-multi__arrow {
-    color: #7e7e7e;
-    font-size: 16px;
+    color: #37384a;
+    font-size: 12px;
     line-height: 1;
     margin-left: auto;
-    padding-left: 6px;
+    padding-left: 10px;
     flex: 0 0 auto;
 }
 
 .hpf-multi__menu {
     background: #fff;
-    border-radius: 0 0 10px 10px;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
     display: none;
     left: 0;
     margin-top: 6px;
@@ -825,7 +832,7 @@
     position: absolute;
     right: 0;
     z-index: 100;
-    border: 1px solid #d9d9d9;
+    border: 1px solid var(--homlity-border);
     font-family: inherit;
 }
 
@@ -836,14 +843,14 @@
 .hpf-multi__item {
     background: #fff;
     border: none;
-    color: #2c2c2c;
+    color: var(--homlity-text);
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 1rem;
-    font-weight: 500;
-    padding: 14px 18px;
+    font-size: 0.9rem;
+    font-weight: 400;
+    padding: 12px 14px;
     text-align: left;
     width: 100%;
 }
@@ -852,7 +859,7 @@
     content: "";
     width: 15px;
     height: 15px;
-    border: 1px solid #c9d8cc;
+    border: 1px solid var(--homlity-border);
     border-radius: 4px;
     background: #fff;
     flex: 0 0 auto;
@@ -973,17 +980,17 @@
 }
 
 .hpf-multi__item:nth-child(odd) {
-    background: #eff4f0;
+    background: #f9fafb;
 }
 
 .hpf-multi__item:hover,
 .hpf-multi__item.is-selected {
-    background: #dce8df;
+    background: rgba(var(--homlity-primary-rgb), 0.08);
 }
 
 .hpf-multi__item.is-selected::before {
-    background: #5ba86c;
-    border-color: #5ba86c;
+    background: var(--homlity-primary-color);
+    border-color: var(--homlity-primary-color);
     box-shadow: inset 0 0 0 3px #fff;
 }
 

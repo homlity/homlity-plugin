@@ -6,7 +6,6 @@ use Homlity\PluginInmobiliario\Services\TemplateService;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
-use Elementor\Group_Control_Image_Size;
 use Elementor\Group_Control_Typography;
 
 if (!defined('ABSPATH')) {
@@ -200,6 +199,16 @@ class PropertyAgentWidget extends BasePropertyWidget
             'name'     => 'agent_shadow',
             'selector' => '{{WRAPPER}} .property-agent-block__card',
         ]);
+        $this->add_responsive_control('info_items_gap', [
+            'label'      => __('Espacio entre ítems', 'homlity-real-estate'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['px', 'em'],
+            'range'      => ['px' => ['min' => 0, 'max' => 48]],
+            'default'    => ['unit' => 'px', 'size' => 8],
+            'selectors'  => [
+                '{{WRAPPER}} .property-agent-block__info > p' => 'margin-bottom: {{SIZE}}{{UNIT}};',
+            ],
+        ]);
 
         // — Foto —
         $this->add_control('photo_heading', [
@@ -380,39 +389,39 @@ class PropertyAgentWidget extends BasePropertyWidget
         ]);
         $this->add_group_control(Group_Control_Typography::get_type(), [
             'name'     => 'btn_typography',
-            'selector' => '{{WRAPPER}} .property-agent-block__cta',
+            'selector' => '{{WRAPPER}} a.property-agent-block__cta',
         ]);
         $this->add_responsive_control('btn_padding', [
             'label'      => __('Padding', 'homlity-real-estate'),
             'type'       => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', 'em'],
-            'selectors'  => ['{{WRAPPER}} .property-agent-block__cta' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
+            'selectors'  => ['{{WRAPPER}} a.property-agent-block__cta' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
         ]);
         $this->add_responsive_control('btn_radius', [
             'label'      => __('Radio borde', 'homlity-real-estate'),
             'type'       => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%'],
-            'selectors'  => ['{{WRAPPER}} .property-agent-block__cta' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
+            'selectors'  => ['{{WRAPPER}} a.property-agent-block__cta' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
         ]);
         $this->add_control('btn_bg', [
             'label'     => __('Fondo', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-agent-block__cta' => 'background-color: {{VALUE}};'],
+            'selectors' => ['{{WRAPPER}} a.property-agent-block__cta' => 'background-color: {{VALUE}};'],
         ]);
         $this->add_control('btn_color', [
             'label'     => __('Color texto', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-agent-block__cta' => 'color: {{VALUE}};'],
+            'selectors' => ['{{WRAPPER}} a.property-agent-block__cta' => 'color: {{VALUE}};'],
         ]);
         $this->add_control('btn_bg_hover', [
             'label'     => __('Fondo (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-agent-block__cta:hover' => 'background-color: {{VALUE}};'],
+            'selectors' => ['{{WRAPPER}} a.property-agent-block__cta:hover' => 'background-color: {{VALUE}};'],
         ]);
         $this->add_control('btn_color_hover', [
             'label'     => __('Color texto (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-agent-block__cta:hover' => 'color: {{VALUE}};'],
+            'selectors' => ['{{WRAPPER}} a.property-agent-block__cta:hover' => 'color: {{VALUE}};'],
         ]);
         $this->add_responsive_control('actions_gap', [
             'label'      => __('Espacio entre botones', 'homlity-real-estate'),

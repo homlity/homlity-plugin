@@ -24,7 +24,7 @@ class ListingConfig
         'columns'                => 3,
         'posts_per_page'         => 12,
         'orderby'                => 'date',   // 'date'|'price_asc'|'price_desc'|'title'
-        'query_mode'             => 'custom', // 'custom' | 'current'
+        'query_mode'             => 'custom', // 'custom' | 'current' | 'related_current'
         'featured_only'          => false,
         'search_keyword'         => '',
         'preset_category'        => 0,
@@ -81,6 +81,14 @@ class ListingConfig
         'card_feature_icon_age' => ['value' => 'fas fa-clock', 'library' => 'fa-solid'],
         'card_feature_icon_condition' => ['value' => 'fas fa-circle-check', 'library' => 'fa-solid'],
         'card_feature_icon_code' => ['value' => 'fas fa-hashtag', 'library' => 'fa-solid'],
+        'card_link_new_tab'      => false,
+
+        // ── Related-properties mode ───────────────────────────────────────────
+        'related_property_id'    => 0,       // 0 = auto-detect from current post
+        'related_taxonomies'     => [],      // empty = all allowed taxonomies
+        'related_strategy'       => 'any',   // 'any' | 'all' | 'tags_first'
+        'related_fallback'       => 'recent', // 'recent' | 'same_city' | 'hide' | 'empty'
+        'related_empty_message'  => '',
     ];
 
     // ── Private constructor – use static factories ────────────────────────────
@@ -150,7 +158,7 @@ class ListingConfig
             'card_whatsapp_label'   => sanitize_text_field($settings['card_whatsapp_label'] ?? ''),
             'card_whatsapp_show_icon' => !empty($settings['card_whatsapp_show_icon']),
             'card_whatsapp_icon_position' => in_array(($settings['card_whatsapp_icon_position'] ?? 'left'), ['left', 'right'], true)
-                ? $settings['card_whatsapp_icon_position']
+                ? ($settings['card_whatsapp_icon_position'] ?? 'left')
                 : 'left',
             'card_whatsapp_icon' => self::normalizeElementorIcon($settings['card_whatsapp_icon'] ?? []),
             'card_feature_area'      => !empty($settings['card_feature_area']),
@@ -173,6 +181,13 @@ class ListingConfig
             'card_feature_icon_age' => self::normalizeElementorIcon($settings['card_feature_icon_age'] ?? []),
             'card_feature_icon_condition' => self::normalizeElementorIcon($settings['card_feature_icon_condition'] ?? []),
             'card_feature_icon_code' => self::normalizeElementorIcon($settings['card_feature_icon_code'] ?? []),
+            'card_link_new_tab'      => !empty($settings['card_link_new_tab']),
+            // Related-properties mode
+            'related_property_id'   => absint($settings['related_property_id'] ?? 0),
+            'related_taxonomies'    => array_values(array_filter(array_map('sanitize_key', (array) ($settings['related_taxonomies'] ?? [])))),
+            'related_strategy'      => self::sanitizeRelatedStrategy($settings['related_strategy'] ?? 'any'),
+            'related_fallback'      => self::sanitizeRelatedFallback($settings['related_fallback'] ?? 'recent'),
+            'related_empty_message' => sanitize_text_field($settings['related_empty_message'] ?? ''),
         ]);
     }
 
@@ -235,7 +250,7 @@ class ListingConfig
             'card_whatsapp_label'   => sanitize_text_field($atts['card_whatsapp_label'] ?? ''),
             'card_whatsapp_show_icon' => $bool($atts['card_whatsapp_icon'] ?? null, true),
             'card_whatsapp_icon_position' => in_array(($atts['card_whatsapp_icon_position'] ?? 'left'), ['left', 'right'], true)
-                ? $atts['card_whatsapp_icon_position']
+                ? ($atts['card_whatsapp_icon_position'] ?? 'left')
                 : 'left',
             'card_whatsapp_icon' => self::normalizeElementorIcon([]),
             'card_feature_area'      => $bool($atts['card_area'] ?? null, true),
@@ -258,6 +273,7 @@ class ListingConfig
             'card_feature_icon_age' => self::normalizeElementorIcon([]),
             'card_feature_icon_condition' => self::normalizeElementorIcon([]),
             'card_feature_icon_code' => self::normalizeElementorIcon([]),
+            'card_link_new_tab'      => $bool($atts['card_link_new_tab'] ?? null, false),
         ]);
     }
 
@@ -292,6 +308,13 @@ class ListingConfig
     public function mapHeight(): int       { return (int)    $this->data['map_height']; }
     public function mapZoom(): int         { return (int)    $this->data['map_zoom']; }
     public function template(): string     { return (string) $this->data['template']; }
+
+    // Related-properties getters
+    public function relatedPropertyId(): int      { return (int)    $this->data['related_property_id']; }
+    public function relatedTaxonomies(): array    { return (array)  $this->data['related_taxonomies']; }
+    public function relatedStrategy(): string     { return (string) $this->data['related_strategy']; }
+    public function relatedFallback(): string     { return (string) $this->data['related_fallback']; }
+    public function relatedEmptyMessage(): string { return (string) $this->data['related_empty_message']; }
     public function cardOptions(): array   { return [
         'media_mode' => (string) $this->data['card_media_mode'],
         'visual_preset' => (string) $this->data['card_visual_preset'],
@@ -326,6 +349,7 @@ class ListingConfig
         'feature_icon_age' => is_array($this->data['card_feature_icon_age']) ? $this->data['card_feature_icon_age'] : [],
         'feature_icon_condition' => is_array($this->data['card_feature_icon_condition']) ? $this->data['card_feature_icon_condition'] : [],
         'feature_icon_code' => is_array($this->data['card_feature_icon_code']) ? $this->data['card_feature_icon_code'] : [],
+        'link_new_tab' => (bool) $this->data['card_link_new_tab'],
     ]; }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -398,6 +422,16 @@ class ListingConfig
     private static function sanitizeCardPreset(string $value): string
     {
         return in_array($value, ['default', 'cover_overlay', 'minimal_light'], true) ? $value : 'default';
+    }
+
+    private static function sanitizeRelatedStrategy(string $value): string
+    {
+        return \in_array($value, ['any', 'all', 'tags_first'], true) ? $value : 'any';
+    }
+
+    private static function sanitizeRelatedFallback(string $value): string
+    {
+        return \in_array($value, ['recent', 'same_city', 'hide', 'empty'], true) ? $value : 'recent';
     }
 
     private static function normalizeElementorIcon($raw): array

@@ -27,7 +27,7 @@ class BotDetector
 
         if (self::$cached === null) {
             self::$cached = self::matches(
-                (string) ($_SERVER['HTTP_USER_AGENT'] ?? '')
+                sanitize_text_field(wp_unslash((string) ($_SERVER['HTTP_USER_AGENT'] ?? '')))
             );
         }
 

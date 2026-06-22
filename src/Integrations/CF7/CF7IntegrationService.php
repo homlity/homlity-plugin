@@ -1,10 +1,12 @@
 <?php
 // phpcs:disable WordPress.Security.NonceVerification.Recommended
 /**
- * Contact Form 7 integration – registers the [homlity_property_code] form tag.
+ * Contact Form 7 integration – registers the [homlity_property_code] and
+ * [homlity_property_code_display] form tags.
  *
  * Usage in a CF7 form:
  *   [homlity_property_code property_code]
+ *   [homlity_property_code_display property_code_display]
  *
  * On single property pages the tag auto-detects the current property.
  * Outside property pages, pass an explicit post_id option:
@@ -17,6 +19,7 @@
 namespace Homlity\PluginInmobiliario\Integrations\CF7;
 
 use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
+use Homlity\PluginInmobiliario\Services\PropertyPostType;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -43,6 +46,12 @@ class CF7IntegrationService implements ServiceInterface
         wpcf7_add_form_tag(
             'homlity_property_code',
             [$this, 'renderTag'],
+            ['name-attr' => true]
+        );
+
+        wpcf7_add_form_tag(
+            'homlity_property_code_display',
+            [$this, 'renderDisplayTag'],
             ['name-attr' => true]
         );
     }
@@ -77,6 +86,47 @@ class CF7IntegrationService implements ServiceInterface
         );
     }
 
+    /**
+     * Renders a visible property code plus a hidden input for submission.
+     *
+     * Usage:
+     *   [homlity_property_code_display property_code_display]
+     *   [homlity_property_code_display property_code_display label:"Código del inmueble"]
+     *   [homlity_property_code_display property_code_display post_id:456]
+     *
+     * @param \WPCF7_FormTag $tag
+     * @return string
+     */
+    public function renderDisplayTag($tag): string
+    {
+        if (class_exists('WPCF7_FormTag') && !($tag instanceof \WPCF7_FormTag)) {
+            $tag = new \WPCF7_FormTag($tag);
+        }
+
+        $name = $tag->name ?? '';
+        if (empty($name)) {
+            return '';
+        }
+
+        $postId = $this->resolvePostId($tag);
+        $code = $postId ? (string) get_post_meta($postId, '_property_code', true) : '';
+        $label = $this->resolveDisplayLabel($tag);
+
+        return sprintf(
+            '<span class="wpcf7-form-control-wrap" data-name="%1$s">'
+            . '<span class="wpcf7-form-control wpcf7-homlity-property-code-display">'
+            . '<span class="wpcf7-homlity-property-code-display__label">%2$s</span> '
+            . '<strong class="wpcf7-homlity-property-code-display__value">%3$s</strong>'
+            . '</span>'
+            . '<input type="hidden" name="%1$s" value="%4$s" class="wpcf7-form-control wpcf7-homlity-property-code" />'
+            . '</span>',
+            esc_attr($name),
+            esc_html($label),
+            esc_html($code),
+            esc_attr($code)
+        );
+    }
+
     // -------------------------------------------------------------------------
     // Tag generator (CF7 form editor panel)
     // -------------------------------------------------------------------------
@@ -91,6 +141,13 @@ class CF7IntegrationService implements ServiceInterface
             'homlity_property_code',
             __('Código de Inmueble', 'homlity-real-estate'),
             [$this, 'renderTagGeneratorPanel'],
+            ['version' => 2]
+        );
+
+        \WPCF7_TagGenerator::get_instance()->add(
+            'homlity_property_code_display',
+            __('Código de Inmueble Visible', 'homlity-real-estate'),
+            [$this, 'renderDisplayTagGeneratorPanel'],
             ['version' => 2]
         );
     }
@@ -164,6 +221,82 @@ class CF7IntegrationService implements ServiceInterface
         <?php
     }
 
+    public function renderDisplayTagGeneratorPanel($contact_form, $options): void
+    {
+        $options  = (array) $options;
+        $panel_id = $options['id'] ?? 'homlity_property_code_display';
+        ?>
+        <header class="description-box">
+            <h3><?php esc_html_e('Código de Inmueble Visible (Homlity)', 'homlity-real-estate'); ?></h3>
+            <p>
+                <?php esc_html_e(
+                    'Muestra el código del inmueble dentro del formulario y además lo envía como campo oculto. En páginas de propiedad individual se detecta solo; en otras páginas usa la opción post_id.',
+                    'homlity-real-estate'
+                ); ?>
+            </p>
+        </header>
+
+        <div class="control-box">
+            <fieldset>
+                <legend><?php esc_html_e('Nombre del campo', 'homlity-real-estate'); ?></legend>
+                <label>
+                    <input type="text"
+                           name="name"
+                           class="tg-name oneline"
+                           id="<?php echo esc_attr($panel_id); ?>-name"
+                           value="property_code_display" />
+                </label>
+            </fieldset>
+
+            <fieldset>
+                <legend><?php esc_html_e('Etiqueta visible', 'homlity-real-estate'); ?></legend>
+                <label>
+                    <input type="text"
+                           name="values"
+                           class="tg-value oneline option"
+                           data-tag-part="option"
+                           data-option-name="label"
+                           placeholder="<?php esc_attr_e('Código del inmueble:', 'homlity-real-estate'); ?>" />
+                </label>
+            </fieldset>
+
+            <fieldset>
+                <legend><?php esc_html_e('ID de propiedad (opcional)', 'homlity-real-estate'); ?></legend>
+                <label>
+                    <input type="number"
+                           name="values"
+                           class="tg-value oneline option"
+                           data-tag-part="option"
+                           data-option-name="post_id"
+                           placeholder="<?php esc_attr_e('Dejar vacío para detectar automáticamente', 'homlity-real-estate'); ?>" />
+                </label>
+            </fieldset>
+        </div>
+
+        <div class="insert-box">
+            <input type="text"
+                   name="<?php echo esc_attr($panel_id); ?>"
+                   class="tag code"
+                   readonly="readonly"
+                   onfocus="this.select()" />
+            <div class="submitbox">
+                <input type="button"
+                       class="button button-primary insert-tag"
+                       value="<?php esc_attr_e('Insertar tag', 'homlity-real-estate'); ?>" />
+            </div>
+            <br class="clear" />
+            <p class="description mail-tag">
+                <?php
+                printf(
+                    esc_html__('Para usar en el correo: %s', 'homlity-real-estate'),
+                    '<strong>[<span class="mail-tag"></span>]</strong>'
+                );
+                ?>
+            </p>
+        </div>
+        <?php
+    }
+
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
@@ -181,26 +314,102 @@ class CF7IntegrationService implements ServiceInterface
         // 1. Explicit option
         if (method_exists($tag, 'get_option')) {
             $explicit = (int) $tag->get_option('post_id', 'int', true);
-            if ($explicit > 0) {
+            if ($explicit > 0 && get_post_type($explicit) === PropertyPostType::POST_TYPE) {
                 return $explicit;
             }
         }
 
         // 2. Single property page
-        if (is_singular('property')) {
-            return (int) get_the_ID();
+        if (is_singular(PropertyPostType::POST_TYPE)) {
+            $queriedId = (int) get_queried_object_id();
+            if ($queriedId > 0 && get_post_type($queriedId) === PropertyPostType::POST_TYPE) {
+                return $queriedId;
+            }
+
+            $loopId = (int) get_the_ID();
+            if ($loopId > 0 && get_post_type($loopId) === PropertyPostType::POST_TYPE) {
+                return $loopId;
+            }
         }
 
-        // 3. GET fallback (sanitized)
+        // 3. Global post fallback (Elementor / shortcodes outside the main loop)
+        $globalPostId = $this->resolveGlobalPostId();
+        if ($globalPostId > 0) {
+            return $globalPostId;
+        }
+
+        // 4. GET fallback by post ID (sanitized)
         foreach (['property_id', 'inmueble_id'] as $param) {
             if (!empty($_GET[$param])) {
                 $id = (int) $_GET[$param];
-                if ($id > 0 && get_post_type($id) === 'property') {
+                if ($id > 0 && get_post_type($id) === PropertyPostType::POST_TYPE) {
                     return $id;
                 }
             }
         }
 
+        // 5. GET fallback by property code (sanitized)
+        foreach (['property_code', 'codigo', 'code'] as $param) {
+            if (empty($_GET[$param])) {
+                continue;
+            }
+
+            $postId = $this->findPostIdByPropertyCode((string) wp_unslash($_GET[$param]));
+            if ($postId > 0) {
+                return $postId;
+            }
+        }
+
         return 0;
+    }
+
+    private function resolveGlobalPostId(): int
+    {
+        global $post;
+
+        if ($post instanceof \WP_Post && $post->post_type === PropertyPostType::POST_TYPE) {
+            return (int) $post->ID;
+        }
+
+        return 0;
+    }
+
+    private function resolveDisplayLabel($tag): string
+    {
+        $default = __('Código del inmueble:', 'homlity-real-estate');
+
+        if (!method_exists($tag, 'get_option')) {
+            return $default;
+        }
+
+        $label = (string) $tag->get_option('label', '', true);
+        $label = trim($label);
+
+        return $label !== '' ? $label : $default;
+    }
+
+    private function findPostIdByPropertyCode(string $code): int
+    {
+        $code = sanitize_text_field($code);
+        if ($code === '') {
+            return 0;
+        }
+
+        $posts = get_posts([
+            'post_type' => PropertyPostType::POST_TYPE,
+            'post_status' => 'publish',
+            'posts_per_page' => 1,
+            'fields' => 'ids',
+            'no_found_rows' => true,
+            'meta_query' => [
+                [
+                    'key' => '_property_code',
+                    'value' => $code,
+                    'compare' => '=',
+                ],
+            ],
+        ]);
+
+        return isset($posts[0]) ? (int) $posts[0] : 0;
     }
 }

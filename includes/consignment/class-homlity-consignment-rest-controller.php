@@ -176,7 +176,7 @@ class Homlity_Consignment_Rest_Controller
 
         // Rate limit
         if ($opts['enable_rate_limit']) {
-            $ip_key = 'homlity_cr_' . hash('sha256', $_SERVER['REMOTE_ADDR'] ?? 'x');
+            $ip_key = 'homlity_cr_' . hash('sha256', sanitize_text_field(wp_unslash((string) ($_SERVER['REMOTE_ADDR'] ?? 'x'))));
             $count  = (int) get_transient($ip_key);
             $max    = apply_filters('homlity_consignment_rate_limit_allowed', (int) $opts['rate_limit_per_hour']);
             if ($count >= $max) {
@@ -257,7 +257,7 @@ class Homlity_Consignment_Rest_Controller
         }
 
         // Rate limit uploads separately
-        $ip_key       = 'homlity_cu_' . hash('sha256', $_SERVER['REMOTE_ADDR'] ?? 'x');
+        $ip_key       = 'homlity_cu_' . hash('sha256', sanitize_text_field(wp_unslash((string) ($_SERVER['REMOTE_ADDR'] ?? 'x'))));
         $upload_count = (int) get_transient($ip_key);
         if ($upload_count >= 100) {
             return new WP_REST_Response(['ok' => false, 'message' => 'Límite de carga excedido.'], 429);
@@ -494,7 +494,7 @@ class Homlity_Consignment_Rest_Controller
             'consignant_type' => sanitize_key($data['contact']['consignant_type'] ?? ''),
             'email'           => sanitize_email($data['contact']['email'] ?? ''),
             'result'          => 'success',
-            'ip_hash'         => hash('sha256', $_SERVER['REMOTE_ADDR'] ?? 'unknown'),
+            'ip_hash'         => hash('sha256', sanitize_text_field(wp_unslash((string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown')))),
         ];
 
         $logs = (array) get_option('homlity_consignment_logs', []);

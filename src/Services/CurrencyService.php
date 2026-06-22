@@ -30,6 +30,7 @@ class CurrencyService implements ServiceInterface
                 'EUR',
                 'GBP',
                 'COP',
+                'CRC',
                 'MXN',
                 'CLP',
                 'ARS',
@@ -63,6 +64,7 @@ class CurrencyService implements ServiceInterface
             'EUR' => '€',
             'GBP' => '£',
             'COP' => '$',
+            'CRC' => '¢',
             'MXN' => '$',
             'CLP' => '$',
         ];
@@ -90,6 +92,7 @@ class CurrencyService implements ServiceInterface
             'EUR' => 0.92,
             'GBP' => 0.80,
             'COP' => 3800.0,
+            'CRC' => 505.0,
             'MXN' => 17.0,
             'CLP' => 950.0,
         ]);

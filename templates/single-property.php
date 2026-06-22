@@ -31,7 +31,8 @@ if (
     get_post_status($homlityElementorTemplateId) &&
     class_exists('\Elementor\Plugin')
 ) {
-    echo wp_kses_post( \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($homlityElementorTemplateId) );
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Elementor sanitises its own widget output internally
+    echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($homlityElementorTemplateId);
     if (!$isCanvasLayout) {
         get_footer();
     }

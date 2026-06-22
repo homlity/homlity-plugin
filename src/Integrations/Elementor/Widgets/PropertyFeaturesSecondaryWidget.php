@@ -156,14 +156,16 @@ class PropertyFeaturesSecondaryWidget extends BasePropertyWidget
             'label'     => __('Color', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-features__icon' => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-features__icon'     => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-features__icon svg' => 'fill: {{VALUE}};',
             ],
         ]);
         $this->add_control('icon_color_hover', [
             'label'     => __('Color (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-features__item:hover .property-features__icon' => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-features__item:hover .property-features__icon'     => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-features__item:hover .property-features__icon svg' => 'fill: {{VALUE}};',
             ],
         ]);
         $this->add_responsive_control('icon_size', [

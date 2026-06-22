@@ -21,6 +21,15 @@ class ElementorTemplateSettingsService implements ServiceInterface
     private const OPTION_ARCHIVE_LAYOUT = 'homlity_plugin_archive_page_layout';
     private const OPTION_SINGLE_LAYOUT  = 'homlity_plugin_single_page_layout';
     private const OPTION_UNAVAILABLE_LAYOUT  = 'homlity_plugin_unavailable_page_layout';
+
+    // ── Recovery settings ─────────────────────────────────────────────────────
+    private const OPTION_RECOVERY_ENABLED        = 'homlity_recovery_enabled';
+    private const OPTION_RECOVERY_MIN_RESULTS    = 'homlity_recovery_min_results';
+    private const OPTION_RECOVERY_MAX_RESULTS    = 'homlity_recovery_max_results';
+    private const OPTION_RECOVERY_PRICE_TOL      = 'homlity_recovery_price_tolerance';
+    private const OPTION_RECOVERY_AREA_TOL       = 'homlity_recovery_area_tolerance';
+    private const OPTION_RECOVERY_NO_RESULTS_ACT = 'homlity_recovery_no_results_action';
+
     private const NONCE_ACTION   = 'homlity_elementor_templates_save';
     private const NONCE_FIELD    = 'homlity_elementor_templates_nonce';
     private const PAGE_SLUG      = 'homlity-real-estate-elementor-templates';
@@ -57,12 +66,12 @@ class ElementorTemplateSettingsService implements ServiceInterface
             return;
         }
 
-        $archiveId = isset($_POST['archive_page_id']) ? absint($_POST['archive_page_id']) : 0;
-        $singleId  = isset($_POST['single_template_id']) ? absint($_POST['single_template_id']) : 0;
-        $unavailableId  = isset($_POST['unavailable_template_id']) ? absint($_POST['unavailable_template_id']) : 0;
-        $archiveLayout = isset($_POST['archive_page_layout']) ? sanitize_text_field(wp_unslash($_POST['archive_page_layout'])) : 'default';
-        $singleLayout  = isset($_POST['single_page_layout']) ? sanitize_text_field(wp_unslash($_POST['single_page_layout'])) : 'default';
-        $unavailableLayout  = isset($_POST['unavailable_page_layout']) ? sanitize_text_field(wp_unslash($_POST['unavailable_page_layout'])) : 'default';
+        $archiveId         = isset($_POST['archive_page_id'])        ? absint($_POST['archive_page_id'])        : 0;
+        $singleId          = isset($_POST['single_template_id'])     ? absint($_POST['single_template_id'])     : 0;
+        $unavailableId     = isset($_POST['unavailable_template_id']) ? absint($_POST['unavailable_template_id']) : 0;
+        $archiveLayout     = isset($_POST['archive_page_layout'])     ? sanitize_text_field(wp_unslash($_POST['archive_page_layout']))    : 'default';
+        $singleLayout      = isset($_POST['single_page_layout'])      ? sanitize_text_field(wp_unslash($_POST['single_page_layout']))     : 'default';
+        $unavailableLayout = isset($_POST['unavailable_page_layout']) ? sanitize_text_field(wp_unslash($_POST['unavailable_page_layout'])) : 'default';
 
         $allowedLayouts = ['default', 'elementor-full-width', 'elementor_canvas'];
         if (!in_array($archiveLayout, $allowedLayouts, true)) {
@@ -81,6 +90,36 @@ class ElementorTemplateSettingsService implements ServiceInterface
         update_option(self::OPTION_ARCHIVE_LAYOUT, $archiveLayout);
         update_option(self::OPTION_SINGLE_LAYOUT, $singleLayout);
         update_option(self::OPTION_UNAVAILABLE_LAYOUT, $unavailableLayout);
+
+        // ── Recovery settings ─────────────────────────────────────────────────
+        $recoveryEnabled = !empty($_POST['recovery_enabled']) ? '1' : '0';
+        update_option(self::OPTION_RECOVERY_ENABLED, $recoveryEnabled);
+
+        $recoveryMin = isset($_POST['recovery_min_results']) ? max(1, absint($_POST['recovery_min_results'])) : 3;
+        update_option(self::OPTION_RECOVERY_MIN_RESULTS, $recoveryMin);
+
+        $recoveryMax = isset($_POST['recovery_max_results']) ? max(1, absint($_POST['recovery_max_results'])) : 12;
+        update_option(self::OPTION_RECOVERY_MAX_RESULTS, $recoveryMax);
+
+        // Admin form sends 0-100 %; RetiredPropertyRecoveryService expects 0.0-1.0.
+        $recoveryPriceTol = isset($_POST['recovery_price_tolerance'])
+            ? min(1.0, max(0.0, (float) $_POST['recovery_price_tolerance'] / 100))
+            : 0.20;
+        update_option(self::OPTION_RECOVERY_PRICE_TOL, $recoveryPriceTol);
+
+        $recoveryAreaTol = isset($_POST['recovery_area_tolerance'])
+            ? min(1.0, max(0.0, (float) $_POST['recovery_area_tolerance'] / 100))
+            : 0.20;
+        update_option(self::OPTION_RECOVERY_AREA_TOL, $recoveryAreaTol);
+
+        $allowedNoResultsActions = ['noindex', '404', '410'];
+        $recoveryNoResultsAct = isset($_POST['recovery_no_results_action'])
+            ? sanitize_key(wp_unslash((string) $_POST['recovery_no_results_action']))
+            : 'noindex';
+        if (!in_array($recoveryNoResultsAct, $allowedNoResultsActions, true)) {
+            $recoveryNoResultsAct = 'noindex';
+        }
+        update_option(self::OPTION_RECOVERY_NO_RESULTS_ACT, $recoveryNoResultsAct);
 
         if ($archiveId > 0) {
             $this->applyLayoutToPost($archiveId, $archiveLayout);
@@ -108,13 +147,21 @@ class ElementorTemplateSettingsService implements ServiceInterface
             return;
         }
 
-        $archiveId = (int) get_option(self::OPTION_ARCHIVE, 0);
-        $singleId  = (int) get_option(self::OPTION_SINGLE, 0);
-        $unavailableId  = (int) get_option(self::OPTION_UNAVAILABLE, 0);
-        $archiveLayout = (string) get_option(self::OPTION_ARCHIVE_LAYOUT, 'default');
-        $singleLayout  = (string) get_option(self::OPTION_SINGLE_LAYOUT, 'default');
-        $unavailableLayout  = (string) get_option(self::OPTION_UNAVAILABLE_LAYOUT, 'default');
-        $pages     = $this->getElementorPages();
+        $archiveId         = (int)    get_option(self::OPTION_ARCHIVE, 0);
+        $singleId          = (int)    get_option(self::OPTION_SINGLE, 0);
+        $unavailableId     = (int)    get_option(self::OPTION_UNAVAILABLE, 0);
+        $archiveLayout     = (string) get_option(self::OPTION_ARCHIVE_LAYOUT, 'default');
+        $singleLayout      = (string) get_option(self::OPTION_SINGLE_LAYOUT, 'default');
+        $unavailableLayout = (string) get_option(self::OPTION_UNAVAILABLE_LAYOUT, 'default');
+        $pages             = $this->getElementorPages();
+
+        // Recovery settings
+        $recoveryEnabled      = (string) get_option(self::OPTION_RECOVERY_ENABLED, '1');
+        $recoveryMin          = (int)    get_option(self::OPTION_RECOVERY_MIN_RESULTS, 3);
+        $recoveryMax          = (int)    get_option(self::OPTION_RECOVERY_MAX_RESULTS, 12);
+        $recoveryPriceTol     = (float)  get_option(self::OPTION_RECOVERY_PRICE_TOL, 0.20);
+        $recoveryAreaTol      = (float)  get_option(self::OPTION_RECOVERY_AREA_TOL, 0.20);
+        $recoveryNoResultsAct = (string) get_option(self::OPTION_RECOVERY_NO_RESULTS_ACT, 'noindex');
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Plantillas Elementor para inmuebles', 'homlity-real-estate'); ?></h1>
@@ -213,6 +260,112 @@ class ElementorTemplateSettingsService implements ServiceInterface
                         </th>
                         <td>
                             <?php $this->renderLayoutSelect('unavailable_page_layout', $unavailableLayout); ?>
+                            <p class="description">
+                                <?php esc_html_e(
+                                    'Dentro de la página puedes usar los shortcodes: [homlity_unavailable_notice], [homlity_unavailable_similar_properties] y [homlity_unavailable_search_context].',
+                                    'homlity-real-estate'
+                                ); ?>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+
+                <hr style="margin:2rem 0;">
+                <h2><?php esc_html_e('SEO y recuperación de inmuebles retirados', 'homlity-real-estate'); ?></h2>
+                <p class="description" style="max-width:700px;margin-bottom:20px;">
+                    <?php esc_html_e(
+                        'Cuando la recuperación está activa, la URL de un inmueble retirado devuelve una landing con propiedades similares en lugar de un 404/410 vacío, conservando la intención comercial y el tráfico SEO.',
+                        'homlity-real-estate'
+                    ); ?>
+                </p>
+                <table class="form-table" role="presentation">
+                    <tr>
+                        <th scope="row"><?php esc_html_e('Activar recuperación', 'homlity-real-estate'); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="recovery_enabled" value="1"
+                                    <?php checked($recoveryEnabled, '1'); ?>>
+                                <?php esc_html_e('Mostrar página de recuperación para inmuebles retirados', 'homlity-real-estate'); ?>
+                            </label>
+                            <p class="description">
+                                <?php esc_html_e('Si está desactivado, los inmuebles retirados devuelven HTTP 410 y muestran la plantilla "Inmueble no disponible".', 'homlity-real-estate'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="recovery_min_results">
+                                <?php esc_html_e('Mínimo de resultados para indexar', 'homlity-real-estate'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input type="number" id="recovery_min_results" name="recovery_min_results"
+                                   value="<?php echo esc_attr($recoveryMin); ?>"
+                                   min="1" max="50" style="width:80px;">
+                            <p class="description">
+                                <?php esc_html_e('Si hay menos propiedades similares que este valor, se aplica la acción "Sin resultados" (ver abajo).', 'homlity-real-estate'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="recovery_max_results">
+                                <?php esc_html_e('Máximo de resultados similares', 'homlity-real-estate'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input type="number" id="recovery_max_results" name="recovery_max_results"
+                                   value="<?php echo esc_attr($recoveryMax); ?>"
+                                   min="1" max="100" style="width:80px;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="recovery_price_tolerance">
+                                <?php esc_html_e('Tolerancia de precio (%)', 'homlity-real-estate'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input type="number" id="recovery_price_tolerance" name="recovery_price_tolerance"
+                                   value="<?php echo esc_attr(round($recoveryPriceTol * 100, 0)); ?>"
+                                   min="0" max="100" step="5" style="width:80px;">
+                            <span class="description">%</span>
+                            <p class="description">
+                                <?php esc_html_e('Rango de precio para considerar un inmueble como similar. Ejemplo: 20 = ±20% del precio original.', 'homlity-real-estate'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="recovery_area_tolerance">
+                                <?php esc_html_e('Tolerancia de área (%)', 'homlity-real-estate'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input type="number" id="recovery_area_tolerance" name="recovery_area_tolerance"
+                                   value="<?php echo esc_attr(round($recoveryAreaTol * 100, 0)); ?>"
+                                   min="0" max="100" step="5" style="width:80px;">
+                            <span class="description">%</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="recovery_no_results_action">
+                                <?php esc_html_e('Acción si no hay resultados similares', 'homlity-real-estate'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <select id="recovery_no_results_action" name="recovery_no_results_action">
+                                <option value="noindex" <?php selected($recoveryNoResultsAct, 'noindex'); ?>>
+                                    <?php esc_html_e('noindex, follow (mantiene la URL pero la excluye de Google)', 'homlity-real-estate'); ?>
+                                </option>
+                                <option value="404" <?php selected($recoveryNoResultsAct, '404'); ?>>
+                                    <?php esc_html_e('HTTP 404 (página no encontrada)', 'homlity-real-estate'); ?>
+                                </option>
+                                <option value="410" <?php selected($recoveryNoResultsAct, '410'); ?>>
+                                    <?php esc_html_e('HTTP 410 (eliminado permanentemente)', 'homlity-real-estate'); ?>
+                                </option>
+                            </select>
                         </td>
                     </tr>
                 </table>

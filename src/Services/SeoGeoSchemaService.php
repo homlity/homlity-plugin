@@ -48,7 +48,7 @@ class SeoGeoSchemaService implements ServiceInterface
         $org = $this->buildOrgSchema($s);
         if ($org) {
             echo '<script type="application/ld+json">' // phpcs:ignore
-                . wp_json_encode($org, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+                . wp_json_encode($org, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
                 . '</script>' . "\n";
         }
 
@@ -56,7 +56,7 @@ class SeoGeoSchemaService implements ServiceInterface
             $faqSchema = $this->buildFaqSchema($s['global_faqs'] ?? []);
             if ($faqSchema) {
                 echo '<script type="application/ld+json">' // phpcs:ignore
-                    . wp_json_encode($faqSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+                    . wp_json_encode($faqSchema, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
                     . '</script>' . "\n";
             }
         }

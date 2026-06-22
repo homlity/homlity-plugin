@@ -50,6 +50,120 @@ class PropertyMapWidget extends BasePropertyWidget
                 'library' => 'fa-solid',
             ],
         ]);
+        $this->add_control('map_provider', [
+            'label' => __('Proveedor de mapa', 'homlity-real-estate'),
+            'type' => Controls_Manager::SELECT,
+            'default' => 'global',
+            'options' => [
+                'global' => __('Usar configuración global', 'homlity-real-estate'),
+                'leaflet_map' => __('Leaflet / OpenStreetMap', 'homlity-real-estate'),
+                'google_map' => __('Google Maps iframe', 'homlity-real-estate'),
+                'google_js' => __('Google Maps JS API', 'homlity-real-estate'),
+            ],
+        ]);
+        $this->add_control('map_zoom', [
+            'label' => __('Zoom inicial', 'homlity-real-estate'),
+            'type' => Controls_Manager::NUMBER,
+            'default' => 16,
+            'min' => 1,
+            'max' => 21,
+        ]);
+        $this->add_responsive_control('map_height', [
+            'label' => __('Altura del mapa', 'homlity-real-estate'),
+            'type' => Controls_Manager::SLIDER,
+            'size_units' => ['px'],
+            'range' => ['px' => ['min' => 220, 'max' => 1000]],
+            'default' => ['size' => 420, 'unit' => 'px'],
+            'selectors' => [
+                '{{WRAPPER}} .property-map' => '--hml-property-map-height: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-map__leaflet, {{WRAPPER}} .property-map iframe, {{WRAPPER}} .property-map__street-canvas' => 'height: {{SIZE}}{{UNIT}};',
+            ],
+        ]);
+        $this->add_control('show_related_markers', [
+            'label' => __('Mostrar inmuebles relacionados en mapa', 'homlity-real-estate'),
+            'type' => Controls_Manager::SWITCHER,
+            'label_on' => __('Sí', 'homlity-real-estate'),
+            'label_off' => __('No', 'homlity-real-estate'),
+            'default' => 'yes',
+        ]);
+        $this->add_control('related_markers_limit', [
+            'label' => __('Cantidad relacionados', 'homlity-real-estate'),
+            'type' => Controls_Manager::NUMBER,
+            'default' => 12,
+            'min' => 0,
+            'max' => 30,
+            'condition' => ['show_related_markers' => 'yes'],
+        ]);
+        $this->add_control('enable_street_view', [
+            'label' => __('Activar Street View', 'homlity-real-estate'),
+            'type' => Controls_Manager::SWITCHER,
+            'label_on' => __('Sí', 'homlity-real-estate'),
+            'label_off' => __('No', 'homlity-real-estate'),
+            'default' => 'yes',
+        ]);
+        $this->add_control('street_mode', [
+            'label' => __('Modo Street View', 'homlity-real-estate'),
+            'type' => Controls_Manager::SELECT,
+            'default' => 'google_js',
+            'options' => [
+                'google_js' => __('Google Maps JS API', 'homlity-real-estate'),
+                'iframe' => __('Iframe fallback', 'homlity-real-estate'),
+            ],
+            'condition' => ['enable_street_view' => 'yes'],
+        ]);
+        $this->add_control('google_maps_api_key', [
+            'label' => __('Google Maps API Key (opcional)', 'homlity-real-estate'),
+            'type' => Controls_Manager::TEXT,
+            'condition' => ['street_mode' => 'google_js', 'enable_street_view' => 'yes'],
+        ]);
+        $this->add_control('street_radius', [
+            'label' => __('Radio búsqueda Street View (m)', 'homlity-real-estate'),
+            'type' => Controls_Manager::SELECT,
+            'default' => '100',
+            'options' => ['25' => '25', '50' => '50', '100' => '100', '150' => '150', '250' => '250', '500' => '500'],
+            'condition' => ['street_mode' => 'google_js', 'enable_street_view' => 'yes'],
+        ]);
+        $this->add_control('street_unavailable_behavior', [
+            'label' => __('Si no hay Street View', 'homlity-real-estate'),
+            'type' => Controls_Manager::SELECT,
+            'default' => 'disabled',
+            'options' => [
+                'hide' => __('Ocultar tab', 'homlity-real-estate'),
+                'disabled' => __('Mostrar tab deshabilitado', 'homlity-real-estate'),
+                'message' => __('Mostrar mensaje', 'homlity-real-estate'),
+                'external' => __('Abrir externo en Google Maps', 'homlity-real-estate'),
+            ],
+            'condition' => ['enable_street_view' => 'yes'],
+        ]);
+        $this->add_control('initial_tab', [
+            'label' => __('Pestaña inicial', 'homlity-real-estate'),
+            'type' => Controls_Manager::SELECT,
+            'default' => 'map',
+            'options' => ['map' => __('Mapa', 'homlity-real-estate'), 'street' => __('Street View', 'homlity-real-estate')],
+        ]);
+        $this->add_control('show_route_actions', [
+            'label' => __('Mostrar acciones de ruta', 'homlity-real-estate'),
+            'type' => Controls_Manager::SWITCHER,
+            'default' => 'yes',
+        ]);
+        $this->add_control('show_btn_google_maps', ['label' => __('Botón Google Maps', 'homlity-real-estate'), 'type' => Controls_Manager::SWITCHER, 'default' => 'yes', 'condition' => ['show_route_actions' => 'yes']]);
+        $this->add_control('show_btn_google_directions', ['label' => __('Botón Cómo llegar Google', 'homlity-real-estate'), 'type' => Controls_Manager::SWITCHER, 'default' => 'yes', 'condition' => ['show_route_actions' => 'yes']]);
+        $this->add_control('show_btn_waze', ['label' => __('Botón Waze', 'homlity-real-estate'), 'type' => Controls_Manager::SWITCHER, 'default' => 'yes', 'condition' => ['show_route_actions' => 'yes']]);
+        $this->add_control('show_btn_apple_maps', ['label' => __('Botón Apple Maps', 'homlity-real-estate'), 'type' => Controls_Manager::SWITCHER, 'default' => '', 'condition' => ['show_route_actions' => 'yes']]);
+        $this->add_control('show_btn_copy_coords', ['label' => __('Botón copiar coordenadas', 'homlity-real-estate'), 'type' => Controls_Manager::SWITCHER, 'default' => '', 'condition' => ['show_route_actions' => 'yes']]);
+        $this->add_control('google_travel_mode', [
+            'label' => __('Travel mode Google', 'homlity-real-estate'),
+            'type' => Controls_Manager::SELECT,
+            'default' => 'driving',
+            'options' => ['driving' => 'Driving', 'walking' => 'Walking', 'bicycling' => 'Bicycling', 'transit' => 'Transit'],
+            'condition' => ['show_route_actions' => 'yes'],
+        ]);
+        $this->add_control('open_links_new_tab', ['label' => __('Abrir enlaces en nueva pestaña', 'homlity-real-estate'), 'type' => Controls_Manager::SWITCHER, 'default' => 'yes', 'condition' => ['show_route_actions' => 'yes']]);
+        $this->add_control('map_tab_text_map', ['label' => __('Texto tab mapa', 'homlity-real-estate'), 'type' => Controls_Manager::TEXT, 'default' => __('Mapa', 'homlity-real-estate')]);
+        $this->add_control('map_tab_text_street', ['label' => __('Texto tab Street View', 'homlity-real-estate'), 'type' => Controls_Manager::TEXT, 'default' => __('Street View', 'homlity-real-estate')]);
+        $this->add_control('street_unavailable_message', ['label' => __('Mensaje sin Street View', 'homlity-real-estate'), 'type' => Controls_Manager::TEXTAREA, 'default' => __('Street View no está disponible para esta ubicación. Puedes abrir la ubicación en Google Maps.', 'homlity-real-estate')]);
+        $this->add_control('empty_coords_message', ['label' => __('Mensaje sin coordenadas', 'homlity-real-estate'), 'type' => Controls_Manager::TEXT, 'default' => __('Ubicación no disponible para este inmueble.', 'homlity-real-estate')]);
+        $this->add_control('show_tabs', ['label' => __('Mostrar tabs', 'homlity-real-estate'), 'type' => Controls_Manager::SWITCHER, 'default' => 'yes']);
         $this->end_controls_section();
 
         $this->start_controls_section('style_map', [
@@ -69,6 +183,18 @@ class PropertyMapWidget extends BasePropertyWidget
             'label' => __('Color fondo', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map' => 'background-color: {{VALUE}};'],
+        ]);
+
+        $this->add_control('marker_heading', [
+            'label'     => __('Marcador', 'homlity-real-estate'),
+            'type'      => Controls_Manager::HEADING,
+            'separator' => 'before',
+        ]);
+        $this->add_control('marker_bg_color', [
+            'label'       => __('Color fondo del puntero', 'homlity-real-estate'),
+            'type'        => Controls_Manager::COLOR,
+            'default'     => '#ffffff',
+            'description' => __('Fondo circular detrás de la imagen del marcador. Útil para íconos con transparencia.', 'homlity-real-estate'),
         ]);
         $this->add_group_control(Group_Control_Border::get_type(), [
             'name' => 'map_border',
@@ -103,6 +229,9 @@ class PropertyMapWidget extends BasePropertyWidget
                 'vh' => ['min' => 20, 'max' => 100],
             ],
             'selectors' => [
+                '{{WRAPPER}} .property-map' => '--hml-property-map-height: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-map__frame' => 'min-height: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-map__panel' => 'min-height: {{SIZE}}{{UNIT}};',
                 '{{WRAPPER}} .property-map__panel[data-map-panel="map"] iframe' => 'height: {{SIZE}}{{UNIT}};',
                 '{{WRAPPER}} .property-map__panel[data-map-panel="map"] .property-map__leaflet' => 'height: {{SIZE}}{{UNIT}};',
             ],
@@ -117,6 +246,7 @@ class PropertyMapWidget extends BasePropertyWidget
             ],
             'selectors' => [
                 '{{WRAPPER}} .property-map__panel[data-map-panel="street"] iframe' => 'height: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-map__panel[data-map-panel="street"] .property-map__street-canvas' => 'height: {{SIZE}}{{UNIT}};',
             ],
         ]);
         $this->add_group_control(Group_Control_Typography::get_type(), [
@@ -403,12 +533,26 @@ class PropertyMapWidget extends BasePropertyWidget
             HOMLITY_PLUGIN_VERSION,
             true
         );
+        wp_enqueue_style(
+            'homlity-real-estate-leaflet',
+            HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.css',
+            [],
+            '1.9.4'
+        );
+        wp_enqueue_script(
+            'homlity-real-estate-leaflet',
+            HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.js',
+            [],
+            '1.9.4',
+            true
+        );
 
         $settings = $this->get_settings_for_display();
         TemplateService::includeComponent('property-map.php', [
             'post_id' => $this->current_property_id(),
             'map_tab_icon_map' => $settings['map_tab_icon_map'] ?? [],
             'map_tab_icon_street' => $settings['map_tab_icon_street'] ?? [],
+            'map_settings' => $settings,
         ]);
     }
 }

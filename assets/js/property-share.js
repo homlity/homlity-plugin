@@ -23,5 +23,21 @@
     setTimeout(function () { btn.classList.remove('is-copied'); }, 1600);
   }
 
+  function handleLabelToggle(e) {
+    var btn = e.target.closest('.property-share__toggle-btn');
+    if (!btn) return;
+
+    var widget = btn.closest('.property-share-widget');
+    if (!widget) return;
+
+    var hidden = widget.classList.toggle('property-share-widget--labels-hidden');
+
+    btn.setAttribute('aria-pressed', hidden ? 'false' : 'true');
+    btn.textContent = hidden
+      ? (btn.dataset.labelShow || btn.textContent)
+      : (btn.dataset.labelHide || btn.textContent);
+  }
+
   document.addEventListener('click', handleCopy);
+  document.addEventListener('click', handleLabelToggle);
 })();

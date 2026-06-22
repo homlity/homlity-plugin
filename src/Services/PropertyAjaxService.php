@@ -75,7 +75,7 @@ class PropertyAjaxService implements ServiceInterface
             'card_whatsapp_icon_position' => in_array(($_POST['card_whatsapp_icon_position'] ?? 'left'), ['left', 'right'], true)
                 ? sanitize_key((string) $_POST['card_whatsapp_icon_position'])
                 : 'left',
-            'card_whatsapp_icon' => $this->decodeIconControl($_POST['card_whatsapp_icon'] ?? ''),
+            'card_whatsapp_icon' => $this->decodeIconControl(wp_unslash((string) ($_POST['card_whatsapp_icon'] ?? ''))),
             'card_feature_area' => !empty($_POST['card_feature_area']),
             'card_feature_bedrooms' => !empty($_POST['card_feature_bedrooms']),
             'card_feature_bathrooms' => !empty($_POST['card_feature_bathrooms']),
@@ -86,16 +86,16 @@ class PropertyAjaxService implements ServiceInterface
             'card_feature_age' => !empty($_POST['card_feature_age']),
             'card_feature_condition' => !empty($_POST['card_feature_condition']),
             'card_feature_code' => !empty($_POST['card_feature_code']),
-            'card_feature_icon_area' => $this->decodeIconControl($_POST['card_feature_icon_area'] ?? ''),
-            'card_feature_icon_bedrooms' => $this->decodeIconControl($_POST['card_feature_icon_bedrooms'] ?? ''),
-            'card_feature_icon_bathrooms' => $this->decodeIconControl($_POST['card_feature_icon_bathrooms'] ?? ''),
-            'card_feature_icon_parking' => $this->decodeIconControl($_POST['card_feature_icon_parking'] ?? ''),
-            'card_feature_icon_area_lot' => $this->decodeIconControl($_POST['card_feature_icon_area_lot'] ?? ''),
-            'card_feature_icon_area_private' => $this->decodeIconControl($_POST['card_feature_icon_area_private'] ?? ''),
-            'card_feature_icon_area_built' => $this->decodeIconControl($_POST['card_feature_icon_area_built'] ?? ''),
-            'card_feature_icon_age' => $this->decodeIconControl($_POST['card_feature_icon_age'] ?? ''),
-            'card_feature_icon_condition' => $this->decodeIconControl($_POST['card_feature_icon_condition'] ?? ''),
-            'card_feature_icon_code' => $this->decodeIconControl($_POST['card_feature_icon_code'] ?? ''),
+            'card_feature_icon_area' => $this->decodeIconControl(wp_unslash((string) ($_POST['card_feature_icon_area'] ?? ''))),
+            'card_feature_icon_bedrooms' => $this->decodeIconControl(wp_unslash((string) ($_POST['card_feature_icon_bedrooms'] ?? ''))),
+            'card_feature_icon_bathrooms' => $this->decodeIconControl(wp_unslash((string) ($_POST['card_feature_icon_bathrooms'] ?? ''))),
+            'card_feature_icon_parking' => $this->decodeIconControl(wp_unslash((string) ($_POST['card_feature_icon_parking'] ?? ''))),
+            'card_feature_icon_area_lot' => $this->decodeIconControl(wp_unslash((string) ($_POST['card_feature_icon_area_lot'] ?? ''))),
+            'card_feature_icon_area_private' => $this->decodeIconControl(wp_unslash((string) ($_POST['card_feature_icon_area_private'] ?? ''))),
+            'card_feature_icon_area_built' => $this->decodeIconControl(wp_unslash((string) ($_POST['card_feature_icon_area_built'] ?? ''))),
+            'card_feature_icon_age' => $this->decodeIconControl(wp_unslash((string) ($_POST['card_feature_icon_age'] ?? ''))),
+            'card_feature_icon_condition' => $this->decodeIconControl(wp_unslash((string) ($_POST['card_feature_icon_condition'] ?? ''))),
+            'card_feature_icon_code' => $this->decodeIconControl(wp_unslash((string) ($_POST['card_feature_icon_code'] ?? ''))),
         ]);
 
         $filterParams = [
@@ -150,18 +150,22 @@ class PropertyAjaxService implements ServiceInterface
         ]);
     }
 
-    private function decodeIconControl($raw): array
+    /**
+     * Decodes an Elementor icon-control JSON string (already wp_unslash'd by the caller).
+     * Returns sanitized 'value' and 'library' keys.
+     */
+    private function decodeIconControl(string $raw): array
     {
-        if (!is_string($raw)) {
+        if ($raw === '') {
             return ['value' => '', 'library' => ''];
         }
-        $decoded = json_decode(wp_unslash($raw), true);
+        $decoded = json_decode($raw, true);
         if (!is_array($decoded)) {
             return ['value' => '', 'library' => ''];
         }
 
         return [
-            'value' => sanitize_text_field((string) ($decoded['value'] ?? '')),
+            'value'   => sanitize_text_field((string) ($decoded['value'] ?? '')),
             'library' => sanitize_key((string) ($decoded['library'] ?? '')),
         ];
     }

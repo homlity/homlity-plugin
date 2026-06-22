@@ -185,7 +185,9 @@ class CrmAdminService implements ServiceInterface
         $this->assertAdminAndNonce('homlity_crm_enqueue_batch');
 
         $provider = sanitize_key((string) ($_POST['provider'] ?? ''));
-        $raw = wp_unslash((string) ($_POST['batch_payload'] ?? ''));
+        // wp_unslash only — sanitize_text_field would corrupt the JSON structure.
+        // The value is immediately decoded; individual fields are sanitised by enqueueBatch().
+        $raw = wp_unslash((string) ($_POST['batch_payload'] ?? '')); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         $decoded = json_decode($raw, true);
         $records = is_array($decoded) ? $decoded : [];
 

@@ -262,12 +262,6 @@ msgstr "Características secundarias"
 msgid "Coordenadas"
 msgstr "Coordenadas"
 
-msgid "Operación"
-msgstr "Operación"
-
-msgid "Ubicación"
-msgstr "Ubicación"
-
 msgid "Mapa de la propiedad"
 msgstr "Mapa de la propiedad"
 
@@ -285,9 +279,6 @@ msgstr "Opciones"
 
 msgid "Propiedad destacada"
 msgstr "Propiedad destacada"
-
-msgid "Etiquetas"
-msgstr "Etiquetas"
 
 msgid "Etiqueta"
 msgstr "Etiqueta"
@@ -322,9 +313,6 @@ msgstr "Barrio"
 msgid "Barrios"
 msgstr "Barrios"
 
-msgid "Lugares cercanos"
-msgstr "Lugares cercanos"
-
 msgid "Lugar cercano"
 msgstr "Lugar cercano"
 
@@ -340,17 +328,8 @@ msgstr "Otras características"
 msgid "Todas las propiedades"
 msgstr "Todas las propiedades"
 
-msgid "Añadir nueva"
-msgstr "Añadir nueva"
-
 msgid "Geolocalización"
 msgstr "Geolocalización"
-
-msgid "Departamentos / Provincias"
-msgstr "Departamentos / Provincias"
-
-msgid "Ciudades / Municipios"
-msgstr "Ciudades / Municipios"
 
 msgid "Zonas"
 msgstr "Zonas"

@@ -35,14 +35,16 @@ use Homlity\PluginInmobiliario\Services\PropertyUnavailableService;
 use Homlity\PluginInmobiliario\Services\PropertyVisitTrackingService;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\SyncRegistry;
-use Homlity\PluginInmobiliario\Services\TemplateEditorService;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 use Homlity\PluginInmobiliario\Services\SeoGeoSchemaService;
 use Homlity\PluginInmobiliario\Services\SeoGeoSettingsService;
 use Homlity\PluginInmobiliario\Services\SeoIntegrationService;
 use Homlity\PluginInmobiliario\Services\SeoService;
+use Homlity\PluginInmobiliario\Services\HomlityPlansService;
+use Homlity\PluginInmobiliario\Services\SimulatorService;
 use Homlity\PluginInmobiliario\Services\SettingsService;
 use Homlity\PluginInmobiliario\Services\TemplateService;
+use Homlity\PluginInmobiliario\Services\UnavailablePropertyShortcodesService;
 use Homlity\PluginInmobiliario\Services\UserMetaService;
 use Homlity\PluginInmobiliario\Services\VersionService;
 
@@ -61,7 +63,9 @@ class PluginBootstrap
             // Core WordPress services
             new I18nService(),
             new VersionService(),
+            new HomlityPlansService(),
             new SettingsService(),
+            new SimulatorService(),
             new PropertyPostType(),
             new PropertyTaxonomies(),
             new AdminMenuService(),
@@ -95,6 +99,11 @@ class PluginBootstrap
             // Shortcode [homlity_listing] – always active, also used by WPBakery/Divi
             new ShortcodeIntegrationService(),
 
+            // Shortcodes for unavailable-property landing pages
+            // [homlity_unavailable_notice], [homlity_unavailable_similar_properties],
+            // [homlity_unavailable_search_context]
+            new UnavailablePropertyShortcodesService(),
+
             // Contact Form 7 – [homlity_property_code] dynamic field (no-op when CF7 absent)
             new CF7IntegrationService(),
 
@@ -111,9 +120,6 @@ class PluginBootstrap
             new PropertyTechnicalSheetDownloadTrackingService(),
             new PropertyAnalyticsCleanupService(),
             new NinjaWhatsAppPropertyOverrideService(),
-
-            // Admin template editor: Configuración → Plantillas
-            new TemplateEditorService(),
 
             // AI context: /llms-full.txt public endpoint + admin settings page
             new LlmsFullService(),

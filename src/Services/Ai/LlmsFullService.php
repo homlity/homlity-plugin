@@ -194,7 +194,7 @@ class LlmsFullService implements ServiceInterface
         $reqPath  = trim((string) wp_parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
         $homePath = trim((string) wp_parse_url(home_url('/'), PHP_URL_PATH), '/');
 
-        if ($homePath !== '' && str_starts_with($reqPath, $homePath . '/')) {
+        if ($homePath !== '' && strpos($reqPath, $homePath . '/') === 0) {
             $reqPath = trim(substr($reqPath, strlen($homePath) + 1), '/');
         }
 

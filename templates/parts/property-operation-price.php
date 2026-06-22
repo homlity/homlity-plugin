@@ -27,8 +27,8 @@ $operations    = wp_get_post_terms($post_id, PropertyTaxonomies::TAXONOMY_OPERAT
 $operationName = (!is_wp_error($operations) && !empty($operations)) ? $operations[0]->name : '';
 
 $opSlug     = mb_strtolower($operationName);
-$isVenta    = str_contains($opSlug, 'venta');
-$isArriendo = str_contains($opSlug, 'arriendo');
+$isVenta    = strpos($opSlug, 'venta') !== false;
+$isArriendo = strpos($opSlug, 'arriendo') !== false;
 $hideZero   = ($s['hide_zero_values'] ?? 'no') === 'yes';
 
 // Price keys visible for this operation type; if unknown, show all

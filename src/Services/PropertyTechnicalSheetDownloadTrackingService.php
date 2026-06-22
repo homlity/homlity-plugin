@@ -79,8 +79,8 @@ class PropertyTechnicalSheetDownloadTrackingService implements ServiceInterface
             [
                 'property_id' => $propertyId,
                 'visitor_id' => $visitorId,
-                'ip_hash' => hash('sha256', (string) ($_SERVER['REMOTE_ADDR'] ?? '')),
-                'ua_hash' => hash('sha256', (string) ($_SERVER['HTTP_USER_AGENT'] ?? '')),
+                'ip_hash' => hash('sha256', sanitize_text_field(wp_unslash((string) ($_SERVER['REMOTE_ADDR'] ?? '')))),
+                'ua_hash' => hash('sha256', sanitize_text_field(wp_unslash((string) ($_SERVER['HTTP_USER_AGENT'] ?? '')))),
                 'downloaded_at' => current_time('mysql'),
                 'created_ts' => time(),
             ],

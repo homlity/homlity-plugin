@@ -1,0 +1,19 @@
+.homlity-simulator,
+.homlity-simulator-widget {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.homlity-simulator__intro {
+    margin: 0 auto 18px;
+    max-width: 1200px;
+}
+
+.homlity-simulator__intro p {
+    margin: 0 0 0.85em;
+}
+
+.homlity-simulator-widget__title {
+    margin: 0 0 18px;
+}

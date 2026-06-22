@@ -16,6 +16,7 @@ use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyMapWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyRelatedWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyResultsTitleWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyCardWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\SimulatorWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertySummaryWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyContentWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyOperationPriceWidget;
@@ -25,7 +26,10 @@ use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyMediaTabsW
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyBreadcrumbWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyVideoWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyTechnicalSheetButtonWidget;
-use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFeaturedTermsWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFeaturedCitiesWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFeaturedNeighborhoodsWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFeaturedOperationsWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFeaturedTypesWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyAgentsAvailableWidget;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 
@@ -127,7 +131,10 @@ class ElementorIntegrationService implements ServiceInterface
             PropertyMediaTabsWidget::class,
             PropertyVideoWidget::class,
             PropertyTechnicalSheetButtonWidget::class,
-            PropertyFeaturedTermsWidget::class,
+            PropertyFeaturedCitiesWidget::class,
+            PropertyFeaturedNeighborhoodsWidget::class,
+            PropertyFeaturedOperationsWidget::class,
+            PropertyFeaturedTypesWidget::class,
             PropertyAgentsAvailableWidget::class,
             PropertyFeaturesPrimaryWidget::class,
             PropertyFeaturesSecondaryWidget::class,
@@ -136,6 +143,7 @@ class ElementorIntegrationService implements ServiceInterface
             PropertyShareWidget::class,
             PropertyRelatedWidget::class,
             PropertyCardWidget::class,
+            SimulatorWidget::class,
         ];
 
         foreach ($widgets as $widgetClass) {

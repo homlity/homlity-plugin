@@ -6,7 +6,7 @@ const OPERATIONS = [
   { value: 'Venta y Arriendo', label: 'Venta y Arriendo' },
 ];
 
-const CURRENCIES = ['COP', 'USD', 'EUR'];
+const CURRENCIES = ['COP', 'CRC', 'USD', 'EUR'];
 
 function PriceRow({ label, idAmount, idCurrency, valueAmount, valueCurrency, onChangeAmount, onChangeCurrency, error }) {
   return (

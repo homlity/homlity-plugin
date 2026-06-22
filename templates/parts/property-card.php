@@ -90,6 +90,8 @@ $currencyService = new CurrencyService();
 $cardOptions = isset($card_options) && is_array($card_options) ? $card_options : [];
 $cardOptions = array_merge([
     'media_mode' => 'single',
+    'visual_preset' => 'default',
+    'hover_effect' => 'lift',
     'show_title' => true,
     'show_excerpt' => true,
     'show_operation' => true,
@@ -97,6 +99,8 @@ $cardOptions = array_merge([
     'show_features' => true,
     'show_whatsapp' => true,
     'whatsapp_label' => '',
+    'whatsapp_show_icon' => true,
+    'whatsapp_icon_position' => 'left',
     'whatsapp_icon' => ['value' => 'fab fa-whatsapp', 'library' => 'fa-brands'],
     'feature_area' => true,
     'feature_bedrooms' => true,
@@ -118,6 +122,7 @@ $cardOptions = array_merge([
     'feature_icon_age' => 'clock',
     'feature_icon_condition' => 'diamond',
     'feature_icon_code' => 'hash',
+    'link_new_tab' => false,
 ], $cardOptions);
 
 $settings = get_option(HOMLITY_PLUGIN_SETTINGS_OPTION, [
@@ -166,7 +171,14 @@ if ($coverImage) {
 
 if ($cardOptions['media_mode'] === 'slider' || empty($images)) {
     $rawGallery = get_post_meta($post_id, $meta['gallery'], true);
-    $galleryIds = array_filter(array_map('absint', explode(',', (string) $rawGallery)));
+    // get_post_meta() may return an unserialized array when the gallery was stored
+    // as a serialized PHP array (e.g. from a CRM sync). Casting an array to string
+    // triggers "Array to string conversion" — handle both cases explicitly.
+    if (is_array($rawGallery)) {
+        $galleryIds = array_filter(array_map('absint', $rawGallery));
+    } else {
+        $galleryIds = array_filter(array_map('absint', explode(',', (string) $rawGallery)));
+    }
     foreach ($galleryIds as $attachmentId) {
         $url = wp_get_attachment_image_url($attachmentId, 'large');
         if ($url && !in_array($url, $images, true)) {
@@ -239,7 +251,7 @@ if ($showPrice) {
 }
 ?>
 <article <?php post_class('property-card' . $presetClass . $hoverClass, $post_id); ?> data-property-id="<?php echo esc_attr($post_id); ?>">
-    <a href="<?php echo esc_url(get_permalink($post_id)); ?>">
+    <a href="<?php echo esc_url(get_permalink($post_id)); ?>"<?php if (!empty($cardOptions['link_new_tab'])): ?> target="_blank" rel="noopener noreferrer"<?php endif; ?>>
         <div class="property-card__gallery">
             <?php if ($featured && empty($tagTerms)): ?>
                 <span class="property-card__featured-badge"><?php esc_html_e('Destacado', 'homlity-real-estate'); ?></span>

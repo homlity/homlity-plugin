@@ -84,8 +84,9 @@ class PropertyListingWidget extends Widget_Base
             'label'   => __('Origen de la consulta', 'homlity-real-estate'),
             'type'    => Controls_Manager::SELECT,
             'options' => [
-                'custom'  => __('Filtros configurados en el widget', 'homlity-real-estate'),
-                'current' => __('Consulta actual (archivo, categoría, etiqueta, búsqueda)', 'homlity-real-estate'),
+                'custom'          => __('Filtros configurados en el widget', 'homlity-real-estate'),
+                'current'         => __('Consulta actual (archivo, categoría, etiqueta, búsqueda)', 'homlity-real-estate'),
+                'related_current' => __('Inmuebles relacionados al inmueble de la página', 'homlity-real-estate'),
             ],
             'default' => 'custom',
         ]);
@@ -215,6 +216,68 @@ class PropertyListingWidget extends Widget_Base
             'options'   => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_NEARBY),
             'default'   => '',
             'condition' => ['query_mode' => 'custom'],
+        ]);
+
+        // ── Opciones de inmuebles relacionados (solo visible en modo related_current) ──
+        $this->add_control('related_property_id', [
+            'label'       => __('Inmueble de referencia (solo editor)', 'homlity-real-estate'),
+            'type'        => Controls_Manager::NUMBER,
+            'min'         => 0,
+            'default'     => 0,
+            'condition'   => ['query_mode' => 'related_current'],
+            'description' => __('ID del inmueble a usar como referencia en la vista previa del editor. En el frontend se detecta automáticamente el inmueble de la página actual.', 'homlity-real-estate'),
+        ]);
+
+        $this->add_control('related_taxonomies', [
+            'label'       => __('Taxonomías para encontrar relacionados', 'homlity-real-estate'),
+            'type'        => Controls_Manager::SELECT2,
+            'multiple'    => true,
+            'label_block' => true,
+            'options'     => [
+                'property_tag'          => __('Etiquetas', 'homlity-real-estate'),
+                'property_type'         => __('Tipo de inmueble', 'homlity-real-estate'),
+                'property_operation'    => __('Gestión (venta / arriendo)', 'homlity-real-estate'),
+                'property_category'     => __('Categoría', 'homlity-real-estate'),
+                'property_city'         => __('Ciudad', 'homlity-real-estate'),
+                'property_state'        => __('Departamento / Provincia', 'homlity-real-estate'),
+                'property_country'      => __('País', 'homlity-real-estate'),
+                'property_neighborhood' => __('Barrio', 'homlity-real-estate'),
+            ],
+            'default'     => [],
+            'condition'   => ['query_mode' => 'related_current'],
+            'description' => __('Vacío = usa todas las taxonomías disponibles.', 'homlity-real-estate'),
+        ]);
+
+        $this->add_control('related_strategy', [
+            'label'     => __('Estrategia de relación', 'homlity-real-estate'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => [
+                'any'        => __('Al menos una coincidencia (OR)', 'homlity-real-estate'),
+                'all'        => __('Coincidencia en todas las taxonomías (AND)', 'homlity-real-estate'),
+                'tags_first' => __('Etiquetas primero, luego cualquier coincidencia', 'homlity-real-estate'),
+            ],
+            'default'   => 'any',
+            'condition' => ['query_mode' => 'related_current'],
+        ]);
+
+        $this->add_control('related_fallback', [
+            'label'     => __('Si no hay relacionados…', 'homlity-real-estate'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => [
+                'recent'    => __('Mostrar los más recientes', 'homlity-real-estate'),
+                'same_city' => __('Mostrar inmuebles de la misma ciudad', 'homlity-real-estate'),
+                'empty'     => __('Mostrar mensaje personalizado', 'homlity-real-estate'),
+                'hide'      => __('Ocultar el widget', 'homlity-real-estate'),
+            ],
+            'default'   => 'recent',
+            'condition' => ['query_mode' => 'related_current'],
+        ]);
+
+        $this->add_control('related_empty_message', [
+            'label'     => __('Mensaje de vacío', 'homlity-real-estate'),
+            'type'      => Controls_Manager::TEXT,
+            'default'   => __('No hay inmuebles relacionados disponibles.', 'homlity-real-estate'),
+            'condition' => ['query_mode' => 'related_current', 'related_fallback' => 'empty'],
         ]);
 
         $this->end_controls_section();

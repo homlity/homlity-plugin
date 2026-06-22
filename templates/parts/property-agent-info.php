@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\SeoGeoSettingsService;
 use Homlity\PluginInmobiliario\Services\WhatsAppLinkService;
 
 if (!isset($post_id)) {
@@ -20,6 +21,16 @@ if (!isset($post_id)) {
 
 $s      = $settings ?? [];
 $source = $s['data_source'] ?? 'dynamic';
+
+// ── Avatar fallback helper ────────────────────────────────────────────────────
+
+$agentAvatarFallback = static function (string $alt): string {
+    $logoUrl = SeoGeoSettingsService::get('company_logo', '');
+    if (!$logoUrl) {
+        return '';
+    }
+    return '<img src="' . esc_url($logoUrl) . '" alt="' . esc_attr($alt) . '">';
+};
 
 // ── Build agent data ──────────────────────────────────────────────────────────
 
@@ -32,9 +43,13 @@ if ($source === 'static') {
     $email     = $s['static_email'] ?? '';
     $profileUrl = '';
 
-    $avatarHtml = $photoId
-        ? wp_get_attachment_image($photoId, 'thumbnail', false, ['alt' => esc_attr($name)])
-        : ($photoUrl ? '<img src="' . esc_url($photoUrl) . '" alt="' . esc_attr($name) . '">' : '');
+    if ($photoId) {
+        $avatarHtml = wp_get_attachment_image($photoId, 'thumbnail', false, ['alt' => esc_attr($name)]);
+    } elseif ($photoUrl) {
+        $avatarHtml = '<img src="' . esc_url($photoUrl) . '" alt="' . esc_attr($name) . '">';
+    } else {
+        $avatarHtml = $agentAvatarFallback(get_bloginfo('name'));
+    }
 
 } else {
     $meta       = (new PropertyPostType())->metaKeys();
@@ -54,8 +69,33 @@ if ($source === 'static') {
           ?: get_post_meta($post_id, $meta['agent_email'], true);
 
     $profileUrl = home_url('/property-agent/' . $agentUser->user_nicename);
-    $avatarHtml = get_avatar($agentUser->ID, 96);
     $photoUrl   = '';
+
+    // Resolve avatar: CRM photo → WP User Avatar plugin → Simple Local Avatars → company logo
+    $avatarHtml = '';
+
+    $crmPhotoUrl = (string) get_user_meta($agentUser->ID, '_homlity_advisor_photo', true);
+    if ($crmPhotoUrl) {
+        $avatarHtml = '<img src="' . esc_url($crmPhotoUrl) . '" alt="' . esc_attr($name) . '">';
+    }
+
+    if (!$avatarHtml) {
+        $wpUaId = (int) get_user_meta($agentUser->ID, 'wp_user_avatar', true);
+        if ($wpUaId > 0) {
+            $avatarHtml = wp_get_attachment_image($wpUaId, [96, 96], false, ['alt' => esc_attr($name)]);
+        }
+    }
+
+    if (!$avatarHtml) {
+        $slaData = get_user_meta($agentUser->ID, 'simple_local_avatar', true);
+        if (!empty($slaData['full'])) {
+            $avatarHtml = '<img src="' . esc_url($slaData['full']) . '" alt="' . esc_attr($name) . '">';
+        }
+    }
+
+    if (!$avatarHtml) {
+        $avatarHtml = $agentAvatarFallback(get_bloginfo('name'));
+    }
 }
 
 // ── Build CTAs ────────────────────────────────────────────────────────────────

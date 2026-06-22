@@ -69,6 +69,12 @@ trait PropertyCardStylesTrait
             ]);
         }
 
+        $this->add_control('card_link_new_tab', [
+            'label'   => __('Abrir inmueble en nueva pestaña', 'homlity-real-estate'),
+            'type'    => Controls_Manager::SWITCHER,
+            'default' => '',
+        ]);
+
         $this->add_control('card_whatsapp_label', [
             'label'     => __('Texto botón WhatsApp', 'homlity-real-estate'),
             'type'      => Controls_Manager::TEXT,

@@ -14,6 +14,9 @@
 
     const { createElement: el, Fragment, useEffect, useState } = element;
     const __ = i18n && i18n.__ ? i18n.__ : (value) => value;
+    const optionOrder = (config.listingFieldOptions || []).map((option) => option.value);
+    const locationTaxonomies = config.locationTaxonomies || {};
+    const simulatorFields = config.simulatorFields || {};
 
     if (config.nonce && typeof apiFetch.createNonceMiddleware === 'function') {
         apiFetch.use(apiFetch.createNonceMiddleware(config.nonce));
@@ -24,16 +27,12 @@
         return;
     }
 
-    const optionOrder = (config.listingFieldOptions || []).map((option) => option.value);
-    const locationTaxonomies = config.locationTaxonomies || {};
-
     function normalizeSettings(values) {
         const defaults = config.defaults || {};
         const merged = Object.assign({}, defaults, values || {});
 
         merged.listing_fields = Array.isArray(merged.listing_fields) ? merged.listing_fields.slice() : [];
         merged.listing_fields = optionOrder.filter((value) => merged.listing_fields.includes(value));
-
         merged.enable_analytics = !!merged.enable_analytics;
 
         ['default_country', 'default_state', 'default_city', 'default_neighborhood', 'archive_per_page'].forEach((key) => {
@@ -46,6 +45,13 @@
             merged[key] = Number.isNaN(numeric) ? 0 : numeric;
         });
 
+        const simulatorDefaults = defaults.simulators || {};
+        const simulatorValues = merged.simulators && typeof merged.simulators === 'object' ? merged.simulators : {};
+        merged.simulators = {
+            arriendo: Object.assign({}, simulatorDefaults.arriendo || {}, simulatorValues.arriendo || {}),
+            venta: Object.assign({}, simulatorDefaults.venta || {}, simulatorValues.venta || {}),
+        };
+
         return merged;
     }
 
@@ -56,7 +62,7 @@
     function Field(props) {
         return el(
             'label',
-            { className: 'homlity-settings__field' },
+            { className: classNames('homlity-settings__field', props.full && 'homlity-settings__field--full') },
             [
                 el('span', { key: 'label', className: 'homlity-settings__field-label' }, props.label),
                 props.hint ? el('span', { key: 'hint', className: 'homlity-settings__field-hint' }, props.hint) : null,
@@ -69,6 +75,7 @@
         return el(Field, {
             label: props.label,
             hint: props.hint,
+            full: !!props.full,
             children: el('input', {
                 className: 'homlity-settings__input',
                 type: props.type || 'text',
@@ -84,6 +91,7 @@
         return el(Field, {
             label: props.label,
             hint: props.hint,
+            full: !!props.full,
             children: el(
                 'select',
                 {
@@ -95,6 +103,41 @@
                 (props.options || []).map((option) =>
                     el('option', { key: option.value, value: option.value }, option.label)
                 )
+            ),
+        });
+    }
+
+    function TextArea(props) {
+        return el(Field, {
+            label: props.label,
+            hint: props.hint,
+            full: true,
+            children: el('textarea', {
+                className: 'homlity-settings__input homlity-settings__textarea',
+                value: props.value,
+                rows: props.rows || 4,
+                onChange: props.onChange,
+            }),
+        });
+    }
+
+    function CheckboxField(props) {
+        return el(Field, {
+            label: props.label,
+            hint: props.hint,
+            full: !!props.full,
+            children: el(
+                'label',
+                { className: 'homlity-settings__checkbox' },
+                [
+                    el('input', {
+                        key: 'input',
+                        type: 'checkbox',
+                        checked: !!props.checked,
+                        onChange: props.onChange,
+                    }),
+                    el('span', { key: 'text' }, props.checkboxLabel || props.label),
+                ]
             ),
         });
     }
@@ -218,6 +261,7 @@
         const [baseline, setBaseline] = useState(JSON.stringify(initial));
         const [status, setStatus] = useState('idle');
         const [message, setMessage] = useState('');
+        const [activeTab, setActiveTab] = useState('general');
         const [locationOptions, setLocationOptions] = useState({
             country: [],
             state: [],
@@ -236,7 +280,6 @@
             }
 
             const path = config.locationTermsPath + '?taxonomy=' + encodeURIComponent(taxonomy) + '&parent=' + encodeURIComponent(parentId || 0);
-
             return apiFetch({ path }).then((response) => (Array.isArray(response) ? response : []));
         }
 
@@ -248,11 +291,7 @@
 
         useEffect(() => {
             if (!normalized.default_country) {
-                setLocationOptions((current) => Object.assign({}, current, {
-                    state: [],
-                    city: [],
-                    neighborhood: [],
-                }));
+                setLocationOptions((current) => Object.assign({}, current, { state: [], city: [], neighborhood: [] }));
                 return;
             }
 
@@ -263,10 +302,7 @@
 
         useEffect(() => {
             if (!normalized.default_state) {
-                setLocationOptions((current) => Object.assign({}, current, {
-                    city: [],
-                    neighborhood: [],
-                }));
+                setLocationOptions((current) => Object.assign({}, current, { city: [], neighborhood: [] }));
                 return;
             }
 
@@ -277,9 +313,7 @@
 
         useEffect(() => {
             if (!normalized.default_city) {
-                setLocationOptions((current) => Object.assign({}, current, {
-                    neighborhood: [],
-                }));
+                setLocationOptions((current) => Object.assign({}, current, { neighborhood: [] }));
                 return;
             }
 
@@ -294,6 +328,16 @@
 
         function updateNumberField(key, value) {
             updateField(key, value === '' ? '' : parseInt(value, 10) || 0);
+        }
+
+        function updateSimulatorField(section, key, value) {
+            setSettings((current) => Object.assign({}, current, {
+                simulators: Object.assign({}, current.simulators || {}, {
+                    [section]: Object.assign({}, (current.simulators && current.simulators[section]) || {}, {
+                        [key]: value,
+                    }),
+                }),
+            }));
         }
 
         function updateLocationField(level, value) {
@@ -359,6 +403,55 @@
             }).catch((error) => {
                 setStatus('error');
                 setMessage((error && error.message) || __('No fue posible guardar la configuración.', 'homlity-real-estate'));
+            });
+        }
+
+        function renderSimulatorField(sectionKey, fieldKey, fieldConfig) {
+            const fieldType = fieldConfig.type || 'text';
+            const sectionValues = ((normalized.simulators || {})[sectionKey]) || {};
+            const value = Object.prototype.hasOwnProperty.call(sectionValues, fieldKey) ? sectionValues[fieldKey] : '';
+
+            if (fieldType === 'checkbox') {
+                return el(CheckboxField, {
+                    key: fieldKey,
+                    label: fieldConfig.label,
+                    hint: fieldConfig.help,
+                    checked: value === '1',
+                    checkboxLabel: fieldConfig.checkboxLabel,
+                    onChange: (event) => updateSimulatorField(sectionKey, fieldKey, event.target.checked ? '1' : '0'),
+                });
+            }
+
+            if (fieldType === 'select') {
+                return el(Select, {
+                    key: fieldKey,
+                    label: fieldConfig.label,
+                    hint: fieldConfig.help,
+                    value: value,
+                    options: Object.keys(fieldConfig.options || {}).map((optionValue) => ({
+                        value: optionValue,
+                        label: fieldConfig.options[optionValue],
+                    })),
+                    onChange: (event) => updateSimulatorField(sectionKey, fieldKey, event.target.value),
+                });
+            }
+
+            if (fieldType === 'textarea') {
+                return el(TextArea, {
+                    key: fieldKey,
+                    label: fieldConfig.label,
+                    hint: fieldConfig.help,
+                    value: value,
+                    onChange: (event) => updateSimulatorField(sectionKey, fieldKey, event.target.value),
+                });
+            }
+
+            return el(Input, {
+                key: fieldKey,
+                label: fieldConfig.label,
+                hint: fieldConfig.help,
+                value: value,
+                onChange: (event) => updateSimulatorField(sectionKey, fieldKey, event.target.value),
             });
         }
 
@@ -451,9 +544,34 @@
 
                 el(
                     'div',
+                    { key: 'tabs', className: 'homlity-settings__tabs' },
+                    [
+                        el('button', {
+                            key: 'general',
+                            type: 'button',
+                            className: classNames('homlity-settings__tab', activeTab === 'general' && 'is-active'),
+                            onClick: () => setActiveTab('general'),
+                        }, __('General', 'homlity-real-estate')),
+                        el('button', {
+                            key: 'arriendo',
+                            type: 'button',
+                            className: classNames('homlity-settings__tab', activeTab === 'arriendo' && 'is-active'),
+                            onClick: () => setActiveTab('arriendo'),
+                        }, __('Simulador arriendo', 'homlity-real-estate')),
+                        el('button', {
+                            key: 'venta',
+                            type: 'button',
+                            className: classNames('homlity-settings__tab', activeTab === 'venta' && 'is-active'),
+                            onClick: () => setActiveTab('venta'),
+                        }, __('Simulador venta', 'homlity-real-estate')),
+                    ]
+                ),
+
+                el(
+                    'div',
                     { key: 'grid', className: 'homlity-settings__grid' },
                     [
-                        el(
+                        activeTab === 'general' ? el(
                             Section,
                             {
                                 key: 'experience',
@@ -493,9 +611,9 @@
                                     }),
                                 ]
                             )
-                        ),
+                        ) : null,
 
-                        el(
+                        activeTab === 'general' ? el(
                             Section,
                             {
                                 key: 'location',
@@ -543,9 +661,9 @@
                                     }),
                                 ]
                             )
-                        ),
+                        ) : null,
 
-                        el(
+                        activeTab === 'general' ? el(
                             Section,
                             {
                                 key: 'listing',
@@ -588,9 +706,9 @@
                                     )
                                 ),
                             ]
-                        ),
+                        ) : null,
 
-                        el(
+                        activeTab === 'general' ? el(
                             Section,
                             {
                                 key: 'privacy',
@@ -609,7 +727,41 @@
                                     onChange: (event) => updateField('enable_analytics', event.target.checked),
                                 })
                             )
-                        ),
+                        ) : null,
+
+                        activeTab === 'arriendo' && simulatorFields.arriendo ? el(
+                            Section,
+                            {
+                                key: 'simulator-rent',
+                                eyebrow: __('Simuladores', 'homlity-real-estate'),
+                                title: simulatorFields.arriendo.title,
+                                description: __('Ajusta los valores por defecto y el comportamiento del simulador de arriendo.', 'homlity-real-estate'),
+                            },
+                            el(
+                                'div',
+                                { className: 'homlity-settings__field-grid homlity-settings__field-grid--two' },
+                                Object.keys(simulatorFields.arriendo.fields || {}).map((fieldKey) =>
+                                    renderSimulatorField('arriendo', fieldKey, simulatorFields.arriendo.fields[fieldKey])
+                                )
+                            )
+                        ) : null,
+
+                        activeTab === 'venta' && simulatorFields.venta ? el(
+                            Section,
+                            {
+                                key: 'simulator-sale',
+                                eyebrow: __('Simuladores', 'homlity-real-estate'),
+                                title: simulatorFields.venta.title,
+                                description: __('Define los porcentajes y etiquetas base del simulador de venta.', 'homlity-real-estate'),
+                            },
+                            el(
+                                'div',
+                                { className: 'homlity-settings__field-grid homlity-settings__field-grid--two' },
+                                Object.keys(simulatorFields.venta.fields || {}).map((fieldKey) =>
+                                    renderSimulatorField('venta', fieldKey, simulatorFields.venta.fields[fieldKey])
+                                )
+                            )
+                        ) : null,
                     ]
                 ),
             ]

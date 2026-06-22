@@ -13,6 +13,7 @@ namespace Homlity\PluginInmobiliario\Listing;
 use Homlity\PluginInmobiliario\Services\PropertySearchService;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
+use Homlity\PluginInmobiliario\Services\RelatedPropertiesQueryBuilder;
 use Homlity\PluginInmobiliario\Services\TemplateService;
 
 if (!defined('ABSPATH')) {
@@ -33,6 +34,13 @@ class ListingRenderer
      */
     public function render(ListingConfig $config): void
     {
+        // ── Related-properties mode: fully independent query path ─────────────
+        if ($config->queryMode() === 'related_current') {
+            self::enqueueAssets();
+            $this->renderRelated($config);
+            return;
+        }
+
         self::enqueueAssets();
 
         $params = $config->toQueryParams();
@@ -164,6 +172,104 @@ class ListingRenderer
         ]);
 
         wp_reset_postdata();
+    }
+
+    /**
+     * Render the related-properties listing.
+     * Called exclusively when query_mode === 'related_current'.
+     */
+    private function renderRelated(ListingConfig $config): void
+    {
+        $propertyId = $this->resolveRelatedPropertyId($config);
+
+        if ($propertyId <= 0) {
+            // No property context. In the Elementor editor, show a placeholder.
+            if (
+                \defined('ELEMENTOR_VERSION')
+                && \class_exists('\Elementor\Plugin')
+                && \Elementor\Plugin::$instance->editor->is_edit_mode()
+            ) {
+                echo '<p class="homlity-related-placeholder" style="padding:16px;background:#fff3cd;border-radius:4px;">'
+                    . esc_html__('Vista previa: no hay inmueble activo. Selecciona un inmueble de referencia en las opciones del widget.', 'homlity-real-estate')
+                    . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            }
+            return;
+        }
+
+        $builder = new RelatedPropertiesQueryBuilder();
+        $result  = $builder->build(
+            $propertyId,
+            $config->postsPerPage(),
+            $config->relatedTaxonomies(),
+            $config->relatedStrategy(),
+            $config->relatedFallback(),
+            true // always exclude the source property
+        );
+
+        // hide / empty: do not run a WP_Query at all
+        if ($result['fallback_type'] === RelatedPropertiesQueryBuilder::FALLBACK_HIDE) {
+            return;
+        }
+
+        if ($result['fallback_type'] === RelatedPropertiesQueryBuilder::FALLBACK_EMPTY) {
+            $msg = $config->relatedEmptyMessage();
+            if ($msg !== '') {
+                echo '<p class="homlity-related-empty">' . esc_html($msg) . '</p>';
+            }
+            return;
+        }
+
+        $query = new \WP_Query($result['args']);
+
+        TemplateService::includeComponent($config->listingTemplate(), [
+            'config' => $config,
+            'query'  => $query,
+            'search' => $this->search,
+            'params' => [], // no active URL filter params for related mode
+        ]);
+
+        wp_reset_postdata();
+    }
+
+    /**
+     * Resolve the source property ID for the related-properties query.
+     *
+     * Priority:
+     *   1. Explicit override from widget settings (editor preview).
+     *   2. Queried object when it is a published property post.
+     *   3. Loop context (get_the_ID()).
+     *   4. Global $post.
+     */
+    private function resolveRelatedPropertyId(ListingConfig $config): int
+    {
+        // 1. Explicit override (set in the widget for editor preview)
+        if ($config->relatedPropertyId() > 0) {
+            return $config->relatedPropertyId();
+        }
+
+        // 2. Queried object on a single property page
+        $queriedId = (int) get_queried_object_id();
+        if ($queriedId > 0 && get_post_type($queriedId) === PropertyPostType::POST_TYPE) {
+            return $queriedId;
+        }
+
+        // 3. Inside a WordPress loop (e.g., single template)
+        $loopId = (int) get_the_ID();
+        if ($loopId > 0 && get_post_type($loopId) === PropertyPostType::POST_TYPE) {
+            return $loopId;
+        }
+
+        // 4. Global $post as last resort
+        global $post;
+        if (
+            isset($post)
+            && $post instanceof \WP_Post
+            && get_post_type($post->ID) === PropertyPostType::POST_TYPE
+        ) {
+            return (int) $post->ID;
+        }
+
+        return 0;
     }
 
     /**

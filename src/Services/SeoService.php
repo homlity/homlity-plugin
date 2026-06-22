@@ -26,6 +26,11 @@ class SeoService implements ServiceInterface
             return;
         }
 
+        // Recovery pages must not output property OG tags — the property is not available.
+        if (!empty($GLOBALS['homlity_property_recovery_context'])) {
+            return;
+        }
+
         if (is_singular(PropertyPostType::POST_TYPE)) {
             $this->renderPropertyOpenGraph();
             return;
@@ -40,6 +45,11 @@ class SeoService implements ServiceInterface
 
     public function renderStructuredData(): void
     {
+        // Recovery pages must not output InStock/Residence schema for a retired property.
+        if (!empty($GLOBALS['homlity_property_recovery_context'])) {
+            return;
+        }
+
         if (!is_singular(PropertyPostType::POST_TYPE)) {
             return;
         }

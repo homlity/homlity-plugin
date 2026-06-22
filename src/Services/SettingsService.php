@@ -88,6 +88,7 @@ class SettingsService implements ServiceInterface
             'mapProviderOptions' => $this->mapProviderOptions(),
             'galleryModeOptions' => $this->galleryModeOptions(),
             'locationTaxonomies' => $this->locationTaxonomies(),
+            'simulatorFields' => SimulatorSettings::fields(),
             'logoUrl' => HOMLITY_PLUGIN_URL . 'icono.png',
             'savePath' => '/homlity-real-estate/v1/settings',
             'locationTermsPath' => '/homlity-real-estate/v1/location-terms',
@@ -118,6 +119,7 @@ class SettingsService implements ServiceInterface
             'mapProviderOptions' => $this->mapProviderOptions(),
             'galleryModeOptions' => $this->galleryModeOptions(),
             'locationTaxonomies' => $this->locationTaxonomies(),
+            'simulatorFields' => SimulatorSettings::fields(),
         ]);
     }
 
@@ -132,7 +134,7 @@ class SettingsService implements ServiceInterface
             );
         }
 
-        $merged = array_merge($this->settingsPayload(), $incoming);
+        $merged = array_replace_recursive($this->settingsPayload(), $incoming);
         $sanitized = $this->sanitizeSettings($merged);
         update_option($this->optionName, $sanitized);
 
@@ -229,6 +231,8 @@ class SettingsService implements ServiceInterface
             $values['base_currency'] = $this->defaults()['base_currency'];
         }
 
+        $values['simulators'] = SimulatorSettings::sanitize($values['simulators'] ?? []);
+
         return $values;
     }
 
@@ -243,7 +247,7 @@ class SettingsService implements ServiceInterface
             $stored['primary_color'] = '#ff6752';
         }
 
-        return $this->sanitizeSettings(array_merge($this->defaults(), $stored));
+        return $this->sanitizeSettings(array_replace_recursive($this->defaults(), $stored));
     }
 
     private function supportedCurrencies(): array
@@ -373,6 +377,7 @@ class SettingsService implements ServiceInterface
             'default_map_provider' => 'leaflet_map',
             'detail_gallery_mode' => 'light_gallery',
             'enable_analytics' => false,
+            'simulators' => SimulatorSettings::defaults(),
         ];
     }
 }

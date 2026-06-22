@@ -28,6 +28,7 @@ class PropertyTaxonomies implements ServiceInterface
     public function register(): void
     {
         add_action('init', [$this, 'registerTaxonomies']);
+        add_action('init', [$this, 'ensureDefaultTerms'], 20);
         add_filter('pll_get_taxonomies', [$this, 'registerWithPolylang'], 10, 2);
     }
 
@@ -224,5 +225,154 @@ class PropertyTaxonomies implements ServiceInterface
             $taxonomies[] = self::TAXONOMY_NEARBY;
         }
         return $taxonomies;
+    }
+
+    public function ensureDefaultTerms(): void
+    {
+        $this->ensureDefaultTag('destacado');
+    }
+
+    private function ensureDefaultTag(string $name): void
+    {
+        if (!taxonomy_exists(self::TAXONOMY_TAG)) {
+            return;
+        }
+
+        $term = term_exists($name, self::TAXONOMY_TAG);
+        if ($term) {
+            return;
+        }
+
+        wp_insert_term($name, self::TAXONOMY_TAG, [
+            'slug' => sanitize_title($name),
+        ]);
+    }
+
+    /**
+     * @param int[] $termIds
+     * @return int[]
+     */
+    public static function expandOperationTermIds(array $termIds): array
+    {
+        $termIds = array_values(array_unique(array_filter(array_map('absint', $termIds))));
+        if (empty($termIds)) {
+            return [];
+        }
+
+        $selectedTerms = [];
+        foreach ($termIds as $termId) {
+            $term = get_term($termId, self::TAXONOMY_OPERATION);
+            if ($term instanceof \WP_Term) {
+                $selectedTerms[] = $term;
+            }
+        }
+
+        if (empty($selectedTerms)) {
+            return $termIds;
+        }
+
+        $allTerms = get_terms([
+            'taxonomy' => self::TAXONOMY_OPERATION,
+            'hide_empty' => false,
+        ]);
+        if (is_wp_error($allTerms) || empty($allTerms)) {
+            return $termIds;
+        }
+
+        $expanded = $termIds;
+        foreach ($selectedTerms as $selectedTerm) {
+            $selectedFamilies = self::operationFamiliesForTerm($selectedTerm);
+            if (empty($selectedFamilies)) {
+                continue;
+            }
+
+            foreach ($allTerms as $candidateTerm) {
+                if (!$candidateTerm instanceof \WP_Term) {
+                    continue;
+                }
+
+                $candidateFamilies = self::operationFamiliesForTerm($candidateTerm);
+                if (empty($candidateFamilies)) {
+                    continue;
+                }
+
+                if (!array_diff($selectedFamilies, $candidateFamilies)) {
+                    $expanded[] = (int) $candidateTerm->term_id;
+                }
+            }
+        }
+
+        return array_values(array_unique(array_filter(array_map('absint', $expanded))));
+    }
+
+    /**
+     * @param string[] $slugs
+     * @return string[]
+     */
+    public static function expandOperationTermSlugs(array $slugs): array
+    {
+        $slugs = array_values(array_unique(array_filter(array_map('sanitize_title', $slugs))));
+        if (empty($slugs)) {
+            return [];
+        }
+
+        $termIds = [];
+        foreach ($slugs as $slug) {
+            $term = get_term_by('slug', $slug, self::TAXONOMY_OPERATION);
+            if ($term instanceof \WP_Term) {
+                $termIds[] = (int) $term->term_id;
+            }
+        }
+
+        $expandedIds = self::expandOperationTermIds($termIds);
+        if (empty($expandedIds)) {
+            return $slugs;
+        }
+
+        $expandedSlugs = [];
+        foreach ($expandedIds as $termId) {
+            $term = get_term($termId, self::TAXONOMY_OPERATION);
+            if ($term instanceof \WP_Term) {
+                $expandedSlugs[] = $term->slug;
+            }
+        }
+
+        return array_values(array_unique(array_filter(array_map('sanitize_title', $expandedSlugs))));
+    }
+
+    /**
+     * @return string[]
+     */
+    private static function operationFamiliesForTerm(\WP_Term $term): array
+    {
+        return self::operationFamiliesFromText($term->slug . ' ' . $term->name);
+    }
+
+    /**
+     * @return string[]
+     */
+    private static function operationFamiliesFromText(string $text): array
+    {
+        $text = strtolower(remove_accents($text));
+        $families = [];
+
+        if (
+            strpos($text, 'arriend') !== false
+            || strpos($text, 'alquil') !== false
+            || strpos($text, 'rent') !== false
+            || strpos($text, 'renta') !== false
+        ) {
+            $families[] = 'rent';
+        }
+
+        if (
+            strpos($text, 'vent') !== false
+            || strpos($text, 'sale') !== false
+            || strpos($text, 'vend') !== false
+        ) {
+            $families[] = 'sale';
+        }
+
+        return array_values(array_unique($families));
     }
 }

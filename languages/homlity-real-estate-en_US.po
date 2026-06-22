@@ -262,12 +262,6 @@ msgstr "Secondary features"
 msgid "Coordenadas"
 msgstr "Coordinates"
 
-msgid "Operación"
-msgstr "Operation"
-
-msgid "Ubicación"
-msgstr "Location"
-
 msgid "Mapa de la propiedad"
 msgstr "Property map"
 
@@ -285,9 +279,6 @@ msgstr "Options"
 
 msgid "Propiedad destacada"
 msgstr "Featured property"
-
-msgid "Etiquetas"
-msgstr "Tags"
 
 msgid "Etiqueta"
 msgstr "Tag"
@@ -322,9 +313,6 @@ msgstr "Neighborhood"
 msgid "Barrios"
 msgstr "Neighborhoods"
 
-msgid "Lugares cercanos"
-msgstr "Nearby places"
-
 msgid "Lugar cercano"
 msgstr "Nearby place"
 
@@ -340,17 +328,8 @@ msgstr "Other features"
 msgid "Todas las propiedades"
 msgstr "All properties"
 
-msgid "Añadir nueva"
-msgstr "Add new"
-
 msgid "Geolocalización"
 msgstr "Geolocation"
-
-msgid "Departamentos / Provincias"
-msgstr "States / Provinces"
-
-msgid "Ciudades / Municipios"
-msgstr "Cities / Municipalities"
 
 msgid "Zonas"
 msgstr "Zones"
