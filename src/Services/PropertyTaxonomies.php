@@ -24,6 +24,7 @@ class PropertyTaxonomies implements ServiceInterface
     public const TAXONOMY_CITY = 'property_city';
     public const TAXONOMY_NEIGHBORHOOD = 'property_neighborhood';
     public const TAXONOMY_NEARBY = 'property_nearby';
+    public const TAXONOMY_CONDITION = 'property_condition';
 
     public function register(): void
     {
@@ -207,6 +208,24 @@ class PropertyTaxonomies implements ServiceInterface
                 'rewrite' => ['slug' => 'property-nearby'],
             ]
         );
+
+        register_taxonomy(
+            self::TAXONOMY_CONDITION,
+            [PropertyPostType::POST_TYPE],
+            [
+                'label' => __('Estado del inmueble', 'homlity-real-estate'),
+                'labels' => [
+                    'name' => __('Estados', 'homlity-real-estate'),
+                    'singular_name' => __('Estado', 'homlity-real-estate'),
+                ],
+                'hierarchical' => false,
+                'public' => false,
+                'show_ui' => false,
+                'show_in_rest' => true,
+                'meta_box_cb' => false,
+                'rewrite' => false,
+            ]
+        );
     }
 
     public function registerWithPolylang(array $taxonomies, $isSettings): array
@@ -223,6 +242,7 @@ class PropertyTaxonomies implements ServiceInterface
             $taxonomies[] = self::TAXONOMY_CITY;
             $taxonomies[] = self::TAXONOMY_NEIGHBORHOOD;
             $taxonomies[] = self::TAXONOMY_NEARBY;
+            $taxonomies[] = self::TAXONOMY_CONDITION;
         }
         return $taxonomies;
     }
@@ -230,6 +250,30 @@ class PropertyTaxonomies implements ServiceInterface
     public function ensureDefaultTerms(): void
     {
         $this->ensureDefaultTag('destacado');
+        $this->ensureDefaultConditionTerms();
+    }
+
+    private function ensureDefaultConditionTerms(): void
+    {
+        if (!taxonomy_exists(self::TAXONOMY_CONDITION)) {
+            return;
+        }
+
+        $defaults = [
+            'nuevo'           => 'Nuevo',
+            'sobre-planos'    => 'Sobre planos',
+            'en-construccion' => 'En construcción',
+            'para-estrenar'   => 'Para estrenar',
+            'usado'           => 'Usado',
+            'reformado'       => 'Reformado',
+            'para-reformar'   => 'Para reformar',
+        ];
+
+        foreach ($defaults as $slug => $name) {
+            if (!term_exists($slug, self::TAXONOMY_CONDITION)) {
+                wp_insert_term($name, self::TAXONOMY_CONDITION, ['slug' => $slug]);
+            }
+        }
     }
 
     private function ensureDefaultTag(string $name): void

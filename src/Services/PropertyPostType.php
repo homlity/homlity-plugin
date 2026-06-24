@@ -68,6 +68,8 @@ class PropertyPostType implements ServiceInterface
         add_filter('use_block_editor_for_post_type', [$this, 'useBlockEditorForPostType'], 10, 2);
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
         add_action('admin_notices', [$this, 'renderValidationNotice']);
+        add_action('added_post_meta', [$this, 'syncConditionTermFromMeta'], 10, 4);
+        add_action('updated_post_meta', [$this, 'syncConditionTermFromMeta'], 10, 4);
         add_action('add_meta_boxes_' . self::POST_TYPE, [$this, 'removeLegacyMetaboxes'], 999);
         add_filter('manage_edit-' . self::POST_TYPE . '_columns', [$this, 'registerAdminColumns']);
         add_action('manage_' . self::POST_TYPE . '_posts_custom_column', [$this, 'renderAdminColumn'], 10, 2);
@@ -356,7 +358,6 @@ class PropertyPostType implements ServiceInterface
             'bedrooms' => __('Habitaciones', 'homlity-real-estate'),
             'bathrooms' => __('Baños', 'homlity-real-estate'),
             'parking' => __('Parqueaderos', 'homlity-real-estate'),
-            'condition' => __('Estado', 'homlity-real-estate'),
             'age' => __('Edad (años)', 'homlity-real-estate'),
             'code' => __('Código de la propiedad', 'homlity-real-estate'),
             'address' => __('Dirección', 'homlity-real-estate'),
@@ -377,6 +378,25 @@ class PropertyPostType implements ServiceInterface
                     </td>
                 </tr>
             <?php endforeach; ?>
+            <tr>
+                <th scope="row"><label for="property_condition"><?php esc_html_e('Estado', 'homlity-real-estate'); ?></label></th>
+                <td>
+                    <?php
+                    $conditionAllTerms  = get_terms(['taxonomy' => PropertyTaxonomies::TAXONOMY_CONDITION, 'hide_empty' => false]);
+                    $conditionCurrentSlug = (string) get_post_meta($post->ID, $this->metaKeys['condition'], true);
+                    ?>
+                    <select id="property_condition" name="property_condition" class="regular-text">
+                        <option value=""><?php esc_html_e('Sin especificar', 'homlity-real-estate'); ?></option>
+                        <?php if (!is_wp_error($conditionAllTerms)): ?>
+                            <?php foreach ($conditionAllTerms as $conditionTerm): ?>
+                                <option value="<?php echo esc_attr($conditionTerm->slug); ?>" <?php selected($conditionCurrentSlug, $conditionTerm->slug); ?>>
+                                    <?php echo esc_html($conditionTerm->name); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </td>
+            </tr>
             <tr>
                 <th scope="row"><?php esc_html_e('Mapa', 'homlity-real-estate'); ?></th>
                 <td>
@@ -643,11 +663,12 @@ class PropertyPostType implements ServiceInterface
         $isSyncedProperty = ($syncId !== '' || $syncSource !== '');
         $meta = $this->normalizeMediaMetaForEditor($postId, $meta);
 
-        $operationTerms = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_OPERATION, ['fields' => 'ids']);
-        $typeTerms = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_TYPE, ['fields' => 'ids']);
-        $featureTerms = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_FEATURE, ['fields' => 'ids']);
-        $nearbyTerms = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_NEARBY, ['fields' => 'ids']);
-        $tagTerms = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_TAG, ['fields' => 'ids']);
+        $operationTerms  = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_OPERATION, ['fields' => 'ids']);
+        $typeTerms       = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_TYPE, ['fields' => 'ids']);
+        $featureTerms    = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_FEATURE, ['fields' => 'ids']);
+        $nearbyTerms     = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_NEARBY, ['fields' => 'ids']);
+        $tagTerms        = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_TAG, ['fields' => 'ids']);
+        $conditionTerms  = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_CONDITION, ['fields' => 'slugs']);
 
         $location = [];
         foreach ($this->locationTaxonomies as $key => $taxonomy) {
@@ -716,6 +737,7 @@ class PropertyPostType implements ServiceInterface
                 'features' => array_map('intval', is_array($featureTerms) ? $featureTerms : []),
                 'nearby' => array_map('intval', is_array($nearbyTerms) ? $nearbyTerms : []),
                 'tags' => array_map('intval', is_array($tagTerms) ? $tagTerms : []),
+                'condition' => !is_wp_error($conditionTerms) && !empty($conditionTerms) ? (string) $conditionTerms[0] : '',
             ],
             'options' => [
                 'operations' => $this->termsToOptions(PropertyTaxonomies::TAXONOMY_OPERATION),
@@ -735,6 +757,12 @@ class PropertyPostType implements ServiceInterface
                 'feature_groups' => $this->featureGroupsOptions(),
                 'nearby_options' => $this->termsToOptions(PropertyTaxonomies::TAXONOMY_NEARBY),
                 'tag_options' => $this->termsToOptions(PropertyTaxonomies::TAXONOMY_TAG),
+                'condition_options' => array_values(array_map(static function ($term) {
+                    return ['id' => $term->slug, 'label' => $term->name];
+                }, array_filter(
+                    get_terms(['taxonomy' => PropertyTaxonomies::TAXONOMY_CONDITION, 'hide_empty' => false]) ?: [],
+                    static fn ($t) => $t instanceof \WP_Term
+                ))),
             ],
             'restUrl' => esc_url_raw(rest_url()),
             'nonce' => wp_create_nonce('wp_rest'),
@@ -1985,6 +2013,32 @@ class PropertyPostType implements ServiceInterface
             } else {
                 wp_set_object_terms($postId, [], $taxonomy, false);
             }
+        }
+    }
+
+    public function syncConditionTermFromMeta(int $metaId, int $postId, string $metaKey, $metaValue): void
+    {
+        if ($metaKey !== $this->metaKeys['condition']) {
+            return;
+        }
+        if (get_post_type($postId) !== self::POST_TYPE) {
+            return;
+        }
+
+        $value = sanitize_text_field((string) $metaValue);
+        if ($value === '') {
+            wp_set_object_terms($postId, [], PropertyTaxonomies::TAXONOMY_CONDITION, false);
+            return;
+        }
+
+        $slug = sanitize_title($value);
+        $term = term_exists($slug, PropertyTaxonomies::TAXONOMY_CONDITION);
+        if (!$term) {
+            $term = wp_insert_term($value, PropertyTaxonomies::TAXONOMY_CONDITION, ['slug' => $slug]);
+        }
+        if (!is_wp_error($term)) {
+            $termId = is_array($term) ? (int) $term['term_id'] : (int) $term;
+            wp_set_object_terms($postId, [$termId], PropertyTaxonomies::TAXONOMY_CONDITION, false);
         }
     }
 

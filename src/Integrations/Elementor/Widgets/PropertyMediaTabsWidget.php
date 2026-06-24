@@ -156,7 +156,9 @@ class PropertyMediaTabsWidget extends BasePropertyWidget
             'type'       => Controls_Manager::SLIDER,
             'size_units' => ['px', 'vh'],
             'range'      => ['px' => ['min' => 180, 'max' => 900], 'vh' => ['min' => 20, 'max' => 100]],
-            'selectors'  => ['{{WRAPPER}} .property-gallery-tabs__panel iframe' => 'height: {{SIZE}}{{UNIT}};'],
+            'selectors'  => [
+                '{{WRAPPER}} .property-gallery-tabs__video-wrap, {{WRAPPER}} .property-gallery-tabs__360-item, {{WRAPPER}} .property-gallery-tabs__tour-wrap' => 'padding-bottom: 0; height: {{SIZE}}{{UNIT}};',
+            ],
         ]);
         $this->add_responsive_control('main_image_radius', [
             'label'      => __('Radio borde foto', 'homlity-real-estate'),

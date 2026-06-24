@@ -1,56 +1,9773 @@
-(function(){"use strict";/**
-* @vue/shared v3.5.35
-* (c) 2018-present Yuxi (Evan) You and Vue contributors
-* @license MIT
-**/function Ei(e){const t=Object.create(null);for(const i of e.split(","))t[i]=1;return i=>i in t}const K={},gt=[],Me=()=>{},wo=()=>!1,ti=e=>e.charCodeAt(0)===111&&e.charCodeAt(1)===110&&(e.charCodeAt(2)>122||e.charCodeAt(2)<97),ii=e=>e.startsWith("onUpdate:"),ee=Object.assign,Oi=(e,t)=>{const i=e.indexOf(t);i>-1&&e.splice(i,1)},wr=Object.prototype.hasOwnProperty,B=(e,t)=>wr.call(e,t),T=Array.isArray,bt=e=>Et(e)==="[object Map]",vt=e=>Et(e)==="[object Set]",Ao=e=>Et(e)==="[object Date]",N=e=>typeof e=="function",X=e=>typeof e=="string",Te=e=>typeof e=="symbol",U=e=>e!==null&&typeof e=="object",Io=e=>(U(e)||N(e))&&N(e.then)&&N(e.catch),So=Object.prototype.toString,Et=e=>So.call(e),Ar=e=>Et(e).slice(8,-1),oi=e=>Et(e)==="[object Object]",Pi=e=>X(e)&&e!=="NaN"&&e[0]!=="-"&&""+parseInt(e,10)===e,Ot=Ei(",key,ref,ref_for,ref_key,onVnodeBeforeMount,onVnodeMounted,onVnodeBeforeUpdate,onVnodeUpdated,onVnodeBeforeUnmount,onVnodeUnmounted"),ni=e=>{const t=Object.create(null);return(i=>t[i]||(t[i]=e(i)))},Ir=/-\w/g,ne=ni(e=>e.replace(Ir,t=>t.slice(1).toUpperCase())),Sr=/\B([A-Z])/g,xe=ni(e=>e.replace(Sr,"-$1").toLowerCase()),ri=ni(e=>e.charAt(0).toUpperCase()+e.slice(1)),Ni=ni(e=>e?`on${ri(e)}`:""),Ue=(e,t)=>!Object.is(e,t),si=(e,...t)=>{for(let i=0;i<e.length;i++)e[i](...t)},Mo=(e,t,i,o=!1)=>{Object.defineProperty(e,t,{configurable:!0,enumerable:!1,writable:o,value:i})},ai=e=>{const t=parseFloat(e);return isNaN(t)?e:t},To=e=>{const t=X(e)?Number(e):NaN;return isNaN(t)?e:t};let Ro;const li=()=>Ro||(Ro=typeof globalThis<"u"?globalThis:typeof self<"u"?self:typeof window<"u"?window:typeof global<"u"?global:{});function Fi(e){if(T(e)){const t={};for(let i=0;i<e.length;i++){const o=e[i],n=X(o)?jr(o):Fi(o);if(n)for(const r in n)t[r]=n[r]}return t}else if(X(e)||U(e))return e}const Mr=/;(?![^(]*\))/g,Tr=/:([^]+)/,Rr=/\/\*[^]*?\*\//g;function jr(e){const t={};return e.replace(Rr,"").split(Mr).forEach(i=>{if(i){const o=i.split(Tr);o.length>1&&(t[o[0].trim()]=o[1].trim())}}),t}function _t(e){let t="";if(X(e))t=e;else if(T(e))for(let i=0;i<e.length;i++){const o=_t(e[i]);o&&(t+=o+" ")}else if(U(e))for(const i in e)e[i]&&(t+=i+" ");return t.trim()}const Er=Ei("itemscope,allowfullscreen,formnovalidate,ismap,nomodule,novalidate,readonly");function jo(e){return!!e||e===""}function Or(e,t){if(e.length!==t.length)return!1;let i=!0;for(let o=0;i&&o<e.length;o++)i=Ze(e[o],t[o]);return i}function Ze(e,t){if(e===t)return!0;let i=Ao(e),o=Ao(t);if(i||o)return i&&o?e.getTime()===t.getTime():!1;if(i=Te(e),o=Te(t),i||o)return e===t;if(i=T(e),o=T(t),i||o)return i&&o?Or(e,t):!1;if(i=U(e),o=U(t),i||o){if(!i||!o)return!1;const n=Object.keys(e).length,r=Object.keys(t).length;if(n!==r)return!1;for(const s in e){const a=e.hasOwnProperty(s),c=t.hasOwnProperty(s);if(a&&!c||!a&&c||!Ze(e[s],t[s]))return!1}}return String(e)===String(t)}function Vi(e,t){return e.findIndex(i=>Ze(i,t))}const Eo=e=>!!(e&&e.__v_isRef===!0),I=e=>X(e)?e:e==null?"":T(e)||U(e)&&(e.toString===So||!N(e.toString))?Eo(e)?I(e.value):JSON.stringify(e,Oo,2):String(e),Oo=(e,t)=>Eo(t)?Oo(e,t.value):bt(t)?{[`Map(${t.size})`]:[...t.entries()].reduce((i,[o,n],r)=>(i[Di(o,r)+" =>"]=n,i),{})}:vt(t)?{[`Set(${t.size})`]:[...t.values()].map(i=>Di(i))}:Te(t)?Di(t):U(t)&&!T(t)&&!oi(t)?String(t):t,Di=(e,t="")=>{var i;return Te(e)?`Symbol(${(i=e.description)!=null?i:t})`:e};/**
-* @vue/reactivity v3.5.35
-* (c) 2018-present Yuxi (Evan) You and Vue contributors
-* @license MIT
-**/let ae;class Pr{constructor(t=!1){this.detached=t,this._active=!0,this._on=0,this.effects=[],this.cleanups=[],this._isPaused=!1,this._warnOnRun=!0,this.__v_skip=!0,!t&&ae&&(ae.active?(this.parent=ae,this.index=(ae.scopes||(ae.scopes=[])).push(this)-1):(this._active=!1,this._warnOnRun=!1))}get active(){return this._active}pause(){if(this._active){this._isPaused=!0;let t,i;if(this.scopes)for(t=0,i=this.scopes.length;t<i;t++)this.scopes[t].pause();for(t=0,i=this.effects.length;t<i;t++)this.effects[t].pause()}}resume(){if(this._active&&this._isPaused){this._isPaused=!1;let t,i;if(this.scopes)for(t=0,i=this.scopes.length;t<i;t++)this.scopes[t].resume();for(t=0,i=this.effects.length;t<i;t++)this.effects[t].resume()}}run(t){if(this._active){const i=ae;try{return ae=this,t()}finally{ae=i}}}on(){++this._on===1&&(this.prevScope=ae,ae=this)}off(){if(this._on>0&&--this._on===0){if(ae===this)ae=this.prevScope;else{let t=ae;for(;t;){if(t.prevScope===this){t.prevScope=this.prevScope;break}t=t.prevScope}}this.prevScope=void 0}}stop(t){if(this._active){this._active=!1;let i,o;for(i=0,o=this.effects.length;i<o;i++)this.effects[i].stop();for(this.effects.length=0,i=0,o=this.cleanups.length;i<o;i++)this.cleanups[i]();if(this.cleanups.length=0,this.scopes){for(i=0,o=this.scopes.length;i<o;i++)this.scopes[i].stop(!0);this.scopes.length=0}if(!this.detached&&this.parent&&!t){const n=this.parent.scopes.pop();n&&n!==this&&(this.parent.scopes[this.index]=n,n.index=this.index)}this.parent=void 0}}}function Nr(){return ae}let q;const ki=new WeakSet;class Po{constructor(t){this.fn=t,this.deps=void 0,this.depsTail=void 0,this.flags=5,this.next=void 0,this.cleanup=void 0,this.scheduler=void 0,ae&&(ae.active?ae.effects.push(this):this.flags&=-2)}pause(){this.flags|=64}resume(){this.flags&64&&(this.flags&=-65,ki.has(this)&&(ki.delete(this),this.trigger()))}notify(){this.flags&2&&!(this.flags&32)||this.flags&8||Fo(this)}run(){if(!(this.flags&1))return this.fn();this.flags|=2,zo(this),Vo(this);const t=q,i=Ce;q=this,Ce=!0;try{return this.fn()}finally{Do(this),q=t,Ce=i,this.flags&=-3}}stop(){if(this.flags&1){for(let t=this.deps;t;t=t.nextDep)Li(t);this.deps=this.depsTail=void 0,zo(this),this.onStop&&this.onStop(),this.flags&=-2}}trigger(){this.flags&64?ki.add(this):this.scheduler?this.scheduler():this.runIfDirty()}runIfDirty(){Hi(this)&&this.run()}get dirty(){return Hi(this)}}let No=0,Pt,Nt;function Fo(e,t=!1){if(e.flags|=8,t){e.next=Nt,Nt=e;return}e.next=Pt,Pt=e}function Bi(){No++}function zi(){if(--No>0)return;if(Nt){let t=Nt;for(Nt=void 0;t;){const i=t.next;t.next=void 0,t.flags&=-9,t=i}}let e;for(;Pt;){let t=Pt;for(Pt=void 0;t;){const i=t.next;if(t.next=void 0,t.flags&=-9,t.flags&1)try{t.trigger()}catch(o){e||(e=o)}t=i}}if(e)throw e}function Vo(e){for(let t=e.deps;t;t=t.nextDep)t.version=-1,t.prevActiveLink=t.dep.activeLink,t.dep.activeLink=t}function Do(e){let t,i=e.depsTail,o=i;for(;o;){const n=o.prevDep;o.version===-1?(o===i&&(i=n),Li(o),Fr(o)):t=o,o.dep.activeLink=o.prevActiveLink,o.prevActiveLink=void 0,o=n}e.deps=t,e.depsTail=i}function Hi(e){for(let t=e.deps;t;t=t.nextDep)if(t.dep.version!==t.version||t.dep.computed&&(ko(t.dep.computed)||t.dep.version!==t.version))return!0;return!!e._dirty}function ko(e){if(e.flags&4&&!(e.flags&16)||(e.flags&=-17,e.globalVersion===Ft)||(e.globalVersion=Ft,!e.isSSR&&e.flags&128&&(!e.deps&&!e._dirty||!Hi(e))))return;e.flags|=2;const t=e.dep,i=q,o=Ce;q=e,Ce=!0;try{Vo(e);const n=e.fn(e._value);(t.version===0||Ue(n,e._value))&&(e.flags|=128,e._value=n,t.version++)}catch(n){throw t.version++,n}finally{q=i,Ce=o,Do(e),e.flags&=-3}}function Li(e,t=!1){const{dep:i,prevSub:o,nextSub:n}=e;if(o&&(o.nextSub=n,e.prevSub=void 0),n&&(n.prevSub=o,e.nextSub=void 0),i.subs===e&&(i.subs=o,!o&&i.computed)){i.computed.flags&=-5;for(let r=i.computed.deps;r;r=r.nextDep)Li(r,!0)}!t&&!--i.sc&&i.map&&i.map.delete(i.key)}function Fr(e){const{prevDep:t,nextDep:i}=e;t&&(t.nextDep=i,e.prevDep=void 0),i&&(i.prevDep=t,e.nextDep=void 0)}let Ce=!0;const Bo=[];function Re(){Bo.push(Ce),Ce=!1}function je(){const e=Bo.pop();Ce=e===void 0?!0:e}function zo(e){const{cleanup:t}=e;if(e.cleanup=void 0,t){const i=q;q=void 0;try{t()}finally{q=i}}}let Ft=0;class Vr{constructor(t,i){this.sub=t,this.dep=i,this.version=i.version,this.nextDep=this.prevDep=this.nextSub=this.prevSub=this.prevActiveLink=void 0}}class Ho{constructor(t){this.computed=t,this.version=0,this.activeLink=void 0,this.subs=void 0,this.map=void 0,this.key=void 0,this.sc=0,this.__v_skip=!0}track(t){if(!q||!Ce||q===this.computed)return;let i=this.activeLink;if(i===void 0||i.sub!==q)i=this.activeLink=new Vr(q,this),q.deps?(i.prevDep=q.depsTail,q.depsTail.nextDep=i,q.depsTail=i):q.deps=q.depsTail=i,Lo(i);else if(i.version===-1&&(i.version=this.version,i.nextDep)){const o=i.nextDep;o.prevDep=i.prevDep,i.prevDep&&(i.prevDep.nextDep=o),i.prevDep=q.depsTail,i.nextDep=void 0,q.depsTail.nextDep=i,q.depsTail=i,q.deps===i&&(q.deps=o)}return i}trigger(t){this.version++,Ft++,this.notify(t)}notify(t){Bi();try{for(let i=this.subs;i;i=i.prevSub)i.sub.notify()&&i.sub.dep.notify()}finally{zi()}}}function Lo(e){if(e.dep.sc++,e.sub.flags&4){const t=e.dep.computed;if(t&&!e.dep.subs){t.flags|=20;for(let o=t.deps;o;o=o.nextDep)Lo(o)}const i=e.dep.subs;i!==e&&(e.prevSub=i,i&&(i.nextSub=e)),e.dep.subs=e}}const Ui=new WeakMap,st=Symbol(""),Gi=Symbol(""),Vt=Symbol("");function ce(e,t,i){if(Ce&&q){let o=Ui.get(e);o||Ui.set(e,o=new Map);let n=o.get(i);n||(o.set(i,n=new Ho),n.map=o,n.key=i),n.track()}}function Ge(e,t,i,o,n,r){const s=Ui.get(e);if(!s){Ft++;return}const a=c=>{c&&c.trigger()};if(Bi(),t==="clear")s.forEach(a);else{const c=T(e),p=c&&Pi(i);if(c&&i==="length"){const f=Number(o);s.forEach((h,A)=>{(A==="length"||A===Vt||!Te(A)&&A>=f)&&a(h)})}else switch((i!==void 0||s.has(void 0))&&a(s.get(i)),p&&a(s.get(Vt)),t){case"add":c?p&&a(s.get("length")):(a(s.get(st)),bt(e)&&a(s.get(Gi)));break;case"delete":c||(a(s.get(st)),bt(e)&&a(s.get(Gi)));break;case"set":bt(e)&&a(s.get(st));break}}zi()}function xt(e){const t=z(e);return t===e?t:(ce(t,"iterate",Vt),we(e)?t:t.map(Ke))}function ci(e){return ce(e=z(e),"iterate",Vt),e}function Ee(e,t){return Qe(e)?yt(at(e)?Ke(t):t):Ke(t)}const Dr={__proto__:null,[Symbol.iterator](){return Wi(this,Symbol.iterator,e=>Ee(this,e))},concat(...e){return xt(this).concat(...e.map(t=>T(t)?xt(t):t))},entries(){return Wi(this,"entries",e=>(e[1]=Ee(this,e[1]),e))},every(e,t){return We(this,"every",e,t,void 0,arguments)},filter(e,t){return We(this,"filter",e,t,i=>i.map(o=>Ee(this,o)),arguments)},find(e,t){return We(this,"find",e,t,i=>Ee(this,i),arguments)},findIndex(e,t){return We(this,"findIndex",e,t,void 0,arguments)},findLast(e,t){return We(this,"findLast",e,t,i=>Ee(this,i),arguments)},findLastIndex(e,t){return We(this,"findLastIndex",e,t,void 0,arguments)},forEach(e,t){return We(this,"forEach",e,t,void 0,arguments)},includes(...e){return Ki(this,"includes",e)},indexOf(...e){return Ki(this,"indexOf",e)},join(e){return xt(this).join(e)},lastIndexOf(...e){return Ki(this,"lastIndexOf",e)},map(e,t){return We(this,"map",e,t,void 0,arguments)},pop(){return Dt(this,"pop")},push(...e){return Dt(this,"push",e)},reduce(e,...t){return Uo(this,"reduce",e,t)},reduceRight(e,...t){return Uo(this,"reduceRight",e,t)},shift(){return Dt(this,"shift")},some(e,t){return We(this,"some",e,t,void 0,arguments)},splice(...e){return Dt(this,"splice",e)},toReversed(){return xt(this).toReversed()},toSorted(e){return xt(this).toSorted(e)},toSpliced(...e){return xt(this).toSpliced(...e)},unshift(...e){return Dt(this,"unshift",e)},values(){return Wi(this,"values",e=>Ee(this,e))}};function Wi(e,t,i){const o=ci(e),n=o[t]();return o!==e&&!we(e)&&(n._next=n.next,n.next=()=>{const r=n._next();return r.done||(r.value=i(r.value)),r}),n}const kr=Array.prototype;function We(e,t,i,o,n,r){const s=ci(e),a=s!==e&&!we(e),c=s[t];if(c!==kr[t]){const h=c.apply(e,r);return a?Ke(h):h}let p=i;s!==e&&(a?p=function(h,A){return i.call(this,Ee(e,h),A,e)}:i.length>2&&(p=function(h,A){return i.call(this,h,A,e)}));const f=c.call(s,p,o);return a&&n?n(f):f}function Uo(e,t,i,o){const n=ci(e),r=n!==e&&!we(e);let s=i,a=!1;n!==e&&(r?(a=o.length===0,s=function(p,f,h){return a&&(a=!1,p=Ee(e,p)),i.call(this,p,Ee(e,f),h,e)}):i.length>3&&(s=function(p,f,h){return i.call(this,p,f,h,e)}));const c=n[t](s,...o);return a?Ee(e,c):c}function Ki(e,t,i){const o=z(e);ce(o,"iterate",Vt);const n=o[t](...i);return(n===-1||n===!1)&&Yi(i[0])?(i[0]=z(i[0]),o[t](...i)):n}function Dt(e,t,i=[]){Re(),Bi();const o=z(e)[t].apply(e,i);return zi(),je(),o}const Br=Ei("__proto__,__v_isRef,__isVue"),Go=new Set(Object.getOwnPropertyNames(Symbol).filter(e=>e!=="arguments"&&e!=="caller").map(e=>Symbol[e]).filter(Te));function zr(e){Te(e)||(e=String(e));const t=z(this);return ce(t,"has",e),t.hasOwnProperty(e)}class Wo{constructor(t=!1,i=!1){this._isReadonly=t,this._isShallow=i}get(t,i,o){if(i==="__v_skip")return t.__v_skip;const n=this._isReadonly,r=this._isShallow;if(i==="__v_isReactive")return!n;if(i==="__v_isReadonly")return n;if(i==="__v_isShallow")return r;if(i==="__v_raw")return o===(n?r?Xo:Yo:r?Jo:qo).get(t)||Object.getPrototypeOf(t)===Object.getPrototypeOf(o)?t:void 0;const s=T(t);if(!n){let c;if(s&&(c=Dr[i]))return c;if(i==="hasOwnProperty")return zr}const a=Reflect.get(t,i,de(t)?t:o);if((Te(i)?Go.has(i):Br(i))||(n||ce(t,"get",i),r))return a;if(de(a)){const c=s&&Pi(i)?a:a.value;return n&&U(c)?Ji(c):c}return U(a)?n?Ji(a):qi(a):a}}class Ko extends Wo{constructor(t=!1){super(!1,t)}set(t,i,o,n){let r=t[i];const s=T(t)&&Pi(i);if(!this._isShallow){const p=Qe(r);if(!we(o)&&!Qe(o)&&(r=z(r),o=z(o)),!s&&de(r)&&!de(o))return p||(r.value=o),!0}const a=s?Number(i)<t.length:B(t,i),c=Reflect.set(t,i,o,de(t)?t:n);return t===z(n)&&(a?Ue(o,r)&&Ge(t,"set",i,o):Ge(t,"add",i,o)),c}deleteProperty(t,i){const o=B(t,i);t[i];const n=Reflect.deleteProperty(t,i);return n&&o&&Ge(t,"delete",i,void 0),n}has(t,i){const o=Reflect.has(t,i);return(!Te(i)||!Go.has(i))&&ce(t,"has",i),o}ownKeys(t){return ce(t,"iterate",T(t)?"length":st),Reflect.ownKeys(t)}}class $o extends Wo{constructor(t=!1){super(!0,t)}set(t,i){return!0}deleteProperty(t,i){return!0}}const Hr=new Ko,Lr=new $o,Ur=new Ko(!0),Gr=new $o(!0),$i=e=>e,di=e=>Reflect.getPrototypeOf(e);function Wr(e,t,i){return function(...o){const n=this.__v_raw,r=z(n),s=bt(r),a=e==="entries"||e===Symbol.iterator&&s,c=e==="keys"&&s,p=n[e](...o),f=i?$i:t?yt:Ke;return!t&&ce(r,"iterate",c?Gi:st),ee(Object.create(p),{next(){const{value:h,done:A}=p.next();return A?{value:h,done:A}:{value:a?[f(h[0]),f(h[1])]:f(h),done:A}}})}}function ui(e){return function(...t){return e==="delete"?!1:e==="clear"?void 0:this}}function Kr(e,t){const i={get(n){const r=this.__v_raw,s=z(r),a=z(n);e||(Ue(n,a)&&ce(s,"get",n),ce(s,"get",a));const{has:c}=di(s),p=t?$i:e?yt:Ke;if(c.call(s,n))return p(r.get(n));if(c.call(s,a))return p(r.get(a));r!==s&&r.get(n)},get size(){const n=this.__v_raw;return!e&&ce(z(n),"iterate",st),n.size},has(n){const r=this.__v_raw,s=z(r),a=z(n);return e||(Ue(n,a)&&ce(s,"has",n),ce(s,"has",a)),n===a?r.has(n):r.has(n)||r.has(a)},forEach(n,r){const s=this,a=s.__v_raw,c=z(a),p=t?$i:e?yt:Ke;return!e&&ce(c,"iterate",st),a.forEach((f,h)=>n.call(r,p(f),p(h),s))}};return ee(i,e?{add:ui("add"),set:ui("set"),delete:ui("delete"),clear:ui("clear")}:{add(n){const r=z(this),s=di(r),a=z(n),c=!t&&!we(n)&&!Qe(n)?a:n;return s.has.call(r,c)||Ue(n,c)&&s.has.call(r,n)||Ue(a,c)&&s.has.call(r,a)||(r.add(c),Ge(r,"add",c,c)),this},set(n,r){!t&&!we(r)&&!Qe(r)&&(r=z(r));const s=z(this),{has:a,get:c}=di(s);let p=a.call(s,n);p||(n=z(n),p=a.call(s,n));const f=c.call(s,n);return s.set(n,r),p?Ue(r,f)&&Ge(s,"set",n,r):Ge(s,"add",n,r),this},delete(n){const r=z(this),{has:s,get:a}=di(r);let c=s.call(r,n);c||(n=z(n),c=s.call(r,n)),a&&a.call(r,n);const p=r.delete(n);return c&&Ge(r,"delete",n,void 0),p},clear(){const n=z(this),r=n.size!==0,s=n.clear();return r&&Ge(n,"clear",void 0,void 0),s}}),["keys","values","entries",Symbol.iterator].forEach(n=>{i[n]=Wr(n,e,t)}),i}function fi(e,t){const i=Kr(e,t);return(o,n,r)=>n==="__v_isReactive"?!e:n==="__v_isReadonly"?e:n==="__v_raw"?o:Reflect.get(B(i,n)&&n in o?i:o,n,r)}const $r={get:fi(!1,!1)},qr={get:fi(!1,!0)},Jr={get:fi(!0,!1)},Yr={get:fi(!0,!0)},qo=new WeakMap,Jo=new WeakMap,Yo=new WeakMap,Xo=new WeakMap;function Xr(e){switch(e){case"Object":case"Array":return 1;case"Map":case"Set":case"WeakMap":case"WeakSet":return 2;default:return 0}}function qi(e){return Qe(e)?e:pi(e,!1,Hr,$r,qo)}function Zr(e){return pi(e,!1,Ur,qr,Jo)}function Ji(e){return pi(e,!0,Lr,Jr,Yo)}function gd(e){return pi(e,!0,Gr,Yr,Xo)}function pi(e,t,i,o,n){if(!U(e)||e.__v_raw&&!(t&&e.__v_isReactive)||e.__v_skip||!Object.isExtensible(e))return e;const r=n.get(e);if(r)return r;const s=Xr(Ar(e));if(s===0)return e;const a=new Proxy(e,s===2?o:i);return n.set(e,a),a}function at(e){return Qe(e)?at(e.__v_raw):!!(e&&e.__v_isReactive)}function Qe(e){return!!(e&&e.__v_isReadonly)}function we(e){return!!(e&&e.__v_isShallow)}function Yi(e){return e?!!e.__v_raw:!1}function z(e){const t=e&&e.__v_raw;return t?z(t):e}function Qr(e){return!B(e,"__v_skip")&&Object.isExtensible(e)&&Mo(e,"__v_skip",!0),e}const Ke=e=>U(e)?qi(e):e,yt=e=>U(e)?Ji(e):e;function de(e){return e?e.__v_isRef===!0:!1}function Zo(e){return de(e)?e.value:e}const es={get:(e,t,i)=>t==="__v_raw"?e:Zo(Reflect.get(e,t,i)),set:(e,t,i,o)=>{const n=e[t];return de(n)&&!de(i)?(n.value=i,!0):Reflect.set(e,t,i,o)}};function Qo(e){return at(e)?e:new Proxy(e,es)}class ts{constructor(t,i,o){this.fn=t,this.setter=i,this._value=void 0,this.dep=new Ho(this),this.__v_isRef=!0,this.deps=void 0,this.depsTail=void 0,this.flags=16,this.globalVersion=Ft-1,this.next=void 0,this.effect=this,this.__v_isReadonly=!i,this.isSSR=o}notify(){if(this.flags|=16,!(this.flags&8)&&q!==this)return Fo(this,!0),!0}get value(){const t=this.dep.track();return ko(this),t&&(t.version=this.dep.version),this._value}set value(t){this.setter&&this.setter(t)}}function is(e,t,i=!1){let o,n;return N(e)?o=e:(o=e.get,n=e.set),new ts(o,n,i)}const mi={},hi=new WeakMap;let lt;function os(e,t=!1,i=lt){if(i){let o=hi.get(i);o||hi.set(i,o=[]),o.push(e)}}function ns(e,t,i=K){const{immediate:o,deep:n,once:r,scheduler:s,augmentJob:a,call:c}=i,p=E=>n?E:we(E)||n===!1||n===0?$e(E,1):$e(E);let f,h,A,S,D=!1,j=!1;if(de(e)?(h=()=>e.value,D=we(e)):at(e)?(h=()=>p(e),D=!0):T(e)?(j=!0,D=e.some(E=>at(E)||we(E)),h=()=>e.map(E=>{if(de(E))return E.value;if(at(E))return p(E);if(N(E))return c?c(E,2):E()})):N(e)?t?h=c?()=>c(e,2):e:h=()=>{if(A){Re();try{A()}finally{je()}}const E=lt;lt=f;try{return c?c(e,3,[S]):e(S)}finally{lt=E}}:h=Me,t&&n){const E=h,Q=n===!0?1/0:n;h=()=>$e(E(),Q)}const Y=Nr(),H=()=>{f.stop(),Y&&Y.active&&Oi(Y.effects,f)};if(r&&t){const E=t;t=(...Q)=>{E(...Q),H()}}let V=j?new Array(e.length).fill(mi):mi;const G=E=>{if(!(!(f.flags&1)||!f.dirty&&!E))if(t){const Q=f.run();if(n||D||(j?Q.some((Ie,be)=>Ue(Ie,V[be])):Ue(Q,V))){A&&A();const Ie=lt;lt=f;try{const be=[Q,V===mi?void 0:j&&V[0]===mi?[]:V,S];V=Q,c?c(t,3,be):t(...be)}finally{lt=Ie}}}else f.run()};return a&&a(G),f=new Po(h),f.scheduler=s?()=>s(G,!1):G,S=E=>os(E,!1,f),A=f.onStop=()=>{const E=hi.get(f);if(E){if(c)c(E,4);else for(const Q of E)Q();hi.delete(f)}},t?o?G(!0):V=f.run():s?s(G.bind(null,!0),!0):f.run(),H.pause=f.pause.bind(f),H.resume=f.resume.bind(f),H.stop=H,H}function $e(e,t=1/0,i){if(t<=0||!U(e)||e.__v_skip||(i=i||new Map,(i.get(e)||0)>=t))return e;if(i.set(e,t),t--,de(e))$e(e.value,t,i);else if(T(e))for(let o=0;o<e.length;o++)$e(e[o],t,i);else if(vt(e)||bt(e))e.forEach(o=>{$e(o,t,i)});else if(oi(e)){for(const o in e)$e(e[o],t,i);for(const o of Object.getOwnPropertySymbols(e))Object.prototype.propertyIsEnumerable.call(e,o)&&$e(e[o],t,i)}return e}/**
-* @vue/runtime-core v3.5.35
-* (c) 2018-present Yuxi (Evan) You and Vue contributors
-* @license MIT
-**/const kt=[];let Xi=!1;function bd(e,...t){if(Xi)return;Xi=!0,Re();const i=kt.length?kt[kt.length-1].component:null,o=i&&i.appContext.config.warnHandler,n=rs();if(o)Ct(o,i,11,[e+t.map(r=>{var s,a;return(a=(s=r.toString)==null?void 0:s.call(r))!=null?a:JSON.stringify(r)}).join(""),i&&i.proxy,n.map(({vnode:r})=>`at <${Zn(i,r.type)}>`).join(`
-`),n]);else{const r=[`[Vue warn]: ${e}`,...t];n.length&&r.push(`
-`,...ss(n)),console.warn(...r)}je(),Xi=!1}function rs(){let e=kt[kt.length-1];if(!e)return[];const t=[];for(;e;){const i=t[0];i&&i.vnode===e?i.recurseCount++:t.push({vnode:e,recurseCount:0});const o=e.component&&e.component.parent;e=o&&o.vnode}return t}function ss(e){const t=[];return e.forEach((i,o)=>{t.push(...o===0?[]:[`
-`],...as(i))}),t}function as({vnode:e,recurseCount:t}){const i=t>0?`... (${t} recursive calls)`:"",o=e.component?e.component.parent==null:!1,n=` at <${Zn(e.component,e.type,o)}`,r=">"+i;return e.props?[n,...ls(e.props),r]:[n+r]}function ls(e){const t=[],i=Object.keys(e);return i.slice(0,3).forEach(o=>{t.push(...en(o,e[o]))}),i.length>3&&t.push(" ..."),t}function en(e,t,i){return X(t)?(t=JSON.stringify(t),i?t:[`${e}=${t}`]):typeof t=="number"||typeof t=="boolean"||t==null?i?t:[`${e}=${t}`]:de(t)?(t=en(e,z(t.value),!0),i?t:[`${e}=Ref<`,t,">"]):N(t)?[`${e}=fn${t.name?`<${t.name}>`:""}`]:(t=z(t),i?t:[`${e}=`,t])}function Ct(e,t,i,o){try{return o?e(...o):e()}catch(n){gi(n,t,i)}}function Ae(e,t,i,o){if(N(e)){const n=Ct(e,t,i,o);return n&&Io(n)&&n.catch(r=>{gi(r,t,i)}),n}if(T(e)){const n=[];for(let r=0;r<e.length;r++)n.push(Ae(e[r],t,i,o));return n}}function gi(e,t,i,o=!0){const n=t?t.vnode:null,{errorHandler:r,throwUnhandledErrorInProduction:s}=t&&t.appContext.config||K;if(t){let a=t.parent;const c=t.proxy,p=`https://vuejs.org/error-reference/#runtime-${i}`;for(;a;){const f=a.ec;if(f){for(let h=0;h<f.length;h++)if(f[h](e,c,p)===!1)return}a=a.parent}if(r){Re(),Ct(r,null,10,[e,c,p]),je();return}}cs(e,i,n,o,s)}function cs(e,t,i,o=!0,n=!1){if(n)throw e;console.error(e)}const fe=[];let Oe=-1;const wt=[];let et=null,At=0;const tn=Promise.resolve();let bi=null;function Zi(e){const t=bi||tn;return e?t.then(this?e.bind(this):e):t}function ds(e){let t=Oe+1,i=fe.length;for(;t<i;){const o=t+i>>>1,n=fe[o],r=Bt(n);r<e||r===e&&n.flags&2?t=o+1:i=o}return t}function Qi(e){if(!(e.flags&1)){const t=Bt(e),i=fe[fe.length-1];!i||!(e.flags&2)&&t>=Bt(i)?fe.push(e):fe.splice(ds(t),0,e),e.flags|=1,on()}}function on(){bi||(bi=tn.then(sn))}function us(e){T(e)?wt.push(...e):et&&e.id===-1?et.splice(At+1,0,e):e.flags&1||(wt.push(e),e.flags|=1),on()}function nn(e,t,i=Oe+1){for(;i<fe.length;i++){const o=fe[i];if(o&&o.flags&2){if(e&&o.id!==e.uid)continue;fe.splice(i,1),i--,o.flags&4&&(o.flags&=-2),o(),o.flags&4||(o.flags&=-2)}}}function rn(e){if(wt.length){const t=[...new Set(wt)].sort((i,o)=>Bt(i)-Bt(o));if(wt.length=0,et){et.push(...t);return}for(et=t,At=0;At<et.length;At++){const i=et[At];i.flags&4&&(i.flags&=-2),i.flags&8||i(),i.flags&=-2}et=null,At=0}}const Bt=e=>e.id==null?e.flags&2?-1:1/0:e.id;function sn(e){try{for(Oe=0;Oe<fe.length;Oe++){const t=fe[Oe];t&&!(t.flags&8)&&(t.flags&4&&(t.flags&=-2),Ct(t,t.i,t.i?15:14),t.flags&4||(t.flags&=-2))}}finally{for(;Oe<fe.length;Oe++){const t=fe[Oe];t&&(t.flags&=-2)}Oe=-1,fe.length=0,rn(),bi=null,(fe.length||wt.length)&&sn()}}let he=null,an=null;function vi(e){const t=he;return he=e,an=e&&e.type.__scopeId||null,t}function fs(e,t=he,i){if(!t||e._n)return e;const o=(...n)=>{o._d&&Un(-1);const r=vi(t);let s;try{s=e(...n)}finally{vi(r),o._d&&Un(1)}return s};return o._n=!0,o._c=!0,o._d=!0,o}function Z(e,t){if(he===null)return e;const i=Mi(he),o=e.dirs||(e.dirs=[]);for(let n=0;n<t.length;n++){let[r,s,a,c=K]=t[n];r&&(N(r)&&(r={mounted:r,updated:r}),r.deep&&$e(s),o.push({dir:r,instance:i,value:s,oldValue:void 0,arg:a,modifiers:c}))}return e}function ct(e,t,i,o){const n=e.dirs,r=t&&t.dirs;for(let s=0;s<n.length;s++){const a=n[s];r&&(a.oldValue=r[s].value);let c=a.dir[o];c&&(Re(),Ae(c,i,8,[e.el,a,e,t]),je())}}function ps(e,t){if(ue){let i=ue.provides;const o=ue.parent&&ue.parent.provides;o===i&&(i=ue.provides=Object.create(o)),i[e]=t}}function _i(e,t,i=!1){const o=ma();if(o||St){let n=St?St._context.provides:o?o.parent==null||o.ce?o.vnode.appContext&&o.vnode.appContext.provides:o.parent.provides:void 0;if(n&&e in n)return n[e];if(arguments.length>1)return i&&N(t)?t.call(o&&o.proxy):t}}const ms=Symbol.for("v-scx"),hs=()=>_i(ms);function eo(e,t,i){return ln(e,t,i)}function ln(e,t,i=K){const{immediate:o,deep:n,flush:r,once:s}=i,a=ee({},i),c=t&&o||!t&&r!=="post";let p;if(qt){if(r==="sync"){const S=hs();p=S.__watcherHandles||(S.__watcherHandles=[])}else if(!c){const S=()=>{};return S.stop=Me,S.resume=Me,S.pause=Me,S}}const f=ue;a.call=(S,D,j)=>Ae(S,f,D,j);let h=!1;r==="post"?a.scheduler=S=>{me(S,f&&f.suspense)}:r!=="sync"&&(h=!0,a.scheduler=(S,D)=>{D?S():Qi(S)}),a.augmentJob=S=>{t&&(S.flags|=4),h&&(S.flags|=2,f&&(S.id=f.uid,S.i=f))};const A=ns(e,t,a);return qt&&(p?p.push(A):c&&A()),A}function gs(e,t,i){const o=this.proxy,n=X(e)?e.includes(".")?cn(o,e):()=>o[e]:e.bind(o,o);let r;N(t)?r=t:(r=t.handler,i=t);const s=$t(this),a=ln(n,r.bind(o),i);return s(),a}function cn(e,t){const i=t.split(".");return()=>{let o=e;for(let n=0;n<i.length&&o;n++)o=o[i[n]];return o}}const bs=Symbol("_vte"),vs=e=>e.__isTeleport,to=Symbol("_leaveCb");function io(e,t){e.shapeFlag&6&&e.component?(e.transition=t,io(e.component.subTree,t)):e.shapeFlag&128?(e.ssContent.transition=t.clone(e.ssContent),e.ssFallback.transition=t.clone(e.ssFallback)):e.transition=t}function _s(e,t){return N(e)?ee({name:e.name},t,{setup:e}):e}function dn(e){e.ids=[e.ids[0]+e.ids[2]+++"-",0,0]}function un(e,t){let i;return!!((i=Object.getOwnPropertyDescriptor(e,t))&&!i.configurable)}const xi=new WeakMap;function zt(e,t,i,o,n=!1){if(T(e)){e.forEach((j,Y)=>zt(j,t&&(T(t)?t[Y]:t),i,o,n));return}if(Ht(o)&&!n){o.shapeFlag&512&&o.type.__asyncResolved&&o.component.subTree.component&&zt(e,t,i,o.component.subTree);return}const r=o.shapeFlag&4?Mi(o.component):o.el,s=n?null:r,{i:a,r:c}=e,p=t&&t.r,f=a.refs===K?a.refs={}:a.refs,h=a.setupState,A=z(h),S=h===K?wo:j=>un(f,j)?!1:B(A,j),D=(j,Y)=>!(Y&&un(f,Y));if(p!=null&&p!==c){if(fn(t),X(p))f[p]=null,S(p)&&(h[p]=null);else if(de(p)){const j=t;D(p,j.k)&&(p.value=null),j.k&&(f[j.k]=null)}}if(N(c))Ct(c,a,12,[s,f]);else{const j=X(c),Y=de(c);if(j||Y){const H=()=>{if(e.f){const V=j?S(c)?h[c]:f[c]:D()||!e.k?c.value:f[e.k];if(n)T(V)&&Oi(V,r);else if(T(V))V.includes(r)||V.push(r);else if(j)f[c]=[r],S(c)&&(h[c]=f[c]);else{const G=[r];D(c,e.k)&&(c.value=G),e.k&&(f[e.k]=G)}}else j?(f[c]=s,S(c)&&(h[c]=s)):Y&&(D(c,e.k)&&(c.value=s),e.k&&(f[e.k]=s))};if(s){const V=()=>{H(),xi.delete(e)};V.id=-1,xi.set(e,V),me(V,i)}else fn(e),H()}}}function fn(e){const t=xi.get(e);t&&(t.flags|=8,xi.delete(e))}li().requestIdleCallback,li().cancelIdleCallback;const Ht=e=>!!e.type.__asyncLoader,pn=e=>e.type.__isKeepAlive;function xs(e,t){mn(e,"a",t)}function ys(e,t){mn(e,"da",t)}function mn(e,t,i=ue){const o=e.__wdc||(e.__wdc=()=>{let n=i;for(;n;){if(n.isDeactivated)return;n=n.parent}return e()});if(yi(t,o,i),i){let n=i.parent;for(;n&&n.parent;)pn(n.parent.vnode)&&Cs(o,t,i,n),n=n.parent}}function Cs(e,t,i,o){const n=yi(t,e,o,!0);hn(()=>{Oi(o[t],n)},i)}function yi(e,t,i=ue,o=!1){if(i){const n=i[e]||(i[e]=[]),r=t.__weh||(t.__weh=(...s)=>{Re();const a=$t(i),c=Ae(t,i,e,s);return a(),je(),c});return o?n.unshift(r):n.push(r),r}}const qe=e=>(t,i=ue)=>{(!qt||e==="sp")&&yi(e,(...o)=>t(...o),i)},ws=qe("bm"),As=qe("m"),Is=qe("bu"),Ss=qe("u"),Ms=qe("bum"),hn=qe("um"),Ts=qe("sp"),Rs=qe("rtg"),js=qe("rtc");function Es(e,t=ue){yi("ec",e,t)}const Os="components";function gn(e,t){return Ns(Os,e,!0,t)||e}const Ps=Symbol.for("v-ndc");function Ns(e,t,i=!0,o=!1){const n=he||ue;if(n){const r=n.type;{const a=Xn(r,!1);if(a&&(a===t||a===ne(t)||a===ri(ne(t))))return r}const s=bn(n[e]||r[e],t)||bn(n.appContext[e],t);return!s&&o?r:s}}function bn(e,t){return e&&(e[t]||e[ne(t)]||e[ri(ne(t))])}function It(e,t,i,o){let n;const r=i,s=T(e);if(s||X(e)){const a=s&&at(e);let c=!1,p=!1;a&&(c=!we(e),p=Qe(e),e=ci(e)),n=new Array(e.length);for(let f=0,h=e.length;f<h;f++)n[f]=t(c?p?yt(Ke(e[f])):Ke(e[f]):e[f],f,void 0,r)}else if(typeof e=="number"){n=new Array(e);for(let a=0;a<e;a++)n[a]=t(a+1,a,void 0,r)}else if(U(e))if(e[Symbol.iterator])n=Array.from(e,(a,c)=>t(a,c,void 0,r));else{const a=Object.keys(e);n=new Array(a.length);for(let c=0,p=a.length;c<p;c++){const f=a[c];n[c]=t(e[f],f,c,r)}}else n=[];return n}const oo=e=>e?qn(e)?Mi(e):oo(e.parent):null,Lt=ee(Object.create(null),{$:e=>e,$el:e=>e.vnode.el,$data:e=>e.data,$props:e=>e.props,$attrs:e=>e.attrs,$slots:e=>e.slots,$refs:e=>e.refs,$parent:e=>oo(e.parent),$root:e=>oo(e.root),$host:e=>e.ce,$emit:e=>e.emit,$options:e=>yn(e),$forceUpdate:e=>e.f||(e.f=()=>{Qi(e.update)}),$nextTick:e=>e.n||(e.n=Zi.bind(e.proxy)),$watch:e=>gs.bind(e)}),no=(e,t)=>e!==K&&!e.__isScriptSetup&&B(e,t),Fs={get({_:e},t){if(t==="__v_skip")return!0;const{ctx:i,setupState:o,data:n,props:r,accessCache:s,type:a,appContext:c}=e;if(t[0]!=="$"){const A=s[t];if(A!==void 0)switch(A){case 1:return o[t];case 2:return n[t];case 4:return i[t];case 3:return r[t]}else{if(no(o,t))return s[t]=1,o[t];if(n!==K&&B(n,t))return s[t]=2,n[t];if(B(r,t))return s[t]=3,r[t];if(i!==K&&B(i,t))return s[t]=4,i[t];ro&&(s[t]=0)}}const p=Lt[t];let f,h;if(p)return t==="$attrs"&&ce(e.attrs,"get",""),p(e);if((f=a.__cssModules)&&(f=f[t]))return f;if(i!==K&&B(i,t))return s[t]=4,i[t];if(h=c.config.globalProperties,B(h,t))return h[t]},set({_:e},t,i){const{data:o,setupState:n,ctx:r}=e;return no(n,t)?(n[t]=i,!0):o!==K&&B(o,t)?(o[t]=i,!0):B(e.props,t)||t[0]==="$"&&t.slice(1)in e?!1:(r[t]=i,!0)},has({_:{data:e,setupState:t,accessCache:i,ctx:o,appContext:n,props:r,type:s}},a){let c;return!!(i[a]||e!==K&&a[0]!=="$"&&B(e,a)||no(t,a)||B(r,a)||B(o,a)||B(Lt,a)||B(n.config.globalProperties,a)||(c=s.__cssModules)&&c[a])},defineProperty(e,t,i){return i.get!=null?e._.accessCache[t]=0:B(i,"value")&&this.set(e,t,i.value,null),Reflect.defineProperty(e,t,i)}};function vn(e){return T(e)?e.reduce((t,i)=>(t[i]=null,t),{}):e}let ro=!0;function Vs(e){const t=yn(e),i=e.proxy,o=e.ctx;ro=!1,t.beforeCreate&&_n(t.beforeCreate,e,"bc");const{data:n,computed:r,methods:s,watch:a,provide:c,inject:p,created:f,beforeMount:h,mounted:A,beforeUpdate:S,updated:D,activated:j,deactivated:Y,beforeDestroy:H,beforeUnmount:V,destroyed:G,unmounted:E,render:Q,renderTracked:Ie,renderTriggered:be,errorCaptured:Se,serverPrefetch:ut,expose:De,inheritAttrs:ot,components:ft,directives:pt,filters:Rt}=t;if(p&&Ds(p,o,null),s)for(const J in s){const L=s[J];N(L)&&(o[J]=L.bind(i))}if(n){const J=n.call(i,i);U(J)&&(e.data=qi(J))}if(ro=!0,r)for(const J in r){const L=r[J],ke=N(L)?L.bind(i,i):N(L.get)?L.get.bind(i,i):Me,mt=!N(L)&&N(L.set)?L.set.bind(i):Me,Be=Ca({get:ke,set:mt});Object.defineProperty(o,J,{enumerable:!0,configurable:!0,get:()=>Be.value,set:ve=>Be.value=ve})}if(a)for(const J in a)xn(a[J],o,i,J);if(c){const J=N(c)?c.call(i):c;Reflect.ownKeys(J).forEach(L=>{ps(L,J[L])})}f&&_n(f,e,"c");function se(J,L){T(L)?L.forEach(ke=>J(ke.bind(i))):L&&J(L.bind(i))}if(se(ws,h),se(As,A),se(Is,S),se(Ss,D),se(xs,j),se(ys,Y),se(Es,Se),se(js,Ie),se(Rs,be),se(Ms,V),se(hn,E),se(Ts,ut),T(De))if(De.length){const J=e.exposed||(e.exposed={});De.forEach(L=>{Object.defineProperty(J,L,{get:()=>i[L],set:ke=>i[L]=ke,enumerable:!0})})}else e.exposed||(e.exposed={});Q&&e.render===Me&&(e.render=Q),ot!=null&&(e.inheritAttrs=ot),ft&&(e.components=ft),pt&&(e.directives=pt),ut&&dn(e)}function Ds(e,t,i=Me){T(e)&&(e=so(e));for(const o in e){const n=e[o];let r;U(n)?"default"in n?r=_i(n.from||o,n.default,!0):r=_i(n.from||o):r=_i(n),de(r)?Object.defineProperty(t,o,{enumerable:!0,configurable:!0,get:()=>r.value,set:s=>r.value=s}):t[o]=r}}function _n(e,t,i){Ae(T(e)?e.map(o=>o.bind(t.proxy)):e.bind(t.proxy),t,i)}function xn(e,t,i,o){let n=o.includes(".")?cn(i,o):()=>i[o];if(X(e)){const r=t[e];N(r)&&eo(n,r)}else if(N(e))eo(n,e.bind(i));else if(U(e))if(T(e))e.forEach(r=>xn(r,t,i,o));else{const r=N(e.handler)?e.handler.bind(i):t[e.handler];N(r)&&eo(n,r,e)}}function yn(e){const t=e.type,{mixins:i,extends:o}=t,{mixins:n,optionsCache:r,config:{optionMergeStrategies:s}}=e.appContext,a=r.get(t);let c;return a?c=a:!n.length&&!i&&!o?c=t:(c={},n.length&&n.forEach(p=>Ci(c,p,s,!0)),Ci(c,t,s)),U(t)&&r.set(t,c),c}function Ci(e,t,i,o=!1){const{mixins:n,extends:r}=t;r&&Ci(e,r,i,!0),n&&n.forEach(s=>Ci(e,s,i,!0));for(const s in t)if(!(o&&s==="expose")){const a=ks[s]||i&&i[s];e[s]=a?a(e[s],t[s]):t[s]}return e}const ks={data:Cn,props:wn,emits:wn,methods:Ut,computed:Ut,beforeCreate:pe,created:pe,beforeMount:pe,mounted:pe,beforeUpdate:pe,updated:pe,beforeDestroy:pe,beforeUnmount:pe,destroyed:pe,unmounted:pe,activated:pe,deactivated:pe,errorCaptured:pe,serverPrefetch:pe,components:Ut,directives:Ut,watch:zs,provide:Cn,inject:Bs};function Cn(e,t){return t?e?function(){return ee(N(e)?e.call(this,this):e,N(t)?t.call(this,this):t)}:t:e}function Bs(e,t){return Ut(so(e),so(t))}function so(e){if(T(e)){const t={};for(let i=0;i<e.length;i++)t[e[i]]=e[i];return t}return e}function pe(e,t){return e?[...new Set([].concat(e,t))]:t}function Ut(e,t){return e?ee(Object.create(null),e,t):t}function wn(e,t){return e?T(e)&&T(t)?[...new Set([...e,...t])]:ee(Object.create(null),vn(e),vn(t??{})):t}function zs(e,t){if(!e)return t;if(!t)return e;const i=ee(Object.create(null),e);for(const o in t)i[o]=pe(e[o],t[o]);return i}function An(){return{app:null,config:{isNativeTag:wo,performance:!1,globalProperties:{},optionMergeStrategies:{},errorHandler:void 0,warnHandler:void 0,compilerOptions:{}},mixins:[],components:{},directives:{},provides:Object.create(null),optionsCache:new WeakMap,propsCache:new WeakMap,emitsCache:new WeakMap}}let Hs=0;function Ls(e,t){return function(o,n=null){N(o)||(o=ee({},o)),n!=null&&!U(n)&&(n=null);const r=An(),s=new WeakSet,a=[];let c=!1;const p=r.app={_uid:Hs++,_component:o,_props:n,_container:null,_context:r,_instance:null,version:wa,get config(){return r.config},set config(f){},use(f,...h){return s.has(f)||(f&&N(f.install)?(s.add(f),f.install(p,...h)):N(f)&&(s.add(f),f(p,...h))),p},mixin(f){return r.mixins.includes(f)||r.mixins.push(f),p},component(f,h){return h?(r.components[f]=h,p):r.components[f]},directive(f,h){return h?(r.directives[f]=h,p):r.directives[f]},mount(f,h,A){if(!c){const S=p._ceVNode||Pe(o,n);return S.appContext=r,A===!0?A="svg":A===!1&&(A=void 0),e(S,f,A),c=!0,p._container=f,f.__vue_app__=p,Mi(S.component)}},onUnmount(f){a.push(f)},unmount(){c&&(Ae(a,p._instance,16),e(null,p._container),delete p._container.__vue_app__)},provide(f,h){return r.provides[f]=h,p},runWithContext(f){const h=St;St=p;try{return f()}finally{St=h}}};return p}}let St=null;const Us=(e,t)=>t==="modelValue"||t==="model-value"?e.modelModifiers:e[`${t}Modifiers`]||e[`${ne(t)}Modifiers`]||e[`${xe(t)}Modifiers`];function Gs(e,t,...i){if(e.isUnmounted)return;const o=e.vnode.props||K;let n=i;const r=t.startsWith("update:"),s=r&&Us(o,t.slice(7));s&&(s.trim&&(n=i.map(f=>X(f)?f.trim():f)),s.number&&(n=i.map(ai)));let a,c=o[a=Ni(t)]||o[a=Ni(ne(t))];!c&&r&&(c=o[a=Ni(xe(t))]),c&&Ae(c,e,6,n);const p=o[a+"Once"];if(p){if(!e.emitted)e.emitted={};else if(e.emitted[a])return;e.emitted[a]=!0,Ae(p,e,6,n)}}const Ws=new WeakMap;function In(e,t,i=!1){const o=i?Ws:t.emitsCache,n=o.get(e);if(n!==void 0)return n;const r=e.emits;let s={},a=!1;if(!N(e)){const c=p=>{const f=In(p,t,!0);f&&(a=!0,ee(s,f))};!i&&t.mixins.length&&t.mixins.forEach(c),e.extends&&c(e.extends),e.mixins&&e.mixins.forEach(c)}return!r&&!a?(U(e)&&o.set(e,null),null):(T(r)?r.forEach(c=>s[c]=null):ee(s,r),U(e)&&o.set(e,s),s)}function wi(e,t){return!e||!ti(t)?!1:(t=t.slice(2).replace(/Once$/,""),B(e,t[0].toLowerCase()+t.slice(1))||B(e,xe(t))||B(e,t))}function vd(){}function Sn(e){const{type:t,vnode:i,proxy:o,withProxy:n,propsOptions:[r],slots:s,attrs:a,emit:c,render:p,renderCache:f,props:h,data:A,setupState:S,ctx:D,inheritAttrs:j}=e,Y=vi(e);let H,V;try{if(i.shapeFlag&4){const E=n||o,Q=E;H=Ne(p.call(Q,E,f,h,S,A,D)),V=a}else{const E=t;H=Ne(E.length>1?E(h,{attrs:a,slots:s,emit:c}):E(h,null)),V=t.props?a:Ks(a)}}catch(E){Gt.length=0,gi(E,e,1),H=Pe(tt)}let G=H;if(V&&j!==!1){const E=Object.keys(V),{shapeFlag:Q}=G;E.length&&Q&7&&(r&&E.some(ii)&&(V=$s(V,r)),G=Mt(G,V,!1,!0))}return i.dirs&&(G=Mt(G,null,!1,!0),G.dirs=G.dirs?G.dirs.concat(i.dirs):i.dirs),i.transition&&io(G,i.transition),H=G,vi(Y),H}const Ks=e=>{let t;for(const i in e)(i==="class"||i==="style"||ti(i))&&((t||(t={}))[i]=e[i]);return t},$s=(e,t)=>{const i={};for(const o in e)(!ii(o)||!(o.slice(9)in t))&&(i[o]=e[o]);return i};function qs(e,t,i){const{props:o,children:n,component:r}=e,{props:s,children:a,patchFlag:c}=t,p=r.emitsOptions;if(t.dirs||t.transition)return!0;if(i&&c>=0){if(c&1024)return!0;if(c&16)return o?Mn(o,s,p):!!s;if(c&8){const f=t.dynamicProps;for(let h=0;h<f.length;h++){const A=f[h];if(Tn(s,o,A)&&!wi(p,A))return!0}}}else return(n||a)&&(!a||!a.$stable)?!0:o===s?!1:o?s?Mn(o,s,p):!0:!!s;return!1}function Mn(e,t,i){const o=Object.keys(t);if(o.length!==Object.keys(e).length)return!0;for(let n=0;n<o.length;n++){const r=o[n];if(Tn(t,e,r)&&!wi(i,r))return!0}return!1}function Tn(e,t,i){const o=e[i],n=t[i];return i==="style"&&U(o)&&U(n)?!Ze(o,n):o!==n}function Js({vnode:e,parent:t,suspense:i},o){for(;t;){const n=t.subTree;if(n.suspense&&n.suspense.activeBranch===e&&(n.suspense.vnode.el=n.el=o,e=n),n===e)(e=t.vnode).el=o,t=t.parent;else break}i&&i.activeBranch===e&&(i.vnode.el=o)}const Rn={},jn=()=>Object.create(Rn),En=e=>Object.getPrototypeOf(e)===Rn;function Ys(e,t,i,o=!1){const n={},r=jn();e.propsDefaults=Object.create(null),On(e,t,n,r);for(const s in e.propsOptions[0])s in n||(n[s]=void 0);i?e.props=o?n:Zr(n):e.type.props?e.props=n:e.props=r,e.attrs=r}function Xs(e,t,i,o){const{props:n,attrs:r,vnode:{patchFlag:s}}=e,a=z(n),[c]=e.propsOptions;let p=!1;if((o||s>0)&&!(s&16)){if(s&8){const f=e.vnode.dynamicProps;for(let h=0;h<f.length;h++){let A=f[h];if(wi(e.emitsOptions,A))continue;const S=t[A];if(c)if(B(r,A))S!==r[A]&&(r[A]=S,p=!0);else{const D=ne(A);n[D]=ao(c,a,D,S,e,!1)}else S!==r[A]&&(r[A]=S,p=!0)}}}else{On(e,t,n,r)&&(p=!0);let f;for(const h in a)(!t||!B(t,h)&&((f=xe(h))===h||!B(t,f)))&&(c?i&&(i[h]!==void 0||i[f]!==void 0)&&(n[h]=ao(c,a,h,void 0,e,!0)):delete n[h]);if(r!==a)for(const h in r)(!t||!B(t,h))&&(delete r[h],p=!0)}p&&Ge(e.attrs,"set","")}function On(e,t,i,o){const[n,r]=e.propsOptions;let s=!1,a;if(t)for(let c in t){if(Ot(c))continue;const p=t[c];let f;n&&B(n,f=ne(c))?!r||!r.includes(f)?i[f]=p:(a||(a={}))[f]=p:wi(e.emitsOptions,c)||(!(c in o)||p!==o[c])&&(o[c]=p,s=!0)}if(r){const c=z(i),p=a||K;for(let f=0;f<r.length;f++){const h=r[f];i[h]=ao(n,c,h,p[h],e,!B(p,h))}}return s}function ao(e,t,i,o,n,r){const s=e[i];if(s!=null){const a=B(s,"default");if(a&&o===void 0){const c=s.default;if(s.type!==Function&&!s.skipFactory&&N(c)){const{propsDefaults:p}=n;if(i in p)o=p[i];else{const f=$t(n);o=p[i]=c.call(null,t),f()}}else o=c;n.ce&&n.ce._setProp(i,o)}s[0]&&(r&&!a?o=!1:s[1]&&(o===""||o===xe(i))&&(o=!0))}return o}const Zs=new WeakMap;function Pn(e,t,i=!1){const o=i?Zs:t.propsCache,n=o.get(e);if(n)return n;const r=e.props,s={},a=[];let c=!1;if(!N(e)){const f=h=>{c=!0;const[A,S]=Pn(h,t,!0);ee(s,A),S&&a.push(...S)};!i&&t.mixins.length&&t.mixins.forEach(f),e.extends&&f(e.extends),e.mixins&&e.mixins.forEach(f)}if(!r&&!c)return U(e)&&o.set(e,gt),gt;if(T(r))for(let f=0;f<r.length;f++){const h=ne(r[f]);Nn(h)&&(s[h]=K)}else if(r)for(const f in r){const h=ne(f);if(Nn(h)){const A=r[f],S=s[h]=T(A)||N(A)?{type:A}:ee({},A),D=S.type;let j=!1,Y=!0;if(T(D))for(let H=0;H<D.length;++H){const V=D[H],G=N(V)&&V.name;if(G==="Boolean"){j=!0;break}else G==="String"&&(Y=!1)}else j=N(D)&&D.name==="Boolean";S[0]=j,S[1]=Y,(j||B(S,"default"))&&a.push(h)}}const p=[s,a];return U(e)&&o.set(e,p),p}function Nn(e){return e[0]!=="$"&&!Ot(e)}const lo=e=>e==="_"||e==="_ctx"||e==="$stable",co=e=>T(e)?e.map(Ne):[Ne(e)],Qs=(e,t,i)=>{if(t._n)return t;const o=fs((...n)=>co(t(...n)),i);return o._c=!1,o},Fn=(e,t,i)=>{const o=e._ctx;for(const n in e){if(lo(n))continue;const r=e[n];if(N(r))t[n]=Qs(n,r,o);else if(r!=null){const s=co(r);t[n]=()=>s}}},Vn=(e,t)=>{const i=co(t);e.slots.default=()=>i},Dn=(e,t,i)=>{for(const o in t)(i||!lo(o))&&(e[o]=t[o])},ea=(e,t,i)=>{const o=e.slots=jn();if(e.vnode.shapeFlag&32){const n=t._;n?(Dn(o,t,i),i&&Mo(o,"_",n,!0)):Fn(t,o)}else t&&Vn(e,t)},ta=(e,t,i)=>{const{vnode:o,slots:n}=e;let r=!0,s=K;if(o.shapeFlag&32){const a=t._;a?i&&a===1?r=!1:Dn(n,t,i):(r=!t.$stable,Fn(t,n)),s=t}else t&&(Vn(e,t),s={default:1});if(r)for(const a in n)!lo(a)&&s[a]==null&&delete n[a]},me=sa;function ia(e){return oa(e)}function oa(e,t){const i=li();i.__VUE__=!0;const{insert:o,remove:n,patchProp:r,createElement:s,createText:a,createComment:c,setText:p,setElementText:f,parentNode:h,nextSibling:A,setScopeId:S=Me,insertStaticContent:D}=e,j=(d,u,m,v=null,g=null,b=null,C=void 0,y=null,x=!!u.dynamicChildren)=>{if(d===u)return;d&&!Kt(d,u)&&(v=ht(d),ve(d,g,b,!0),d=null),u.patchFlag===-2&&(x=!1,u.dynamicChildren=null);const{type:_,ref:R,shapeFlag:w}=u;switch(_){case Ai:Y(d,u,m,v);break;case tt:H(d,u,m,v);break;case fo:d==null&&V(u,m,v,C);break;case re:ft(d,u,m,v,g,b,C,y,x);break;default:w&1?Q(d,u,m,v,g,b,C,y,x):w&6?pt(d,u,m,v,g,b,C,y,x):(w&64||w&128)&&_.process(d,u,m,v,g,b,C,y,x,rt)}R!=null&&g?zt(R,d&&d.ref,b,u||d,!u):R==null&&d&&d.ref!=null&&zt(d.ref,null,b,d,!0)},Y=(d,u,m,v)=>{if(d==null)o(u.el=a(u.children),m,v);else{const g=u.el=d.el;u.children!==d.children&&p(g,u.children)}},H=(d,u,m,v)=>{d==null?o(u.el=c(u.children||""),m,v):u.el=d.el},V=(d,u,m,v)=>{[d.el,d.anchor]=D(d.children,u,m,v,d.el,d.anchor)},G=({el:d,anchor:u},m,v)=>{let g;for(;d&&d!==u;)g=A(d),o(d,m,v),d=g;o(u,m,v)},E=({el:d,anchor:u})=>{let m;for(;d&&d!==u;)m=A(d),n(d),d=m;n(u)},Q=(d,u,m,v,g,b,C,y,x)=>{if(u.type==="svg"?C="svg":u.type==="math"&&(C="mathml"),d==null)Ie(u,m,v,g,b,C,y,x);else{const _=d.el&&d.el._isVueCE?d.el:null;try{_&&_._beginPatch(),ut(d,u,g,b,C,y,x)}finally{_&&_._endPatch()}}},Ie=(d,u,m,v,g,b,C,y)=>{let x,_;const{props:R,shapeFlag:w,transition:M,dirs:P}=d;if(x=d.el=s(d.type,b,R&&R.is,R),w&8?f(x,d.children):w&16&&Se(d.children,x,null,v,g,uo(d,b),C,y),P&&ct(d,null,v,"created"),be(x,d,d.scopeId,C,v),R){for(const $ in R)$!=="value"&&!Ot($)&&r(x,$,null,R[$],b,v);"value"in R&&r(x,"value",null,R.value,b),(_=R.onVnodeBeforeMount)&&Fe(_,v,d)}P&&ct(d,null,v,"beforeMount");const k=na(g,M);k&&M.beforeEnter(x),o(x,u,m),((_=R&&R.onVnodeMounted)||k||P)&&me(()=>{try{_&&Fe(_,v,d),k&&M.enter(x),P&&ct(d,null,v,"mounted")}finally{}},g)},be=(d,u,m,v,g)=>{if(m&&S(d,m),v)for(let b=0;b<v.length;b++)S(d,v[b]);if(g){let b=g.subTree;if(u===b||Ln(b.type)&&(b.ssContent===u||b.ssFallback===u)){const C=g.vnode;be(d,C,C.scopeId,C.slotScopeIds,g.parent)}}},Se=(d,u,m,v,g,b,C,y,x=0)=>{for(let _=x;_<d.length;_++){const R=d[_]=y?Je(d[_]):Ne(d[_]);j(null,R,u,m,v,g,b,C,y)}},ut=(d,u,m,v,g,b,C)=>{const y=u.el=d.el;let{patchFlag:x,dynamicChildren:_,dirs:R}=u;x|=d.patchFlag&16;const w=d.props||K,M=u.props||K;let P;if(m&&dt(m,!1),(P=M.onVnodeBeforeUpdate)&&Fe(P,m,u,d),R&&ct(u,d,m,"beforeUpdate"),m&&dt(m,!0),(w.innerHTML&&M.innerHTML==null||w.textContent&&M.textContent==null)&&f(y,""),_?De(d.dynamicChildren,_,y,m,v,uo(u,g),b):C||L(d,u,y,null,m,v,uo(u,g),b,!1),x>0){if(x&16)ot(y,w,M,m,g);else if(x&2&&w.class!==M.class&&r(y,"class",null,M.class,g),x&4&&r(y,"style",w.style,M.style,g),x&8){const k=u.dynamicProps;for(let $=0;$<k.length;$++){const W=k[$],oe=w[W],le=M[W];(le!==oe||W==="value")&&r(y,W,oe,le,g,m)}}x&1&&d.children!==u.children&&f(y,u.children)}else!C&&_==null&&ot(y,w,M,m,g);((P=M.onVnodeUpdated)||R)&&me(()=>{P&&Fe(P,m,u,d),R&&ct(u,d,m,"updated")},v)},De=(d,u,m,v,g,b,C)=>{for(let y=0;y<u.length;y++){const x=d[y],_=u[y],R=x.el&&(x.type===re||!Kt(x,_)||x.shapeFlag&198)?h(x.el):m;j(x,_,R,null,v,g,b,C,!0)}},ot=(d,u,m,v,g)=>{if(u!==m){if(u!==K)for(const b in u)!Ot(b)&&!(b in m)&&r(d,b,u[b],null,g,v);for(const b in m){if(Ot(b))continue;const C=m[b],y=u[b];C!==y&&b!=="value"&&r(d,b,y,C,g,v)}"value"in m&&r(d,"value",u.value,m.value,g)}},ft=(d,u,m,v,g,b,C,y,x)=>{const _=u.el=d?d.el:a(""),R=u.anchor=d?d.anchor:a("");let{patchFlag:w,dynamicChildren:M,slotScopeIds:P}=u;P&&(y=y?y.concat(P):P),d==null?(o(_,m,v),o(R,m,v),Se(u.children||[],m,R,g,b,C,y,x)):w>0&&w&64&&M&&d.dynamicChildren&&d.dynamicChildren.length===M.length?(De(d.dynamicChildren,M,m,g,b,C,y),(u.key!=null||g&&u===g.subTree)&&kn(d,u,!0)):L(d,u,m,R,g,b,C,y,x)},pt=(d,u,m,v,g,b,C,y,x)=>{u.slotScopeIds=y,d==null?u.shapeFlag&512?g.ctx.activate(u,m,v,C,x):Rt(u,m,v,g,b,C,x):Xt(d,u,x)},Rt=(d,u,m,v,g,b,C)=>{const y=d.component=pa(d,v,g);if(pn(d)&&(y.ctx.renderer=rt),ha(y,!1,C),y.asyncDep){if(g&&g.registerDep(y,se,C),!d.el){const x=y.subTree=Pe(tt);H(null,x,u,m),d.placeholder=x.el}}else se(y,d,u,m,g,b,C)},Xt=(d,u,m)=>{const v=u.component=d.component;if(qs(d,u,m))if(v.asyncDep&&!v.asyncResolved){J(v,u,m);return}else v.next=u,v.update();else u.el=d.el,v.vnode=u},se=(d,u,m,v,g,b,C)=>{const y=()=>{if(d.isMounted){let{next:w,bu:M,u:P,parent:k,vnode:$}=d;{const He=Bn(d);if(He){w&&(w.el=$.el,J(d,w,C)),He.asyncDep.then(()=>{me(()=>{d.isUnmounted||_()},g)});return}}let W=w,oe;dt(d,!1),w?(w.el=$.el,J(d,w,C)):w=$,M&&si(M),(oe=w.props&&w.props.onVnodeBeforeUpdate)&&Fe(oe,k,w,$),dt(d,!0);const le=Sn(d),ze=d.subTree;d.subTree=le,j(ze,le,h(ze.el),ht(ze),d,g,b),w.el=le.el,W===null&&Js(d,le.el),P&&me(P,g),(oe=w.props&&w.props.onVnodeUpdated)&&me(()=>Fe(oe,k,w,$),g)}else{let w;const{el:M,props:P}=u,{bm:k,m:$,parent:W,root:oe,type:le}=d,ze=Ht(u);dt(d,!1),k&&si(k),!ze&&(w=P&&P.onVnodeBeforeMount)&&Fe(w,W,u),dt(d,!0);{oe.ce&&oe.ce._hasShadowRoot()&&oe.ce._injectChildStyle(le,d.parent?d.parent.type:void 0);const He=d.subTree=Sn(d);j(null,He,m,v,d,g,b),u.el=He.el}if($&&me($,g),!ze&&(w=P&&P.onVnodeMounted)){const He=u;me(()=>Fe(w,W,He),g)}(u.shapeFlag&256||W&&Ht(W.vnode)&&W.vnode.shapeFlag&256)&&d.a&&me(d.a,g),d.isMounted=!0,u=m=v=null}};d.scope.on();const x=d.effect=new Po(y);d.scope.off();const _=d.update=x.run.bind(x),R=d.job=x.runIfDirty.bind(x);R.i=d,R.id=d.uid,x.scheduler=()=>Qi(R),dt(d,!0),_()},J=(d,u,m)=>{u.component=d;const v=d.vnode.props;d.vnode=u,d.next=null,Xs(d,u.props,v,m),ta(d,u.children,m),Re(),nn(d),je()},L=(d,u,m,v,g,b,C,y,x=!1)=>{const _=d&&d.children,R=d?d.shapeFlag:0,w=u.children,{patchFlag:M,shapeFlag:P}=u;if(M>0){if(M&128){mt(_,w,m,v,g,b,C,y,x);return}else if(M&256){ke(_,w,m,v,g,b,C,y,x);return}}P&8?(R&16&&nt(_,g,b),w!==_&&f(m,w)):R&16?P&16?mt(_,w,m,v,g,b,C,y,x):nt(_,g,b,!0):(R&8&&f(m,""),P&16&&Se(w,m,v,g,b,C,y,x))},ke=(d,u,m,v,g,b,C,y,x)=>{d=d||gt,u=u||gt;const _=d.length,R=u.length,w=Math.min(_,R);let M;for(M=0;M<w;M++){const P=u[M]=x?Je(u[M]):Ne(u[M]);j(d[M],P,m,null,g,b,C,y,x)}_>R?nt(d,g,b,!0,!1,w):Se(u,m,v,g,b,C,y,x,w)},mt=(d,u,m,v,g,b,C,y,x)=>{let _=0;const R=u.length;let w=d.length-1,M=R-1;for(;_<=w&&_<=M;){const P=d[_],k=u[_]=x?Je(u[_]):Ne(u[_]);if(Kt(P,k))j(P,k,m,null,g,b,C,y,x);else break;_++}for(;_<=w&&_<=M;){const P=d[w],k=u[M]=x?Je(u[M]):Ne(u[M]);if(Kt(P,k))j(P,k,m,null,g,b,C,y,x);else break;w--,M--}if(_>w){if(_<=M){const P=M+1,k=P<R?u[P].el:v;for(;_<=M;)j(null,u[_]=x?Je(u[_]):Ne(u[_]),m,k,g,b,C,y,x),_++}}else if(_>M)for(;_<=w;)ve(d[_],g,b,!0),_++;else{const P=_,k=_,$=new Map;for(_=k;_<=M;_++){const _e=u[_]=x?Je(u[_]):Ne(u[_]);_e.key!=null&&$.set(_e.key,_)}let W,oe=0;const le=M-k+1;let ze=!1,He=0;const ei=new Array(le);for(_=0;_<le;_++)ei[_]=0;for(_=P;_<=w;_++){const _e=d[_];if(oe>=le){ve(_e,g,b,!0);continue}let Le;if(_e.key!=null)Le=$.get(_e.key);else for(W=k;W<=M;W++)if(ei[W-k]===0&&Kt(_e,u[W])){Le=W;break}Le===void 0?ve(_e,g,b,!0):(ei[Le-k]=_+1,Le>=He?He=Le:ze=!0,j(_e,u[Le],m,null,g,b,C,y,x),oe++)}const xr=ze?ra(ei):gt;for(W=xr.length-1,_=le-1;_>=0;_--){const _e=k+_,Le=u[_e],yr=u[_e+1],Cr=_e+1<R?yr.el||Hn(yr):v;ei[_]===0?j(null,Le,m,Cr,g,b,C,y,x):ze&&(W<0||_!==xr[W]?Be(Le,m,Cr,2):W--)}}},Be=(d,u,m,v,g=null)=>{const{el:b,type:C,transition:y,children:x,shapeFlag:_}=d;if(_&6){Be(d.component.subTree,u,m,v);return}if(_&128){d.suspense.move(u,m,v);return}if(_&64){C.move(d,u,m,rt);return}if(C===re){o(b,u,m);for(let w=0;w<x.length;w++)Be(x[w],u,m,v);o(d.anchor,u,m);return}if(C===fo){G(d,u,m);return}if(v!==2&&_&1&&y)if(v===0)y.persisted&&!b[to]?o(b,u,m):(y.beforeEnter(b),o(b,u,m),me(()=>y.enter(b),g));else{const{leave:w,delayLeave:M,afterLeave:P}=y,k=()=>{d.ctx.isUnmounted?n(b):o(b,u,m)},$=()=>{const W=b._isLeaving||!!b[to];b._isLeaving&&b[to](!0),y.persisted&&!W?k():w(b,()=>{k(),P&&P()})};M?M(b,k,$):$()}else o(b,u,m)},ve=(d,u,m,v=!1,g=!1)=>{const{type:b,props:C,ref:y,children:x,dynamicChildren:_,shapeFlag:R,patchFlag:w,dirs:M,cacheIndex:P,memo:k}=d;if(w===-2&&(g=!1),y!=null&&(Re(),zt(y,null,m,d,!0),je()),P!=null&&(u.renderCache[P]=void 0),R&256){u.ctx.deactivate(d);return}const $=R&1&&M,W=!Ht(d);let oe;if(W&&(oe=C&&C.onVnodeBeforeUnmount)&&Fe(oe,u,d),R&6)ji(d.component,m,v);else{if(R&128){d.suspense.unmount(m,v);return}$&&ct(d,null,u,"beforeUnmount"),R&64?d.type.remove(d,u,m,rt,v):_&&!_.hasOnce&&(b!==re||w>0&&w&64)?nt(_,u,m,!1,!0):(b===re&&w&384||!g&&R&16)&&nt(x,u,m),v&&Zt(d)}const le=k!=null&&P==null;(W&&(oe=C&&C.onVnodeUnmounted)||$||le)&&me(()=>{oe&&Fe(oe,u,d),$&&ct(d,null,u,"unmounted"),le&&(d.el=null)},m)},Zt=d=>{const{type:u,el:m,anchor:v,transition:g}=d;if(u===re){Ri(m,v);return}if(u===fo){E(d);return}const b=()=>{n(m),g&&!g.persisted&&g.afterLeave&&g.afterLeave()};if(d.shapeFlag&1&&g&&!g.persisted){const{leave:C,delayLeave:y}=g,x=()=>C(m,b);y?y(d.el,b,x):x()}else b()},Ri=(d,u)=>{let m;for(;d!==u;)m=A(d),n(d),d=m;n(u)},ji=(d,u,m)=>{const{bum:v,scope:g,job:b,subTree:C,um:y,m:x,a:_}=d;zn(x),zn(_),v&&si(v),g.stop(),b&&(b.flags|=8,ve(C,d,u,m)),y&&me(y,u),me(()=>{d.isUnmounted=!0},u)},nt=(d,u,m,v=!1,g=!1,b=0)=>{for(let C=b;C<d.length;C++)ve(d[C],u,m,v,g)},ht=d=>{if(d.shapeFlag&6)return ht(d.component.subTree);if(d.shapeFlag&128)return d.suspense.next();const u=A(d.anchor||d.el),m=u&&u[bs];return m?A(m):u};let jt=!1;const Qt=(d,u,m)=>{let v;d==null?u._vnode&&(ve(u._vnode,null,null,!0),v=u._vnode.component):j(u._vnode||null,d,u,null,null,null,m),u._vnode=d,jt||(jt=!0,nn(v),rn(),jt=!1)},rt={p:j,um:ve,m:Be,r:Zt,mt:Rt,mc:Se,pc:L,pbc:De,n:ht,o:e};return{render:Qt,hydrate:void 0,createApp:Ls(Qt)}}function uo({type:e,props:t},i){return i==="svg"&&e==="foreignObject"||i==="mathml"&&e==="annotation-xml"&&t&&t.encoding&&t.encoding.includes("html")?void 0:i}function dt({effect:e,job:t},i){i?(e.flags|=32,t.flags|=4):(e.flags&=-33,t.flags&=-5)}function na(e,t){return(!e||e&&!e.pendingBranch)&&t&&!t.persisted}function kn(e,t,i=!1){const o=e.children,n=t.children;if(T(o)&&T(n))for(let r=0;r<o.length;r++){const s=o[r];let a=n[r];a.shapeFlag&1&&!a.dynamicChildren&&((a.patchFlag<=0||a.patchFlag===32)&&(a=n[r]=Je(n[r]),a.el=s.el),!i&&a.patchFlag!==-2&&kn(s,a)),a.type===Ai&&(a.patchFlag===-1&&(a=n[r]=Je(a)),a.el=s.el),a.type===tt&&!a.el&&(a.el=s.el)}}function ra(e){const t=e.slice(),i=[0];let o,n,r,s,a;const c=e.length;for(o=0;o<c;o++){const p=e[o];if(p!==0){if(n=i[i.length-1],e[n]<p){t[o]=n,i.push(o);continue}for(r=0,s=i.length-1;r<s;)a=r+s>>1,e[i[a]]<p?r=a+1:s=a;p<e[i[r]]&&(r>0&&(t[o]=i[r-1]),i[r]=o)}}for(r=i.length,s=i[r-1];r-- >0;)i[r]=s,s=t[s];return i}function Bn(e){const t=e.subTree.component;if(t)return t.asyncDep&&!t.asyncResolved?t:Bn(t)}function zn(e){if(e)for(let t=0;t<e.length;t++)e[t].flags|=8}function Hn(e){if(e.placeholder)return e.placeholder;const t=e.component;return t?Hn(t.subTree):null}const Ln=e=>e.__isSuspense;function sa(e,t){t&&t.pendingBranch?T(e)?t.effects.push(...e):t.effects.push(e):us(e)}const re=Symbol.for("v-fgt"),Ai=Symbol.for("v-txt"),tt=Symbol.for("v-cmt"),fo=Symbol.for("v-stc"),Gt=[];let ge=null;function O(e=!1){Gt.push(ge=e?null:[])}function aa(){Gt.pop(),ge=Gt[Gt.length-1]||null}let Wt=1;function Un(e,t=!1){Wt+=e,e<0&&ge&&t&&(ge.hasOnce=!0)}function Gn(e){return e.dynamicChildren=Wt>0?ge||gt:null,aa(),Wt>0&&ge&&ge.push(e),e}function F(e,t,i,o,n,r){return Gn(l(e,t,i,o,n,r,!0))}function po(e,t,i,o,n){return Gn(Pe(e,t,i,o,n,!0))}function Wn(e){return e?e.__v_isVNode===!0:!1}function Kt(e,t){return e.type===t.type&&e.key===t.key}const Kn=({key:e})=>e??null,Ii=({ref:e,ref_key:t,ref_for:i})=>(typeof e=="number"&&(e=""+e),e!=null?X(e)||de(e)||N(e)?{i:he,r:e,k:t,f:!!i}:e:null);function l(e,t=null,i=null,o=0,n=null,r=e===re?0:1,s=!1,a=!1){const c={__v_isVNode:!0,__v_skip:!0,type:e,props:t,key:t&&Kn(t),ref:t&&Ii(t),scopeId:an,slotScopeIds:null,children:i,component:null,suspense:null,ssContent:null,ssFallback:null,dirs:null,transition:null,el:null,anchor:null,target:null,targetStart:null,targetAnchor:null,staticCount:0,shapeFlag:r,patchFlag:o,dynamicProps:n,dynamicChildren:null,appContext:null,ctx:he};return a?(mo(c,i),r&128&&e.normalize(c)):i&&(c.shapeFlag|=X(i)?8:16),Wt>0&&!s&&ge&&(c.patchFlag>0||r&6)&&c.patchFlag!==32&&ge.push(c),c}const Pe=la;function la(e,t=null,i=null,o=0,n=null,r=!1){if((!e||e===Ps)&&(e=tt),Wn(e)){const a=Mt(e,t,!0);return i&&mo(a,i),Wt>0&&!r&&ge&&(a.shapeFlag&6?ge[ge.indexOf(e)]=a:ge.push(a)),a.patchFlag=-2,a}if(ya(e)&&(e=e.__vccOpts),t){t=ca(t);let{class:a,style:c}=t;a&&!X(a)&&(t.class=_t(a)),U(c)&&(Yi(c)&&!T(c)&&(c=ee({},c)),t.style=Fi(c))}const s=X(e)?1:Ln(e)?128:vs(e)?64:U(e)?4:N(e)?2:0;return l(e,t,i,o,n,s,r,!0)}function ca(e){return e?Yi(e)||En(e)?ee({},e):e:null}function Mt(e,t,i=!1,o=!1){const{props:n,ref:r,patchFlag:s,children:a,transition:c}=e,p=t?da(n||{},t):n,f={__v_isVNode:!0,__v_skip:!0,type:e.type,props:p,key:p&&Kn(p),ref:t&&t.ref?i&&r?T(r)?r.concat(Ii(t)):[r,Ii(t)]:Ii(t):r,scopeId:e.scopeId,slotScopeIds:e.slotScopeIds,children:a,target:e.target,targetStart:e.targetStart,targetAnchor:e.targetAnchor,staticCount:e.staticCount,shapeFlag:e.shapeFlag,patchFlag:t&&e.type!==re?s===-1?16:s|16:s,dynamicProps:e.dynamicProps,dynamicChildren:e.dynamicChildren,appContext:e.appContext,dirs:e.dirs,transition:c,component:e.component,suspense:e.suspense,ssContent:e.ssContent&&Mt(e.ssContent),ssFallback:e.ssFallback&&Mt(e.ssFallback),placeholder:e.placeholder,el:e.el,anchor:e.anchor,ctx:e.ctx,ce:e.ce};return c&&o&&io(f,c.clone(f)),f}function te(e=" ",t=0){return Pe(Ai,null,e,t)}function ie(e="",t=!1){return t?(O(),po(tt,null,e)):Pe(tt,null,e)}function Ne(e){return e==null||typeof e=="boolean"?Pe(tt):T(e)?Pe(re,null,e.slice()):Wn(e)?Je(e):Pe(Ai,null,String(e))}function Je(e){return e.el===null&&e.patchFlag!==-1||e.memo?e:Mt(e)}function mo(e,t){let i=0;const{shapeFlag:o}=e;if(t==null)t=null;else if(T(t))i=16;else if(typeof t=="object")if(o&65){const n=t.default;n&&(n._c&&(n._d=!1),mo(e,n()),n._c&&(n._d=!0));return}else{i=32;const n=t._;!n&&!En(t)?t._ctx=he:n===3&&he&&(he.slots._===1?t._=1:(t._=2,e.patchFlag|=1024))}else N(t)?(t={default:t,_ctx:he},i=32):(t=String(t),o&64?(i=16,t=[te(t)]):i=8);e.children=t,e.shapeFlag|=i}function da(...e){const t={};for(let i=0;i<e.length;i++){const o=e[i];for(const n in o)if(n==="class")t.class!==o.class&&(t.class=_t([t.class,o.class]));else if(n==="style")t.style=Fi([t.style,o.style]);else if(ti(n)){const r=t[n],s=o[n];s&&r!==s&&!(T(r)&&r.includes(s))?t[n]=r?[].concat(r,s):s:s==null&&r==null&&!ii(n)&&(t[n]=s)}else n!==""&&(t[n]=o[n])}return t}function Fe(e,t,i,o=null){Ae(e,t,7,[i,o])}const ua=An();let fa=0;function pa(e,t,i){const o=e.type,n=(t?t.appContext:e.appContext)||ua,r={uid:fa++,vnode:e,type:o,parent:t,appContext:n,root:null,next:null,subTree:null,effect:null,update:null,job:null,scope:new Pr(!0),render:null,proxy:null,exposed:null,exposeProxy:null,withProxy:null,provides:t?t.provides:Object.create(n.provides),ids:t?t.ids:["",0,0],accessCache:null,renderCache:[],components:null,directives:null,propsOptions:Pn(o,n),emitsOptions:In(o,n),emit:null,emitted:null,propsDefaults:K,inheritAttrs:o.inheritAttrs,ctx:K,data:K,props:K,attrs:K,slots:K,refs:K,setupState:K,setupContext:null,suspense:i,suspenseId:i?i.pendingId:0,asyncDep:null,asyncResolved:!1,isMounted:!1,isUnmounted:!1,isDeactivated:!1,bc:null,c:null,bm:null,m:null,bu:null,u:null,um:null,bum:null,da:null,a:null,rtg:null,rtc:null,ec:null,sp:null};return r.ctx={_:r},r.root=t?t.root:r,r.emit=Gs.bind(null,r),e.ce&&e.ce(r),r}let ue=null;const ma=()=>ue||he;let Si,ho;{const e=li(),t=(i,o)=>{let n;return(n=e[i])||(n=e[i]=[]),n.push(o),r=>{n.length>1?n.forEach(s=>s(r)):n[0](r)}};Si=t("__VUE_INSTANCE_SETTERS__",i=>ue=i),ho=t("__VUE_SSR_SETTERS__",i=>qt=i)}const $t=e=>{const t=ue;return Si(e),e.scope.on(),()=>{e.scope.off(),Si(t)}},$n=()=>{ue&&ue.scope.off(),Si(null)};function qn(e){return e.vnode.shapeFlag&4}let qt=!1;function ha(e,t=!1,i=!1){t&&ho(t);const{props:o,children:n}=e.vnode,r=qn(e);Ys(e,o,r,t),ea(e,n,i||t);const s=r?ga(e,t):void 0;return t&&ho(!1),s}function ga(e,t){const i=e.type;e.accessCache=Object.create(null),e.proxy=new Proxy(e.ctx,Fs);const{setup:o}=i;if(o){Re();const n=e.setupContext=o.length>1?va(e):null,r=$t(e),s=Ct(o,e,0,[e.props,n]),a=Io(s);if(je(),r(),(a||e.sp)&&!Ht(e)&&dn(e),a){if(s.then($n,$n),t)return s.then(c=>{Jn(e,c)}).catch(c=>{gi(c,e,0)});e.asyncDep=s}else Jn(e,s)}else Yn(e)}function Jn(e,t,i){N(t)?e.type.__ssrInlineRender?e.ssrRender=t:e.render=t:U(t)&&(e.setupState=Qo(t)),Yn(e)}function Yn(e,t,i){const o=e.type;e.render||(e.render=o.render||Me);{const n=$t(e);Re();try{Vs(e)}finally{je(),n()}}}const ba={get(e,t){return ce(e,"get",""),e[t]}};function va(e){const t=i=>{e.exposed=i||{}};return{attrs:new Proxy(e.attrs,ba),slots:e.slots,emit:e.emit,expose:t}}function Mi(e){return e.exposed?e.exposeProxy||(e.exposeProxy=new Proxy(Qo(Qr(e.exposed)),{get(t,i){if(i in t)return t[i];if(i in Lt)return Lt[i](e)},has(t,i){return i in t||i in Lt}})):e.proxy}const _a=/(?:^|[-_])\w/g,xa=e=>e.replace(_a,t=>t.toUpperCase()).replace(/[-_]/g,"");function Xn(e,t=!0){return N(e)?e.displayName||e.name:e.name||t&&e.__name}function Zn(e,t,i=!1){let o=Xn(t);if(!o&&t.__file){const n=t.__file.match(/([^/\\]+)\.\w+$/);n&&(o=n[1])}if(!o&&e){const n=r=>{for(const s in r)if(r[s]===t)return s};o=n(e.components)||e.parent&&n(e.parent.type.components)||n(e.appContext.components)}return o?xa(o):i?"App":"Anonymous"}function ya(e){return N(e)&&"__vccOpts"in e}const Ca=(e,t)=>is(e,t,qt),wa="3.5.35";/**
-* @vue/runtime-dom v3.5.35
-* (c) 2018-present Yuxi (Evan) You and Vue contributors
-* @license MIT
-**/let go;const Qn=typeof window<"u"&&window.trustedTypes;if(Qn)try{go=Qn.createPolicy("vue",{createHTML:e=>e})}catch{}const er=go?e=>go.createHTML(e):e=>e,Aa="http://www.w3.org/2000/svg",Ia="http://www.w3.org/1998/Math/MathML",Ye=typeof document<"u"?document:null,tr=Ye&&Ye.createElement("template"),Sa={insert:(e,t,i)=>{t.insertBefore(e,i||null)},remove:e=>{const t=e.parentNode;t&&t.removeChild(e)},createElement:(e,t,i,o)=>{const n=t==="svg"?Ye.createElementNS(Aa,e):t==="mathml"?Ye.createElementNS(Ia,e):i?Ye.createElement(e,{is:i}):Ye.createElement(e);return e==="select"&&o&&o.multiple!=null&&n.setAttribute("multiple",o.multiple),n},createText:e=>Ye.createTextNode(e),createComment:e=>Ye.createComment(e),setText:(e,t)=>{e.nodeValue=t},setElementText:(e,t)=>{e.textContent=t},parentNode:e=>e.parentNode,nextSibling:e=>e.nextSibling,querySelector:e=>Ye.querySelector(e),setScopeId(e,t){e.setAttribute(t,"")},insertStaticContent(e,t,i,o,n,r){const s=i?i.previousSibling:t.lastChild;if(n&&(n===r||n.nextSibling))for(;t.insertBefore(n.cloneNode(!0),i),!(n===r||!(n=n.nextSibling)););else{tr.innerHTML=er(o==="svg"?`<svg>${e}</svg>`:o==="mathml"?`<math>${e}</math>`:e);const a=tr.content;if(o==="svg"||o==="mathml"){const c=a.firstChild;for(;c.firstChild;)a.appendChild(c.firstChild);a.removeChild(c)}t.insertBefore(a,i)}return[s?s.nextSibling:t.firstChild,i?i.previousSibling:t.lastChild]}},Ma=Symbol("_vtc");function Ta(e,t,i){const o=e[Ma];o&&(t=(t?[t,...o]:[...o]).join(" ")),t==null?e.removeAttribute("class"):i?e.setAttribute("class",t):e.className=t}const ir=Symbol("_vod"),Ra=Symbol("_vsh"),ja=Symbol(""),Ea=/(?:^|;)\s*display\s*:/;function Oa(e,t,i){const o=e.style,n=X(i);let r=!1;if(i&&!n){if(t)if(X(t))for(const s of t.split(";")){const a=s.slice(0,s.indexOf(":")).trim();i[a]==null&&Jt(o,a,"")}else for(const s in t)i[s]==null&&Jt(o,s,"");for(const s in i){s==="display"&&(r=!0);const a=i[s];a!=null?Na(e,s,!X(t)&&t?t[s]:void 0,a)||Jt(o,s,a):Jt(o,s,"")}}else if(n){if(t!==i){const s=o[ja];s&&(i+=";"+s),o.cssText=i,r=Ea.test(i)}}else t&&e.removeAttribute("style");ir in e&&(e[ir]=r?o.display:"",e[Ra]&&(o.display="none"))}const or=/\s*!important$/;function Jt(e,t,i){if(T(i))i.forEach(o=>Jt(e,t,o));else if(i==null&&(i=""),t.startsWith("--"))e.setProperty(t,i);else{const o=Pa(e,t);or.test(i)?e.setProperty(xe(o),i.replace(or,""),"important"):e[o]=i}}const nr=["Webkit","Moz","ms"],bo={};function Pa(e,t){const i=bo[t];if(i)return i;let o=ne(t);if(o!=="filter"&&o in e)return bo[t]=o;o=ri(o);for(let n=0;n<nr.length;n++){const r=nr[n]+o;if(r in e)return bo[t]=r}return t}function Na(e,t,i,o){return e.tagName==="TEXTAREA"&&(t==="width"||t==="height")&&X(o)&&i===o}const rr="http://www.w3.org/1999/xlink";function sr(e,t,i,o,n,r=Er(t)){o&&t.startsWith("xlink:")?i==null?e.removeAttributeNS(rr,t.slice(6,t.length)):e.setAttributeNS(rr,t,i):i==null||r&&!jo(i)?e.removeAttribute(t):e.setAttribute(t,r?"":Te(i)?String(i):i)}function ar(e,t,i,o,n){if(t==="innerHTML"||t==="textContent"){i!=null&&(e[t]=t==="innerHTML"?er(i):i);return}const r=e.tagName;if(t==="value"&&r!=="PROGRESS"&&!r.includes("-")){const a=r==="OPTION"?e.getAttribute("value")||"":e.value,c=i==null?e.type==="checkbox"?"on":"":String(i);(a!==c||!("_value"in e))&&(e.value=c),i==null&&e.removeAttribute(t),e._value=i;return}let s=!1;if(i===""||i==null){const a=typeof e[t];a==="boolean"?i=jo(i):i==null&&a==="string"?(i="",s=!0):a==="number"&&(i=0,s=!0)}try{e[t]=i}catch{}s&&e.removeAttribute(n||t)}function Xe(e,t,i,o){e.addEventListener(t,i,o)}function Fa(e,t,i,o){e.removeEventListener(t,i,o)}const lr=Symbol("_vei");function Va(e,t,i,o,n=null){const r=e[lr]||(e[lr]={}),s=r[t];if(o&&s)s.value=o;else{const[a,c]=Da(t);if(o){const p=r[t]=za(o,n);Xe(e,a,p,c)}else s&&(Fa(e,a,s,c),r[t]=void 0)}}const cr=/(?:Once|Passive|Capture)$/;function Da(e){let t;if(cr.test(e)){t={};let o;for(;o=e.match(cr);)e=e.slice(0,e.length-o[0].length),t[o[0].toLowerCase()]=!0}return[e[2]===":"?e.slice(3):xe(e.slice(2)),t]}let vo=0;const ka=Promise.resolve(),Ba=()=>vo||(ka.then(()=>vo=0),vo=Date.now());function za(e,t){const i=o=>{if(!o._vts)o._vts=Date.now();else if(o._vts<=i.attached)return;const n=i.value;if(T(n)){const r=o.stopImmediatePropagation;o.stopImmediatePropagation=()=>{r.call(o),o._stopped=!0};const s=n.slice(),a=[o];for(let c=0;c<s.length&&!o._stopped;c++){const p=s[c];p&&Ae(p,t,5,a)}}else Ae(n,t,5,[o])};return i.value=e,i.attached=Ba(),i}const dr=e=>e.charCodeAt(0)===111&&e.charCodeAt(1)===110&&e.charCodeAt(2)>96&&e.charCodeAt(2)<123,Ha=(e,t,i,o,n,r)=>{const s=n==="svg";t==="class"?Ta(e,o,s):t==="style"?Oa(e,i,o):ti(t)?ii(t)||Va(e,t,i,o,r):(t[0]==="."?(t=t.slice(1),!0):t[0]==="^"?(t=t.slice(1),!1):La(e,t,o,s))?(ar(e,t,o),!e.tagName.includes("-")&&(t==="value"||t==="checked"||t==="selected")&&sr(e,t,o,s,r,t!=="value")):e._isVueCE&&(Ua(e,t)||e._def.__asyncLoader&&(/[A-Z]/.test(t)||!X(o)))?ar(e,ne(t),o,r,t):(t==="true-value"?e._trueValue=o:t==="false-value"&&(e._falseValue=o),sr(e,t,o,s))};function La(e,t,i,o){if(o)return!!(t==="innerHTML"||t==="textContent"||t in e&&dr(t)&&N(i));if(t==="spellcheck"||t==="draggable"||t==="translate"||t==="autocorrect"||t==="sandbox"&&e.tagName==="IFRAME"||t==="form"||t==="list"&&e.tagName==="INPUT"||t==="type"&&e.tagName==="TEXTAREA")return!1;if(t==="width"||t==="height"){const n=e.tagName;if(n==="IMG"||n==="VIDEO"||n==="CANVAS"||n==="SOURCE")return!1}return dr(t)&&X(i)?!1:t in e}function Ua(e,t){const i=e._def.props;if(!i)return!1;const o=ne(t);return Array.isArray(i)?i.some(n=>ne(n)===o):Object.keys(i).some(n=>ne(n)===o)}const ur={};function Ga(e,t,i){let o=_s(e,t);oi(o)&&(o=ee({},o,t));class n extends _o{constructor(s){super(o,s,i)}}return n.def=o,n}const Wa=typeof HTMLElement<"u"?HTMLElement:class{};class _o extends Wa{constructor(t,i={},o=_r){super(),this._def=t,this._props=i,this._createApp=o,this._isVueCE=!0,this._instance=null,this._app=null,this._nonce=this._def.nonce,this._connected=!1,this._resolved=!1,this._patching=!1,this._dirty=!1,this._numberProps=null,this._styleChildren=new WeakSet,this._styleAnchors=new WeakMap,this._ob=null,this.shadowRoot&&o!==_r?this._root=this.shadowRoot:t.shadowRoot!==!1?(this.attachShadow(ee({},t.shadowRootOptions,{mode:"open"})),this._root=this.shadowRoot):this._root=this}connectedCallback(){if(!this.isConnected)return;!this.shadowRoot&&!this._resolved&&this._parseSlots(),this._connected=!0;let t=this;for(;t=t&&(t.assignedSlot||t.parentNode||t.host);)if(t instanceof _o){this._parent=t;break}this._instance||(this._resolved?this._mount(this._def):t&&t._pendingResolve?this._pendingResolve=t._pendingResolve.then(()=>{this._pendingResolve=void 0,this._resolveDef()}):this._resolveDef())}_setParent(t=this._parent){t&&(this._instance.parent=t._instance,this._inheritParentContext(t))}_inheritParentContext(t=this._parent){t&&this._app&&Object.setPrototypeOf(this._app._context.provides,t._instance.provides)}disconnectedCallback(){this._connected=!1,Zi(()=>{this._connected||(this._ob&&(this._ob.disconnect(),this._ob=null),this._app&&this._app.unmount(),this._instance&&(this._instance.ce=void 0),this._app=this._instance=null,this._teleportTargets&&(this._teleportTargets.clear(),this._teleportTargets=void 0))})}_processMutations(t){for(const i of t)this._setAttr(i.attributeName)}_resolveDef(){if(this._pendingResolve)return;for(let o=0;o<this.attributes.length;o++)this._setAttr(this.attributes[o].name);this._ob=new MutationObserver(this._processMutations.bind(this)),this._ob.observe(this,{attributes:!0});const t=(o,n=!1)=>{this._resolved=!0,this._pendingResolve=void 0;const{props:r,styles:s}=o;let a;if(r&&!T(r))for(const c in r){const p=r[c];(p===Number||p&&p.type===Number)&&(c in this._props&&(this._props[c]=To(this._props[c])),(a||(a=Object.create(null)))[ne(c)]=!0)}this._numberProps=a,this._resolveProps(o),this.shadowRoot&&this._applyStyles(s),this._mount(o)},i=this._def.__asyncLoader;i?this._pendingResolve=i().then(o=>{o.configureApp=this._def.configureApp,t(this._def=o,!0)}):t(this._def)}_mount(t){this._app=this._createApp(t),this._inheritParentContext(),t.configureApp&&t.configureApp(this._app),this._app._ceVNode=this._createVNode(),this._app.mount(this._root);const i=this._instance&&this._instance.exposed;if(i)for(const o in i)B(this,o)||Object.defineProperty(this,o,{get:()=>Zo(i[o])})}_resolveProps(t){const{props:i}=t,o=T(i)?i:Object.keys(i||{});for(const n of Object.keys(this))n[0]!=="_"&&o.includes(n)&&this._setProp(n,this[n]);for(const n of o.map(ne))Object.defineProperty(this,n,{get(){return this._getProp(n)},set(r){this._setProp(n,r,!0,!this._patching)}})}_setAttr(t){if(t.startsWith("data-v-"))return;const i=this.hasAttribute(t);let o=i?this.getAttribute(t):ur;const n=ne(t);i&&this._numberProps&&this._numberProps[n]&&(o=To(o)),this._setProp(n,o,!1,!0)}_getProp(t){return this._props[t]}_setProp(t,i,o=!0,n=!1){if(i!==this._props[t]&&(this._dirty=!0,i===ur?delete this._props[t]:(this._props[t]=i,t==="key"&&this._app&&(this._app._ceVNode.key=i)),n&&this._instance&&this._update(),o)){const r=this._ob;r&&(this._processMutations(r.takeRecords()),r.disconnect()),i===!0?this.setAttribute(xe(t),""):typeof i=="string"||typeof i=="number"?this.setAttribute(xe(t),i+""):i||this.removeAttribute(xe(t)),r&&r.observe(this,{attributes:!0})}}_update(){const t=this._createVNode();this._app&&(t.appContext=this._app._context),qa(t,this._root)}_createVNode(){const t={};this.shadowRoot||(t.onVnodeMounted=t.onVnodeUpdated=this._renderSlots.bind(this));const i=Pe(this._def,ee(t,this._props));return this._instance||(i.ce=o=>{this._instance=o,o.ce=this,o.isCE=!0;const n=(r,s)=>{this.dispatchEvent(new CustomEvent(r,oi(s[0])?ee({detail:s},s[0]):{detail:s}))};o.emit=(r,...s)=>{n(r,s),xe(r)!==r&&n(xe(r),s)},this._setParent()}),i}_applyStyles(t,i,o){if(!t)return;if(i){if(i===this._def||this._styleChildren.has(i))return;this._styleChildren.add(i)}const n=this._nonce,r=this.shadowRoot,s=o?this._getStyleAnchor(o)||this._getStyleAnchor(this._def):this._getRootStyleInsertionAnchor(r);let a=null;for(let c=t.length-1;c>=0;c--){const p=document.createElement("style");n&&p.setAttribute("nonce",n),p.textContent=t[c],r.insertBefore(p,a||s),a=p,c===0&&(o||this._styleAnchors.set(this._def,p),i&&this._styleAnchors.set(i,p))}}_getStyleAnchor(t){if(!t)return null;const i=this._styleAnchors.get(t);return i&&i.parentNode===this.shadowRoot?i:(i&&this._styleAnchors.delete(t),null)}_getRootStyleInsertionAnchor(t){for(let i=0;i<t.childNodes.length;i++){const o=t.childNodes[i];if(!(o instanceof HTMLStyleElement))return o}return null}_parseSlots(){const t=this._slots={};let i;for(;i=this.firstChild;){const o=i.nodeType===1&&i.getAttribute("slot")||"default";(t[o]||(t[o]=[])).push(i),this.removeChild(i)}}_renderSlots(){const t=this._getSlots(),i=this._instance.type.__scopeId;for(let o=0;o<t.length;o++){const n=t[o],r=n.getAttribute("name")||"default",s=this._slots[r],a=n.parentNode;if(s)for(const c of s){if(i&&c.nodeType===1){const p=i+"-s",f=document.createTreeWalker(c,1);c.setAttribute(p,"");let h;for(;h=f.nextNode();)h.setAttribute(p,"")}a.insertBefore(c,n)}else for(;n.firstChild;)a.insertBefore(n.firstChild,n);a.removeChild(n)}}_getSlots(){const t=[this];this._teleportTargets&&t.push(...this._teleportTargets);const i=new Set;for(const o of t){const n=o.querySelectorAll("slot");for(let r=0;r<n.length;r++)i.add(n[r])}return Array.from(i)}_injectChildStyle(t,i){this._applyStyles(t.styles,t,i)}_beginPatch(){this._patching=!0,this._dirty=!1}_endPatch(){this._patching=!1,this._dirty&&this._instance&&this._update()}_hasShadowRoot(){return this._def.shadowRoot!==!1}_removeChildStyle(t){}}const it=e=>{const t=e.props["onUpdate:modelValue"]||!1;return T(t)?i=>si(t,i):t};function Ka(e){e.target.composing=!0}function fr(e){const t=e.target;t.composing&&(t.composing=!1,t.dispatchEvent(new Event("input")))}const ye=Symbol("_assign");function pr(e,t,i){return t&&(e=e.trim()),i&&(e=ai(e)),e}const Ti={created(e,{modifiers:{lazy:t,trim:i,number:o}},n){e[ye]=it(n);const r=o||n.props&&n.props.type==="number";Xe(e,t?"change":"input",s=>{s.target.composing||e[ye](pr(e.value,i,r))}),(i||r)&&Xe(e,"change",()=>{e.value=pr(e.value,i,r)}),t||(Xe(e,"compositionstart",Ka),Xe(e,"compositionend",fr),Xe(e,"change",fr))},mounted(e,{value:t}){e.value=t??""},beforeUpdate(e,{value:t,oldValue:i,modifiers:{lazy:o,trim:n,number:r}},s){if(e[ye]=it(s),e.composing)return;const a=(r||e.type==="number")&&!/^0\d/.test(e.value)?ai(e.value):e.value,c=t??"";if(a===c)return;const p=e.getRootNode();(p instanceof Document||p instanceof ShadowRoot)&&p.activeElement===e&&e.type!=="range"&&(o&&t===i||n&&e.value.trim()===c)||(e.value=c)}},Yt={deep:!0,created(e,t,i){e[ye]=it(i),Xe(e,"change",()=>{const o=e._modelValue,n=Tt(e),r=e.checked,s=e[ye];if(T(o)){const a=Vi(o,n),c=a!==-1;if(r&&!c)s(o.concat(n));else if(!r&&c){const p=[...o];p.splice(a,1),s(p)}}else if(vt(o)){const a=new Set(o);r?a.add(n):a.delete(n),s(a)}else s(gr(e,r))})},mounted:mr,beforeUpdate(e,t,i){e[ye]=it(i),mr(e,t,i)}};function mr(e,{value:t,oldValue:i},o){e._modelValue=t;let n;if(T(t))n=Vi(t,o.props.value)>-1;else if(vt(t))n=t.has(o.props.value);else{if(t===i)return;n=Ze(t,gr(e,!0))}e.checked!==n&&(e.checked=n)}const Ve={created(e,{value:t},i){e.checked=Ze(t,i.props.value),e[ye]=it(i),Xe(e,"change",()=>{e[ye](Tt(e))})},beforeUpdate(e,{value:t,oldValue:i},o){e[ye]=it(o),t!==i&&(e.checked=Ze(t,o.props.value))}},xo={deep:!0,created(e,{value:t,modifiers:{number:i}},o){const n=vt(t);Xe(e,"change",()=>{const r=Array.prototype.filter.call(e.options,s=>s.selected).map(s=>i?ai(Tt(s)):Tt(s));e[ye](e.multiple?n?new Set(r):r:r[0]),e._assigning=!0,Zi(()=>{e._assigning=!1})}),e[ye]=it(o)},mounted(e,{value:t}){hr(e,t)},beforeUpdate(e,t,i){e[ye]=it(i)},updated(e,{value:t}){e._assigning||hr(e,t)}};function hr(e,t){const i=e.multiple,o=T(t);if(!(i&&!o&&!vt(t))){for(let n=0,r=e.options.length;n<r;n++){const s=e.options[n],a=Tt(s);if(i)if(o){const c=typeof a;c==="string"||c==="number"?s.selected=t.some(p=>String(p)===String(a)):s.selected=Vi(t,a)>-1}else s.selected=t.has(a);else if(Ze(Tt(s),t)){e.selectedIndex!==n&&(e.selectedIndex=n);return}}!i&&e.selectedIndex!==-1&&(e.selectedIndex=-1)}}function Tt(e){return"_value"in e?e._value:e.value}function gr(e,t){const i=t?"_trueValue":"_falseValue";return i in e?e[i]:t}const $a=ee({patchProp:Ha},Sa);let br;function vr(){return br||(br=ia($a))}const qa=((...e)=>{vr().render(...e)}),_r=((...e)=>{const t=vr().createApp(...e),{mount:i}=t;return t.mount=o=>{const n=Ya(o);if(!n)return;const r=t._component;!N(r)&&!r.render&&!r.template&&(r.template=n.innerHTML),n.nodeType===1&&(n.textContent="");const s=i(n,!1,Ja(n));return n instanceof Element&&(n.removeAttribute("v-cloak"),n.setAttribute("data-v-app","")),s},t});function Ja(e){if(e instanceof SVGElement)return"svg";if(typeof MathMLElement=="function"&&e instanceof MathMLElement)return"mathml"}function Ya(e){return X(e)?document.querySelector(e):e}const Xa=".simulador-arriendo[data-v-0d4ca615]{--sim-primary: #374151;--sim-dark: #1f2937;--sim-muted: #6b7280;--sim-border: #e5e7eb;--sim-bg: #f8fafc;--sim-warning: #b45309;--sim-success: #047857;background:#fff;border:1px solid #edf0f3;border-radius:20px;box-shadow:0 18px 42px #0f172a0d;color:var(--sim-dark);padding:16px}.sim-header[data-v-0d4ca615],.sim-brand[data-v-0d4ca615],.sim-layout[data-v-0d4ca615],.section-head[data-v-0d4ca615],.grid[data-v-0d4ca615],.inline-badges[data-v-0d4ca615]{display:flex;gap:16px}.sim-header[data-v-0d4ca615],.section-head-results[data-v-0d4ca615],.section-head[data-v-0d4ca615]{align-items:center;justify-content:space-between}.sim-actions-bottom[data-v-0d4ca615]{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}.sim-nota-pie[data-v-0d4ca615]{border-top:1px solid #e5e7eb;color:#6b7280;font-size:12px;font-style:italic;margin-top:14px;padding-top:10px}.sim-brand[data-v-0d4ca615]{align-items:center}.sim-logo[data-v-0d4ca615]{max-height:58px;max-width:140px;object-fit:contain}.sim-kicker[data-v-0d4ca615]{color:var(--sim-primary);font-size:12px;font-weight:700;letter-spacing:.08em;margin:0 0 2px;text-transform:uppercase}.sim-header h2[data-v-0d4ca615]{margin:0;font-size:30px}.sim-subtitle[data-v-0d4ca615],.field-help[data-v-0d4ca615]{color:var(--sim-muted)}.sim-layout[data-v-0d4ca615]{display:flex;flex-direction:column;gap:12px;margin-top:12px}.sim-form-strip[data-v-0d4ca615]{padding:10px}.strip-grid[data-v-0d4ca615]{display:grid;gap:8px;grid-template-columns:repeat(3,minmax(0,1fr))}.strip-block[data-v-0d4ca615]{min-width:0}.strip-block-wide[data-v-0d4ca615]{grid-column:1 / -1}.strip-block-span2[data-v-0d4ca615]{grid-column:span 2}.sim-results[data-v-0d4ca615]{display:flex;flex-direction:column;gap:10px}.card[data-v-0d4ca615],.card-soft[data-v-0d4ca615],.subcard[data-v-0d4ca615],.summary-card[data-v-0d4ca615],.sim-diagnostics[data-v-0d4ca615]{background:#fffffff2;border:1px solid #edf0f3;border-radius:16px;margin-bottom:0;padding:12px}.card-soft[data-v-0d4ca615]{background:#fbfcfd}.section-step[data-v-0d4ca615]{align-items:center;background:#3741511a;border-radius:10px;color:var(--sim-primary);display:inline-flex;font-size:13px;font-weight:700;height:28px;justify-content:center;width:32px}.section-head h3[data-v-0d4ca615],.subcard h4[data-v-0d4ca615]{margin:0}.section-head[data-v-0d4ca615]{border-bottom:1px solid #f1f5f9;margin-bottom:8px;padding-bottom:7px}.grid[data-v-0d4ca615]{flex-wrap:wrap}.grid-2[data-v-0d4ca615]>*,.grid-3[data-v-0d4ca615]>*{flex:1 1 0;min-width:140px}.field[data-v-0d4ca615]{display:flex;flex-direction:column;gap:4px;margin-bottom:6px}.field label[data-v-0d4ca615]{font-size:13px;font-weight:600}.label-hint[data-v-0d4ca615]{color:var(--sim-primary);font-size:12px;font-weight:400;margin-left:6px}.field input[data-v-0d4ca615],.field select[data-v-0d4ca615]{background:#fff;border:1px solid #dbe1e8;border-radius:10px;color:var(--sim-dark);min-height:34px;padding:5px 8px}.field input[data-v-0d4ca615]:focus,.field select[data-v-0d4ca615]:focus{border-color:var(--sim-primary);box-shadow:0 0 0 3px #6b728026;outline:none}.checkbox-field label[data-v-0d4ca615],.toggle-card[data-v-0d4ca615]{align-items:center;display:flex;gap:10px}.toggle-list[data-v-0d4ca615]{display:flex;flex-direction:column;gap:8px}.toggle-card[data-v-0d4ca615]{background:#fff;border:1px solid #e8edf3;border-radius:12px;padding:7px 10px}.nested-field[data-v-0d4ca615]{margin-left:10px}.btn[data-v-0d4ca615]{border:0;border-radius:12px;cursor:pointer;font-size:14px;font-weight:700;min-height:38px;padding:8px 12px}.btn-primary[data-v-0d4ca615]{background:var(--sim-primary);color:#fff}.btn-secondary[data-v-0d4ca615]{background:var(--sim-dark);color:#fff}.btn-danger[data-v-0d4ca615]{background:#b418181a;color:#9f1239}.btn-small[data-v-0d4ca615]{align-self:flex-end;min-height:34px;padding:8px 12px}.accordion-trigger[data-v-0d4ca615]{background:none;border:0;color:var(--sim-dark);cursor:pointer;display:flex;font-size:16px;font-weight:700;justify-content:space-between;padding:0;width:100%}.accordion-body[data-v-0d4ca615],.stack[data-v-0d4ca615]{display:flex;flex-direction:column;gap:10px;margin-top:10px}.summary-strip[data-v-0d4ca615]{border:1px solid #edf0f3;border-radius:14px;display:flex;overflow:hidden}.summary-item[data-v-0d4ca615]{display:flex;flex:1;flex-direction:column;gap:2px;padding:8px 10px}.summary-item+.summary-item[data-v-0d4ca615]{border-left:1px solid #edf0f3}.summary-item-highlight[data-v-0d4ca615]{background:var(--sim-primary);color:#fff}.summary-item-label[data-v-0d4ca615]{font-size:11px;font-weight:600;letter-spacing:.04em;opacity:.75;text-transform:uppercase}.summary-item-value[data-v-0d4ca615]{font-size:17px;font-weight:700;line-height:1.2}.badge[data-v-0d4ca615]{border-radius:999px;display:inline-flex;font-size:12px;font-weight:700;padding:6px 10px}.badge-neutral[data-v-0d4ca615]{background:#6b72801f;color:var(--sim-muted)}.badge-warning[data-v-0d4ca615]{background:#b453091f;color:var(--sim-warning)}.table-wrapper[data-v-0d4ca615]{overflow-x:auto}.results-table-wrapper[data-v-0d4ca615]{border:1px solid #e6ebf1;border-radius:16px;padding:6px}.results-table[data-v-0d4ca615]{min-width:1020px}.results-cell-label[data-v-0d4ca615]{width:38%}.results-cell-value[data-v-0d4ca615]{font-weight:700;text-align:right;white-space:nowrap;width:12%}table[data-v-0d4ca615]{border-collapse:collapse;width:100%}th[data-v-0d4ca615],td[data-v-0d4ca615]{border-bottom:1px solid #edf1f5;padding:8px 10px;text-align:left;vertical-align:top}th[data-v-0d4ca615]{background:var(--sim-dark);color:#fff;font-size:13px;letter-spacing:.04em}.row-total td[data-v-0d4ca615]{background:#f8fafc}.row-grand-total td[data-v-0d4ca615]{background:var(--sim-dark);color:#fff}.plain-list[data-v-0d4ca615]{margin:0;padding-left:18px}.line-editor[data-v-0d4ca615]{border:1px dashed var(--sim-border);border-radius:14px;padding:10px}.card-warning[data-v-0d4ca615]{border-color:#b453094d}@media(max-width:900px){.strip-grid[data-v-0d4ca615]{grid-template-columns:1fr 1fr}.strip-block-span2[data-v-0d4ca615]{grid-column:1 / -1}.summary-grid[data-v-0d4ca615]{grid-template-columns:1fr}}@media(max-width:720px){.simulador-arriendo[data-v-0d4ca615]{padding:16px}.sim-header[data-v-0d4ca615],.sim-brand[data-v-0d4ca615],.sim-actions[data-v-0d4ca615]{align-items:flex-start;flex-direction:column}.summary-grid[data-v-0d4ca615],.strip-grid[data-v-0d4ca615]{grid-template-columns:1fr}.results-table[data-v-0d4ca615]{min-width:720px}}",yo=(e,t)=>{const i=e.__vccOpts||e;for(const[o,n]of t)i[o]=n;return i},Za=new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}),Qa={name:"SimuladorArriendo",props:{configuracion:{type:Object,default:()=>({})},logo:{type:String,default:""}},data(){const e=this.normalizarConfiguracion(this.configuracion);return{tipoInmuebleOpciones:[{value:"vivienda",text:"Vivienda"},{value:"local_comercial",text:"Local comercial"},{value:"oficina",text:"Oficina"},{value:"consultorio",text:"Consultorio"},{value:"bodega",text:"Bodega"},{value:"parqueadero",text:"Parqueadero"},{value:"otro",text:"Otro"}],seguroBaseOpciones:["canon","canon_mas_administracion","canon_mas_iva","canon_mas_administracion_mas_iva"],ui:{showAdvanced:!!e.interfaz.expandirOpcionesAvanzadasPorDefecto},form:this.buildInitialForm(e)}},computed:{normalizedConfig(){return this.normalizarConfiguracion(this.configuracion)},resolvedLogo(){return this.logo||this.normalizedConfig.logo||""},grupoTributarioInmueble(){return this.resolverGrupoTributarioInmueble()},grupoTributarioLabel(){return{vivienda:"Vivienda",comercial:"Comercial",validar:"Validar manualmente"}[this.grupoTributarioInmueble]},notaPie(){return(this.configuracion.notaPie||"").trim()},mostrarBloqueIvaCanon(){return this.grupoTributarioInmueble!=="vivienda"},ivaCanonActivo(){return this.grupoTributarioInmueble==="comercial"?this.form.regimenPropietario==="responsable_iva"||this.form.propietarioResponsableIva:this.grupoTributarioInmueble==="validar"?this.form.aplicaIvaCanonManual||this.form.regimenPropietario==="responsable_iva":!1},calc(){const e=this.calcularIvaCanon(),t=this.calcularComision(e),i=this.calcularIvaComision(t),o=this.calcularSeguro(e),n=this.calcularGastosBancarios(e),r=this.calcularRetencionFuente(),s=this.calcularReteIca(),a=this.calcularReteIva(e),c=this.calcularOtrosDescuentos(),p=this.safeMoney(this.form.canon+e),f=this.safeMoney(t+i+o+n+r+s+a+c);return{canon:this.safeMoney(this.form.canon),administracion:this.form.tieneAdministracion?this.safeMoney(this.form.valorAdministracion):0,ivaCanon:e,totalIngresos:p,valorComision:t,ivaComision:i,valorSeguro:o,gastosBancarios:n,retencionFuente:r,retencionIca:s,retencionIva:a,otrosDescuentos:c,totalDescuentos:f,valorRentaRecibir:this.safeMoney(p-f)}},ingresosRows(){const e=[{label:"Canon de arrendamiento",value:this.calc.canon}];if(this.ivaCanonActivo){const t=this.normalizedConfig.porcentajeIva;e.push({label:`IVA ${t}% sobre canon (inmueble comercial / régimen común)`,value:this.calc.ivaCanon})}return e},descuentosRows(){const e=[],t=this.normalizedConfig.porcentajeIva;if(this.form.comision.activa&&this.calc.valorComision>0&&(e.push({label:"Comisión inmobiliaria",value:this.calc.valorComision}),this.form.comision.aplicaIva&&this.calc.ivaComision>0&&e.push({label:`IVA sobre comisión (${t}%)`,value:this.calc.ivaComision})),this.form.aplicarSeguro&&this.calc.valorSeguro>0&&e.push({label:"Seguro / póliza de arrendamiento",value:this.calc.valorSeguro}),this.form.aplicarGastosBancarios&&this.calc.gastosBancarios>0&&e.push({label:"Gastos bancarios",value:this.calc.gastosBancarios}),this.form.condicionesTributarias.aplicarRetencionFuente&&this.calc.retencionFuente>0){const i=this.form.retenciones.fuente.porcentaje;e.push({label:`Retención en la fuente (${i}%) sobre arrendamiento`,value:this.calc.retencionFuente})}if(this.form.condicionesTributarias.aplicarRetencionIca&&this.calc.retencionIca>0){const i=this.form.retenciones.ica.tarifaPorMil;e.push({label:`ReteICA (${i}/1000) sobre arrendamiento`,value:this.calc.retencionIca})}return this.form.condicionesTributarias.aplicarRetencionIva&&this.ivaCanonActivo&&this.calc.retencionIva>0&&e.push({label:`Retención de IVA (${t}%)`,value:this.calc.retencionIva}),e},resultadoFilas(){const e=Math.max(this.ingresosRows.length,this.descuentosRows.length);return Array.from({length:e},(t,i)=>({ingreso:this.ingresosRows[i]||null,descuento:this.descuentosRows[i]||null}))},errores(){return this.validarFormulario()},canPrint(){return this.errores.length===0}},watch:{configuracion:{deep:!0,handler(){this.syncFormWithConfig(this.normalizedConfig)}},"form.tipoInmueble"(){this.reiniciarCamposCondicionales()},"form.tieneAdministracion"(){this.reiniciarCamposCondicionales()},"form.aplicarSeguro"(){this.reiniciarCamposCondicionales()},"form.aplicarGastosBancarios"(){this.reiniciarCamposCondicionales()},"form.condicionesTributarias.aplicarRetencionFuente"(){this.reiniciarCamposCondicionales()},"form.condicionesTributarias.aplicarRetencionIca"(){this.reiniciarCamposCondicionales()},"form.condicionesTributarias.aplicarRetencionIva"(){this.reiniciarCamposCondicionales()},"form.regimenPropietario"(e){e==="responsable_iva"?(this.form.propietarioResponsableIva=!0,this.form.aplicaIvaCanonManual=!0):e==="no_responsable"&&(this.form.propietarioResponsableIva=!1,this.form.aplicaIvaCanonManual=!1)},"form.regimenArrendatario"(e){e==="responsable_iva"?(this.form.condicionesTributarias.aplicarRetencionFuente=!0,this.form.condicionesTributarias.aplicarRetencionIca=!0):e==="no_responsable"&&(this.form.condicionesTributarias.aplicarRetencionFuente=!1,this.form.condicionesTributarias.aplicarRetencionIca=!1)}},mounted(){},methods:{buildInitialForm(e){return{tipoInmueble:"vivienda",canon:0,tieneAdministracion:!!e.administracion.activaPorDefecto,valorAdministracion:0,incluirAdministracionEnBaseComision:!!e.administracion.incluirEnBaseComision,incluirAdministracionEnBaseSeguro:!!e.administracion.incluirEnBaseSeguro,regimenPropietario:"",regimenArrendatario:"",propietarioResponsableIva:!1,aplicaIvaCanonManual:!1,condicionesTributarias:{aplicarRetencionFuente:!!e.retenciones.fuente.activaPorDefecto,aplicarRetencionIca:!!e.retenciones.ica.activaPorDefecto,aplicarRetencionIva:!!e.retenciones.iva.activaPorDefecto},retenciones:{fuente:{porcentaje:this.normalizarNumero(e.retenciones.fuente.porcentaje)},ica:{tarifaPorMil:this.normalizarNumero(e.retenciones.ica.tarifaPorMil)},iva:{porcentaje:this.normalizarNumero(e.retenciones.iva.porcentaje)}},comision:{activa:e.comision.activa!==!1,modalidad:e.comision.modalidad||"porcentaje_con_minimo",porcentaje:this.normalizarNumero(e.comision.porcentaje),valorMinimo:this.normalizarNumero(e.comision.valorMinimo),aplicaIva:!!e.comision.aplicaIva},aplicarSeguro:!!e.seguro.activoPorDefecto,seguro:{modalidad:e.seguro.modalidad||"porcentaje",porcentaje:this.normalizarNumero(e.seguro.porcentaje),valorFijo:this.normalizarNumero(e.seguro.valorFijo),base:e.seguro.base||"canon_mas_administracion_mas_iva"},aplicarGastosBancarios:!!e.gastosBancarios.activosPorDefecto,gastosBancarios:{modalidad:e.gastosBancarios.modalidad||"cuatro_por_mil",porcentaje:this.normalizarNumero(e.gastosBancarios.porcentaje,.004),valorFijo:this.normalizarNumero(e.gastosBancarios.valorFijo),base:e.gastosBancarios.base||"canon_mas_administracion"},mostrarOtrosDescuentos:!1,otrosDescuentos:[]}},syncFormWithConfig(e){this.form.incluirAdministracionEnBaseComision=!!e.administracion.incluirEnBaseComision,this.form.incluirAdministracionEnBaseSeguro=!!e.administracion.incluirEnBaseSeguro,this.form.comision.aplicaIva=!!e.comision.aplicaIva},normalizarNumero(e,t=0){const i=Number(e);return Number.isFinite(i)?Math.max(0,i):t},safeMoney(e){const t=Number(e);return Number.isFinite(t)?Math.max(0,Math.round(t)):0},normalizarConfiguracion(e){var h,A,S,D,j,Y,H,V,G,E,Q,Ie,be,Se,ut,De,ot,ft,pt,Rt,Xt,se,J,L,ke,mt,Be,ve,Zt,Ri,ji,nt,ht,jt,Qt,rt,Co,d,u;const t=e||{},i=(m,v,g)=>v!=null?!!v:t[m]!==void 0?String(t[m])==="1":g,o=this.normalizarNumero(t.porcentajeIva??((h=t.valoresTributarios)==null?void 0:h.porcentajeIvaGeneral),19),n=this.normalizarNumero(((A=t.comision)==null?void 0:A.porcentaje)??t.comisionTotalInmobiliaria,9.5),r=this.normalizarNumero(((S=t.comision)==null?void 0:S.valorMinimo)??t.comisionMinimaInmobiliaria,0),s=this.normalizarNumero(((D=t.seguro)==null?void 0:D.porcentaje)??t.seguroCanonArrendamiento,2.5),a=this.normalizarNumero(((j=t.gastosBancarios)==null?void 0:j.valorFijo)??t.costoBancarioFijo,0),c=this.normalizarNumero(((H=(Y=t.retenciones)==null?void 0:Y.fuente)==null?void 0:H.porcentaje)??t.porcentajeRetencionFuente,0),p=this.normalizarNumero(((G=(V=t.retenciones)==null?void 0:V.ica)==null?void 0:G.tarifaPorMil)??t.porcentajeRetencionIca,0),f=this.normalizarNumero(((Q=(E=t.retenciones)==null?void 0:E.iva)==null?void 0:Q.porcentaje)??t.porcentajeRetencionIVA,0);return{porcentajeIva:o,logo:((Ie=t.inmobiliaria)==null?void 0:Ie.logo)||"",comision:{activa:i("comisionActiva",(be=t.comision)==null?void 0:be.activa,!0),modalidad:((Se=t.comision)==null?void 0:Se.modalidad)||t.comisionModalidad||"porcentaje_con_minimo",porcentaje:n,valorMinimo:r,incluirAdministracionEnBase:((ut=t.comision)==null?void 0:ut.incluirAdministracionEnBase)??((De=t.administracion)==null?void 0:De.incluirEnBaseComision)??!0,aplicaIva:i("comisionAplicaIva",(ot=t.comision)==null?void 0:ot.aplicaIva,!0)},administracion:{activaPorDefecto:((ft=t.administracion)==null?void 0:ft.activaPorDefecto)??!1,incluirEnBaseComision:i("incluirAdministracionEnBaseComision",(pt=t.administracion)==null?void 0:pt.incluirEnBaseComision,!0),incluirEnBaseSeguro:i("incluirAdministracionEnBaseSeguro",(Rt=t.administracion)==null?void 0:Rt.incluirEnBaseSeguro,!0),incluirEnBaseGastosBancarios:((Xt=t.administracion)==null?void 0:Xt.incluirEnBaseGastosBancarios)??!0},seguro:{activoPorDefecto:i("seguroActivo",(se=t.seguro)==null?void 0:se.activoPorDefecto,!0),modalidad:((J=t.seguro)==null?void 0:J.modalidad)||t.seguroModalidad||"porcentaje",porcentaje:s,valorFijo:this.normalizarNumero(((L=t.seguro)==null?void 0:L.valorFijo)??t.seguroValorFijo,0),base:((ke=t.seguro)==null?void 0:ke.base)||t.seguroBase||"canon_mas_administracion_mas_iva",ivaIncluido:((mt=t.seguro)==null?void 0:mt.ivaIncluido)??!0},gastosBancarios:{activosPorDefecto:i("gastosBancariosActivos",(Be=t.gastosBancarios)==null?void 0:Be.activosPorDefecto,!0),modalidad:((ve=t.gastosBancarios)==null?void 0:ve.modalidad)||t.gastosBancariosModalidad||(a>0?"valor_fijo":"cuatro_por_mil"),porcentaje:this.normalizarNumero((Zt=t.gastosBancarios)==null?void 0:Zt.porcentaje,.004),valorFijo:a,base:((Ri=t.gastosBancarios)==null?void 0:Ri.base)||"canon_mas_administracion"},retenciones:{fuente:{activaPorDefecto:i("retencionFuenteActiva",(nt=(ji=t.retenciones)==null?void 0:ji.fuente)==null?void 0:nt.activaPorDefecto,!0),porcentaje:c},ica:{activaPorDefecto:i("retencionIcaActiva",(jt=(ht=t.retenciones)==null?void 0:ht.ica)==null?void 0:jt.activaPorDefecto,!0),tarifaPorMil:p},iva:{activaPorDefecto:i("retencionIvaActiva",(rt=(Qt=t.retenciones)==null?void 0:Qt.iva)==null?void 0:rt.activaPorDefecto,!1),porcentaje:f}},interfaz:{mostrarOtrosDescuentos:((Co=t.interfaz)==null?void 0:Co.mostrarOtrosDescuentos)??!0,mostrarOpcionesAvanzadas:((d=t.interfaz)==null?void 0:d.mostrarOpcionesAvanzadas)??!0,expandirOpcionesAvanzadasPorDefecto:((u=t.interfaz)==null?void 0:u.expandirOpcionesAvanzadasPorDefecto)??!1}}},resolverGrupoTributarioInmueble(){return this.form.tipoInmueble==="vivienda"?"vivienda":["local_comercial","oficina","consultorio","bodega"].includes(this.form.tipoInmueble)?"comercial":"validar"},calcularBaseComision(e=0){let t=this.normalizarNumero(this.form.canon);return this.form.tieneAdministracion&&this.form.incluirAdministracionEnBaseComision&&(t+=this.normalizarNumero(this.form.valorAdministracion)),this.safeMoney(t)},calcularComision(e=0){if(!this.form.comision.activa)return 0;const t=this.calcularBaseComision(e);if(this.form.comision.modalidad==="valor_fijo")return this.safeMoney(this.form.comision.valorMinimo);const i=this.normalizarNumero(this.form.comision.porcentaje),o=t*i/100;return this.form.comision.modalidad==="porcentaje_con_minimo"?this.safeMoney(Math.max(o,this.form.comision.valorMinimo)):this.safeMoney(o)},calcularIvaComision(e){return!this.form.comision.activa||!this.form.comision.aplicaIva?0:this.safeMoney(e*this.normalizedConfig.porcentajeIva/100)},calcularIvaCanon(){return this.ivaCanonActivo?this.safeMoney(this.normalizarNumero(this.form.canon)*this.normalizedConfig.porcentajeIva/100):0},calcularBaseSeguro(e=0){let t=this.normalizarNumero(this.form.canon);return(this.form.seguro.base==="canon_mas_administracion"||this.form.seguro.base==="canon_mas_administracion_mas_iva")&&this.form.tieneAdministracion&&this.form.incluirAdministracionEnBaseSeguro&&(t+=this.normalizarNumero(this.form.valorAdministracion)),(this.form.seguro.base==="canon_mas_iva"||this.form.seguro.base==="canon_mas_administracion_mas_iva")&&(t+=e),this.safeMoney(t)},calcularSeguro(e=0){return this.form.aplicarSeguro?this.form.seguro.modalidad==="valor_fijo"?this.safeMoney(this.form.seguro.valorFijo):this.safeMoney(this.calcularBaseSeguro(e)*this.normalizarNumero(this.form.seguro.porcentaje)/100):0},calcularBaseGastosBancarios(e=0){let t=this.normalizarNumero(this.form.canon);return this.form.gastosBancarios.base==="canon_mas_administracion"&&this.form.tieneAdministracion&&this.normalizedConfig.administracion.incluirEnBaseGastosBancarios&&(t+=this.normalizarNumero(this.form.valorAdministracion)),this.safeMoney(t)},calcularGastosBancarios(e=0){if(!this.form.aplicarGastosBancarios)return 0;if(this.form.gastosBancarios.modalidad==="valor_fijo")return this.safeMoney(this.form.gastosBancarios.valorFijo);const t=this.calcularBaseGastosBancarios(e);return this.form.gastosBancarios.modalidad==="porcentaje"?this.safeMoney(t*this.normalizarNumero(this.form.gastosBancarios.porcentaje)):this.safeMoney(t*.004)},calcularRetencionFuente(){return this.form.condicionesTributarias.aplicarRetencionFuente?this.safeMoney(this.normalizarNumero(this.form.canon)*this.normalizarNumero(this.form.retenciones.fuente.porcentaje)/100):0},calcularReteIca(){return this.form.condicionesTributarias.aplicarRetencionIca?this.safeMoney(this.normalizarNumero(this.form.canon)*this.normalizarNumero(this.form.retenciones.ica.tarifaPorMil)/1e3):0},calcularReteIva(e=0){return!this.form.condicionesTributarias.aplicarRetencionIva||e<=0?0:this.safeMoney(e*this.normalizarNumero(this.form.retenciones.iva.porcentaje)/100)},calcularOtrosDescuentos(){return this.form.mostrarOtrosDescuentos?this.safeMoney(this.form.otrosDescuentos.reduce((e,t)=>{const i=this.normalizarNumero(t.valor),o=t.aplicaIva?i*this.normalizedConfig.porcentajeIva/100:0;return e+i+o},0)):0},calcularResumen(){return{canonMensual:this.calc.canon,totalDescuentos:this.calc.totalDescuentos,valorNeto:this.calc.valorRentaRecibir}},reiniciarCamposCondicionales(){this.form.tieneAdministracion||(this.form.valorAdministracion=0),this.grupoTributarioInmueble==="vivienda"&&(this.form.propietarioResponsableIva=!1,this.form.aplicaIvaCanonManual=!1,this.form.condicionesTributarias.aplicarRetencionIva=!1),this.form.aplicarSeguro||(this.form.seguro.modalidad=this.normalizedConfig.seguro.modalidad,this.form.seguro.porcentaje=this.normalizedConfig.seguro.porcentaje,this.form.seguro.valorFijo=this.normalizedConfig.seguro.valorFijo),this.form.aplicarGastosBancarios||(this.form.gastosBancarios.modalidad=this.normalizedConfig.gastosBancarios.modalidad,this.form.gastosBancarios.porcentaje=this.normalizedConfig.gastosBancarios.porcentaje,this.form.gastosBancarios.valorFijo=this.normalizedConfig.gastosBancarios.valorFijo),this.form.condicionesTributarias.aplicarRetencionFuente||(this.form.retenciones.fuente.porcentaje=this.normalizedConfig.retenciones.fuente.porcentaje),this.form.condicionesTributarias.aplicarRetencionIca||(this.form.retenciones.ica.tarifaPorMil=this.normalizedConfig.retenciones.ica.tarifaPorMil),this.form.condicionesTributarias.aplicarRetencionIva||(this.form.retenciones.iva.porcentaje=this.normalizedConfig.retenciones.iva.porcentaje),this.form.mostrarOtrosDescuentos||(this.form.otrosDescuentos=[])},validarFormulario(){const e=[];return this.normalizarNumero(this.form.canon)<=0&&e.push("El canon mensual debe ser mayor a cero."),this.normalizarNumero(this.form.valorAdministracion)<0&&e.push("La administración no puede ser negativa."),(this.form.comision.porcentaje<0||this.form.comision.porcentaje>100)&&e.push("El porcentaje de comisión debe estar entre 0 y 100."),(this.form.retenciones.fuente.porcentaje<0||this.form.retenciones.fuente.porcentaje>100)&&e.push("La tarifa de retención en la fuente debe estar entre 0 y 100."),(this.form.retenciones.iva.porcentaje<0||this.form.retenciones.iva.porcentaje>100)&&e.push("La tarifa de retención de IVA debe estar entre 0 y 100."),(this.form.seguro.porcentaje<0||this.form.seguro.porcentaje>100)&&e.push("El porcentaje del seguro debe estar entre 0 y 100."),this.form.retenciones.ica.tarifaPorMil<0&&e.push("La tarifa de ICA no puede ser negativa."),(this.form.seguro.valorFijo<0||this.form.gastosBancarios.valorFijo<0||this.form.comision.valorMinimo<0)&&e.push("Los valores fijos no pueden ser negativos."),e},agregarOtroDescuento(){this.form.otrosDescuentos.push({id:`${Date.now()}_${Math.random().toString(36).slice(2,8)}`,concepto:"",valor:0,aplicaIva:!1})},eliminarOtroDescuento(e){this.form.otrosDescuentos=this.form.otrosDescuentos.filter(t=>t.id!==e)},limpiarFormulario(){this.form=this.buildInitialForm(this.normalizedConfig)},fmtMoney(e){return Za.format(this.safeMoney(e))},formatInputMoney(e){const t=this.normalizarNumero(e);return t?new Intl.NumberFormat("es-CO",{maximumFractionDigits:0}).format(t):""},parseMoneyInput(e){const t=String(e||"").replace(/[^\d]/g,"");return t?Number(t):0},updateMoneyField(e,t){this.form[e]=this.parseMoneyInput(t)},updateNestedMoneyField(e,t,i){this.form[e][t]=this.parseMoneyInput(i)},humanize(e){return String(e||"").replace(/_/g," ").replace(/\b\w/g,t=>t.toUpperCase())},buildPrintHtml(){var o;const e=this.calcularResumen(),t=this.resolvedLogo?`<img src="${this.resolvedLogo}" alt="Logo" class="print-logo" />`:"",i=this.resultadoFilas.map(n=>`
+(function() {
+  "use strict";
+  /**
+  * @vue/shared v3.5.38
+  * (c) 2018-present Yuxi (Evan) You and Vue contributors
+  * @license MIT
+  **/
+  // @__NO_SIDE_EFFECTS__
+  function makeMap(str) {
+    const map = /* @__PURE__ */ Object.create(null);
+    for (const key of str.split(",")) map[key] = 1;
+    return (val) => val in map;
+  }
+  const EMPTY_OBJ = {};
+  const EMPTY_ARR = [];
+  const NOOP = () => {
+  };
+  const NO = () => false;
+  const isOn = (key) => key.charCodeAt(0) === 111 && key.charCodeAt(1) === 110 && // uppercase letter
+  (key.charCodeAt(2) > 122 || key.charCodeAt(2) < 97);
+  const isModelListener = (key) => key.startsWith("onUpdate:");
+  const extend = Object.assign;
+  const remove = (arr, el) => {
+    const i = arr.indexOf(el);
+    if (i > -1) {
+      arr.splice(i, 1);
+    }
+  };
+  const hasOwnProperty$1 = Object.prototype.hasOwnProperty;
+  const hasOwn = (val, key) => hasOwnProperty$1.call(val, key);
+  const isArray = Array.isArray;
+  const isMap = (val) => toTypeString(val) === "[object Map]";
+  const isSet = (val) => toTypeString(val) === "[object Set]";
+  const isDate = (val) => toTypeString(val) === "[object Date]";
+  const isFunction = (val) => typeof val === "function";
+  const isString = (val) => typeof val === "string";
+  const isSymbol = (val) => typeof val === "symbol";
+  const isObject = (val) => val !== null && typeof val === "object";
+  const isPromise = (val) => {
+    return (isObject(val) || isFunction(val)) && isFunction(val.then) && isFunction(val.catch);
+  };
+  const objectToString = Object.prototype.toString;
+  const toTypeString = (value) => objectToString.call(value);
+  const toRawType = (value) => {
+    return toTypeString(value).slice(8, -1);
+  };
+  const isPlainObject = (val) => toTypeString(val) === "[object Object]";
+  const isIntegerKey = (key) => isString(key) && key !== "NaN" && key[0] !== "-" && "" + parseInt(key, 10) === key;
+  const isReservedProp = /* @__PURE__ */ makeMap(
+    // the leading comma is intentional so empty string "" is also included
+    ",key,ref,ref_for,ref_key,onVnodeBeforeMount,onVnodeMounted,onVnodeBeforeUpdate,onVnodeUpdated,onVnodeBeforeUnmount,onVnodeUnmounted"
+  );
+  const cacheStringFunction = (fn) => {
+    const cache = /* @__PURE__ */ Object.create(null);
+    return ((str) => {
+      const hit = cache[str];
+      return hit || (cache[str] = fn(str));
+    });
+  };
+  const camelizeRE = /-\w/g;
+  const camelize = cacheStringFunction(
+    (str) => {
+      return str.replace(camelizeRE, (c) => c.slice(1).toUpperCase());
+    }
+  );
+  const hyphenateRE = /\B([A-Z])/g;
+  const hyphenate = cacheStringFunction(
+    (str) => str.replace(hyphenateRE, "-$1").toLowerCase()
+  );
+  const capitalize = cacheStringFunction((str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  });
+  const toHandlerKey = cacheStringFunction(
+    (str) => {
+      const s = str ? `on${capitalize(str)}` : ``;
+      return s;
+    }
+  );
+  const hasChanged = (value, oldValue) => !Object.is(value, oldValue);
+  const invokeArrayFns = (fns, ...arg) => {
+    for (let i = 0; i < fns.length; i++) {
+      fns[i](...arg);
+    }
+  };
+  const def = (obj, key, value, writable = false) => {
+    Object.defineProperty(obj, key, {
+      configurable: true,
+      enumerable: false,
+      writable,
+      value
+    });
+  };
+  const looseToNumber = (val) => {
+    const n = parseFloat(val);
+    return isNaN(n) ? val : n;
+  };
+  const toNumber = (val) => {
+    const n = isString(val) ? Number(val) : NaN;
+    return isNaN(n) ? val : n;
+  };
+  let _globalThis;
+  const getGlobalThis = () => {
+    return _globalThis || (_globalThis = typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {});
+  };
+  function normalizeStyle(value) {
+    if (isArray(value)) {
+      const res = {};
+      for (let i = 0; i < value.length; i++) {
+        const item = value[i];
+        const normalized = isString(item) ? parseStringStyle(item) : normalizeStyle(item);
+        if (normalized) {
+          for (const key in normalized) {
+            res[key] = normalized[key];
+          }
+        }
+      }
+      return res;
+    } else if (isString(value) || isObject(value)) {
+      return value;
+    }
+  }
+  const listDelimiterRE = /;(?![^(]*\))/g;
+  const propertyDelimiterRE = /:([^]+)/;
+  const styleCommentRE = /\/\*[^]*?\*\//g;
+  function parseStringStyle(cssText) {
+    const ret = {};
+    cssText.replace(styleCommentRE, "").split(listDelimiterRE).forEach((item) => {
+      if (item) {
+        const tmp = item.split(propertyDelimiterRE);
+        tmp.length > 1 && (ret[tmp[0].trim()] = tmp[1].trim());
+      }
+    });
+    return ret;
+  }
+  function normalizeClass(value) {
+    let res = "";
+    if (isString(value)) {
+      res = value;
+    } else if (isArray(value)) {
+      for (let i = 0; i < value.length; i++) {
+        const normalized = normalizeClass(value[i]);
+        if (normalized) {
+          res += normalized + " ";
+        }
+      }
+    } else if (isObject(value)) {
+      for (const name in value) {
+        if (value[name]) {
+          res += name + " ";
+        }
+      }
+    }
+    return res.trim();
+  }
+  const specialBooleanAttrs = `itemscope,allowfullscreen,formnovalidate,ismap,nomodule,novalidate,readonly`;
+  const isSpecialBooleanAttr = /* @__PURE__ */ makeMap(specialBooleanAttrs);
+  function includeBooleanAttr(value) {
+    return !!value || value === "";
+  }
+  function looseCompareArrays(a, b) {
+    if (a.length !== b.length) return false;
+    let equal = true;
+    for (let i = 0; equal && i < a.length; i++) {
+      equal = looseEqual(a[i], b[i]);
+    }
+    return equal;
+  }
+  function looseEqual(a, b) {
+    if (a === b) return true;
+    let aValidType = isDate(a);
+    let bValidType = isDate(b);
+    if (aValidType || bValidType) {
+      return aValidType && bValidType ? a.getTime() === b.getTime() : false;
+    }
+    aValidType = isSymbol(a);
+    bValidType = isSymbol(b);
+    if (aValidType || bValidType) {
+      return a === b;
+    }
+    aValidType = isArray(a);
+    bValidType = isArray(b);
+    if (aValidType || bValidType) {
+      return aValidType && bValidType ? looseCompareArrays(a, b) : false;
+    }
+    aValidType = isObject(a);
+    bValidType = isObject(b);
+    if (aValidType || bValidType) {
+      if (!aValidType || !bValidType) {
+        return false;
+      }
+      const aKeysCount = Object.keys(a).length;
+      const bKeysCount = Object.keys(b).length;
+      if (aKeysCount !== bKeysCount) {
+        return false;
+      }
+      for (const key in a) {
+        const aHasKey = a.hasOwnProperty(key);
+        const bHasKey = b.hasOwnProperty(key);
+        if (aHasKey && !bHasKey || !aHasKey && bHasKey || !looseEqual(a[key], b[key])) {
+          return false;
+        }
+      }
+    }
+    return String(a) === String(b);
+  }
+  function looseIndexOf(arr, val) {
+    return arr.findIndex((item) => looseEqual(item, val));
+  }
+  const isRef$1 = (val) => {
+    return !!(val && val["__v_isRef"] === true);
+  };
+  const toDisplayString = (val) => {
+    return isString(val) ? val : val == null ? "" : isArray(val) || isObject(val) && (val.toString === objectToString || !isFunction(val.toString)) ? isRef$1(val) ? toDisplayString(val.value) : JSON.stringify(val, replacer, 2) : String(val);
+  };
+  const replacer = (_key, val) => {
+    if (isRef$1(val)) {
+      return replacer(_key, val.value);
+    } else if (isMap(val)) {
+      return {
+        [`Map(${val.size})`]: [...val.entries()].reduce(
+          (entries, [key, val2], i) => {
+            entries[stringifySymbol(key, i) + " =>"] = val2;
+            return entries;
+          },
+          {}
+        )
+      };
+    } else if (isSet(val)) {
+      return {
+        [`Set(${val.size})`]: [...val.values()].map((v) => stringifySymbol(v))
+      };
+    } else if (isSymbol(val)) {
+      return stringifySymbol(val);
+    } else if (isObject(val) && !isArray(val) && !isPlainObject(val)) {
+      return String(val);
+    }
+    return val;
+  };
+  const stringifySymbol = (v, i = "") => {
+    var _a;
+    return (
+      // Symbol.description in es2019+ so we need to cast here to pass
+      // the lib: es2016 check
+      isSymbol(v) ? `Symbol(${(_a = v.description) != null ? _a : i})` : v
+    );
+  };
+  /**
+  * @vue/reactivity v3.5.38
+  * (c) 2018-present Yuxi (Evan) You and Vue contributors
+  * @license MIT
+  **/
+  let activeEffectScope;
+  class EffectScope {
+    // TODO isolatedDeclarations "__v_skip"
+    constructor(detached = false) {
+      this.detached = detached;
+      this._active = true;
+      this._on = 0;
+      this.effects = [];
+      this.cleanups = [];
+      this._isPaused = false;
+      this._warnOnRun = true;
+      this.__v_skip = true;
+      if (!detached && activeEffectScope) {
+        if (activeEffectScope.active) {
+          this.parent = activeEffectScope;
+          this.index = (activeEffectScope.scopes || (activeEffectScope.scopes = [])).push(
+            this
+          ) - 1;
+        } else {
+          this._active = false;
+          this._warnOnRun = false;
+        }
+      }
+    }
+    get active() {
+      return this._active;
+    }
+    pause() {
+      if (this._active) {
+        this._isPaused = true;
+        let i, l;
+        if (this.scopes) {
+          for (i = 0, l = this.scopes.length; i < l; i++) {
+            this.scopes[i].pause();
+          }
+        }
+        for (i = 0, l = this.effects.length; i < l; i++) {
+          this.effects[i].pause();
+        }
+      }
+    }
+    /**
+     * Resumes the effect scope, including all child scopes and effects.
+     */
+    resume() {
+      if (this._active) {
+        if (this._isPaused) {
+          this._isPaused = false;
+          let i, l;
+          if (this.scopes) {
+            for (i = 0, l = this.scopes.length; i < l; i++) {
+              this.scopes[i].resume();
+            }
+          }
+          for (i = 0, l = this.effects.length; i < l; i++) {
+            this.effects[i].resume();
+          }
+        }
+      }
+    }
+    run(fn) {
+      if (this._active) {
+        const currentEffectScope = activeEffectScope;
+        try {
+          activeEffectScope = this;
+          return fn();
+        } finally {
+          activeEffectScope = currentEffectScope;
+        }
+      }
+    }
+    /**
+     * This should only be called on non-detached scopes
+     * @internal
+     */
+    on() {
+      if (++this._on === 1) {
+        this.prevScope = activeEffectScope;
+        activeEffectScope = this;
+      }
+    }
+    /**
+     * This should only be called on non-detached scopes
+     * @internal
+     */
+    off() {
+      if (this._on > 0 && --this._on === 0) {
+        if (activeEffectScope === this) {
+          activeEffectScope = this.prevScope;
+        } else {
+          let current = activeEffectScope;
+          while (current) {
+            if (current.prevScope === this) {
+              current.prevScope = this.prevScope;
+              break;
+            }
+            current = current.prevScope;
+          }
+        }
+        this.prevScope = void 0;
+      }
+    }
+    stop(fromParent) {
+      if (this._active) {
+        this._active = false;
+        let i, l;
+        for (i = 0, l = this.effects.length; i < l; i++) {
+          this.effects[i].stop();
+        }
+        this.effects.length = 0;
+        for (i = 0, l = this.cleanups.length; i < l; i++) {
+          this.cleanups[i]();
+        }
+        this.cleanups.length = 0;
+        if (this.scopes) {
+          for (i = 0, l = this.scopes.length; i < l; i++) {
+            this.scopes[i].stop(true);
+          }
+          this.scopes.length = 0;
+        }
+        if (!this.detached && this.parent && !fromParent) {
+          const last = this.parent.scopes.pop();
+          if (last && last !== this) {
+            this.parent.scopes[this.index] = last;
+            last.index = this.index;
+          }
+        }
+        this.parent = void 0;
+      }
+    }
+  }
+  function getCurrentScope() {
+    return activeEffectScope;
+  }
+  let activeSub;
+  const pausedQueueEffects = /* @__PURE__ */ new WeakSet();
+  class ReactiveEffect {
+    constructor(fn) {
+      this.fn = fn;
+      this.deps = void 0;
+      this.depsTail = void 0;
+      this.flags = 1 | 4;
+      this.next = void 0;
+      this.cleanup = void 0;
+      this.scheduler = void 0;
+      if (activeEffectScope) {
+        if (activeEffectScope.active) {
+          activeEffectScope.effects.push(this);
+        } else {
+          this.flags &= -2;
+        }
+      }
+    }
+    pause() {
+      this.flags |= 64;
+    }
+    resume() {
+      if (this.flags & 64) {
+        this.flags &= -65;
+        if (pausedQueueEffects.has(this)) {
+          pausedQueueEffects.delete(this);
+          this.trigger();
+        }
+      }
+    }
+    /**
+     * @internal
+     */
+    notify() {
+      if (this.flags & 2 && !(this.flags & 32)) {
+        return;
+      }
+      if (!(this.flags & 8)) {
+        batch(this);
+      }
+    }
+    run() {
+      if (!(this.flags & 1)) {
+        return this.fn();
+      }
+      this.flags |= 2;
+      cleanupEffect(this);
+      prepareDeps(this);
+      const prevEffect = activeSub;
+      const prevShouldTrack = shouldTrack;
+      activeSub = this;
+      shouldTrack = true;
+      try {
+        return this.fn();
+      } finally {
+        cleanupDeps(this);
+        activeSub = prevEffect;
+        shouldTrack = prevShouldTrack;
+        this.flags &= -3;
+      }
+    }
+    stop() {
+      if (this.flags & 1) {
+        for (let link = this.deps; link; link = link.nextDep) {
+          removeSub(link);
+        }
+        this.deps = this.depsTail = void 0;
+        cleanupEffect(this);
+        this.onStop && this.onStop();
+        this.flags &= -2;
+      }
+    }
+    trigger() {
+      if (this.flags & 64) {
+        pausedQueueEffects.add(this);
+      } else if (this.scheduler) {
+        this.scheduler();
+      } else {
+        this.runIfDirty();
+      }
+    }
+    /**
+     * @internal
+     */
+    runIfDirty() {
+      if (isDirty(this)) {
+        this.run();
+      }
+    }
+    get dirty() {
+      return isDirty(this);
+    }
+  }
+  let batchDepth = 0;
+  let batchedSub;
+  let batchedComputed;
+  function batch(sub, isComputed = false) {
+    sub.flags |= 8;
+    if (isComputed) {
+      sub.next = batchedComputed;
+      batchedComputed = sub;
+      return;
+    }
+    sub.next = batchedSub;
+    batchedSub = sub;
+  }
+  function startBatch() {
+    batchDepth++;
+  }
+  function endBatch() {
+    if (--batchDepth > 0) {
+      return;
+    }
+    if (batchedComputed) {
+      let e = batchedComputed;
+      batchedComputed = void 0;
+      while (e) {
+        const next = e.next;
+        e.next = void 0;
+        e.flags &= -9;
+        e = next;
+      }
+    }
+    let error;
+    while (batchedSub) {
+      let e = batchedSub;
+      batchedSub = void 0;
+      while (e) {
+        const next = e.next;
+        e.next = void 0;
+        e.flags &= -9;
+        if (e.flags & 1) {
+          try {
+            ;
+            e.trigger();
+          } catch (err) {
+            if (!error) error = err;
+          }
+        }
+        e = next;
+      }
+    }
+    if (error) throw error;
+  }
+  function prepareDeps(sub) {
+    for (let link = sub.deps; link; link = link.nextDep) {
+      link.version = -1;
+      link.prevActiveLink = link.dep.activeLink;
+      link.dep.activeLink = link;
+    }
+  }
+  function cleanupDeps(sub) {
+    let head;
+    let tail = sub.depsTail;
+    let link = tail;
+    while (link) {
+      const prev = link.prevDep;
+      if (link.version === -1) {
+        if (link === tail) tail = prev;
+        removeSub(link);
+        removeDep(link);
+      } else {
+        head = link;
+      }
+      link.dep.activeLink = link.prevActiveLink;
+      link.prevActiveLink = void 0;
+      link = prev;
+    }
+    sub.deps = head;
+    sub.depsTail = tail;
+  }
+  function isDirty(sub) {
+    for (let link = sub.deps; link; link = link.nextDep) {
+      if (link.dep.version !== link.version || link.dep.computed && (refreshComputed(link.dep.computed) || link.dep.version !== link.version)) {
+        return true;
+      }
+    }
+    if (sub._dirty) {
+      return true;
+    }
+    return false;
+  }
+  function refreshComputed(computed2) {
+    if (computed2.flags & 4 && !(computed2.flags & 16)) {
+      return;
+    }
+    computed2.flags &= -17;
+    if (computed2.globalVersion === globalVersion) {
+      return;
+    }
+    computed2.globalVersion = globalVersion;
+    if (!computed2.isSSR && computed2.flags & 128 && (!computed2.deps && !computed2._dirty || !isDirty(computed2))) {
+      return;
+    }
+    computed2.flags |= 2;
+    const dep = computed2.dep;
+    const prevSub = activeSub;
+    const prevShouldTrack = shouldTrack;
+    activeSub = computed2;
+    shouldTrack = true;
+    try {
+      prepareDeps(computed2);
+      const value = computed2.fn(computed2._value);
+      if (dep.version === 0 || hasChanged(value, computed2._value)) {
+        computed2.flags |= 128;
+        computed2._value = value;
+        dep.version++;
+      }
+    } catch (err) {
+      dep.version++;
+      throw err;
+    } finally {
+      activeSub = prevSub;
+      shouldTrack = prevShouldTrack;
+      cleanupDeps(computed2);
+      computed2.flags &= -3;
+    }
+  }
+  function removeSub(link, soft = false) {
+    const { dep, prevSub, nextSub } = link;
+    if (prevSub) {
+      prevSub.nextSub = nextSub;
+      link.prevSub = void 0;
+    }
+    if (nextSub) {
+      nextSub.prevSub = prevSub;
+      link.nextSub = void 0;
+    }
+    if (dep.subs === link) {
+      dep.subs = prevSub;
+      if (!prevSub && dep.computed) {
+        dep.computed.flags &= -5;
+        for (let l = dep.computed.deps; l; l = l.nextDep) {
+          removeSub(l, true);
+        }
+      }
+    }
+    if (!soft && !--dep.sc && dep.map) {
+      dep.map.delete(dep.key);
+    }
+  }
+  function removeDep(link) {
+    const { prevDep, nextDep } = link;
+    if (prevDep) {
+      prevDep.nextDep = nextDep;
+      link.prevDep = void 0;
+    }
+    if (nextDep) {
+      nextDep.prevDep = prevDep;
+      link.nextDep = void 0;
+    }
+  }
+  let shouldTrack = true;
+  const trackStack = [];
+  function pauseTracking() {
+    trackStack.push(shouldTrack);
+    shouldTrack = false;
+  }
+  function resetTracking() {
+    const last = trackStack.pop();
+    shouldTrack = last === void 0 ? true : last;
+  }
+  function cleanupEffect(e) {
+    const { cleanup } = e;
+    e.cleanup = void 0;
+    if (cleanup) {
+      const prevSub = activeSub;
+      activeSub = void 0;
+      try {
+        cleanup();
+      } finally {
+        activeSub = prevSub;
+      }
+    }
+  }
+  let globalVersion = 0;
+  class Link {
+    constructor(sub, dep) {
+      this.sub = sub;
+      this.dep = dep;
+      this.version = dep.version;
+      this.nextDep = this.prevDep = this.nextSub = this.prevSub = this.prevActiveLink = void 0;
+    }
+  }
+  class Dep {
+    // TODO isolatedDeclarations "__v_skip"
+    constructor(computed2) {
+      this.computed = computed2;
+      this.version = 0;
+      this.activeLink = void 0;
+      this.subs = void 0;
+      this.map = void 0;
+      this.key = void 0;
+      this.sc = 0;
+      this.__v_skip = true;
+    }
+    track(debugInfo) {
+      if (!activeSub || !shouldTrack || activeSub === this.computed) {
+        return;
+      }
+      let link = this.activeLink;
+      if (link === void 0 || link.sub !== activeSub) {
+        link = this.activeLink = new Link(activeSub, this);
+        if (!activeSub.deps) {
+          activeSub.deps = activeSub.depsTail = link;
+        } else {
+          link.prevDep = activeSub.depsTail;
+          activeSub.depsTail.nextDep = link;
+          activeSub.depsTail = link;
+        }
+        addSub(link);
+      } else if (link.version === -1) {
+        link.version = this.version;
+        if (link.nextDep) {
+          const next = link.nextDep;
+          next.prevDep = link.prevDep;
+          if (link.prevDep) {
+            link.prevDep.nextDep = next;
+          }
+          link.prevDep = activeSub.depsTail;
+          link.nextDep = void 0;
+          activeSub.depsTail.nextDep = link;
+          activeSub.depsTail = link;
+          if (activeSub.deps === link) {
+            activeSub.deps = next;
+          }
+        }
+      }
+      return link;
+    }
+    trigger(debugInfo) {
+      this.version++;
+      globalVersion++;
+      this.notify(debugInfo);
+    }
+    notify(debugInfo) {
+      startBatch();
+      try {
+        if (false) ;
+        for (let link = this.subs; link; link = link.prevSub) {
+          if (link.sub.notify()) {
+            ;
+            link.sub.dep.notify();
+          }
+        }
+      } finally {
+        endBatch();
+      }
+    }
+  }
+  function addSub(link) {
+    link.dep.sc++;
+    if (link.sub.flags & 4) {
+      const computed2 = link.dep.computed;
+      if (computed2 && !link.dep.subs) {
+        computed2.flags |= 4 | 16;
+        for (let l = computed2.deps; l; l = l.nextDep) {
+          addSub(l);
+        }
+      }
+      const currentTail = link.dep.subs;
+      if (currentTail !== link) {
+        link.prevSub = currentTail;
+        if (currentTail) currentTail.nextSub = link;
+      }
+      link.dep.subs = link;
+    }
+  }
+  const targetMap = /* @__PURE__ */ new WeakMap();
+  const ITERATE_KEY = /* @__PURE__ */ Symbol(
+    ""
+  );
+  const MAP_KEY_ITERATE_KEY = /* @__PURE__ */ Symbol(
+    ""
+  );
+  const ARRAY_ITERATE_KEY = /* @__PURE__ */ Symbol(
+    ""
+  );
+  function track(target, type, key) {
+    if (shouldTrack && activeSub) {
+      let depsMap = targetMap.get(target);
+      if (!depsMap) {
+        targetMap.set(target, depsMap = /* @__PURE__ */ new Map());
+      }
+      let dep = depsMap.get(key);
+      if (!dep) {
+        depsMap.set(key, dep = new Dep());
+        dep.map = depsMap;
+        dep.key = key;
+      }
+      {
+        dep.track();
+      }
+    }
+  }
+  function trigger(target, type, key, newValue, oldValue, oldTarget) {
+    const depsMap = targetMap.get(target);
+    if (!depsMap) {
+      globalVersion++;
+      return;
+    }
+    const run = (dep) => {
+      if (dep) {
+        {
+          dep.trigger();
+        }
+      }
+    };
+    startBatch();
+    if (type === "clear") {
+      depsMap.forEach(run);
+    } else {
+      const targetIsArray = isArray(target);
+      const isArrayIndex = targetIsArray && isIntegerKey(key);
+      if (targetIsArray && key === "length") {
+        const newLength = Number(newValue);
+        depsMap.forEach((dep, key2) => {
+          if (key2 === "length" || key2 === ARRAY_ITERATE_KEY || !isSymbol(key2) && key2 >= newLength) {
+            run(dep);
+          }
+        });
+      } else {
+        if (key !== void 0 || depsMap.has(void 0)) {
+          run(depsMap.get(key));
+        }
+        if (isArrayIndex) {
+          run(depsMap.get(ARRAY_ITERATE_KEY));
+        }
+        switch (type) {
+          case "add":
+            if (!targetIsArray) {
+              run(depsMap.get(ITERATE_KEY));
+              if (isMap(target)) {
+                run(depsMap.get(MAP_KEY_ITERATE_KEY));
+              }
+            } else if (isArrayIndex) {
+              run(depsMap.get("length"));
+            }
+            break;
+          case "delete":
+            if (!targetIsArray) {
+              run(depsMap.get(ITERATE_KEY));
+              if (isMap(target)) {
+                run(depsMap.get(MAP_KEY_ITERATE_KEY));
+              }
+            }
+            break;
+          case "set":
+            if (isMap(target)) {
+              run(depsMap.get(ITERATE_KEY));
+            }
+            break;
+        }
+      }
+    }
+    endBatch();
+  }
+  function reactiveReadArray(array) {
+    const raw = /* @__PURE__ */ toRaw(array);
+    if (raw === array) return raw;
+    track(raw, "iterate", ARRAY_ITERATE_KEY);
+    return /* @__PURE__ */ isShallow(array) ? raw : raw.map(toReactive);
+  }
+  function shallowReadArray(arr) {
+    track(arr = /* @__PURE__ */ toRaw(arr), "iterate", ARRAY_ITERATE_KEY);
+    return arr;
+  }
+  function toWrapped(target, item) {
+    if (/* @__PURE__ */ isReadonly(target)) {
+      return /* @__PURE__ */ isReactive(target) ? toReadonly(toReactive(item)) : toReadonly(item);
+    }
+    return toReactive(item);
+  }
+  const arrayInstrumentations = {
+    __proto__: null,
+    [Symbol.iterator]() {
+      return iterator(this, Symbol.iterator, (item) => toWrapped(this, item));
+    },
+    concat(...args) {
+      return reactiveReadArray(this).concat(
+        ...args.map((x) => isArray(x) ? reactiveReadArray(x) : x)
+      );
+    },
+    entries() {
+      return iterator(this, "entries", (value) => {
+        value[1] = toWrapped(this, value[1]);
+        return value;
+      });
+    },
+    every(fn, thisArg) {
+      return apply(this, "every", fn, thisArg, void 0, arguments);
+    },
+    filter(fn, thisArg) {
+      return apply(
+        this,
+        "filter",
+        fn,
+        thisArg,
+        (v) => v.map((item) => toWrapped(this, item)),
+        arguments
+      );
+    },
+    find(fn, thisArg) {
+      return apply(
+        this,
+        "find",
+        fn,
+        thisArg,
+        (item) => toWrapped(this, item),
+        arguments
+      );
+    },
+    findIndex(fn, thisArg) {
+      return apply(this, "findIndex", fn, thisArg, void 0, arguments);
+    },
+    findLast(fn, thisArg) {
+      return apply(
+        this,
+        "findLast",
+        fn,
+        thisArg,
+        (item) => toWrapped(this, item),
+        arguments
+      );
+    },
+    findLastIndex(fn, thisArg) {
+      return apply(this, "findLastIndex", fn, thisArg, void 0, arguments);
+    },
+    // flat, flatMap could benefit from ARRAY_ITERATE but are not straight-forward to implement
+    forEach(fn, thisArg) {
+      return apply(this, "forEach", fn, thisArg, void 0, arguments);
+    },
+    includes(...args) {
+      return searchProxy(this, "includes", args);
+    },
+    indexOf(...args) {
+      return searchProxy(this, "indexOf", args);
+    },
+    join(separator) {
+      return reactiveReadArray(this).join(separator);
+    },
+    // keys() iterator only reads `length`, no optimization required
+    lastIndexOf(...args) {
+      return searchProxy(this, "lastIndexOf", args);
+    },
+    map(fn, thisArg) {
+      return apply(this, "map", fn, thisArg, void 0, arguments);
+    },
+    pop() {
+      return noTracking(this, "pop");
+    },
+    push(...args) {
+      return noTracking(this, "push", args);
+    },
+    reduce(fn, ...args) {
+      return reduce(this, "reduce", fn, args);
+    },
+    reduceRight(fn, ...args) {
+      return reduce(this, "reduceRight", fn, args);
+    },
+    shift() {
+      return noTracking(this, "shift");
+    },
+    // slice could use ARRAY_ITERATE but also seems to beg for range tracking
+    some(fn, thisArg) {
+      return apply(this, "some", fn, thisArg, void 0, arguments);
+    },
+    splice(...args) {
+      return noTracking(this, "splice", args);
+    },
+    toReversed() {
+      return reactiveReadArray(this).toReversed();
+    },
+    toSorted(comparer) {
+      return reactiveReadArray(this).toSorted(comparer);
+    },
+    toSpliced(...args) {
+      return reactiveReadArray(this).toSpliced(...args);
+    },
+    unshift(...args) {
+      return noTracking(this, "unshift", args);
+    },
+    values() {
+      return iterator(this, "values", (item) => toWrapped(this, item));
+    }
+  };
+  function iterator(self2, method, wrapValue) {
+    const arr = shallowReadArray(self2);
+    const iter = arr[method]();
+    if (arr !== self2 && !/* @__PURE__ */ isShallow(self2)) {
+      iter._next = iter.next;
+      iter.next = () => {
+        const result = iter._next();
+        if (!result.done) {
+          result.value = wrapValue(result.value);
+        }
+        return result;
+      };
+    }
+    return iter;
+  }
+  const arrayProto = Array.prototype;
+  function apply(self2, method, fn, thisArg, wrappedRetFn, args) {
+    const arr = shallowReadArray(self2);
+    const needsWrap = arr !== self2 && !/* @__PURE__ */ isShallow(self2);
+    const methodFn = arr[method];
+    if (methodFn !== arrayProto[method]) {
+      const result2 = methodFn.apply(self2, args);
+      return needsWrap ? toReactive(result2) : result2;
+    }
+    let wrappedFn = fn;
+    if (arr !== self2) {
+      if (needsWrap) {
+        wrappedFn = function(item, index) {
+          return fn.call(this, toWrapped(self2, item), index, self2);
+        };
+      } else if (fn.length > 2) {
+        wrappedFn = function(item, index) {
+          return fn.call(this, item, index, self2);
+        };
+      }
+    }
+    const result = methodFn.call(arr, wrappedFn, thisArg);
+    return needsWrap && wrappedRetFn ? wrappedRetFn(result) : result;
+  }
+  function reduce(self2, method, fn, args) {
+    const arr = shallowReadArray(self2);
+    const needsWrap = arr !== self2 && !/* @__PURE__ */ isShallow(self2);
+    let wrappedFn = fn;
+    let wrapInitialAccumulator = false;
+    if (arr !== self2) {
+      if (needsWrap) {
+        wrapInitialAccumulator = args.length === 0;
+        wrappedFn = function(acc, item, index) {
+          if (wrapInitialAccumulator) {
+            wrapInitialAccumulator = false;
+            acc = toWrapped(self2, acc);
+          }
+          return fn.call(this, acc, toWrapped(self2, item), index, self2);
+        };
+      } else if (fn.length > 3) {
+        wrappedFn = function(acc, item, index) {
+          return fn.call(this, acc, item, index, self2);
+        };
+      }
+    }
+    const result = arr[method](wrappedFn, ...args);
+    return wrapInitialAccumulator ? toWrapped(self2, result) : result;
+  }
+  function searchProxy(self2, method, args) {
+    const arr = /* @__PURE__ */ toRaw(self2);
+    track(arr, "iterate", ARRAY_ITERATE_KEY);
+    const res = arr[method](...args);
+    if ((res === -1 || res === false) && /* @__PURE__ */ isProxy(args[0])) {
+      args[0] = /* @__PURE__ */ toRaw(args[0]);
+      return arr[method](...args);
+    }
+    return res;
+  }
+  function noTracking(self2, method, args = []) {
+    pauseTracking();
+    startBatch();
+    const res = (/* @__PURE__ */ toRaw(self2))[method].apply(self2, args);
+    endBatch();
+    resetTracking();
+    return res;
+  }
+  const isNonTrackableKeys = /* @__PURE__ */ makeMap(`__proto__,__v_isRef,__isVue`);
+  const builtInSymbols = new Set(
+    /* @__PURE__ */ Object.getOwnPropertyNames(Symbol).filter((key) => key !== "arguments" && key !== "caller").map((key) => Symbol[key]).filter(isSymbol)
+  );
+  function hasOwnProperty(key) {
+    if (!isSymbol(key)) key = String(key);
+    const obj = /* @__PURE__ */ toRaw(this);
+    track(obj, "has", key);
+    return obj.hasOwnProperty(key);
+  }
+  class BaseReactiveHandler {
+    constructor(_isReadonly = false, _isShallow = false) {
+      this._isReadonly = _isReadonly;
+      this._isShallow = _isShallow;
+    }
+    get(target, key, receiver) {
+      if (key === "__v_skip") return target["__v_skip"];
+      const isReadonly2 = this._isReadonly, isShallow2 = this._isShallow;
+      if (key === "__v_isReactive") {
+        return !isReadonly2;
+      } else if (key === "__v_isReadonly") {
+        return isReadonly2;
+      } else if (key === "__v_isShallow") {
+        return isShallow2;
+      } else if (key === "__v_raw") {
+        if (receiver === (isReadonly2 ? isShallow2 ? shallowReadonlyMap : readonlyMap : isShallow2 ? shallowReactiveMap : reactiveMap).get(target) || // receiver is not the reactive proxy, but has the same prototype
+        // this means the receiver is a user proxy of the reactive proxy
+        Object.getPrototypeOf(target) === Object.getPrototypeOf(receiver)) {
+          return target;
+        }
+        return;
+      }
+      const targetIsArray = isArray(target);
+      if (!isReadonly2) {
+        let fn;
+        if (targetIsArray && (fn = arrayInstrumentations[key])) {
+          return fn;
+        }
+        if (key === "hasOwnProperty") {
+          return hasOwnProperty;
+        }
+      }
+      const res = Reflect.get(
+        target,
+        key,
+        // if this is a proxy wrapping a ref, return methods using the raw ref
+        // as receiver so that we don't have to call `toRaw` on the ref in all
+        // its class methods
+        /* @__PURE__ */ isRef(target) ? target : receiver
+      );
+      if (isSymbol(key) ? builtInSymbols.has(key) : isNonTrackableKeys(key)) {
+        return res;
+      }
+      if (!isReadonly2) {
+        track(target, "get", key);
+      }
+      if (isShallow2) {
+        return res;
+      }
+      if (/* @__PURE__ */ isRef(res)) {
+        const value = targetIsArray && isIntegerKey(key) ? res : res.value;
+        return isReadonly2 && isObject(value) ? /* @__PURE__ */ readonly(value) : value;
+      }
+      if (isObject(res)) {
+        return isReadonly2 ? /* @__PURE__ */ readonly(res) : /* @__PURE__ */ reactive(res);
+      }
+      return res;
+    }
+  }
+  class MutableReactiveHandler extends BaseReactiveHandler {
+    constructor(isShallow2 = false) {
+      super(false, isShallow2);
+    }
+    set(target, key, value, receiver) {
+      let oldValue = target[key];
+      const isArrayWithIntegerKey = isArray(target) && isIntegerKey(key);
+      if (!this._isShallow) {
+        const isOldValueReadonly = /* @__PURE__ */ isReadonly(oldValue);
+        if (!/* @__PURE__ */ isShallow(value) && !/* @__PURE__ */ isReadonly(value)) {
+          oldValue = /* @__PURE__ */ toRaw(oldValue);
+          value = /* @__PURE__ */ toRaw(value);
+        }
+        if (!isArrayWithIntegerKey && /* @__PURE__ */ isRef(oldValue) && !/* @__PURE__ */ isRef(value)) {
+          if (isOldValueReadonly) {
+            return true;
+          } else {
+            oldValue.value = value;
+            return true;
+          }
+        }
+      }
+      const hadKey = isArrayWithIntegerKey ? Number(key) < target.length : hasOwn(target, key);
+      const result = Reflect.set(
+        target,
+        key,
+        value,
+        /* @__PURE__ */ isRef(target) ? target : receiver
+      );
+      if (target === /* @__PURE__ */ toRaw(receiver)) {
+        if (!hadKey) {
+          trigger(target, "add", key, value);
+        } else if (hasChanged(value, oldValue)) {
+          trigger(target, "set", key, value);
+        }
+      }
+      return result;
+    }
+    deleteProperty(target, key) {
+      const hadKey = hasOwn(target, key);
+      target[key];
+      const result = Reflect.deleteProperty(target, key);
+      if (result && hadKey) {
+        trigger(target, "delete", key, void 0);
+      }
+      return result;
+    }
+    has(target, key) {
+      const result = Reflect.has(target, key);
+      if (!isSymbol(key) || !builtInSymbols.has(key)) {
+        track(target, "has", key);
+      }
+      return result;
+    }
+    ownKeys(target) {
+      track(
+        target,
+        "iterate",
+        isArray(target) ? "length" : ITERATE_KEY
+      );
+      return Reflect.ownKeys(target);
+    }
+  }
+  class ReadonlyReactiveHandler extends BaseReactiveHandler {
+    constructor(isShallow2 = false) {
+      super(true, isShallow2);
+    }
+    set(target, key) {
+      return true;
+    }
+    deleteProperty(target, key) {
+      return true;
+    }
+  }
+  const mutableHandlers = /* @__PURE__ */ new MutableReactiveHandler();
+  const readonlyHandlers = /* @__PURE__ */ new ReadonlyReactiveHandler();
+  const shallowReactiveHandlers = /* @__PURE__ */ new MutableReactiveHandler(true);
+  const shallowReadonlyHandlers = /* @__PURE__ */ new ReadonlyReactiveHandler(true);
+  const toShallow = (value) => value;
+  const getProto = (v) => Reflect.getPrototypeOf(v);
+  function createIterableMethod(method, isReadonly2, isShallow2) {
+    return function(...args) {
+      const target = this["__v_raw"];
+      const rawTarget = /* @__PURE__ */ toRaw(target);
+      const targetIsMap = isMap(rawTarget);
+      const isPair = method === "entries" || method === Symbol.iterator && targetIsMap;
+      const isKeyOnly = method === "keys" && targetIsMap;
+      const innerIterator = target[method](...args);
+      const wrap = isShallow2 ? toShallow : isReadonly2 ? toReadonly : toReactive;
+      !isReadonly2 && track(
+        rawTarget,
+        "iterate",
+        isKeyOnly ? MAP_KEY_ITERATE_KEY : ITERATE_KEY
+      );
+      return extend(
+        // inheriting all iterator properties
+        Object.create(innerIterator),
+        {
+          // iterator protocol
+          next() {
+            const { value, done } = innerIterator.next();
+            return done ? { value, done } : {
+              value: isPair ? [wrap(value[0]), wrap(value[1])] : wrap(value),
+              done
+            };
+          }
+        }
+      );
+    };
+  }
+  function createReadonlyMethod(type) {
+    return function(...args) {
+      return type === "delete" ? false : type === "clear" ? void 0 : this;
+    };
+  }
+  function createInstrumentations(readonly2, shallow) {
+    const instrumentations = {
+      get(key) {
+        const target = this["__v_raw"];
+        const rawTarget = /* @__PURE__ */ toRaw(target);
+        const rawKey = /* @__PURE__ */ toRaw(key);
+        if (!readonly2) {
+          if (hasChanged(key, rawKey)) {
+            track(rawTarget, "get", key);
+          }
+          track(rawTarget, "get", rawKey);
+        }
+        const { has } = getProto(rawTarget);
+        const wrap = shallow ? toShallow : readonly2 ? toReadonly : toReactive;
+        if (has.call(rawTarget, key)) {
+          return wrap(target.get(key));
+        } else if (has.call(rawTarget, rawKey)) {
+          return wrap(target.get(rawKey));
+        } else if (target !== rawTarget) {
+          target.get(key);
+        }
+      },
+      get size() {
+        const target = this["__v_raw"];
+        !readonly2 && track(/* @__PURE__ */ toRaw(target), "iterate", ITERATE_KEY);
+        return target.size;
+      },
+      has(key) {
+        const target = this["__v_raw"];
+        const rawTarget = /* @__PURE__ */ toRaw(target);
+        const rawKey = /* @__PURE__ */ toRaw(key);
+        if (!readonly2) {
+          if (hasChanged(key, rawKey)) {
+            track(rawTarget, "has", key);
+          }
+          track(rawTarget, "has", rawKey);
+        }
+        return key === rawKey ? target.has(key) : target.has(key) || target.has(rawKey);
+      },
+      forEach(callback, thisArg) {
+        const observed = this;
+        const target = observed["__v_raw"];
+        const rawTarget = /* @__PURE__ */ toRaw(target);
+        const wrap = shallow ? toShallow : readonly2 ? toReadonly : toReactive;
+        !readonly2 && track(rawTarget, "iterate", ITERATE_KEY);
+        return target.forEach((value, key) => {
+          return callback.call(thisArg, wrap(value), wrap(key), observed);
+        });
+      }
+    };
+    extend(
+      instrumentations,
+      readonly2 ? {
+        add: createReadonlyMethod("add"),
+        set: createReadonlyMethod("set"),
+        delete: createReadonlyMethod("delete"),
+        clear: createReadonlyMethod("clear")
+      } : {
+        add(value) {
+          const target = /* @__PURE__ */ toRaw(this);
+          const proto = getProto(target);
+          const rawValue = /* @__PURE__ */ toRaw(value);
+          const valueToAdd = !shallow && !/* @__PURE__ */ isShallow(value) && !/* @__PURE__ */ isReadonly(value) ? rawValue : value;
+          const hadKey = proto.has.call(target, valueToAdd) || hasChanged(value, valueToAdd) && proto.has.call(target, value) || hasChanged(rawValue, valueToAdd) && proto.has.call(target, rawValue);
+          if (!hadKey) {
+            target.add(valueToAdd);
+            trigger(target, "add", valueToAdd, valueToAdd);
+          }
+          return this;
+        },
+        set(key, value) {
+          if (!shallow && !/* @__PURE__ */ isShallow(value) && !/* @__PURE__ */ isReadonly(value)) {
+            value = /* @__PURE__ */ toRaw(value);
+          }
+          const target = /* @__PURE__ */ toRaw(this);
+          const { has, get } = getProto(target);
+          let hadKey = has.call(target, key);
+          if (!hadKey) {
+            key = /* @__PURE__ */ toRaw(key);
+            hadKey = has.call(target, key);
+          }
+          const oldValue = get.call(target, key);
+          target.set(key, value);
+          if (!hadKey) {
+            trigger(target, "add", key, value);
+          } else if (hasChanged(value, oldValue)) {
+            trigger(target, "set", key, value);
+          }
+          return this;
+        },
+        delete(key) {
+          const target = /* @__PURE__ */ toRaw(this);
+          const { has, get } = getProto(target);
+          let hadKey = has.call(target, key);
+          if (!hadKey) {
+            key = /* @__PURE__ */ toRaw(key);
+            hadKey = has.call(target, key);
+          }
+          get ? get.call(target, key) : void 0;
+          const result = target.delete(key);
+          if (hadKey) {
+            trigger(target, "delete", key, void 0);
+          }
+          return result;
+        },
+        clear() {
+          const target = /* @__PURE__ */ toRaw(this);
+          const hadItems = target.size !== 0;
+          const result = target.clear();
+          if (hadItems) {
+            trigger(
+              target,
+              "clear",
+              void 0,
+              void 0
+            );
+          }
+          return result;
+        }
+      }
+    );
+    const iteratorMethods = [
+      "keys",
+      "values",
+      "entries",
+      Symbol.iterator
+    ];
+    iteratorMethods.forEach((method) => {
+      instrumentations[method] = createIterableMethod(method, readonly2, shallow);
+    });
+    return instrumentations;
+  }
+  function createInstrumentationGetter(isReadonly2, shallow) {
+    const instrumentations = createInstrumentations(isReadonly2, shallow);
+    return (target, key, receiver) => {
+      if (key === "__v_isReactive") {
+        return !isReadonly2;
+      } else if (key === "__v_isReadonly") {
+        return isReadonly2;
+      } else if (key === "__v_raw") {
+        return target;
+      }
+      return Reflect.get(
+        hasOwn(instrumentations, key) && key in target ? instrumentations : target,
+        key,
+        receiver
+      );
+    };
+  }
+  const mutableCollectionHandlers = {
+    get: /* @__PURE__ */ createInstrumentationGetter(false, false)
+  };
+  const shallowCollectionHandlers = {
+    get: /* @__PURE__ */ createInstrumentationGetter(false, true)
+  };
+  const readonlyCollectionHandlers = {
+    get: /* @__PURE__ */ createInstrumentationGetter(true, false)
+  };
+  const shallowReadonlyCollectionHandlers = {
+    get: /* @__PURE__ */ createInstrumentationGetter(true, true)
+  };
+  const reactiveMap = /* @__PURE__ */ new WeakMap();
+  const shallowReactiveMap = /* @__PURE__ */ new WeakMap();
+  const readonlyMap = /* @__PURE__ */ new WeakMap();
+  const shallowReadonlyMap = /* @__PURE__ */ new WeakMap();
+  function targetTypeMap(rawType) {
+    switch (rawType) {
+      case "Object":
+      case "Array":
+        return 1;
+      case "Map":
+      case "Set":
+      case "WeakMap":
+      case "WeakSet":
+        return 2;
+      default:
+        return 0;
+    }
+  }
+  // @__NO_SIDE_EFFECTS__
+  function reactive(target) {
+    if (/* @__PURE__ */ isReadonly(target)) {
+      return target;
+    }
+    return createReactiveObject(
+      target,
+      false,
+      mutableHandlers,
+      mutableCollectionHandlers,
+      reactiveMap
+    );
+  }
+  // @__NO_SIDE_EFFECTS__
+  function shallowReactive(target) {
+    return createReactiveObject(
+      target,
+      false,
+      shallowReactiveHandlers,
+      shallowCollectionHandlers,
+      shallowReactiveMap
+    );
+  }
+  // @__NO_SIDE_EFFECTS__
+  function readonly(target) {
+    return createReactiveObject(
+      target,
+      true,
+      readonlyHandlers,
+      readonlyCollectionHandlers,
+      readonlyMap
+    );
+  }
+  // @__NO_SIDE_EFFECTS__
+  function shallowReadonly(target) {
+    return createReactiveObject(
+      target,
+      true,
+      shallowReadonlyHandlers,
+      shallowReadonlyCollectionHandlers,
+      shallowReadonlyMap
+    );
+  }
+  function createReactiveObject(target, isReadonly2, baseHandlers, collectionHandlers, proxyMap) {
+    if (!isObject(target)) {
+      return target;
+    }
+    if (target["__v_raw"] && !(isReadonly2 && target["__v_isReactive"])) {
+      return target;
+    }
+    if (target["__v_skip"] || !Object.isExtensible(target)) {
+      return target;
+    }
+    const existingProxy = proxyMap.get(target);
+    if (existingProxy) {
+      return existingProxy;
+    }
+    const targetType = targetTypeMap(toRawType(target));
+    if (targetType === 0) {
+      return target;
+    }
+    const proxy = new Proxy(
+      target,
+      targetType === 2 ? collectionHandlers : baseHandlers
+    );
+    proxyMap.set(target, proxy);
+    return proxy;
+  }
+  // @__NO_SIDE_EFFECTS__
+  function isReactive(value) {
+    if (/* @__PURE__ */ isReadonly(value)) {
+      return /* @__PURE__ */ isReactive(value["__v_raw"]);
+    }
+    return !!(value && value["__v_isReactive"]);
+  }
+  // @__NO_SIDE_EFFECTS__
+  function isReadonly(value) {
+    return !!(value && value["__v_isReadonly"]);
+  }
+  // @__NO_SIDE_EFFECTS__
+  function isShallow(value) {
+    return !!(value && value["__v_isShallow"]);
+  }
+  // @__NO_SIDE_EFFECTS__
+  function isProxy(value) {
+    return value ? !!value["__v_raw"] : false;
+  }
+  // @__NO_SIDE_EFFECTS__
+  function toRaw(observed) {
+    const raw = observed && observed["__v_raw"];
+    return raw ? /* @__PURE__ */ toRaw(raw) : observed;
+  }
+  function markRaw(value) {
+    if (!hasOwn(value, "__v_skip") && Object.isExtensible(value)) {
+      def(value, "__v_skip", true);
+    }
+    return value;
+  }
+  const toReactive = (value) => isObject(value) ? /* @__PURE__ */ reactive(value) : value;
+  const toReadonly = (value) => isObject(value) ? /* @__PURE__ */ readonly(value) : value;
+  // @__NO_SIDE_EFFECTS__
+  function isRef(r) {
+    return r ? r["__v_isRef"] === true : false;
+  }
+  function unref(ref2) {
+    return /* @__PURE__ */ isRef(ref2) ? ref2.value : ref2;
+  }
+  const shallowUnwrapHandlers = {
+    get: (target, key, receiver) => key === "__v_raw" ? target : unref(Reflect.get(target, key, receiver)),
+    set: (target, key, value, receiver) => {
+      const oldValue = target[key];
+      if (/* @__PURE__ */ isRef(oldValue) && !/* @__PURE__ */ isRef(value)) {
+        oldValue.value = value;
+        return true;
+      } else {
+        return Reflect.set(target, key, value, receiver);
+      }
+    }
+  };
+  function proxyRefs(objectWithRefs) {
+    return /* @__PURE__ */ isReactive(objectWithRefs) ? objectWithRefs : new Proxy(objectWithRefs, shallowUnwrapHandlers);
+  }
+  class ComputedRefImpl {
+    constructor(fn, setter, isSSR) {
+      this.fn = fn;
+      this.setter = setter;
+      this._value = void 0;
+      this.dep = new Dep(this);
+      this.__v_isRef = true;
+      this.deps = void 0;
+      this.depsTail = void 0;
+      this.flags = 16;
+      this.globalVersion = globalVersion - 1;
+      this.next = void 0;
+      this.effect = this;
+      this["__v_isReadonly"] = !setter;
+      this.isSSR = isSSR;
+    }
+    /**
+     * @internal
+     */
+    notify() {
+      this.flags |= 16;
+      if (!(this.flags & 8) && // avoid infinite self recursion
+      activeSub !== this) {
+        batch(this, true);
+        return true;
+      }
+    }
+    get value() {
+      const link = this.dep.track();
+      refreshComputed(this);
+      if (link) {
+        link.version = this.dep.version;
+      }
+      return this._value;
+    }
+    set value(newValue) {
+      if (this.setter) {
+        this.setter(newValue);
+      }
+    }
+  }
+  // @__NO_SIDE_EFFECTS__
+  function computed$1(getterOrOptions, debugOptions, isSSR = false) {
+    let getter;
+    let setter;
+    if (isFunction(getterOrOptions)) {
+      getter = getterOrOptions;
+    } else {
+      getter = getterOrOptions.get;
+      setter = getterOrOptions.set;
+    }
+    const cRef = new ComputedRefImpl(getter, setter, isSSR);
+    return cRef;
+  }
+  const INITIAL_WATCHER_VALUE = {};
+  const cleanupMap = /* @__PURE__ */ new WeakMap();
+  let activeWatcher = void 0;
+  function onWatcherCleanup(cleanupFn, failSilently = false, owner = activeWatcher) {
+    if (owner) {
+      let cleanups = cleanupMap.get(owner);
+      if (!cleanups) cleanupMap.set(owner, cleanups = []);
+      cleanups.push(cleanupFn);
+    }
+  }
+  function watch$1(source, cb, options = EMPTY_OBJ) {
+    const { immediate, deep, once, scheduler, augmentJob, call } = options;
+    const reactiveGetter = (source2) => {
+      if (deep) return source2;
+      if (/* @__PURE__ */ isShallow(source2) || deep === false || deep === 0)
+        return traverse(source2, 1);
+      return traverse(source2);
+    };
+    let effect2;
+    let getter;
+    let cleanup;
+    let boundCleanup;
+    let forceTrigger = false;
+    let isMultiSource = false;
+    if (/* @__PURE__ */ isRef(source)) {
+      getter = () => source.value;
+      forceTrigger = /* @__PURE__ */ isShallow(source);
+    } else if (/* @__PURE__ */ isReactive(source)) {
+      getter = () => reactiveGetter(source);
+      forceTrigger = true;
+    } else if (isArray(source)) {
+      isMultiSource = true;
+      forceTrigger = source.some((s) => /* @__PURE__ */ isReactive(s) || /* @__PURE__ */ isShallow(s));
+      getter = () => source.map((s) => {
+        if (/* @__PURE__ */ isRef(s)) {
+          return s.value;
+        } else if (/* @__PURE__ */ isReactive(s)) {
+          return reactiveGetter(s);
+        } else if (isFunction(s)) {
+          return call ? call(s, 2) : s();
+        } else ;
+      });
+    } else if (isFunction(source)) {
+      if (cb) {
+        getter = call ? () => call(source, 2) : source;
+      } else {
+        getter = () => {
+          if (cleanup) {
+            pauseTracking();
+            try {
+              cleanup();
+            } finally {
+              resetTracking();
+            }
+          }
+          const currentEffect = activeWatcher;
+          activeWatcher = effect2;
+          try {
+            return call ? call(source, 3, [boundCleanup]) : source(boundCleanup);
+          } finally {
+            activeWatcher = currentEffect;
+          }
+        };
+      }
+    } else {
+      getter = NOOP;
+    }
+    if (cb && deep) {
+      const baseGetter = getter;
+      const depth = deep === true ? Infinity : deep;
+      getter = () => traverse(baseGetter(), depth);
+    }
+    const scope = getCurrentScope();
+    const watchHandle = () => {
+      effect2.stop();
+      if (scope && scope.active) {
+        remove(scope.effects, effect2);
+      }
+    };
+    if (once && cb) {
+      const _cb = cb;
+      cb = (...args) => {
+        const res = _cb(...args);
+        watchHandle();
+        return res;
+      };
+    }
+    let oldValue = isMultiSource ? new Array(source.length).fill(INITIAL_WATCHER_VALUE) : INITIAL_WATCHER_VALUE;
+    const job = (immediateFirstRun) => {
+      if (!(effect2.flags & 1) || !effect2.dirty && !immediateFirstRun) {
+        return;
+      }
+      if (cb) {
+        const newValue = effect2.run();
+        if (immediateFirstRun || deep || forceTrigger || (isMultiSource ? newValue.some((v, i) => hasChanged(v, oldValue[i])) : hasChanged(newValue, oldValue))) {
+          if (cleanup) {
+            cleanup();
+          }
+          const currentWatcher = activeWatcher;
+          activeWatcher = effect2;
+          try {
+            const args = [
+              newValue,
+              // pass undefined as the old value when it's changed for the first time
+              oldValue === INITIAL_WATCHER_VALUE ? void 0 : isMultiSource && oldValue[0] === INITIAL_WATCHER_VALUE ? [] : oldValue,
+              boundCleanup
+            ];
+            oldValue = newValue;
+            call ? call(cb, 3, args) : (
+              // @ts-expect-error
+              cb(...args)
+            );
+          } finally {
+            activeWatcher = currentWatcher;
+          }
+        }
+      } else {
+        effect2.run();
+      }
+    };
+    if (augmentJob) {
+      augmentJob(job);
+    }
+    effect2 = new ReactiveEffect(getter);
+    effect2.scheduler = scheduler ? () => scheduler(job, false) : job;
+    boundCleanup = (fn) => onWatcherCleanup(fn, false, effect2);
+    cleanup = effect2.onStop = () => {
+      const cleanups = cleanupMap.get(effect2);
+      if (cleanups) {
+        if (call) {
+          call(cleanups, 4);
+        } else {
+          for (const cleanup2 of cleanups) cleanup2();
+        }
+        cleanupMap.delete(effect2);
+      }
+    };
+    if (cb) {
+      if (immediate) {
+        job(true);
+      } else {
+        oldValue = effect2.run();
+      }
+    } else if (scheduler) {
+      scheduler(job.bind(null, true), true);
+    } else {
+      effect2.run();
+    }
+    watchHandle.pause = effect2.pause.bind(effect2);
+    watchHandle.resume = effect2.resume.bind(effect2);
+    watchHandle.stop = watchHandle;
+    return watchHandle;
+  }
+  function traverse(value, depth = Infinity, seen) {
+    if (depth <= 0 || !isObject(value) || value["__v_skip"]) {
+      return value;
+    }
+    seen = seen || /* @__PURE__ */ new Map();
+    if ((seen.get(value) || 0) >= depth) {
+      return value;
+    }
+    seen.set(value, depth);
+    depth--;
+    if (/* @__PURE__ */ isRef(value)) {
+      traverse(value.value, depth, seen);
+    } else if (isArray(value)) {
+      for (let i = 0; i < value.length; i++) {
+        traverse(value[i], depth, seen);
+      }
+    } else if (isSet(value) || isMap(value)) {
+      value.forEach((v) => {
+        traverse(v, depth, seen);
+      });
+    } else if (isPlainObject(value)) {
+      for (const key in value) {
+        traverse(value[key], depth, seen);
+      }
+      for (const key of Object.getOwnPropertySymbols(value)) {
+        if (Object.prototype.propertyIsEnumerable.call(value, key)) {
+          traverse(value[key], depth, seen);
+        }
+      }
+    }
+    return value;
+  }
+  /**
+  * @vue/runtime-core v3.5.38
+  * (c) 2018-present Yuxi (Evan) You and Vue contributors
+  * @license MIT
+  **/
+  const stack = [];
+  let isWarning = false;
+  function warn$1(msg, ...args) {
+    if (isWarning) return;
+    isWarning = true;
+    pauseTracking();
+    const instance = stack.length ? stack[stack.length - 1].component : null;
+    const appWarnHandler = instance && instance.appContext.config.warnHandler;
+    const trace = getComponentTrace();
+    if (appWarnHandler) {
+      callWithErrorHandling(
+        appWarnHandler,
+        instance,
+        11,
+        [
+          // eslint-disable-next-line no-restricted-syntax
+          msg + args.map((a) => {
+            var _a, _b;
+            return (_b = (_a = a.toString) == null ? void 0 : _a.call(a)) != null ? _b : JSON.stringify(a);
+          }).join(""),
+          instance && instance.proxy,
+          trace.map(
+            ({ vnode }) => `at <${formatComponentName(instance, vnode.type)}>`
+          ).join("\n"),
+          trace
+        ]
+      );
+    } else {
+      const warnArgs = [`[Vue warn]: ${msg}`, ...args];
+      if (trace.length && // avoid spamming console during tests
+      true) {
+        warnArgs.push(`
+`, ...formatTrace(trace));
+      }
+      console.warn(...warnArgs);
+    }
+    resetTracking();
+    isWarning = false;
+  }
+  function getComponentTrace() {
+    let currentVNode = stack[stack.length - 1];
+    if (!currentVNode) {
+      return [];
+    }
+    const normalizedStack = [];
+    while (currentVNode) {
+      const last = normalizedStack[0];
+      if (last && last.vnode === currentVNode) {
+        last.recurseCount++;
+      } else {
+        normalizedStack.push({
+          vnode: currentVNode,
+          recurseCount: 0
+        });
+      }
+      const parentInstance = currentVNode.component && currentVNode.component.parent;
+      currentVNode = parentInstance && parentInstance.vnode;
+    }
+    return normalizedStack;
+  }
+  function formatTrace(trace) {
+    const logs = [];
+    trace.forEach((entry, i) => {
+      logs.push(...i === 0 ? [] : [`
+`], ...formatTraceEntry(entry));
+    });
+    return logs;
+  }
+  function formatTraceEntry({ vnode, recurseCount }) {
+    const postfix = recurseCount > 0 ? `... (${recurseCount} recursive calls)` : ``;
+    const isRoot = vnode.component ? vnode.component.parent == null : false;
+    const open = ` at <${formatComponentName(
+      vnode.component,
+      vnode.type,
+      isRoot
+    )}`;
+    const close = `>` + postfix;
+    return vnode.props ? [open, ...formatProps(vnode.props), close] : [open + close];
+  }
+  function formatProps(props) {
+    const res = [];
+    const keys = Object.keys(props);
+    keys.slice(0, 3).forEach((key) => {
+      res.push(...formatProp(key, props[key]));
+    });
+    if (keys.length > 3) {
+      res.push(` ...`);
+    }
+    return res;
+  }
+  function formatProp(key, value, raw) {
+    if (isString(value)) {
+      value = JSON.stringify(value);
+      return raw ? value : [`${key}=${value}`];
+    } else if (typeof value === "number" || typeof value === "boolean" || value == null) {
+      return raw ? value : [`${key}=${value}`];
+    } else if (/* @__PURE__ */ isRef(value)) {
+      value = formatProp(key, /* @__PURE__ */ toRaw(value.value), true);
+      return raw ? value : [`${key}=Ref<`, value, `>`];
+    } else if (isFunction(value)) {
+      return [`${key}=fn${value.name ? `<${value.name}>` : ``}`];
+    } else {
+      value = /* @__PURE__ */ toRaw(value);
+      return raw ? value : [`${key}=`, value];
+    }
+  }
+  function callWithErrorHandling(fn, instance, type, args) {
+    try {
+      return args ? fn(...args) : fn();
+    } catch (err) {
+      handleError(err, instance, type);
+    }
+  }
+  function callWithAsyncErrorHandling(fn, instance, type, args) {
+    if (isFunction(fn)) {
+      const res = callWithErrorHandling(fn, instance, type, args);
+      if (res && isPromise(res)) {
+        res.catch((err) => {
+          handleError(err, instance, type);
+        });
+      }
+      return res;
+    }
+    if (isArray(fn)) {
+      const values = [];
+      for (let i = 0; i < fn.length; i++) {
+        values.push(callWithAsyncErrorHandling(fn[i], instance, type, args));
+      }
+      return values;
+    }
+  }
+  function handleError(err, instance, type, throwInDev = true) {
+    const contextVNode = instance ? instance.vnode : null;
+    const { errorHandler, throwUnhandledErrorInProduction } = instance && instance.appContext.config || EMPTY_OBJ;
+    if (instance) {
+      let cur = instance.parent;
+      const exposedInstance = instance.proxy;
+      const errorInfo = `https://vuejs.org/error-reference/#runtime-${type}`;
+      while (cur) {
+        const errorCapturedHooks = cur.ec;
+        if (errorCapturedHooks) {
+          for (let i = 0; i < errorCapturedHooks.length; i++) {
+            if (errorCapturedHooks[i](err, exposedInstance, errorInfo) === false) {
+              return;
+            }
+          }
+        }
+        cur = cur.parent;
+      }
+      if (errorHandler) {
+        pauseTracking();
+        callWithErrorHandling(errorHandler, null, 10, [
+          err,
+          exposedInstance,
+          errorInfo
+        ]);
+        resetTracking();
+        return;
+      }
+    }
+    logError(err, type, contextVNode, throwInDev, throwUnhandledErrorInProduction);
+  }
+  function logError(err, type, contextVNode, throwInDev = true, throwInProd = false) {
+    if (throwInProd) {
+      throw err;
+    } else {
+      console.error(err);
+    }
+  }
+  const queue = [];
+  let flushIndex = -1;
+  const pendingPostFlushCbs = [];
+  let activePostFlushCbs = null;
+  let postFlushIndex = 0;
+  const resolvedPromise = /* @__PURE__ */ Promise.resolve();
+  let currentFlushPromise = null;
+  function nextTick(fn) {
+    const p2 = currentFlushPromise || resolvedPromise;
+    return fn ? p2.then(this ? fn.bind(this) : fn) : p2;
+  }
+  function findInsertionIndex(id) {
+    let start = flushIndex + 1;
+    let end = queue.length;
+    while (start < end) {
+      const middle = start + end >>> 1;
+      const middleJob = queue[middle];
+      const middleJobId = getId(middleJob);
+      if (middleJobId < id || middleJobId === id && middleJob.flags & 2) {
+        start = middle + 1;
+      } else {
+        end = middle;
+      }
+    }
+    return start;
+  }
+  function queueJob(job) {
+    if (!(job.flags & 1)) {
+      const jobId = getId(job);
+      const lastJob = queue[queue.length - 1];
+      if (!lastJob || // fast path when the job id is larger than the tail
+      !(job.flags & 2) && jobId >= getId(lastJob)) {
+        queue.push(job);
+      } else {
+        queue.splice(findInsertionIndex(jobId), 0, job);
+      }
+      job.flags |= 1;
+      queueFlush();
+    }
+  }
+  function queueFlush() {
+    if (!currentFlushPromise) {
+      currentFlushPromise = resolvedPromise.then(flushJobs);
+    }
+  }
+  function queuePostFlushCb(cb) {
+    if (!isArray(cb)) {
+      if (activePostFlushCbs && cb.id === -1) {
+        activePostFlushCbs.splice(postFlushIndex + 1, 0, cb);
+      } else if (!(cb.flags & 1)) {
+        pendingPostFlushCbs.push(cb);
+        cb.flags |= 1;
+      }
+    } else {
+      pendingPostFlushCbs.push(...cb);
+    }
+    queueFlush();
+  }
+  function flushPreFlushCbs(instance, seen, i = flushIndex + 1) {
+    for (; i < queue.length; i++) {
+      const cb = queue[i];
+      if (cb && cb.flags & 2) {
+        if (instance && cb.id !== instance.uid) {
+          continue;
+        }
+        queue.splice(i, 1);
+        i--;
+        if (cb.flags & 4) {
+          cb.flags &= -2;
+        }
+        cb();
+        if (!(cb.flags & 4)) {
+          cb.flags &= -2;
+        }
+      }
+    }
+  }
+  function flushPostFlushCbs(seen) {
+    if (pendingPostFlushCbs.length) {
+      const deduped = [...new Set(pendingPostFlushCbs)].sort(
+        (a, b) => getId(a) - getId(b)
+      );
+      pendingPostFlushCbs.length = 0;
+      if (activePostFlushCbs) {
+        activePostFlushCbs.push(...deduped);
+        return;
+      }
+      activePostFlushCbs = deduped;
+      for (postFlushIndex = 0; postFlushIndex < activePostFlushCbs.length; postFlushIndex++) {
+        const cb = activePostFlushCbs[postFlushIndex];
+        if (cb.flags & 4) {
+          cb.flags &= -2;
+        }
+        if (!(cb.flags & 8)) cb();
+        cb.flags &= -2;
+      }
+      activePostFlushCbs = null;
+      postFlushIndex = 0;
+    }
+  }
+  const getId = (job) => job.id == null ? job.flags & 2 ? -1 : Infinity : job.id;
+  function flushJobs(seen) {
+    try {
+      for (flushIndex = 0; flushIndex < queue.length; flushIndex++) {
+        const job = queue[flushIndex];
+        if (job && !(job.flags & 8)) {
+          if (false) ;
+          if (job.flags & 4) {
+            job.flags &= ~1;
+          }
+          callWithErrorHandling(
+            job,
+            job.i,
+            job.i ? 15 : 14
+          );
+          if (!(job.flags & 4)) {
+            job.flags &= ~1;
+          }
+        }
+      }
+    } finally {
+      for (; flushIndex < queue.length; flushIndex++) {
+        const job = queue[flushIndex];
+        if (job) {
+          job.flags &= -2;
+        }
+      }
+      flushIndex = -1;
+      queue.length = 0;
+      flushPostFlushCbs();
+      currentFlushPromise = null;
+      if (queue.length || pendingPostFlushCbs.length) {
+        flushJobs();
+      }
+    }
+  }
+  let currentRenderingInstance = null;
+  let currentScopeId = null;
+  function setCurrentRenderingInstance(instance) {
+    const prev = currentRenderingInstance;
+    currentRenderingInstance = instance;
+    currentScopeId = instance && instance.type.__scopeId || null;
+    return prev;
+  }
+  function withCtx(fn, ctx = currentRenderingInstance, isNonScopedSlot) {
+    if (!ctx) return fn;
+    if (fn._n) {
+      return fn;
+    }
+    const renderFnWithContext = (...args) => {
+      if (renderFnWithContext._d) {
+        setBlockTracking(-1);
+      }
+      const prevInstance = setCurrentRenderingInstance(ctx);
+      let res;
+      try {
+        res = fn(...args);
+      } finally {
+        setCurrentRenderingInstance(prevInstance);
+        if (renderFnWithContext._d) {
+          setBlockTracking(1);
+        }
+      }
+      return res;
+    };
+    renderFnWithContext._n = true;
+    renderFnWithContext._c = true;
+    renderFnWithContext._d = true;
+    return renderFnWithContext;
+  }
+  function withDirectives(vnode, directives) {
+    if (currentRenderingInstance === null) {
+      return vnode;
+    }
+    const instance = getComponentPublicInstance(currentRenderingInstance);
+    const bindings = vnode.dirs || (vnode.dirs = []);
+    for (let i = 0; i < directives.length; i++) {
+      let [dir, value, arg, modifiers = EMPTY_OBJ] = directives[i];
+      if (dir) {
+        if (isFunction(dir)) {
+          dir = {
+            mounted: dir,
+            updated: dir
+          };
+        }
+        if (dir.deep) {
+          traverse(value);
+        }
+        bindings.push({
+          dir,
+          instance,
+          value,
+          oldValue: void 0,
+          arg,
+          modifiers
+        });
+      }
+    }
+    return vnode;
+  }
+  function invokeDirectiveHook(vnode, prevVNode, instance, name) {
+    const bindings = vnode.dirs;
+    const oldBindings = prevVNode && prevVNode.dirs;
+    for (let i = 0; i < bindings.length; i++) {
+      const binding = bindings[i];
+      if (oldBindings) {
+        binding.oldValue = oldBindings[i].value;
+      }
+      let hook = binding.dir[name];
+      if (hook) {
+        pauseTracking();
+        callWithAsyncErrorHandling(hook, instance, 8, [
+          vnode.el,
+          binding,
+          vnode,
+          prevVNode
+        ]);
+        resetTracking();
+      }
+    }
+  }
+  function provide(key, value) {
+    if (currentInstance) {
+      let provides = currentInstance.provides;
+      const parentProvides = currentInstance.parent && currentInstance.parent.provides;
+      if (parentProvides === provides) {
+        provides = currentInstance.provides = Object.create(parentProvides);
+      }
+      provides[key] = value;
+    }
+  }
+  function inject(key, defaultValue, treatDefaultAsFactory = false) {
+    const instance = getCurrentInstance();
+    if (instance || currentApp) {
+      let provides = currentApp ? currentApp._context.provides : instance ? instance.parent == null || instance.ce ? instance.vnode.appContext && instance.vnode.appContext.provides : instance.parent.provides : void 0;
+      if (provides && key in provides) {
+        return provides[key];
+      } else if (arguments.length > 1) {
+        return treatDefaultAsFactory && isFunction(defaultValue) ? defaultValue.call(instance && instance.proxy) : defaultValue;
+      } else ;
+    }
+  }
+  const ssrContextKey = /* @__PURE__ */ Symbol.for("v-scx");
+  const useSSRContext = () => {
+    {
+      const ctx = inject(ssrContextKey);
+      return ctx;
+    }
+  };
+  function watch(source, cb, options) {
+    return doWatch(source, cb, options);
+  }
+  function doWatch(source, cb, options = EMPTY_OBJ) {
+    const { immediate, deep, flush, once } = options;
+    const baseWatchOptions = extend({}, options);
+    const runsImmediately = cb && immediate || !cb && flush !== "post";
+    let ssrCleanup;
+    if (isInSSRComponentSetup) {
+      if (flush === "sync") {
+        const ctx = useSSRContext();
+        ssrCleanup = ctx.__watcherHandles || (ctx.__watcherHandles = []);
+      } else if (!runsImmediately) {
+        const watchStopHandle = () => {
+        };
+        watchStopHandle.stop = NOOP;
+        watchStopHandle.resume = NOOP;
+        watchStopHandle.pause = NOOP;
+        return watchStopHandle;
+      }
+    }
+    const instance = currentInstance;
+    baseWatchOptions.call = (fn, type, args) => callWithAsyncErrorHandling(fn, instance, type, args);
+    let isPre = false;
+    if (flush === "post") {
+      baseWatchOptions.scheduler = (job) => {
+        queuePostRenderEffect(job, instance && instance.suspense);
+      };
+    } else if (flush !== "sync") {
+      isPre = true;
+      baseWatchOptions.scheduler = (job, isFirstRun) => {
+        if (isFirstRun) {
+          job();
+        } else {
+          queueJob(job);
+        }
+      };
+    }
+    baseWatchOptions.augmentJob = (job) => {
+      if (cb) {
+        job.flags |= 4;
+      }
+      if (isPre) {
+        job.flags |= 2;
+        if (instance) {
+          job.id = instance.uid;
+          job.i = instance;
+        }
+      }
+    };
+    const watchHandle = watch$1(source, cb, baseWatchOptions);
+    if (isInSSRComponentSetup) {
+      if (ssrCleanup) {
+        ssrCleanup.push(watchHandle);
+      } else if (runsImmediately) {
+        watchHandle();
+      }
+    }
+    return watchHandle;
+  }
+  function instanceWatch(source, value, options) {
+    const publicThis = this.proxy;
+    const getter = isString(source) ? source.includes(".") ? createPathGetter(publicThis, source) : () => publicThis[source] : source.bind(publicThis, publicThis);
+    let cb;
+    if (isFunction(value)) {
+      cb = value;
+    } else {
+      cb = value.handler;
+      options = value;
+    }
+    const reset = setCurrentInstance(this);
+    const res = doWatch(getter, cb.bind(publicThis), options);
+    reset();
+    return res;
+  }
+  function createPathGetter(ctx, path) {
+    const segments = path.split(".");
+    return () => {
+      let cur = ctx;
+      for (let i = 0; i < segments.length && cur; i++) {
+        cur = cur[segments[i]];
+      }
+      return cur;
+    };
+  }
+  const TeleportEndKey = /* @__PURE__ */ Symbol("_vte");
+  const isTeleport = (type) => type.__isTeleport;
+  const leaveCbKey = /* @__PURE__ */ Symbol("_leaveCb");
+  function setTransitionHooks(vnode, hooks) {
+    if (vnode.shapeFlag & 6 && vnode.component) {
+      vnode.transition = hooks;
+      setTransitionHooks(vnode.component.subTree, hooks);
+    } else if (vnode.shapeFlag & 128) {
+      vnode.ssContent.transition = hooks.clone(vnode.ssContent);
+      vnode.ssFallback.transition = hooks.clone(vnode.ssFallback);
+    } else {
+      vnode.transition = hooks;
+    }
+  }
+  // @__NO_SIDE_EFFECTS__
+  function defineComponent(options, extraOptions) {
+    return isFunction(options) ? (
+      // #8236: extend call and options.name access are considered side-effects
+      // by Rollup, so we have to wrap it in a pure-annotated IIFE.
+      /* @__PURE__ */ (() => extend({ name: options.name }, extraOptions, { setup: options }))()
+    ) : options;
+  }
+  function markAsyncBoundary(instance) {
+    instance.ids = [instance.ids[0] + instance.ids[2]++ + "-", 0, 0];
+  }
+  function isTemplateRefKey(refs, key) {
+    let desc;
+    return !!((desc = Object.getOwnPropertyDescriptor(refs, key)) && !desc.configurable);
+  }
+  const pendingSetRefMap = /* @__PURE__ */ new WeakMap();
+  function setRef(rawRef, oldRawRef, parentSuspense, vnode, isUnmount = false) {
+    if (isArray(rawRef)) {
+      rawRef.forEach(
+        (r, i) => setRef(
+          r,
+          oldRawRef && (isArray(oldRawRef) ? oldRawRef[i] : oldRawRef),
+          parentSuspense,
+          vnode,
+          isUnmount
+        )
+      );
+      return;
+    }
+    if (isAsyncWrapper(vnode) && !isUnmount) {
+      if (vnode.shapeFlag & 512 && vnode.type.__asyncResolved && vnode.component.subTree.component) {
+        setRef(rawRef, oldRawRef, parentSuspense, vnode.component.subTree);
+      }
+      return;
+    }
+    const refValue = vnode.shapeFlag & 4 ? getComponentPublicInstance(vnode.component) : vnode.el;
+    const value = isUnmount ? null : refValue;
+    const { i: owner, r: ref3 } = rawRef;
+    const oldRef = oldRawRef && oldRawRef.r;
+    const refs = owner.refs === EMPTY_OBJ ? owner.refs = {} : owner.refs;
+    const setupState = owner.setupState;
+    const rawSetupState = /* @__PURE__ */ toRaw(setupState);
+    const canSetSetupRef = setupState === EMPTY_OBJ ? NO : (key) => {
+      if (isTemplateRefKey(refs, key)) {
+        return false;
+      }
+      return hasOwn(rawSetupState, key);
+    };
+    const canSetRef = (ref22, key) => {
+      if (key && isTemplateRefKey(refs, key)) {
+        return false;
+      }
+      return true;
+    };
+    if (oldRef != null && oldRef !== ref3) {
+      invalidatePendingSetRef(oldRawRef);
+      if (isString(oldRef)) {
+        refs[oldRef] = null;
+        if (canSetSetupRef(oldRef)) {
+          setupState[oldRef] = null;
+        }
+      } else if (/* @__PURE__ */ isRef(oldRef)) {
+        const oldRawRefAtom = oldRawRef;
+        if (canSetRef(oldRef, oldRawRefAtom.k)) {
+          oldRef.value = null;
+        }
+        if (oldRawRefAtom.k) refs[oldRawRefAtom.k] = null;
+      }
+    }
+    if (isFunction(ref3)) {
+      callWithErrorHandling(ref3, owner, 12, [value, refs]);
+    } else {
+      const _isString = isString(ref3);
+      const _isRef = /* @__PURE__ */ isRef(ref3);
+      if (_isString || _isRef) {
+        const doSet = () => {
+          if (rawRef.f) {
+            const existing = _isString ? canSetSetupRef(ref3) ? setupState[ref3] : refs[ref3] : canSetRef() || !rawRef.k ? ref3.value : refs[rawRef.k];
+            if (isUnmount) {
+              isArray(existing) && remove(existing, refValue);
+            } else {
+              if (!isArray(existing)) {
+                if (_isString) {
+                  refs[ref3] = [refValue];
+                  if (canSetSetupRef(ref3)) {
+                    setupState[ref3] = refs[ref3];
+                  }
+                } else {
+                  const newVal = [refValue];
+                  if (canSetRef(ref3, rawRef.k)) {
+                    ref3.value = newVal;
+                  }
+                  if (rawRef.k) refs[rawRef.k] = newVal;
+                }
+              } else if (!existing.includes(refValue)) {
+                existing.push(refValue);
+              }
+            }
+          } else if (_isString) {
+            refs[ref3] = value;
+            if (canSetSetupRef(ref3)) {
+              setupState[ref3] = value;
+            }
+          } else if (_isRef) {
+            if (canSetRef(ref3, rawRef.k)) {
+              ref3.value = value;
+            }
+            if (rawRef.k) refs[rawRef.k] = value;
+          } else ;
+        };
+        if (value) {
+          const job = () => {
+            doSet();
+            pendingSetRefMap.delete(rawRef);
+          };
+          job.id = -1;
+          pendingSetRefMap.set(rawRef, job);
+          queuePostRenderEffect(job, parentSuspense);
+        } else {
+          invalidatePendingSetRef(rawRef);
+          doSet();
+        }
+      }
+    }
+  }
+  function invalidatePendingSetRef(rawRef) {
+    const pendingSetRef = pendingSetRefMap.get(rawRef);
+    if (pendingSetRef) {
+      pendingSetRef.flags |= 8;
+      pendingSetRefMap.delete(rawRef);
+    }
+  }
+  getGlobalThis().requestIdleCallback || ((cb) => setTimeout(cb, 1));
+  getGlobalThis().cancelIdleCallback || ((id) => clearTimeout(id));
+  const isAsyncWrapper = (i) => !!i.type.__asyncLoader;
+  const isKeepAlive = (vnode) => vnode.type.__isKeepAlive;
+  function onActivated(hook, target) {
+    registerKeepAliveHook(hook, "a", target);
+  }
+  function onDeactivated(hook, target) {
+    registerKeepAliveHook(hook, "da", target);
+  }
+  function registerKeepAliveHook(hook, type, target = currentInstance) {
+    const wrappedHook = hook.__wdc || (hook.__wdc = () => {
+      let current = target;
+      while (current) {
+        if (current.isDeactivated) {
+          return;
+        }
+        current = current.parent;
+      }
+      return hook();
+    });
+    injectHook(type, wrappedHook, target);
+    if (target) {
+      let current = target.parent;
+      while (current && current.parent) {
+        if (isKeepAlive(current.parent.vnode)) {
+          injectToKeepAliveRoot(wrappedHook, type, target, current);
+        }
+        current = current.parent;
+      }
+    }
+  }
+  function injectToKeepAliveRoot(hook, type, target, keepAliveRoot) {
+    const injected = injectHook(
+      type,
+      hook,
+      keepAliveRoot,
+      true
+      /* prepend */
+    );
+    onUnmounted(() => {
+      remove(keepAliveRoot[type], injected);
+    }, target);
+  }
+  function injectHook(type, hook, target = currentInstance, prepend = false) {
+    if (target) {
+      const hooks = target[type] || (target[type] = []);
+      const wrappedHook = hook.__weh || (hook.__weh = (...args) => {
+        pauseTracking();
+        const reset = setCurrentInstance(target);
+        const res = callWithAsyncErrorHandling(hook, target, type, args);
+        reset();
+        resetTracking();
+        return res;
+      });
+      if (prepend) {
+        hooks.unshift(wrappedHook);
+      } else {
+        hooks.push(wrappedHook);
+      }
+      return wrappedHook;
+    }
+  }
+  const createHook = (lifecycle) => (hook, target = currentInstance) => {
+    if (!isInSSRComponentSetup || lifecycle === "sp") {
+      injectHook(lifecycle, (...args) => hook(...args), target);
+    }
+  };
+  const onBeforeMount = createHook("bm");
+  const onMounted = createHook("m");
+  const onBeforeUpdate = createHook(
+    "bu"
+  );
+  const onUpdated = createHook("u");
+  const onBeforeUnmount = createHook(
+    "bum"
+  );
+  const onUnmounted = createHook("um");
+  const onServerPrefetch = createHook(
+    "sp"
+  );
+  const onRenderTriggered = createHook("rtg");
+  const onRenderTracked = createHook("rtc");
+  function onErrorCaptured(hook, target = currentInstance) {
+    injectHook("ec", hook, target);
+  }
+  const NULL_DYNAMIC_COMPONENT = /* @__PURE__ */ Symbol.for("v-ndc");
+  function renderList(source, renderItem, cache, index) {
+    let ret;
+    const cached = cache;
+    const sourceIsArray = isArray(source);
+    if (sourceIsArray || isString(source)) {
+      const sourceIsReactiveArray = sourceIsArray && /* @__PURE__ */ isReactive(source);
+      let needsWrap = false;
+      let isReadonlySource = false;
+      if (sourceIsReactiveArray) {
+        needsWrap = !/* @__PURE__ */ isShallow(source);
+        isReadonlySource = /* @__PURE__ */ isReadonly(source);
+        source = shallowReadArray(source);
+      }
+      ret = new Array(source.length);
+      for (let i = 0, l = source.length; i < l; i++) {
+        ret[i] = renderItem(
+          needsWrap ? isReadonlySource ? toReadonly(toReactive(source[i])) : toReactive(source[i]) : source[i],
+          i,
+          void 0,
+          cached
+        );
+      }
+    } else if (typeof source === "number") {
+      {
+        ret = new Array(source);
+        for (let i = 0; i < source; i++) {
+          ret[i] = renderItem(i + 1, i, void 0, cached);
+        }
+      }
+    } else if (isObject(source)) {
+      if (source[Symbol.iterator]) {
+        ret = Array.from(
+          source,
+          (item, i) => renderItem(item, i, void 0, cached)
+        );
+      } else {
+        const keys = Object.keys(source);
+        ret = new Array(keys.length);
+        for (let i = 0, l = keys.length; i < l; i++) {
+          const key = keys[i];
+          ret[i] = renderItem(source[key], key, i, cached);
+        }
+      }
+    } else {
+      ret = [];
+    }
+    return ret;
+  }
+  const getPublicInstance = (i) => {
+    if (!i) return null;
+    if (isStatefulComponent(i)) return getComponentPublicInstance(i);
+    return getPublicInstance(i.parent);
+  };
+  const publicPropertiesMap = (
+    // Move PURE marker to new line to workaround compiler discarding it
+    // due to type annotation
+    /* @__PURE__ */ extend(/* @__PURE__ */ Object.create(null), {
+      $: (i) => i,
+      $el: (i) => i.vnode.el,
+      $data: (i) => i.data,
+      $props: (i) => i.props,
+      $attrs: (i) => i.attrs,
+      $slots: (i) => i.slots,
+      $refs: (i) => i.refs,
+      $parent: (i) => getPublicInstance(i.parent),
+      $root: (i) => getPublicInstance(i.root),
+      $host: (i) => i.ce,
+      $emit: (i) => i.emit,
+      $options: (i) => resolveMergedOptions(i),
+      $forceUpdate: (i) => i.f || (i.f = () => {
+        queueJob(i.update);
+      }),
+      $nextTick: (i) => i.n || (i.n = nextTick.bind(i.proxy)),
+      $watch: (i) => instanceWatch.bind(i)
+    })
+  );
+  const hasSetupBinding = (state, key) => state !== EMPTY_OBJ && !state.__isScriptSetup && hasOwn(state, key);
+  const PublicInstanceProxyHandlers = {
+    get({ _: instance }, key) {
+      if (key === "__v_skip") {
+        return true;
+      }
+      const { ctx, setupState, data, props, accessCache, type, appContext } = instance;
+      if (key[0] !== "$") {
+        const n = accessCache[key];
+        if (n !== void 0) {
+          switch (n) {
+            case 1:
+              return setupState[key];
+            case 2:
+              return data[key];
+            case 4:
+              return ctx[key];
+            case 3:
+              return props[key];
+          }
+        } else if (hasSetupBinding(setupState, key)) {
+          accessCache[key] = 1;
+          return setupState[key];
+        } else if (data !== EMPTY_OBJ && hasOwn(data, key)) {
+          accessCache[key] = 2;
+          return data[key];
+        } else if (hasOwn(props, key)) {
+          accessCache[key] = 3;
+          return props[key];
+        } else if (ctx !== EMPTY_OBJ && hasOwn(ctx, key)) {
+          accessCache[key] = 4;
+          return ctx[key];
+        } else if (shouldCacheAccess) {
+          accessCache[key] = 0;
+        }
+      }
+      const publicGetter = publicPropertiesMap[key];
+      let cssModule, globalProperties;
+      if (publicGetter) {
+        if (key === "$attrs") {
+          track(instance.attrs, "get", "");
+        }
+        return publicGetter(instance);
+      } else if (
+        // css module (injected by vue-loader)
+        (cssModule = type.__cssModules) && (cssModule = cssModule[key])
+      ) {
+        return cssModule;
+      } else if (ctx !== EMPTY_OBJ && hasOwn(ctx, key)) {
+        accessCache[key] = 4;
+        return ctx[key];
+      } else if (
+        // global properties
+        globalProperties = appContext.config.globalProperties, hasOwn(globalProperties, key)
+      ) {
+        {
+          return globalProperties[key];
+        }
+      } else ;
+    },
+    set({ _: instance }, key, value) {
+      const { data, setupState, ctx } = instance;
+      if (hasSetupBinding(setupState, key)) {
+        setupState[key] = value;
+        return true;
+      } else if (data !== EMPTY_OBJ && hasOwn(data, key)) {
+        data[key] = value;
+        return true;
+      } else if (hasOwn(instance.props, key)) {
+        return false;
+      }
+      if (key[0] === "$" && key.slice(1) in instance) {
+        return false;
+      } else {
+        {
+          ctx[key] = value;
+        }
+      }
+      return true;
+    },
+    has({
+      _: { data, setupState, accessCache, ctx, appContext, props, type }
+    }, key) {
+      let cssModules;
+      return !!(accessCache[key] || data !== EMPTY_OBJ && key[0] !== "$" && hasOwn(data, key) || hasSetupBinding(setupState, key) || hasOwn(props, key) || hasOwn(ctx, key) || hasOwn(publicPropertiesMap, key) || hasOwn(appContext.config.globalProperties, key) || (cssModules = type.__cssModules) && cssModules[key]);
+    },
+    defineProperty(target, key, descriptor) {
+      if (descriptor.get != null) {
+        target._.accessCache[key] = 0;
+      } else if (hasOwn(descriptor, "value")) {
+        this.set(target, key, descriptor.value, null);
+      }
+      return Reflect.defineProperty(target, key, descriptor);
+    }
+  };
+  function normalizePropsOrEmits(props) {
+    return isArray(props) ? props.reduce(
+      (normalized, p2) => (normalized[p2] = null, normalized),
+      {}
+    ) : props;
+  }
+  let shouldCacheAccess = true;
+  function applyOptions(instance) {
+    const options = resolveMergedOptions(instance);
+    const publicThis = instance.proxy;
+    const ctx = instance.ctx;
+    shouldCacheAccess = false;
+    if (options.beforeCreate) {
+      callHook(options.beforeCreate, instance, "bc");
+    }
+    const {
+      // state
+      data: dataOptions,
+      computed: computedOptions,
+      methods,
+      watch: watchOptions,
+      provide: provideOptions,
+      inject: injectOptions,
+      // lifecycle
+      created,
+      beforeMount,
+      mounted,
+      beforeUpdate,
+      updated,
+      activated,
+      deactivated,
+      beforeDestroy,
+      beforeUnmount,
+      destroyed,
+      unmounted,
+      render: render2,
+      renderTracked,
+      renderTriggered,
+      errorCaptured,
+      serverPrefetch,
+      // public API
+      expose,
+      inheritAttrs,
+      // assets
+      components,
+      directives,
+      filters
+    } = options;
+    const checkDuplicateProperties = null;
+    if (injectOptions) {
+      resolveInjections(injectOptions, ctx, checkDuplicateProperties);
+    }
+    if (methods) {
+      for (const key in methods) {
+        const methodHandler = methods[key];
+        if (isFunction(methodHandler)) {
+          {
+            ctx[key] = methodHandler.bind(publicThis);
+          }
+        }
+      }
+    }
+    if (dataOptions) {
+      const data = dataOptions.call(publicThis, publicThis);
+      if (!isObject(data)) ;
+      else {
+        instance.data = /* @__PURE__ */ reactive(data);
+      }
+    }
+    shouldCacheAccess = true;
+    if (computedOptions) {
+      for (const key in computedOptions) {
+        const opt = computedOptions[key];
+        const get = isFunction(opt) ? opt.bind(publicThis, publicThis) : isFunction(opt.get) ? opt.get.bind(publicThis, publicThis) : NOOP;
+        const set = !isFunction(opt) && isFunction(opt.set) ? opt.set.bind(publicThis) : NOOP;
+        const c = computed({
+          get,
+          set
+        });
+        Object.defineProperty(ctx, key, {
+          enumerable: true,
+          configurable: true,
+          get: () => c.value,
+          set: (v) => c.value = v
+        });
+      }
+    }
+    if (watchOptions) {
+      for (const key in watchOptions) {
+        createWatcher(watchOptions[key], ctx, publicThis, key);
+      }
+    }
+    if (provideOptions) {
+      const provides = isFunction(provideOptions) ? provideOptions.call(publicThis) : provideOptions;
+      Reflect.ownKeys(provides).forEach((key) => {
+        provide(key, provides[key]);
+      });
+    }
+    if (created) {
+      callHook(created, instance, "c");
+    }
+    function registerLifecycleHook(register, hook) {
+      if (isArray(hook)) {
+        hook.forEach((_hook) => register(_hook.bind(publicThis)));
+      } else if (hook) {
+        register(hook.bind(publicThis));
+      }
+    }
+    registerLifecycleHook(onBeforeMount, beforeMount);
+    registerLifecycleHook(onMounted, mounted);
+    registerLifecycleHook(onBeforeUpdate, beforeUpdate);
+    registerLifecycleHook(onUpdated, updated);
+    registerLifecycleHook(onActivated, activated);
+    registerLifecycleHook(onDeactivated, deactivated);
+    registerLifecycleHook(onErrorCaptured, errorCaptured);
+    registerLifecycleHook(onRenderTracked, renderTracked);
+    registerLifecycleHook(onRenderTriggered, renderTriggered);
+    registerLifecycleHook(onBeforeUnmount, beforeUnmount);
+    registerLifecycleHook(onUnmounted, unmounted);
+    registerLifecycleHook(onServerPrefetch, serverPrefetch);
+    if (isArray(expose)) {
+      if (expose.length) {
+        const exposed = instance.exposed || (instance.exposed = {});
+        expose.forEach((key) => {
+          Object.defineProperty(exposed, key, {
+            get: () => publicThis[key],
+            set: (val) => publicThis[key] = val,
+            enumerable: true
+          });
+        });
+      } else if (!instance.exposed) {
+        instance.exposed = {};
+      }
+    }
+    if (render2 && instance.render === NOOP) {
+      instance.render = render2;
+    }
+    if (inheritAttrs != null) {
+      instance.inheritAttrs = inheritAttrs;
+    }
+    if (components) instance.components = components;
+    if (directives) instance.directives = directives;
+    if (serverPrefetch) {
+      markAsyncBoundary(instance);
+    }
+  }
+  function resolveInjections(injectOptions, ctx, checkDuplicateProperties = NOOP) {
+    if (isArray(injectOptions)) {
+      injectOptions = normalizeInject(injectOptions);
+    }
+    for (const key in injectOptions) {
+      const opt = injectOptions[key];
+      let injected;
+      if (isObject(opt)) {
+        if ("default" in opt) {
+          injected = inject(
+            opt.from || key,
+            opt.default,
+            true
+          );
+        } else {
+          injected = inject(opt.from || key);
+        }
+      } else {
+        injected = inject(opt);
+      }
+      if (/* @__PURE__ */ isRef(injected)) {
+        Object.defineProperty(ctx, key, {
+          enumerable: true,
+          configurable: true,
+          get: () => injected.value,
+          set: (v) => injected.value = v
+        });
+      } else {
+        ctx[key] = injected;
+      }
+    }
+  }
+  function callHook(hook, instance, type) {
+    callWithAsyncErrorHandling(
+      isArray(hook) ? hook.map((h2) => h2.bind(instance.proxy)) : hook.bind(instance.proxy),
+      instance,
+      type
+    );
+  }
+  function createWatcher(raw, ctx, publicThis, key) {
+    let getter = key.includes(".") ? createPathGetter(publicThis, key) : () => publicThis[key];
+    if (isString(raw)) {
+      const handler = ctx[raw];
+      if (isFunction(handler)) {
+        {
+          watch(getter, handler);
+        }
+      }
+    } else if (isFunction(raw)) {
+      {
+        watch(getter, raw.bind(publicThis));
+      }
+    } else if (isObject(raw)) {
+      if (isArray(raw)) {
+        raw.forEach((r) => createWatcher(r, ctx, publicThis, key));
+      } else {
+        const handler = isFunction(raw.handler) ? raw.handler.bind(publicThis) : ctx[raw.handler];
+        if (isFunction(handler)) {
+          watch(getter, handler, raw);
+        }
+      }
+    } else ;
+  }
+  function resolveMergedOptions(instance) {
+    const base = instance.type;
+    const { mixins, extends: extendsOptions } = base;
+    const {
+      mixins: globalMixins,
+      optionsCache: cache,
+      config: { optionMergeStrategies }
+    } = instance.appContext;
+    const cached = cache.get(base);
+    let resolved;
+    if (cached) {
+      resolved = cached;
+    } else if (!globalMixins.length && !mixins && !extendsOptions) {
+      {
+        resolved = base;
+      }
+    } else {
+      resolved = {};
+      if (globalMixins.length) {
+        globalMixins.forEach(
+          (m) => mergeOptions(resolved, m, optionMergeStrategies, true)
+        );
+      }
+      mergeOptions(resolved, base, optionMergeStrategies);
+    }
+    if (isObject(base)) {
+      cache.set(base, resolved);
+    }
+    return resolved;
+  }
+  function mergeOptions(to, from, strats, asMixin = false) {
+    const { mixins, extends: extendsOptions } = from;
+    if (extendsOptions) {
+      mergeOptions(to, extendsOptions, strats, true);
+    }
+    if (mixins) {
+      mixins.forEach(
+        (m) => mergeOptions(to, m, strats, true)
+      );
+    }
+    for (const key in from) {
+      if (asMixin && key === "expose") ;
+      else {
+        const strat = internalOptionMergeStrats[key] || strats && strats[key];
+        to[key] = strat ? strat(to[key], from[key]) : from[key];
+      }
+    }
+    return to;
+  }
+  const internalOptionMergeStrats = {
+    data: mergeDataFn,
+    props: mergeEmitsOrPropsOptions,
+    emits: mergeEmitsOrPropsOptions,
+    // objects
+    methods: mergeObjectOptions,
+    computed: mergeObjectOptions,
+    // lifecycle
+    beforeCreate: mergeAsArray,
+    created: mergeAsArray,
+    beforeMount: mergeAsArray,
+    mounted: mergeAsArray,
+    beforeUpdate: mergeAsArray,
+    updated: mergeAsArray,
+    beforeDestroy: mergeAsArray,
+    beforeUnmount: mergeAsArray,
+    destroyed: mergeAsArray,
+    unmounted: mergeAsArray,
+    activated: mergeAsArray,
+    deactivated: mergeAsArray,
+    errorCaptured: mergeAsArray,
+    serverPrefetch: mergeAsArray,
+    // assets
+    components: mergeObjectOptions,
+    directives: mergeObjectOptions,
+    // watch
+    watch: mergeWatchOptions,
+    // provide / inject
+    provide: mergeDataFn,
+    inject: mergeInject
+  };
+  function mergeDataFn(to, from) {
+    if (!from) {
+      return to;
+    }
+    if (!to) {
+      return from;
+    }
+    return function mergedDataFn() {
+      return extend(
+        isFunction(to) ? to.call(this, this) : to,
+        isFunction(from) ? from.call(this, this) : from
+      );
+    };
+  }
+  function mergeInject(to, from) {
+    return mergeObjectOptions(normalizeInject(to), normalizeInject(from));
+  }
+  function normalizeInject(raw) {
+    if (isArray(raw)) {
+      const res = {};
+      for (let i = 0; i < raw.length; i++) {
+        res[raw[i]] = raw[i];
+      }
+      return res;
+    }
+    return raw;
+  }
+  function mergeAsArray(to, from) {
+    return to ? [...new Set([].concat(to, from))] : from;
+  }
+  function mergeObjectOptions(to, from) {
+    return to ? extend(/* @__PURE__ */ Object.create(null), to, from) : from;
+  }
+  function mergeEmitsOrPropsOptions(to, from) {
+    if (to) {
+      if (isArray(to) && isArray(from)) {
+        return [.../* @__PURE__ */ new Set([...to, ...from])];
+      }
+      return extend(
+        /* @__PURE__ */ Object.create(null),
+        normalizePropsOrEmits(to),
+        normalizePropsOrEmits(from != null ? from : {})
+      );
+    } else {
+      return from;
+    }
+  }
+  function mergeWatchOptions(to, from) {
+    if (!to) return from;
+    if (!from) return to;
+    const merged = extend(/* @__PURE__ */ Object.create(null), to);
+    for (const key in from) {
+      merged[key] = mergeAsArray(to[key], from[key]);
+    }
+    return merged;
+  }
+  function createAppContext() {
+    return {
+      app: null,
+      config: {
+        isNativeTag: NO,
+        performance: false,
+        globalProperties: {},
+        optionMergeStrategies: {},
+        errorHandler: void 0,
+        warnHandler: void 0,
+        compilerOptions: {}
+      },
+      mixins: [],
+      components: {},
+      directives: {},
+      provides: /* @__PURE__ */ Object.create(null),
+      optionsCache: /* @__PURE__ */ new WeakMap(),
+      propsCache: /* @__PURE__ */ new WeakMap(),
+      emitsCache: /* @__PURE__ */ new WeakMap()
+    };
+  }
+  let uid$1 = 0;
+  function createAppAPI(render2, hydrate) {
+    return function createApp2(rootComponent, rootProps = null) {
+      if (!isFunction(rootComponent)) {
+        rootComponent = extend({}, rootComponent);
+      }
+      if (rootProps != null && !isObject(rootProps)) {
+        rootProps = null;
+      }
+      const context = createAppContext();
+      const installedPlugins = /* @__PURE__ */ new WeakSet();
+      const pluginCleanupFns = [];
+      let isMounted = false;
+      const app = context.app = {
+        _uid: uid$1++,
+        _component: rootComponent,
+        _props: rootProps,
+        _container: null,
+        _context: context,
+        _instance: null,
+        version,
+        get config() {
+          return context.config;
+        },
+        set config(v) {
+        },
+        use(plugin, ...options) {
+          if (installedPlugins.has(plugin)) ;
+          else if (plugin && isFunction(plugin.install)) {
+            installedPlugins.add(plugin);
+            plugin.install(app, ...options);
+          } else if (isFunction(plugin)) {
+            installedPlugins.add(plugin);
+            plugin(app, ...options);
+          } else ;
+          return app;
+        },
+        mixin(mixin) {
+          {
+            if (!context.mixins.includes(mixin)) {
+              context.mixins.push(mixin);
+            }
+          }
+          return app;
+        },
+        component(name, component) {
+          if (!component) {
+            return context.components[name];
+          }
+          context.components[name] = component;
+          return app;
+        },
+        directive(name, directive) {
+          if (!directive) {
+            return context.directives[name];
+          }
+          context.directives[name] = directive;
+          return app;
+        },
+        mount(rootContainer, isHydrate, namespace) {
+          if (!isMounted) {
+            const vnode = app._ceVNode || createVNode(rootComponent, rootProps);
+            vnode.appContext = context;
+            if (namespace === true) {
+              namespace = "svg";
+            } else if (namespace === false) {
+              namespace = void 0;
+            }
+            {
+              render2(vnode, rootContainer, namespace);
+            }
+            isMounted = true;
+            app._container = rootContainer;
+            rootContainer.__vue_app__ = app;
+            return getComponentPublicInstance(vnode.component);
+          }
+        },
+        onUnmount(cleanupFn) {
+          pluginCleanupFns.push(cleanupFn);
+        },
+        unmount() {
+          if (isMounted) {
+            callWithAsyncErrorHandling(
+              pluginCleanupFns,
+              app._instance,
+              16
+            );
+            render2(null, app._container);
+            delete app._container.__vue_app__;
+          }
+        },
+        provide(key, value) {
+          context.provides[key] = value;
+          return app;
+        },
+        runWithContext(fn) {
+          const lastApp = currentApp;
+          currentApp = app;
+          try {
+            return fn();
+          } finally {
+            currentApp = lastApp;
+          }
+        }
+      };
+      return app;
+    };
+  }
+  let currentApp = null;
+  const getModelModifiers = (props, modelName) => {
+    return modelName === "modelValue" || modelName === "model-value" ? props.modelModifiers : props[`${modelName}Modifiers`] || props[`${camelize(modelName)}Modifiers`] || props[`${hyphenate(modelName)}Modifiers`];
+  };
+  function emit(instance, event, ...rawArgs) {
+    if (instance.isUnmounted) return;
+    const props = instance.vnode.props || EMPTY_OBJ;
+    let args = rawArgs;
+    const isModelListener2 = event.startsWith("update:");
+    const modifiers = isModelListener2 && getModelModifiers(props, event.slice(7));
+    if (modifiers) {
+      if (modifiers.trim) {
+        args = rawArgs.map((a) => isString(a) ? a.trim() : a);
+      }
+      if (modifiers.number) {
+        args = rawArgs.map(looseToNumber);
+      }
+    }
+    let handlerName;
+    let handler = props[handlerName = toHandlerKey(event)] || // also try camelCase event handler (#2249)
+    props[handlerName = toHandlerKey(camelize(event))];
+    if (!handler && isModelListener2) {
+      handler = props[handlerName = toHandlerKey(hyphenate(event))];
+    }
+    if (handler) {
+      callWithAsyncErrorHandling(
+        handler,
+        instance,
+        6,
+        args
+      );
+    }
+    const onceHandler = props[handlerName + `Once`];
+    if (onceHandler) {
+      if (!instance.emitted) {
+        instance.emitted = {};
+      } else if (instance.emitted[handlerName]) {
+        return;
+      }
+      instance.emitted[handlerName] = true;
+      callWithAsyncErrorHandling(
+        onceHandler,
+        instance,
+        6,
+        args
+      );
+    }
+  }
+  const mixinEmitsCache = /* @__PURE__ */ new WeakMap();
+  function normalizeEmitsOptions(comp, appContext, asMixin = false) {
+    const cache = asMixin ? mixinEmitsCache : appContext.emitsCache;
+    const cached = cache.get(comp);
+    if (cached !== void 0) {
+      return cached;
+    }
+    const raw = comp.emits;
+    let normalized = {};
+    let hasExtends = false;
+    if (!isFunction(comp)) {
+      const extendEmits = (raw2) => {
+        const normalizedFromExtend = normalizeEmitsOptions(raw2, appContext, true);
+        if (normalizedFromExtend) {
+          hasExtends = true;
+          extend(normalized, normalizedFromExtend);
+        }
+      };
+      if (!asMixin && appContext.mixins.length) {
+        appContext.mixins.forEach(extendEmits);
+      }
+      if (comp.extends) {
+        extendEmits(comp.extends);
+      }
+      if (comp.mixins) {
+        comp.mixins.forEach(extendEmits);
+      }
+    }
+    if (!raw && !hasExtends) {
+      if (isObject(comp)) {
+        cache.set(comp, null);
+      }
+      return null;
+    }
+    if (isArray(raw)) {
+      raw.forEach((key) => normalized[key] = null);
+    } else {
+      extend(normalized, raw);
+    }
+    if (isObject(comp)) {
+      cache.set(comp, normalized);
+    }
+    return normalized;
+  }
+  function isEmitListener(options, key) {
+    if (!options || !isOn(key)) {
+      return false;
+    }
+    key = key.slice(2).replace(/Once$/, "");
+    return hasOwn(options, key[0].toLowerCase() + key.slice(1)) || hasOwn(options, hyphenate(key)) || hasOwn(options, key);
+  }
+  function markAttrsAccessed() {
+  }
+  function renderComponentRoot(instance) {
+    const {
+      type: Component,
+      vnode,
+      proxy,
+      withProxy,
+      propsOptions: [propsOptions],
+      slots,
+      attrs,
+      emit: emit2,
+      render: render2,
+      renderCache,
+      props,
+      data,
+      setupState,
+      ctx,
+      inheritAttrs
+    } = instance;
+    const prev = setCurrentRenderingInstance(instance);
+    let result;
+    let fallthroughAttrs;
+    try {
+      if (vnode.shapeFlag & 4) {
+        const proxyToUse = withProxy || proxy;
+        const thisProxy = false ? new Proxy(proxyToUse, {
+          get(target, key, receiver) {
+            warn$1(
+              `Property '${String(
+                key
+              )}' was accessed via 'this'. Avoid using 'this' in templates.`
+            );
+            return Reflect.get(target, key, receiver);
+          }
+        }) : proxyToUse;
+        result = normalizeVNode(
+          render2.call(
+            thisProxy,
+            proxyToUse,
+            renderCache,
+            false ? /* @__PURE__ */ shallowReadonly(props) : props,
+            setupState,
+            data,
+            ctx
+          )
+        );
+        fallthroughAttrs = attrs;
+      } else {
+        const render22 = Component;
+        if (false) ;
+        result = normalizeVNode(
+          render22.length > 1 ? render22(
+            false ? /* @__PURE__ */ shallowReadonly(props) : props,
+            false ? {
+              get attrs() {
+                markAttrsAccessed();
+                return /* @__PURE__ */ shallowReadonly(attrs);
+              },
+              slots,
+              emit: emit2
+            } : { attrs, slots, emit: emit2 }
+          ) : render22(
+            false ? /* @__PURE__ */ shallowReadonly(props) : props,
+            null
+          )
+        );
+        fallthroughAttrs = Component.props ? attrs : getFunctionalFallthrough(attrs);
+      }
+    } catch (err) {
+      blockStack.length = 0;
+      handleError(err, instance, 1);
+      result = createVNode(Comment);
+    }
+    let root = result;
+    if (fallthroughAttrs && inheritAttrs !== false) {
+      const keys = Object.keys(fallthroughAttrs);
+      const { shapeFlag } = root;
+      if (keys.length) {
+        if (shapeFlag & (1 | 6)) {
+          if (propsOptions && keys.some(isModelListener)) {
+            fallthroughAttrs = filterModelListeners(
+              fallthroughAttrs,
+              propsOptions
+            );
+          }
+          root = cloneVNode(root, fallthroughAttrs, false, true);
+        }
+      }
+    }
+    if (vnode.dirs) {
+      root = cloneVNode(root, null, false, true);
+      root.dirs = root.dirs ? root.dirs.concat(vnode.dirs) : vnode.dirs;
+    }
+    if (vnode.transition) {
+      setTransitionHooks(root, vnode.transition);
+    }
+    {
+      result = root;
+    }
+    setCurrentRenderingInstance(prev);
+    return result;
+  }
+  const getFunctionalFallthrough = (attrs) => {
+    let res;
+    for (const key in attrs) {
+      if (key === "class" || key === "style" || isOn(key)) {
+        (res || (res = {}))[key] = attrs[key];
+      }
+    }
+    return res;
+  };
+  const filterModelListeners = (attrs, props) => {
+    const res = {};
+    for (const key in attrs) {
+      if (!isModelListener(key) || !(key.slice(9) in props)) {
+        res[key] = attrs[key];
+      }
+    }
+    return res;
+  };
+  function shouldUpdateComponent(prevVNode, nextVNode, optimized) {
+    const { props: prevProps, children: prevChildren, component } = prevVNode;
+    const { props: nextProps, children: nextChildren, patchFlag } = nextVNode;
+    const emits = component.emitsOptions;
+    if (nextVNode.dirs || nextVNode.transition) {
+      return true;
+    }
+    if (optimized && patchFlag >= 0) {
+      if (patchFlag & 1024) {
+        return true;
+      }
+      if (patchFlag & 16) {
+        if (!prevProps) {
+          return !!nextProps;
+        }
+        return hasPropsChanged(prevProps, nextProps, emits);
+      } else if (patchFlag & 8) {
+        const dynamicProps = nextVNode.dynamicProps;
+        for (let i = 0; i < dynamicProps.length; i++) {
+          const key = dynamicProps[i];
+          if (hasPropValueChanged(nextProps, prevProps, key) && !isEmitListener(emits, key)) {
+            return true;
+          }
+        }
+      }
+    } else {
+      if (prevChildren || nextChildren) {
+        if (!nextChildren || !nextChildren.$stable) {
+          return true;
+        }
+      }
+      if (prevProps === nextProps) {
+        return false;
+      }
+      if (!prevProps) {
+        return !!nextProps;
+      }
+      if (!nextProps) {
+        return true;
+      }
+      return hasPropsChanged(prevProps, nextProps, emits);
+    }
+    return false;
+  }
+  function hasPropsChanged(prevProps, nextProps, emitsOptions) {
+    const nextKeys = Object.keys(nextProps);
+    if (nextKeys.length !== Object.keys(prevProps).length) {
+      return true;
+    }
+    for (let i = 0; i < nextKeys.length; i++) {
+      const key = nextKeys[i];
+      if (hasPropValueChanged(nextProps, prevProps, key) && !isEmitListener(emitsOptions, key)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function hasPropValueChanged(nextProps, prevProps, key) {
+    const nextProp = nextProps[key];
+    const prevProp = prevProps[key];
+    if (key === "style" && isObject(nextProp) && isObject(prevProp)) {
+      return !looseEqual(nextProp, prevProp);
+    }
+    return nextProp !== prevProp;
+  }
+  function updateHOCHostEl({ vnode, parent, suspense }, el) {
+    while (parent) {
+      const root = parent.subTree;
+      if (root.suspense && root.suspense.activeBranch === vnode) {
+        root.suspense.vnode.el = root.el = el;
+        vnode = root;
+      }
+      if (root === vnode) {
+        (vnode = parent.vnode).el = el;
+        parent = parent.parent;
+      } else {
+        break;
+      }
+    }
+    if (suspense && suspense.activeBranch === vnode) {
+      suspense.vnode.el = el;
+    }
+  }
+  const internalObjectProto = {};
+  const createInternalObject = () => Object.create(internalObjectProto);
+  const isInternalObject = (obj) => Object.getPrototypeOf(obj) === internalObjectProto;
+  function initProps(instance, rawProps, isStateful, isSSR = false) {
+    const props = {};
+    const attrs = createInternalObject();
+    instance.propsDefaults = /* @__PURE__ */ Object.create(null);
+    setFullProps(instance, rawProps, props, attrs);
+    for (const key in instance.propsOptions[0]) {
+      if (!(key in props)) {
+        props[key] = void 0;
+      }
+    }
+    if (isStateful) {
+      instance.props = isSSR ? props : /* @__PURE__ */ shallowReactive(props);
+    } else {
+      if (!instance.type.props) {
+        instance.props = attrs;
+      } else {
+        instance.props = props;
+      }
+    }
+    instance.attrs = attrs;
+  }
+  function updateProps(instance, rawProps, rawPrevProps, optimized) {
+    const {
+      props,
+      attrs,
+      vnode: { patchFlag }
+    } = instance;
+    const rawCurrentProps = /* @__PURE__ */ toRaw(props);
+    const [options] = instance.propsOptions;
+    let hasAttrsChanged = false;
+    if (
+      // always force full diff in dev
+      // - #1942 if hmr is enabled with sfc component
+      // - vite#872 non-sfc component used by sfc component
+      (optimized || patchFlag > 0) && !(patchFlag & 16)
+    ) {
+      if (patchFlag & 8) {
+        const propsToUpdate = instance.vnode.dynamicProps;
+        for (let i = 0; i < propsToUpdate.length; i++) {
+          let key = propsToUpdate[i];
+          if (isEmitListener(instance.emitsOptions, key)) {
+            continue;
+          }
+          const value = rawProps[key];
+          if (options) {
+            if (hasOwn(attrs, key)) {
+              if (value !== attrs[key]) {
+                attrs[key] = value;
+                hasAttrsChanged = true;
+              }
+            } else {
+              const camelizedKey = camelize(key);
+              props[camelizedKey] = resolvePropValue(
+                options,
+                rawCurrentProps,
+                camelizedKey,
+                value,
+                instance,
+                false
+              );
+            }
+          } else {
+            if (value !== attrs[key]) {
+              attrs[key] = value;
+              hasAttrsChanged = true;
+            }
+          }
+        }
+      }
+    } else {
+      if (setFullProps(instance, rawProps, props, attrs)) {
+        hasAttrsChanged = true;
+      }
+      let kebabKey;
+      for (const key in rawCurrentProps) {
+        if (!rawProps || // for camelCase
+        !hasOwn(rawProps, key) && // it's possible the original props was passed in as kebab-case
+        // and converted to camelCase (#955)
+        ((kebabKey = hyphenate(key)) === key || !hasOwn(rawProps, kebabKey))) {
+          if (options) {
+            if (rawPrevProps && // for camelCase
+            (rawPrevProps[key] !== void 0 || // for kebab-case
+            rawPrevProps[kebabKey] !== void 0)) {
+              props[key] = resolvePropValue(
+                options,
+                rawCurrentProps,
+                key,
+                void 0,
+                instance,
+                true
+              );
+            }
+          } else {
+            delete props[key];
+          }
+        }
+      }
+      if (attrs !== rawCurrentProps) {
+        for (const key in attrs) {
+          if (!rawProps || !hasOwn(rawProps, key) && true) {
+            delete attrs[key];
+            hasAttrsChanged = true;
+          }
+        }
+      }
+    }
+    if (hasAttrsChanged) {
+      trigger(instance.attrs, "set", "");
+    }
+  }
+  function setFullProps(instance, rawProps, props, attrs) {
+    const [options, needCastKeys] = instance.propsOptions;
+    let hasAttrsChanged = false;
+    let rawCastValues;
+    if (rawProps) {
+      for (let key in rawProps) {
+        if (isReservedProp(key)) {
+          continue;
+        }
+        const value = rawProps[key];
+        let camelKey;
+        if (options && hasOwn(options, camelKey = camelize(key))) {
+          if (!needCastKeys || !needCastKeys.includes(camelKey)) {
+            props[camelKey] = value;
+          } else {
+            (rawCastValues || (rawCastValues = {}))[camelKey] = value;
+          }
+        } else if (!isEmitListener(instance.emitsOptions, key)) {
+          if (!(key in attrs) || value !== attrs[key]) {
+            attrs[key] = value;
+            hasAttrsChanged = true;
+          }
+        }
+      }
+    }
+    if (needCastKeys) {
+      const rawCurrentProps = /* @__PURE__ */ toRaw(props);
+      const castValues = rawCastValues || EMPTY_OBJ;
+      for (let i = 0; i < needCastKeys.length; i++) {
+        const key = needCastKeys[i];
+        props[key] = resolvePropValue(
+          options,
+          rawCurrentProps,
+          key,
+          castValues[key],
+          instance,
+          !hasOwn(castValues, key)
+        );
+      }
+    }
+    return hasAttrsChanged;
+  }
+  function resolvePropValue(options, props, key, value, instance, isAbsent) {
+    const opt = options[key];
+    if (opt != null) {
+      const hasDefault = hasOwn(opt, "default");
+      if (hasDefault && value === void 0) {
+        const defaultValue = opt.default;
+        if (opt.type !== Function && !opt.skipFactory && isFunction(defaultValue)) {
+          const { propsDefaults } = instance;
+          if (key in propsDefaults) {
+            value = propsDefaults[key];
+          } else {
+            const reset = setCurrentInstance(instance);
+            value = propsDefaults[key] = defaultValue.call(
+              null,
+              props
+            );
+            reset();
+          }
+        } else {
+          value = defaultValue;
+        }
+        if (instance.ce) {
+          instance.ce._setProp(key, value);
+        }
+      }
+      if (opt[
+        0
+        /* shouldCast */
+      ]) {
+        if (isAbsent && !hasDefault) {
+          value = false;
+        } else if (opt[
+          1
+          /* shouldCastTrue */
+        ] && (value === "" || value === hyphenate(key))) {
+          value = true;
+        }
+      }
+    }
+    return value;
+  }
+  const mixinPropsCache = /* @__PURE__ */ new WeakMap();
+  function normalizePropsOptions(comp, appContext, asMixin = false) {
+    const cache = asMixin ? mixinPropsCache : appContext.propsCache;
+    const cached = cache.get(comp);
+    if (cached) {
+      return cached;
+    }
+    const raw = comp.props;
+    const normalized = {};
+    const needCastKeys = [];
+    let hasExtends = false;
+    if (!isFunction(comp)) {
+      const extendProps = (raw2) => {
+        hasExtends = true;
+        const [props, keys] = normalizePropsOptions(raw2, appContext, true);
+        extend(normalized, props);
+        if (keys) needCastKeys.push(...keys);
+      };
+      if (!asMixin && appContext.mixins.length) {
+        appContext.mixins.forEach(extendProps);
+      }
+      if (comp.extends) {
+        extendProps(comp.extends);
+      }
+      if (comp.mixins) {
+        comp.mixins.forEach(extendProps);
+      }
+    }
+    if (!raw && !hasExtends) {
+      if (isObject(comp)) {
+        cache.set(comp, EMPTY_ARR);
+      }
+      return EMPTY_ARR;
+    }
+    if (isArray(raw)) {
+      for (let i = 0; i < raw.length; i++) {
+        const normalizedKey = camelize(raw[i]);
+        if (validatePropName(normalizedKey)) {
+          normalized[normalizedKey] = EMPTY_OBJ;
+        }
+      }
+    } else if (raw) {
+      for (const key in raw) {
+        const normalizedKey = camelize(key);
+        if (validatePropName(normalizedKey)) {
+          const opt = raw[key];
+          const prop = normalized[normalizedKey] = isArray(opt) || isFunction(opt) ? { type: opt } : extend({}, opt);
+          const propType = prop.type;
+          let shouldCast = false;
+          let shouldCastTrue = true;
+          if (isArray(propType)) {
+            for (let index = 0; index < propType.length; ++index) {
+              const type = propType[index];
+              const typeName = isFunction(type) && type.name;
+              if (typeName === "Boolean") {
+                shouldCast = true;
+                break;
+              } else if (typeName === "String") {
+                shouldCastTrue = false;
+              }
+            }
+          } else {
+            shouldCast = isFunction(propType) && propType.name === "Boolean";
+          }
+          prop[
+            0
+            /* shouldCast */
+          ] = shouldCast;
+          prop[
+            1
+            /* shouldCastTrue */
+          ] = shouldCastTrue;
+          if (shouldCast || hasOwn(prop, "default")) {
+            needCastKeys.push(normalizedKey);
+          }
+        }
+      }
+    }
+    const res = [normalized, needCastKeys];
+    if (isObject(comp)) {
+      cache.set(comp, res);
+    }
+    return res;
+  }
+  function validatePropName(key) {
+    if (key[0] !== "$" && !isReservedProp(key)) {
+      return true;
+    }
+    return false;
+  }
+  const isInternalKey = (key) => key === "_" || key === "_ctx" || key === "$stable";
+  const normalizeSlotValue = (value) => isArray(value) ? value.map(normalizeVNode) : [normalizeVNode(value)];
+  const normalizeSlot = (key, rawSlot, ctx) => {
+    if (rawSlot._n) {
+      return rawSlot;
+    }
+    const normalized = withCtx((...args) => {
+      if (false) ;
+      return normalizeSlotValue(rawSlot(...args));
+    }, ctx);
+    normalized._c = false;
+    return normalized;
+  };
+  const normalizeObjectSlots = (rawSlots, slots, instance) => {
+    const ctx = rawSlots._ctx;
+    for (const key in rawSlots) {
+      if (isInternalKey(key)) continue;
+      const value = rawSlots[key];
+      if (isFunction(value)) {
+        slots[key] = normalizeSlot(key, value, ctx);
+      } else if (value != null) {
+        const normalized = normalizeSlotValue(value);
+        slots[key] = () => normalized;
+      }
+    }
+  };
+  const normalizeVNodeSlots = (instance, children) => {
+    const normalized = normalizeSlotValue(children);
+    instance.slots.default = () => normalized;
+  };
+  const assignSlots = (slots, children, optimized) => {
+    for (const key in children) {
+      if (optimized || !isInternalKey(key)) {
+        slots[key] = children[key];
+      }
+    }
+  };
+  const initSlots = (instance, children, optimized) => {
+    const slots = instance.slots = createInternalObject();
+    if (instance.vnode.shapeFlag & 32) {
+      const type = children._;
+      if (type) {
+        assignSlots(slots, children, optimized);
+        if (optimized) {
+          def(slots, "_", type, true);
+        }
+      } else {
+        normalizeObjectSlots(children, slots);
+      }
+    } else if (children) {
+      normalizeVNodeSlots(instance, children);
+    }
+  };
+  const updateSlots = (instance, children, optimized) => {
+    const { vnode, slots } = instance;
+    let needDeletionCheck = true;
+    let deletionComparisonTarget = EMPTY_OBJ;
+    if (vnode.shapeFlag & 32) {
+      const type = children._;
+      if (type) {
+        if (optimized && type === 1) {
+          needDeletionCheck = false;
+        } else {
+          assignSlots(slots, children, optimized);
+        }
+      } else {
+        needDeletionCheck = !children.$stable;
+        normalizeObjectSlots(children, slots);
+      }
+      deletionComparisonTarget = children;
+    } else if (children) {
+      normalizeVNodeSlots(instance, children);
+      deletionComparisonTarget = { default: 1 };
+    }
+    if (needDeletionCheck) {
+      for (const key in slots) {
+        if (!isInternalKey(key) && deletionComparisonTarget[key] == null) {
+          delete slots[key];
+        }
+      }
+    }
+  };
+  const queuePostRenderEffect = queueEffectWithSuspense;
+  function createRenderer(options) {
+    return baseCreateRenderer(options);
+  }
+  function baseCreateRenderer(options, createHydrationFns) {
+    const target = getGlobalThis();
+    target.__VUE__ = true;
+    const {
+      insert: hostInsert,
+      remove: hostRemove,
+      patchProp: hostPatchProp,
+      createElement: hostCreateElement,
+      createText: hostCreateText,
+      createComment: hostCreateComment,
+      setText: hostSetText,
+      setElementText: hostSetElementText,
+      parentNode: hostParentNode,
+      nextSibling: hostNextSibling,
+      setScopeId: hostSetScopeId = NOOP,
+      insertStaticContent: hostInsertStaticContent
+    } = options;
+    const patch = (n1, n2, container, anchor = null, parentComponent = null, parentSuspense = null, namespace = void 0, slotScopeIds = null, optimized = !!n2.dynamicChildren) => {
+      if (n1 === n2) {
+        return;
+      }
+      if (n1 && !isSameVNodeType(n1, n2)) {
+        anchor = getNextHostNode(n1);
+        unmount(n1, parentComponent, parentSuspense, true);
+        n1 = null;
+      }
+      if (n2.patchFlag === -2) {
+        optimized = false;
+        n2.dynamicChildren = null;
+      }
+      const { type, ref: ref3, shapeFlag } = n2;
+      switch (type) {
+        case Text:
+          processText(n1, n2, container, anchor);
+          break;
+        case Comment:
+          processCommentNode(n1, n2, container, anchor);
+          break;
+        case Static:
+          if (n1 == null) {
+            mountStaticNode(n2, container, anchor, namespace);
+          }
+          break;
+        case Fragment:
+          processFragment(
+            n1,
+            n2,
+            container,
+            anchor,
+            parentComponent,
+            parentSuspense,
+            namespace,
+            slotScopeIds,
+            optimized
+          );
+          break;
+        default:
+          if (shapeFlag & 1) {
+            processElement(
+              n1,
+              n2,
+              container,
+              anchor,
+              parentComponent,
+              parentSuspense,
+              namespace,
+              slotScopeIds,
+              optimized
+            );
+          } else if (shapeFlag & 6) {
+            processComponent(
+              n1,
+              n2,
+              container,
+              anchor,
+              parentComponent,
+              parentSuspense,
+              namespace,
+              slotScopeIds,
+              optimized
+            );
+          } else if (shapeFlag & 64) {
+            type.process(
+              n1,
+              n2,
+              container,
+              anchor,
+              parentComponent,
+              parentSuspense,
+              namespace,
+              slotScopeIds,
+              optimized,
+              internals
+            );
+          } else if (shapeFlag & 128) {
+            type.process(
+              n1,
+              n2,
+              container,
+              anchor,
+              parentComponent,
+              parentSuspense,
+              namespace,
+              slotScopeIds,
+              optimized,
+              internals
+            );
+          } else ;
+      }
+      if (ref3 != null && parentComponent) {
+        setRef(ref3, n1 && n1.ref, parentSuspense, n2 || n1, !n2);
+      } else if (ref3 == null && n1 && n1.ref != null) {
+        setRef(n1.ref, null, parentSuspense, n1, true);
+      }
+    };
+    const processText = (n1, n2, container, anchor) => {
+      if (n1 == null) {
+        hostInsert(
+          n2.el = hostCreateText(n2.children),
+          container,
+          anchor
+        );
+      } else {
+        const el = n2.el = n1.el;
+        if (n2.children !== n1.children) {
+          hostSetText(el, n2.children);
+        }
+      }
+    };
+    const processCommentNode = (n1, n2, container, anchor) => {
+      if (n1 == null) {
+        hostInsert(
+          n2.el = hostCreateComment(n2.children || ""),
+          container,
+          anchor
+        );
+      } else {
+        n2.el = n1.el;
+      }
+    };
+    const mountStaticNode = (n2, container, anchor, namespace) => {
+      [n2.el, n2.anchor] = hostInsertStaticContent(
+        n2.children,
+        container,
+        anchor,
+        namespace,
+        n2.el,
+        n2.anchor
+      );
+    };
+    const moveStaticNode = ({ el, anchor }, container, nextSibling) => {
+      let next;
+      while (el && el !== anchor) {
+        next = hostNextSibling(el);
+        hostInsert(el, container, nextSibling);
+        el = next;
+      }
+      hostInsert(anchor, container, nextSibling);
+    };
+    const removeStaticNode = ({ el, anchor }) => {
+      let next;
+      while (el && el !== anchor) {
+        next = hostNextSibling(el);
+        hostRemove(el);
+        el = next;
+      }
+      hostRemove(anchor);
+    };
+    const processElement = (n1, n2, container, anchor, parentComponent, parentSuspense, namespace, slotScopeIds, optimized) => {
+      if (n2.type === "svg") {
+        namespace = "svg";
+      } else if (n2.type === "math") {
+        namespace = "mathml";
+      }
+      if (n1 == null) {
+        mountElement(
+          n2,
+          container,
+          anchor,
+          parentComponent,
+          parentSuspense,
+          namespace,
+          slotScopeIds,
+          optimized
+        );
+      } else {
+        const customElement = n1.el && n1.el._isVueCE ? n1.el : null;
+        try {
+          if (customElement) {
+            customElement._beginPatch();
+          }
+          patchElement(
+            n1,
+            n2,
+            parentComponent,
+            parentSuspense,
+            namespace,
+            slotScopeIds,
+            optimized
+          );
+        } finally {
+          if (customElement) {
+            customElement._endPatch();
+          }
+        }
+      }
+    };
+    const mountElement = (vnode, container, anchor, parentComponent, parentSuspense, namespace, slotScopeIds, optimized) => {
+      let el;
+      let vnodeHook;
+      const { props, shapeFlag, transition, dirs } = vnode;
+      el = vnode.el = hostCreateElement(
+        vnode.type,
+        namespace,
+        props && props.is,
+        props
+      );
+      if (shapeFlag & 8) {
+        hostSetElementText(el, vnode.children);
+      } else if (shapeFlag & 16) {
+        mountChildren(
+          vnode.children,
+          el,
+          null,
+          parentComponent,
+          parentSuspense,
+          resolveChildrenNamespace(vnode, namespace),
+          slotScopeIds,
+          optimized
+        );
+      }
+      if (dirs) {
+        invokeDirectiveHook(vnode, null, parentComponent, "created");
+      }
+      setScopeId(el, vnode, vnode.scopeId, slotScopeIds, parentComponent);
+      if (props) {
+        for (const key in props) {
+          if (key !== "value" && !isReservedProp(key)) {
+            hostPatchProp(el, key, null, props[key], namespace, parentComponent);
+          }
+        }
+        if ("value" in props) {
+          hostPatchProp(el, "value", null, props.value, namespace);
+        }
+        if (vnodeHook = props.onVnodeBeforeMount) {
+          invokeVNodeHook(vnodeHook, parentComponent, vnode);
+        }
+      }
+      if (dirs) {
+        invokeDirectiveHook(vnode, null, parentComponent, "beforeMount");
+      }
+      const needCallTransitionHooks = needTransition(parentSuspense, transition);
+      if (needCallTransitionHooks) {
+        transition.beforeEnter(el);
+      }
+      hostInsert(el, container, anchor);
+      if ((vnodeHook = props && props.onVnodeMounted) || needCallTransitionHooks || dirs) {
+        queuePostRenderEffect(() => {
+          try {
+            vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, vnode);
+            needCallTransitionHooks && transition.enter(el);
+            dirs && invokeDirectiveHook(vnode, null, parentComponent, "mounted");
+          } finally {
+          }
+        }, parentSuspense);
+      }
+    };
+    const setScopeId = (el, vnode, scopeId, slotScopeIds, parentComponent) => {
+      if (scopeId) {
+        hostSetScopeId(el, scopeId);
+      }
+      if (slotScopeIds) {
+        for (let i = 0; i < slotScopeIds.length; i++) {
+          hostSetScopeId(el, slotScopeIds[i]);
+        }
+      }
+      if (parentComponent) {
+        let subTree = parentComponent.subTree;
+        if (vnode === subTree || isSuspense(subTree.type) && (subTree.ssContent === vnode || subTree.ssFallback === vnode)) {
+          const parentVNode = parentComponent.vnode;
+          setScopeId(
+            el,
+            parentVNode,
+            parentVNode.scopeId,
+            parentVNode.slotScopeIds,
+            parentComponent.parent
+          );
+        }
+      }
+    };
+    const mountChildren = (children, container, anchor, parentComponent, parentSuspense, namespace, slotScopeIds, optimized, start = 0) => {
+      for (let i = start; i < children.length; i++) {
+        const child = children[i] = optimized ? cloneIfMounted(children[i]) : normalizeVNode(children[i]);
+        patch(
+          null,
+          child,
+          container,
+          anchor,
+          parentComponent,
+          parentSuspense,
+          namespace,
+          slotScopeIds,
+          optimized
+        );
+      }
+    };
+    const patchElement = (n1, n2, parentComponent, parentSuspense, namespace, slotScopeIds, optimized) => {
+      const el = n2.el = n1.el;
+      let { patchFlag, dynamicChildren, dirs } = n2;
+      patchFlag |= n1.patchFlag & 16;
+      const oldProps = n1.props || EMPTY_OBJ;
+      const newProps = n2.props || EMPTY_OBJ;
+      let vnodeHook;
+      parentComponent && toggleRecurse(parentComponent, false);
+      if (vnodeHook = newProps.onVnodeBeforeUpdate) {
+        invokeVNodeHook(vnodeHook, parentComponent, n2, n1);
+      }
+      if (dirs) {
+        invokeDirectiveHook(n2, n1, parentComponent, "beforeUpdate");
+      }
+      parentComponent && toggleRecurse(parentComponent, true);
+      if (oldProps.innerHTML && newProps.innerHTML == null || oldProps.textContent && newProps.textContent == null) {
+        hostSetElementText(el, "");
+      }
+      if (dynamicChildren) {
+        patchBlockChildren(
+          n1.dynamicChildren,
+          dynamicChildren,
+          el,
+          parentComponent,
+          parentSuspense,
+          resolveChildrenNamespace(n2, namespace),
+          slotScopeIds
+        );
+      } else if (!optimized) {
+        patchChildren(
+          n1,
+          n2,
+          el,
+          null,
+          parentComponent,
+          parentSuspense,
+          resolveChildrenNamespace(n2, namespace),
+          slotScopeIds,
+          false
+        );
+      }
+      if (patchFlag > 0) {
+        if (patchFlag & 16) {
+          patchProps(el, oldProps, newProps, parentComponent, namespace);
+        } else {
+          if (patchFlag & 2) {
+            if (oldProps.class !== newProps.class) {
+              hostPatchProp(el, "class", null, newProps.class, namespace);
+            }
+          }
+          if (patchFlag & 4) {
+            hostPatchProp(el, "style", oldProps.style, newProps.style, namespace);
+          }
+          if (patchFlag & 8) {
+            const propsToUpdate = n2.dynamicProps;
+            for (let i = 0; i < propsToUpdate.length; i++) {
+              const key = propsToUpdate[i];
+              const prev = oldProps[key];
+              const next = newProps[key];
+              if (next !== prev || key === "value") {
+                hostPatchProp(el, key, prev, next, namespace, parentComponent);
+              }
+            }
+          }
+        }
+        if (patchFlag & 1) {
+          if (n1.children !== n2.children) {
+            hostSetElementText(el, n2.children);
+          }
+        }
+      } else if (!optimized && dynamicChildren == null) {
+        patchProps(el, oldProps, newProps, parentComponent, namespace);
+      }
+      if ((vnodeHook = newProps.onVnodeUpdated) || dirs) {
+        queuePostRenderEffect(() => {
+          vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, n2, n1);
+          dirs && invokeDirectiveHook(n2, n1, parentComponent, "updated");
+        }, parentSuspense);
+      }
+    };
+    const patchBlockChildren = (oldChildren, newChildren, fallbackContainer, parentComponent, parentSuspense, namespace, slotScopeIds) => {
+      for (let i = 0; i < newChildren.length; i++) {
+        const oldVNode = oldChildren[i];
+        const newVNode = newChildren[i];
+        const container = (
+          // oldVNode may be an errored async setup() component inside Suspense
+          // which will not have a mounted element
+          oldVNode.el && // - In the case of a Fragment, we need to provide the actual parent
+          // of the Fragment itself so it can move its children.
+          (oldVNode.type === Fragment || // - In the case of different nodes, there is going to be a replacement
+          // which also requires the correct parent container
+          !isSameVNodeType(oldVNode, newVNode) || // - In the case of a component, it could contain anything.
+          oldVNode.shapeFlag & (6 | 64 | 128)) ? hostParentNode(oldVNode.el) : (
+            // In other cases, the parent container is not actually used so we
+            // just pass the block element here to avoid a DOM parentNode call.
+            fallbackContainer
+          )
+        );
+        patch(
+          oldVNode,
+          newVNode,
+          container,
+          null,
+          parentComponent,
+          parentSuspense,
+          namespace,
+          slotScopeIds,
+          true
+        );
+      }
+    };
+    const patchProps = (el, oldProps, newProps, parentComponent, namespace) => {
+      if (oldProps !== newProps) {
+        if (oldProps !== EMPTY_OBJ) {
+          for (const key in oldProps) {
+            if (!isReservedProp(key) && !(key in newProps)) {
+              hostPatchProp(
+                el,
+                key,
+                oldProps[key],
+                null,
+                namespace,
+                parentComponent
+              );
+            }
+          }
+        }
+        for (const key in newProps) {
+          if (isReservedProp(key)) continue;
+          const next = newProps[key];
+          const prev = oldProps[key];
+          if (next !== prev && key !== "value") {
+            hostPatchProp(el, key, prev, next, namespace, parentComponent);
+          }
+        }
+        if ("value" in newProps) {
+          hostPatchProp(el, "value", oldProps.value, newProps.value, namespace);
+        }
+      }
+    };
+    const processFragment = (n1, n2, container, anchor, parentComponent, parentSuspense, namespace, slotScopeIds, optimized) => {
+      const fragmentStartAnchor = n2.el = n1 ? n1.el : hostCreateText("");
+      const fragmentEndAnchor = n2.anchor = n1 ? n1.anchor : hostCreateText("");
+      let { patchFlag, dynamicChildren, slotScopeIds: fragmentSlotScopeIds } = n2;
+      if (fragmentSlotScopeIds) {
+        slotScopeIds = slotScopeIds ? slotScopeIds.concat(fragmentSlotScopeIds) : fragmentSlotScopeIds;
+      }
+      if (n1 == null) {
+        hostInsert(fragmentStartAnchor, container, anchor);
+        hostInsert(fragmentEndAnchor, container, anchor);
+        mountChildren(
+          // #10007
+          // such fragment like `<></>` will be compiled into
+          // a fragment which doesn't have a children.
+          // In this case fallback to an empty array
+          n2.children || [],
+          container,
+          fragmentEndAnchor,
+          parentComponent,
+          parentSuspense,
+          namespace,
+          slotScopeIds,
+          optimized
+        );
+      } else {
+        if (patchFlag > 0 && patchFlag & 64 && dynamicChildren && // #2715 the previous fragment could've been a BAILed one as a result
+        // of renderSlot() with no valid children
+        n1.dynamicChildren && n1.dynamicChildren.length === dynamicChildren.length) {
+          patchBlockChildren(
+            n1.dynamicChildren,
+            dynamicChildren,
+            container,
+            parentComponent,
+            parentSuspense,
+            namespace,
+            slotScopeIds
+          );
+          if (
+            // #2080 if the stable fragment has a key, it's a <template v-for> that may
+            //  get moved around. Make sure all root level vnodes inherit el.
+            // #2134 or if it's a component root, it may also get moved around
+            // as the component is being moved.
+            n2.key != null || parentComponent && n2 === parentComponent.subTree
+          ) {
+            traverseStaticChildren(
+              n1,
+              n2,
+              true
+              /* shallow */
+            );
+          }
+        } else {
+          patchChildren(
+            n1,
+            n2,
+            container,
+            fragmentEndAnchor,
+            parentComponent,
+            parentSuspense,
+            namespace,
+            slotScopeIds,
+            optimized
+          );
+        }
+      }
+    };
+    const processComponent = (n1, n2, container, anchor, parentComponent, parentSuspense, namespace, slotScopeIds, optimized) => {
+      n2.slotScopeIds = slotScopeIds;
+      if (n1 == null) {
+        if (n2.shapeFlag & 512) {
+          parentComponent.ctx.activate(
+            n2,
+            container,
+            anchor,
+            namespace,
+            optimized
+          );
+        } else {
+          mountComponent(
+            n2,
+            container,
+            anchor,
+            parentComponent,
+            parentSuspense,
+            namespace,
+            optimized
+          );
+        }
+      } else {
+        updateComponent(n1, n2, optimized);
+      }
+    };
+    const mountComponent = (initialVNode, container, anchor, parentComponent, parentSuspense, namespace, optimized) => {
+      const instance = initialVNode.component = createComponentInstance(
+        initialVNode,
+        parentComponent,
+        parentSuspense
+      );
+      if (isKeepAlive(initialVNode)) {
+        instance.ctx.renderer = internals;
+      }
+      {
+        setupComponent(instance, false, optimized);
+      }
+      if (instance.asyncDep) {
+        parentSuspense && parentSuspense.registerDep(instance, setupRenderEffect, optimized);
+        if (!initialVNode.el) {
+          const placeholder = instance.subTree = createVNode(Comment);
+          processCommentNode(null, placeholder, container, anchor);
+          initialVNode.placeholder = placeholder.el;
+        }
+      } else {
+        setupRenderEffect(
+          instance,
+          initialVNode,
+          container,
+          anchor,
+          parentSuspense,
+          namespace,
+          optimized
+        );
+      }
+    };
+    const updateComponent = (n1, n2, optimized) => {
+      const instance = n2.component = n1.component;
+      if (shouldUpdateComponent(n1, n2, optimized)) {
+        if (instance.asyncDep && !instance.asyncResolved) {
+          updateComponentPreRender(instance, n2, optimized);
+          return;
+        } else {
+          instance.next = n2;
+          instance.update();
+        }
+      } else {
+        n2.el = n1.el;
+        instance.vnode = n2;
+      }
+    };
+    const setupRenderEffect = (instance, initialVNode, container, anchor, parentSuspense, namespace, optimized) => {
+      const componentUpdateFn = () => {
+        if (!instance.isMounted) {
+          let vnodeHook;
+          const { el, props } = initialVNode;
+          const { bm, m, parent, root, type } = instance;
+          const isAsyncWrapperVNode = isAsyncWrapper(initialVNode);
+          toggleRecurse(instance, false);
+          if (bm) {
+            invokeArrayFns(bm);
+          }
+          if (!isAsyncWrapperVNode && (vnodeHook = props && props.onVnodeBeforeMount)) {
+            invokeVNodeHook(vnodeHook, parent, initialVNode);
+          }
+          toggleRecurse(instance, true);
+          {
+            if (root.ce && root.ce._hasShadowRoot()) {
+              root.ce._injectChildStyle(
+                type,
+                instance.parent ? instance.parent.type : void 0
+              );
+            }
+            const subTree = instance.subTree = renderComponentRoot(instance);
+            patch(
+              null,
+              subTree,
+              container,
+              anchor,
+              instance,
+              parentSuspense,
+              namespace
+            );
+            initialVNode.el = subTree.el;
+          }
+          if (m) {
+            queuePostRenderEffect(m, parentSuspense);
+          }
+          if (!isAsyncWrapperVNode && (vnodeHook = props && props.onVnodeMounted)) {
+            const scopedInitialVNode = initialVNode;
+            queuePostRenderEffect(
+              () => invokeVNodeHook(vnodeHook, parent, scopedInitialVNode),
+              parentSuspense
+            );
+          }
+          if (initialVNode.shapeFlag & 256 || parent && isAsyncWrapper(parent.vnode) && parent.vnode.shapeFlag & 256) {
+            instance.a && queuePostRenderEffect(instance.a, parentSuspense);
+          }
+          instance.isMounted = true;
+          initialVNode = container = anchor = null;
+        } else {
+          let { next, bu, u, parent, vnode } = instance;
+          {
+            const nonHydratedAsyncRoot = locateNonHydratedAsyncRoot(instance);
+            if (nonHydratedAsyncRoot) {
+              if (next) {
+                next.el = vnode.el;
+                updateComponentPreRender(instance, next, optimized);
+              }
+              nonHydratedAsyncRoot.asyncDep.then(() => {
+                queuePostRenderEffect(() => {
+                  if (!instance.isUnmounted) update();
+                }, parentSuspense);
+              });
+              return;
+            }
+          }
+          let originNext = next;
+          let vnodeHook;
+          toggleRecurse(instance, false);
+          if (next) {
+            next.el = vnode.el;
+            updateComponentPreRender(instance, next, optimized);
+          } else {
+            next = vnode;
+          }
+          if (bu) {
+            invokeArrayFns(bu);
+          }
+          if (vnodeHook = next.props && next.props.onVnodeBeforeUpdate) {
+            invokeVNodeHook(vnodeHook, parent, next, vnode);
+          }
+          toggleRecurse(instance, true);
+          const nextTree = renderComponentRoot(instance);
+          const prevTree = instance.subTree;
+          instance.subTree = nextTree;
+          patch(
+            prevTree,
+            nextTree,
+            // parent may have changed if it's in a teleport
+            hostParentNode(prevTree.el),
+            // anchor may have changed if it's in a fragment
+            getNextHostNode(prevTree),
+            instance,
+            parentSuspense,
+            namespace
+          );
+          next.el = nextTree.el;
+          if (originNext === null) {
+            updateHOCHostEl(instance, nextTree.el);
+          }
+          if (u) {
+            queuePostRenderEffect(u, parentSuspense);
+          }
+          if (vnodeHook = next.props && next.props.onVnodeUpdated) {
+            queuePostRenderEffect(
+              () => invokeVNodeHook(vnodeHook, parent, next, vnode),
+              parentSuspense
+            );
+          }
+        }
+      };
+      instance.scope.on();
+      const effect2 = instance.effect = new ReactiveEffect(componentUpdateFn);
+      instance.scope.off();
+      const update = instance.update = effect2.run.bind(effect2);
+      const job = instance.job = effect2.runIfDirty.bind(effect2);
+      job.i = instance;
+      job.id = instance.uid;
+      effect2.scheduler = () => queueJob(job);
+      toggleRecurse(instance, true);
+      update();
+    };
+    const updateComponentPreRender = (instance, nextVNode, optimized) => {
+      nextVNode.component = instance;
+      const prevProps = instance.vnode.props;
+      instance.vnode = nextVNode;
+      instance.next = null;
+      updateProps(instance, nextVNode.props, prevProps, optimized);
+      updateSlots(instance, nextVNode.children, optimized);
+      pauseTracking();
+      flushPreFlushCbs(instance);
+      resetTracking();
+    };
+    const patchChildren = (n1, n2, container, anchor, parentComponent, parentSuspense, namespace, slotScopeIds, optimized = false) => {
+      const c1 = n1 && n1.children;
+      const prevShapeFlag = n1 ? n1.shapeFlag : 0;
+      const c2 = n2.children;
+      const { patchFlag, shapeFlag } = n2;
+      if (patchFlag > 0) {
+        if (patchFlag & 128) {
+          patchKeyedChildren(
+            c1,
+            c2,
+            container,
+            anchor,
+            parentComponent,
+            parentSuspense,
+            namespace,
+            slotScopeIds,
+            optimized
+          );
+          return;
+        } else if (patchFlag & 256) {
+          patchUnkeyedChildren(
+            c1,
+            c2,
+            container,
+            anchor,
+            parentComponent,
+            parentSuspense,
+            namespace,
+            slotScopeIds,
+            optimized
+          );
+          return;
+        }
+      }
+      if (shapeFlag & 8) {
+        if (prevShapeFlag & 16) {
+          unmountChildren(c1, parentComponent, parentSuspense);
+        }
+        if (c2 !== c1) {
+          hostSetElementText(container, c2);
+        }
+      } else {
+        if (prevShapeFlag & 16) {
+          if (shapeFlag & 16) {
+            patchKeyedChildren(
+              c1,
+              c2,
+              container,
+              anchor,
+              parentComponent,
+              parentSuspense,
+              namespace,
+              slotScopeIds,
+              optimized
+            );
+          } else {
+            unmountChildren(c1, parentComponent, parentSuspense, true);
+          }
+        } else {
+          if (prevShapeFlag & 8) {
+            hostSetElementText(container, "");
+          }
+          if (shapeFlag & 16) {
+            mountChildren(
+              c2,
+              container,
+              anchor,
+              parentComponent,
+              parentSuspense,
+              namespace,
+              slotScopeIds,
+              optimized
+            );
+          }
+        }
+      }
+    };
+    const patchUnkeyedChildren = (c1, c2, container, anchor, parentComponent, parentSuspense, namespace, slotScopeIds, optimized) => {
+      c1 = c1 || EMPTY_ARR;
+      c2 = c2 || EMPTY_ARR;
+      const oldLength = c1.length;
+      const newLength = c2.length;
+      const commonLength = Math.min(oldLength, newLength);
+      let i;
+      for (i = 0; i < commonLength; i++) {
+        const nextChild = c2[i] = optimized ? cloneIfMounted(c2[i]) : normalizeVNode(c2[i]);
+        patch(
+          c1[i],
+          nextChild,
+          container,
+          null,
+          parentComponent,
+          parentSuspense,
+          namespace,
+          slotScopeIds,
+          optimized
+        );
+      }
+      if (oldLength > newLength) {
+        unmountChildren(
+          c1,
+          parentComponent,
+          parentSuspense,
+          true,
+          false,
+          commonLength
+        );
+      } else {
+        mountChildren(
+          c2,
+          container,
+          anchor,
+          parentComponent,
+          parentSuspense,
+          namespace,
+          slotScopeIds,
+          optimized,
+          commonLength
+        );
+      }
+    };
+    const patchKeyedChildren = (c1, c2, container, parentAnchor, parentComponent, parentSuspense, namespace, slotScopeIds, optimized) => {
+      let i = 0;
+      const l2 = c2.length;
+      let e1 = c1.length - 1;
+      let e2 = l2 - 1;
+      while (i <= e1 && i <= e2) {
+        const n1 = c1[i];
+        const n2 = c2[i] = optimized ? cloneIfMounted(c2[i]) : normalizeVNode(c2[i]);
+        if (isSameVNodeType(n1, n2)) {
+          patch(
+            n1,
+            n2,
+            container,
+            null,
+            parentComponent,
+            parentSuspense,
+            namespace,
+            slotScopeIds,
+            optimized
+          );
+        } else {
+          break;
+        }
+        i++;
+      }
+      while (i <= e1 && i <= e2) {
+        const n1 = c1[e1];
+        const n2 = c2[e2] = optimized ? cloneIfMounted(c2[e2]) : normalizeVNode(c2[e2]);
+        if (isSameVNodeType(n1, n2)) {
+          patch(
+            n1,
+            n2,
+            container,
+            null,
+            parentComponent,
+            parentSuspense,
+            namespace,
+            slotScopeIds,
+            optimized
+          );
+        } else {
+          break;
+        }
+        e1--;
+        e2--;
+      }
+      if (i > e1) {
+        if (i <= e2) {
+          const nextPos = e2 + 1;
+          const anchor = nextPos < l2 ? c2[nextPos].el : parentAnchor;
+          while (i <= e2) {
+            patch(
+              null,
+              c2[i] = optimized ? cloneIfMounted(c2[i]) : normalizeVNode(c2[i]),
+              container,
+              anchor,
+              parentComponent,
+              parentSuspense,
+              namespace,
+              slotScopeIds,
+              optimized
+            );
+            i++;
+          }
+        }
+      } else if (i > e2) {
+        while (i <= e1) {
+          unmount(c1[i], parentComponent, parentSuspense, true);
+          i++;
+        }
+      } else {
+        const s1 = i;
+        const s2 = i;
+        const keyToNewIndexMap = /* @__PURE__ */ new Map();
+        for (i = s2; i <= e2; i++) {
+          const nextChild = c2[i] = optimized ? cloneIfMounted(c2[i]) : normalizeVNode(c2[i]);
+          if (nextChild.key != null) {
+            keyToNewIndexMap.set(nextChild.key, i);
+          }
+        }
+        let j;
+        let patched = 0;
+        const toBePatched = e2 - s2 + 1;
+        let moved = false;
+        let maxNewIndexSoFar = 0;
+        const newIndexToOldIndexMap = new Array(toBePatched);
+        for (i = 0; i < toBePatched; i++) newIndexToOldIndexMap[i] = 0;
+        for (i = s1; i <= e1; i++) {
+          const prevChild = c1[i];
+          if (patched >= toBePatched) {
+            unmount(prevChild, parentComponent, parentSuspense, true);
+            continue;
+          }
+          let newIndex;
+          if (prevChild.key != null) {
+            newIndex = keyToNewIndexMap.get(prevChild.key);
+          } else {
+            for (j = s2; j <= e2; j++) {
+              if (newIndexToOldIndexMap[j - s2] === 0 && isSameVNodeType(prevChild, c2[j])) {
+                newIndex = j;
+                break;
+              }
+            }
+          }
+          if (newIndex === void 0) {
+            unmount(prevChild, parentComponent, parentSuspense, true);
+          } else {
+            newIndexToOldIndexMap[newIndex - s2] = i + 1;
+            if (newIndex >= maxNewIndexSoFar) {
+              maxNewIndexSoFar = newIndex;
+            } else {
+              moved = true;
+            }
+            patch(
+              prevChild,
+              c2[newIndex],
+              container,
+              null,
+              parentComponent,
+              parentSuspense,
+              namespace,
+              slotScopeIds,
+              optimized
+            );
+            patched++;
+          }
+        }
+        const increasingNewIndexSequence = moved ? getSequence(newIndexToOldIndexMap) : EMPTY_ARR;
+        j = increasingNewIndexSequence.length - 1;
+        for (i = toBePatched - 1; i >= 0; i--) {
+          const nextIndex = s2 + i;
+          const nextChild = c2[nextIndex];
+          const anchorVNode = c2[nextIndex + 1];
+          const anchor = nextIndex + 1 < l2 ? (
+            // #13559, #14173 fallback to el placeholder for unresolved async component
+            anchorVNode.el || resolveAsyncComponentPlaceholder(anchorVNode)
+          ) : parentAnchor;
+          if (newIndexToOldIndexMap[i] === 0) {
+            patch(
+              null,
+              nextChild,
+              container,
+              anchor,
+              parentComponent,
+              parentSuspense,
+              namespace,
+              slotScopeIds,
+              optimized
+            );
+          } else if (moved) {
+            if (j < 0 || i !== increasingNewIndexSequence[j]) {
+              move(nextChild, container, anchor, 2);
+            } else {
+              j--;
+            }
+          }
+        }
+      }
+    };
+    const move = (vnode, container, anchor, moveType, parentSuspense = null) => {
+      const { el, type, transition, children, shapeFlag } = vnode;
+      if (shapeFlag & 6) {
+        move(vnode.component.subTree, container, anchor, moveType);
+        return;
+      }
+      if (shapeFlag & 128) {
+        vnode.suspense.move(container, anchor, moveType);
+        return;
+      }
+      if (shapeFlag & 64) {
+        type.move(vnode, container, anchor, internals);
+        return;
+      }
+      if (type === Fragment) {
+        hostInsert(el, container, anchor);
+        for (let i = 0; i < children.length; i++) {
+          move(children[i], container, anchor, moveType);
+        }
+        hostInsert(vnode.anchor, container, anchor);
+        return;
+      }
+      if (type === Static) {
+        moveStaticNode(vnode, container, anchor);
+        return;
+      }
+      const needTransition2 = moveType !== 2 && shapeFlag & 1 && transition;
+      if (needTransition2) {
+        if (moveType === 0) {
+          if (transition.persisted && !el[leaveCbKey]) {
+            hostInsert(el, container, anchor);
+          } else {
+            transition.beforeEnter(el);
+            hostInsert(el, container, anchor);
+            queuePostRenderEffect(() => transition.enter(el), parentSuspense);
+          }
+        } else {
+          const { leave, delayLeave, afterLeave } = transition;
+          const remove22 = () => {
+            if (vnode.ctx.isUnmounted) {
+              hostRemove(el);
+            } else {
+              hostInsert(el, container, anchor);
+            }
+          };
+          const performLeave = () => {
+            const wasLeaving = el._isLeaving || !!el[leaveCbKey];
+            if (el._isLeaving) {
+              el[leaveCbKey](
+                true
+                /* cancelled */
+              );
+            }
+            if (transition.persisted && !wasLeaving) {
+              remove22();
+            } else {
+              leave(el, () => {
+                remove22();
+                afterLeave && afterLeave();
+              });
+            }
+          };
+          if (delayLeave) {
+            delayLeave(el, remove22, performLeave);
+          } else {
+            performLeave();
+          }
+        }
+      } else {
+        hostInsert(el, container, anchor);
+      }
+    };
+    const unmount = (vnode, parentComponent, parentSuspense, doRemove = false, optimized = false) => {
+      const {
+        type,
+        props,
+        ref: ref3,
+        children,
+        dynamicChildren,
+        shapeFlag,
+        patchFlag,
+        dirs,
+        cacheIndex,
+        memo
+      } = vnode;
+      if (patchFlag === -2) {
+        optimized = false;
+      }
+      if (ref3 != null) {
+        pauseTracking();
+        setRef(ref3, null, parentSuspense, vnode, true);
+        resetTracking();
+      }
+      if (cacheIndex != null) {
+        parentComponent.renderCache[cacheIndex] = void 0;
+      }
+      if (shapeFlag & 256) {
+        parentComponent.ctx.deactivate(vnode);
+        return;
+      }
+      const shouldInvokeDirs = shapeFlag & 1 && dirs;
+      const shouldInvokeVnodeHook = !isAsyncWrapper(vnode);
+      let vnodeHook;
+      if (shouldInvokeVnodeHook && (vnodeHook = props && props.onVnodeBeforeUnmount)) {
+        invokeVNodeHook(vnodeHook, parentComponent, vnode);
+      }
+      if (shapeFlag & 6) {
+        unmountComponent(vnode.component, parentSuspense, doRemove);
+      } else {
+        if (shapeFlag & 128) {
+          vnode.suspense.unmount(parentSuspense, doRemove);
+          return;
+        }
+        if (shouldInvokeDirs) {
+          invokeDirectiveHook(vnode, null, parentComponent, "beforeUnmount");
+        }
+        if (shapeFlag & 64) {
+          vnode.type.remove(
+            vnode,
+            parentComponent,
+            parentSuspense,
+            internals,
+            doRemove
+          );
+        } else if (dynamicChildren && // #5154
+        // when v-once is used inside a block, setBlockTracking(-1) marks the
+        // parent block with hasOnce: true
+        // so that it doesn't take the fast path during unmount - otherwise
+        // components nested in v-once are never unmounted.
+        !dynamicChildren.hasOnce && // #1153: fast path should not be taken for non-stable (v-for) fragments
+        (type !== Fragment || patchFlag > 0 && patchFlag & 64)) {
+          unmountChildren(
+            dynamicChildren,
+            parentComponent,
+            parentSuspense,
+            false,
+            true
+          );
+        } else if (type === Fragment && patchFlag & (128 | 256) || !optimized && shapeFlag & 16) {
+          unmountChildren(children, parentComponent, parentSuspense);
+        }
+        if (doRemove) {
+          remove2(vnode);
+        }
+      }
+      const shouldInvalidateMemo = memo != null && cacheIndex == null;
+      if (shouldInvokeVnodeHook && (vnodeHook = props && props.onVnodeUnmounted) || shouldInvokeDirs || shouldInvalidateMemo) {
+        queuePostRenderEffect(() => {
+          vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, vnode);
+          shouldInvokeDirs && invokeDirectiveHook(vnode, null, parentComponent, "unmounted");
+          if (shouldInvalidateMemo) {
+            vnode.el = null;
+          }
+        }, parentSuspense);
+      }
+    };
+    const remove2 = (vnode) => {
+      const { type, el, anchor, transition } = vnode;
+      if (type === Fragment) {
+        {
+          removeFragment(el, anchor);
+        }
+        return;
+      }
+      if (type === Static) {
+        removeStaticNode(vnode);
+        return;
+      }
+      const performRemove = () => {
+        hostRemove(el);
+        if (transition && !transition.persisted && transition.afterLeave) {
+          transition.afterLeave();
+        }
+      };
+      if (vnode.shapeFlag & 1 && transition && !transition.persisted) {
+        const { leave, delayLeave } = transition;
+        const performLeave = () => leave(el, performRemove);
+        if (delayLeave) {
+          delayLeave(vnode.el, performRemove, performLeave);
+        } else {
+          performLeave();
+        }
+      } else {
+        performRemove();
+      }
+    };
+    const removeFragment = (cur, end) => {
+      let next;
+      while (cur !== end) {
+        next = hostNextSibling(cur);
+        hostRemove(cur);
+        cur = next;
+      }
+      hostRemove(end);
+    };
+    const unmountComponent = (instance, parentSuspense, doRemove) => {
+      const { bum, scope, job, subTree, um, m, a } = instance;
+      invalidateMount(m);
+      invalidateMount(a);
+      if (bum) {
+        invokeArrayFns(bum);
+      }
+      scope.stop();
+      if (job) {
+        job.flags |= 8;
+        unmount(subTree, instance, parentSuspense, doRemove);
+      }
+      if (um) {
+        queuePostRenderEffect(um, parentSuspense);
+      }
+      queuePostRenderEffect(() => {
+        instance.isUnmounted = true;
+      }, parentSuspense);
+    };
+    const unmountChildren = (children, parentComponent, parentSuspense, doRemove = false, optimized = false, start = 0) => {
+      for (let i = start; i < children.length; i++) {
+        unmount(children[i], parentComponent, parentSuspense, doRemove, optimized);
+      }
+    };
+    const getNextHostNode = (vnode) => {
+      if (vnode.shapeFlag & 6) {
+        return getNextHostNode(vnode.component.subTree);
+      }
+      if (vnode.shapeFlag & 128) {
+        return vnode.suspense.next();
+      }
+      const el = hostNextSibling(vnode.anchor || vnode.el);
+      const teleportEnd = el && el[TeleportEndKey];
+      return teleportEnd ? hostNextSibling(teleportEnd) : el;
+    };
+    let isFlushing = false;
+    const render2 = (vnode, container, namespace) => {
+      let instance;
+      if (vnode == null) {
+        if (container._vnode) {
+          unmount(container._vnode, null, null, true);
+          instance = container._vnode.component;
+        }
+      } else {
+        patch(
+          container._vnode || null,
+          vnode,
+          container,
+          null,
+          null,
+          null,
+          namespace
+        );
+      }
+      container._vnode = vnode;
+      if (!isFlushing) {
+        isFlushing = true;
+        flushPreFlushCbs(instance);
+        flushPostFlushCbs();
+        isFlushing = false;
+      }
+    };
+    const internals = {
+      p: patch,
+      um: unmount,
+      m: move,
+      r: remove2,
+      mt: mountComponent,
+      mc: mountChildren,
+      pc: patchChildren,
+      pbc: patchBlockChildren,
+      n: getNextHostNode,
+      o: options
+    };
+    let hydrate;
+    return {
+      render: render2,
+      hydrate,
+      createApp: createAppAPI(render2)
+    };
+  }
+  function resolveChildrenNamespace({ type, props }, currentNamespace) {
+    return currentNamespace === "svg" && type === "foreignObject" || currentNamespace === "mathml" && type === "annotation-xml" && props && props.encoding && props.encoding.includes("html") ? void 0 : currentNamespace;
+  }
+  function toggleRecurse({ effect: effect2, job }, allowed) {
+    if (allowed) {
+      effect2.flags |= 32;
+      job.flags |= 4;
+    } else {
+      effect2.flags &= -33;
+      job.flags &= -5;
+    }
+  }
+  function needTransition(parentSuspense, transition) {
+    return (!parentSuspense || parentSuspense && !parentSuspense.pendingBranch) && transition && !transition.persisted;
+  }
+  function traverseStaticChildren(n1, n2, shallow = false) {
+    const ch1 = n1.children;
+    const ch2 = n2.children;
+    if (isArray(ch1) && isArray(ch2)) {
+      for (let i = 0; i < ch1.length; i++) {
+        const c1 = ch1[i];
+        let c2 = ch2[i];
+        if (c2.shapeFlag & 1 && !c2.dynamicChildren) {
+          if (c2.patchFlag <= 0 || c2.patchFlag === 32) {
+            c2 = ch2[i] = cloneIfMounted(ch2[i]);
+            c2.el = c1.el;
+          }
+          if (!shallow && c2.patchFlag !== -2)
+            traverseStaticChildren(c1, c2);
+        }
+        if (c2.type === Text) {
+          if (c2.patchFlag === -1) {
+            c2 = ch2[i] = cloneIfMounted(c2);
+          }
+          c2.el = c1.el;
+        }
+        if (c2.type === Comment && !c2.el) {
+          c2.el = c1.el;
+        }
+      }
+    }
+  }
+  function getSequence(arr) {
+    const p2 = arr.slice();
+    const result = [0];
+    let i, j, u, v, c;
+    const len = arr.length;
+    for (i = 0; i < len; i++) {
+      const arrI = arr[i];
+      if (arrI !== 0) {
+        j = result[result.length - 1];
+        if (arr[j] < arrI) {
+          p2[i] = j;
+          result.push(i);
+          continue;
+        }
+        u = 0;
+        v = result.length - 1;
+        while (u < v) {
+          c = u + v >> 1;
+          if (arr[result[c]] < arrI) {
+            u = c + 1;
+          } else {
+            v = c;
+          }
+        }
+        if (arrI < arr[result[u]]) {
+          if (u > 0) {
+            p2[i] = result[u - 1];
+          }
+          result[u] = i;
+        }
+      }
+    }
+    u = result.length;
+    v = result[u - 1];
+    while (u-- > 0) {
+      result[u] = v;
+      v = p2[v];
+    }
+    return result;
+  }
+  function locateNonHydratedAsyncRoot(instance) {
+    const subComponent = instance.subTree.component;
+    if (subComponent) {
+      if (subComponent.asyncDep && !subComponent.asyncResolved) {
+        return subComponent;
+      } else {
+        return locateNonHydratedAsyncRoot(subComponent);
+      }
+    }
+  }
+  function invalidateMount(hooks) {
+    if (hooks) {
+      for (let i = 0; i < hooks.length; i++)
+        hooks[i].flags |= 8;
+    }
+  }
+  function resolveAsyncComponentPlaceholder(anchorVnode) {
+    if (anchorVnode.placeholder) {
+      return anchorVnode.placeholder;
+    }
+    const instance = anchorVnode.component;
+    if (instance) {
+      return resolveAsyncComponentPlaceholder(instance.subTree);
+    }
+    return null;
+  }
+  const isSuspense = (type) => type.__isSuspense;
+  function queueEffectWithSuspense(fn, suspense) {
+    if (suspense && suspense.pendingBranch) {
+      if (isArray(fn)) {
+        suspense.effects.push(...fn);
+      } else {
+        suspense.effects.push(fn);
+      }
+    } else {
+      queuePostFlushCb(fn);
+    }
+  }
+  const Fragment = /* @__PURE__ */ Symbol.for("v-fgt");
+  const Text = /* @__PURE__ */ Symbol.for("v-txt");
+  const Comment = /* @__PURE__ */ Symbol.for("v-cmt");
+  const Static = /* @__PURE__ */ Symbol.for("v-stc");
+  const blockStack = [];
+  let currentBlock = null;
+  function openBlock(disableTracking = false) {
+    blockStack.push(currentBlock = disableTracking ? null : []);
+  }
+  function closeBlock() {
+    blockStack.pop();
+    currentBlock = blockStack[blockStack.length - 1] || null;
+  }
+  let isBlockTreeEnabled = 1;
+  function setBlockTracking(value, inVOnce = false) {
+    isBlockTreeEnabled += value;
+    if (value < 0 && currentBlock && inVOnce) {
+      currentBlock.hasOnce = true;
+    }
+  }
+  function setupBlock(vnode) {
+    vnode.dynamicChildren = isBlockTreeEnabled > 0 ? currentBlock || EMPTY_ARR : null;
+    closeBlock();
+    if (isBlockTreeEnabled > 0 && currentBlock) {
+      currentBlock.push(vnode);
+    }
+    return vnode;
+  }
+  function createElementBlock(type, props, children, patchFlag, dynamicProps, shapeFlag) {
+    return setupBlock(
+      createBaseVNode(
+        type,
+        props,
+        children,
+        patchFlag,
+        dynamicProps,
+        shapeFlag,
+        true
+      )
+    );
+  }
+  function createBlock(type, props, children, patchFlag, dynamicProps) {
+    return setupBlock(
+      createVNode(
+        type,
+        props,
+        children,
+        patchFlag,
+        dynamicProps,
+        true
+      )
+    );
+  }
+  function isVNode(value) {
+    return value ? value.__v_isVNode === true : false;
+  }
+  function isSameVNodeType(n1, n2) {
+    return n1.type === n2.type && n1.key === n2.key;
+  }
+  const normalizeKey = ({ key }) => key != null ? key : null;
+  const normalizeRef = ({
+    ref: ref3,
+    ref_key,
+    ref_for
+  }) => {
+    if (typeof ref3 === "number") {
+      ref3 = "" + ref3;
+    }
+    return ref3 != null ? isString(ref3) || /* @__PURE__ */ isRef(ref3) || isFunction(ref3) ? { i: currentRenderingInstance, r: ref3, k: ref_key, f: !!ref_for } : ref3 : null;
+  };
+  function createBaseVNode(type, props = null, children = null, patchFlag = 0, dynamicProps = null, shapeFlag = type === Fragment ? 0 : 1, isBlockNode = false, needFullChildrenNormalization = false) {
+    const vnode = {
+      __v_isVNode: true,
+      __v_skip: true,
+      type,
+      props,
+      key: props && normalizeKey(props),
+      ref: props && normalizeRef(props),
+      scopeId: currentScopeId,
+      slotScopeIds: null,
+      children,
+      component: null,
+      suspense: null,
+      ssContent: null,
+      ssFallback: null,
+      dirs: null,
+      transition: null,
+      el: null,
+      anchor: null,
+      target: null,
+      targetStart: null,
+      targetAnchor: null,
+      staticCount: 0,
+      shapeFlag,
+      patchFlag,
+      dynamicProps,
+      dynamicChildren: null,
+      appContext: null,
+      ctx: currentRenderingInstance
+    };
+    if (needFullChildrenNormalization) {
+      normalizeChildren(vnode, children);
+      if (shapeFlag & 128) {
+        type.normalize(vnode);
+      }
+    } else if (children) {
+      vnode.shapeFlag |= isString(children) ? 8 : 16;
+    }
+    if (isBlockTreeEnabled > 0 && // avoid a block node from tracking itself
+    !isBlockNode && // has current parent block
+    currentBlock && // presence of a patch flag indicates this node needs patching on updates.
+    // component nodes also should always be patched, because even if the
+    // component doesn't need to update, it needs to persist the instance on to
+    // the next vnode so that it can be properly unmounted later.
+    (vnode.patchFlag > 0 || shapeFlag & 6) && // the EVENTS flag is only for hydration and if it is the only flag, the
+    // vnode should not be considered dynamic due to handler caching.
+    vnode.patchFlag !== 32) {
+      currentBlock.push(vnode);
+    }
+    return vnode;
+  }
+  const createVNode = _createVNode;
+  function _createVNode(type, props = null, children = null, patchFlag = 0, dynamicProps = null, isBlockNode = false) {
+    if (!type || type === NULL_DYNAMIC_COMPONENT) {
+      type = Comment;
+    }
+    if (isVNode(type)) {
+      const cloned = cloneVNode(
+        type,
+        props,
+        true
+        /* mergeRef: true */
+      );
+      if (children) {
+        normalizeChildren(cloned, children);
+      }
+      if (isBlockTreeEnabled > 0 && !isBlockNode && currentBlock) {
+        if (cloned.shapeFlag & 6) {
+          currentBlock[currentBlock.indexOf(type)] = cloned;
+        } else {
+          currentBlock.push(cloned);
+        }
+      }
+      cloned.patchFlag = -2;
+      return cloned;
+    }
+    if (isClassComponent(type)) {
+      type = type.__vccOpts;
+    }
+    if (props) {
+      props = guardReactiveProps(props);
+      let { class: klass, style } = props;
+      if (klass && !isString(klass)) {
+        props.class = normalizeClass(klass);
+      }
+      if (isObject(style)) {
+        if (/* @__PURE__ */ isProxy(style) && !isArray(style)) {
+          style = extend({}, style);
+        }
+        props.style = normalizeStyle(style);
+      }
+    }
+    const shapeFlag = isString(type) ? 1 : isSuspense(type) ? 128 : isTeleport(type) ? 64 : isObject(type) ? 4 : isFunction(type) ? 2 : 0;
+    return createBaseVNode(
+      type,
+      props,
+      children,
+      patchFlag,
+      dynamicProps,
+      shapeFlag,
+      isBlockNode,
+      true
+    );
+  }
+  function guardReactiveProps(props) {
+    if (!props) return null;
+    return /* @__PURE__ */ isProxy(props) || isInternalObject(props) ? extend({}, props) : props;
+  }
+  function cloneVNode(vnode, extraProps, mergeRef = false, cloneTransition = false) {
+    const { props, ref: ref3, patchFlag, children, transition } = vnode;
+    const mergedProps = extraProps ? mergeProps(props || {}, extraProps) : props;
+    const cloned = {
+      __v_isVNode: true,
+      __v_skip: true,
+      type: vnode.type,
+      props: mergedProps,
+      key: mergedProps && normalizeKey(mergedProps),
+      ref: extraProps && extraProps.ref ? (
+        // #2078 in the case of <component :is="vnode" ref="extra"/>
+        // if the vnode itself already has a ref, cloneVNode will need to merge
+        // the refs so the single vnode can be set on multiple refs
+        mergeRef && ref3 ? isArray(ref3) ? ref3.concat(normalizeRef(extraProps)) : [ref3, normalizeRef(extraProps)] : normalizeRef(extraProps)
+      ) : ref3,
+      scopeId: vnode.scopeId,
+      slotScopeIds: vnode.slotScopeIds,
+      children,
+      target: vnode.target,
+      targetStart: vnode.targetStart,
+      targetAnchor: vnode.targetAnchor,
+      staticCount: vnode.staticCount,
+      shapeFlag: vnode.shapeFlag,
+      // if the vnode is cloned with extra props, we can no longer assume its
+      // existing patch flag to be reliable and need to add the FULL_PROPS flag.
+      // note: preserve flag for fragments since they use the flag for children
+      // fast paths only.
+      patchFlag: extraProps && vnode.type !== Fragment ? patchFlag === -1 ? 16 : patchFlag | 16 : patchFlag,
+      dynamicProps: vnode.dynamicProps,
+      dynamicChildren: vnode.dynamicChildren,
+      appContext: vnode.appContext,
+      dirs: vnode.dirs,
+      transition,
+      // These should technically only be non-null on mounted VNodes. However,
+      // they *should* be copied for kept-alive vnodes. So we just always copy
+      // them since them being non-null during a mount doesn't affect the logic as
+      // they will simply be overwritten.
+      component: vnode.component,
+      suspense: vnode.suspense,
+      ssContent: vnode.ssContent && cloneVNode(vnode.ssContent),
+      ssFallback: vnode.ssFallback && cloneVNode(vnode.ssFallback),
+      placeholder: vnode.placeholder,
+      el: vnode.el,
+      anchor: vnode.anchor,
+      ctx: vnode.ctx,
+      ce: vnode.ce
+    };
+    if (transition && cloneTransition) {
+      setTransitionHooks(
+        cloned,
+        transition.clone(cloned)
+      );
+    }
+    return cloned;
+  }
+  function createTextVNode(text = " ", flag = 0) {
+    return createVNode(Text, null, text, flag);
+  }
+  function createCommentVNode(text = "", asBlock = false) {
+    return asBlock ? (openBlock(), createBlock(Comment, null, text)) : createVNode(Comment, null, text);
+  }
+  function normalizeVNode(child) {
+    if (child == null || typeof child === "boolean") {
+      return createVNode(Comment);
+    } else if (isArray(child)) {
+      return createVNode(
+        Fragment,
+        null,
+        // #3666, avoid reference pollution when reusing vnode
+        child.slice()
+      );
+    } else if (isVNode(child)) {
+      return cloneIfMounted(child);
+    } else {
+      return createVNode(Text, null, String(child));
+    }
+  }
+  function cloneIfMounted(child) {
+    return child.el === null && child.patchFlag !== -1 || child.memo ? child : cloneVNode(child);
+  }
+  function normalizeChildren(vnode, children) {
+    let type = 0;
+    const { shapeFlag } = vnode;
+    if (children == null) {
+      children = null;
+    } else if (isArray(children)) {
+      type = 16;
+    } else if (typeof children === "object") {
+      if (shapeFlag & (1 | 64)) {
+        const slot = children.default;
+        if (slot) {
+          slot._c && (slot._d = false);
+          normalizeChildren(vnode, slot());
+          slot._c && (slot._d = true);
+        }
+        return;
+      } else {
+        type = 32;
+        const slotFlag = children._;
+        if (!slotFlag && !isInternalObject(children)) {
+          children._ctx = currentRenderingInstance;
+        } else if (slotFlag === 3 && currentRenderingInstance) {
+          if (currentRenderingInstance.slots._ === 1) {
+            children._ = 1;
+          } else {
+            children._ = 2;
+            vnode.patchFlag |= 1024;
+          }
+        }
+      }
+    } else if (isFunction(children)) {
+      children = { default: children, _ctx: currentRenderingInstance };
+      type = 32;
+    } else {
+      children = String(children);
+      if (shapeFlag & 64) {
+        type = 16;
+        children = [createTextVNode(children)];
+      } else {
+        type = 8;
+      }
+    }
+    vnode.children = children;
+    vnode.shapeFlag |= type;
+  }
+  function mergeProps(...args) {
+    const ret = {};
+    for (let i = 0; i < args.length; i++) {
+      const toMerge = args[i];
+      for (const key in toMerge) {
+        if (key === "class") {
+          if (ret.class !== toMerge.class) {
+            ret.class = normalizeClass([ret.class, toMerge.class]);
+          }
+        } else if (key === "style") {
+          ret.style = normalizeStyle([ret.style, toMerge.style]);
+        } else if (isOn(key)) {
+          const existing = ret[key];
+          const incoming = toMerge[key];
+          if (incoming && existing !== incoming && !(isArray(existing) && existing.includes(incoming))) {
+            ret[key] = existing ? [].concat(existing, incoming) : incoming;
+          } else if (incoming == null && existing == null && // mergeProps({ 'onUpdate:modelValue': undefined }) should not retain
+          // the model listener.
+          !isModelListener(key)) {
+            ret[key] = incoming;
+          }
+        } else if (key !== "") {
+          ret[key] = toMerge[key];
+        }
+      }
+    }
+    return ret;
+  }
+  function invokeVNodeHook(hook, instance, vnode, prevVNode = null) {
+    callWithAsyncErrorHandling(hook, instance, 7, [
+      vnode,
+      prevVNode
+    ]);
+  }
+  const emptyAppContext = createAppContext();
+  let uid = 0;
+  function createComponentInstance(vnode, parent, suspense) {
+    const type = vnode.type;
+    const appContext = (parent ? parent.appContext : vnode.appContext) || emptyAppContext;
+    const instance = {
+      uid: uid++,
+      vnode,
+      type,
+      parent,
+      appContext,
+      root: null,
+      // to be immediately set
+      next: null,
+      subTree: null,
+      // will be set synchronously right after creation
+      effect: null,
+      update: null,
+      // will be set synchronously right after creation
+      job: null,
+      scope: new EffectScope(
+        true
+        /* detached */
+      ),
+      render: null,
+      proxy: null,
+      exposed: null,
+      exposeProxy: null,
+      withProxy: null,
+      provides: parent ? parent.provides : Object.create(appContext.provides),
+      ids: parent ? parent.ids : ["", 0, 0],
+      accessCache: null,
+      renderCache: [],
+      // local resolved assets
+      components: null,
+      directives: null,
+      // resolved props and emits options
+      propsOptions: normalizePropsOptions(type, appContext),
+      emitsOptions: normalizeEmitsOptions(type, appContext),
+      // emit
+      emit: null,
+      // to be set immediately
+      emitted: null,
+      // props default value
+      propsDefaults: EMPTY_OBJ,
+      // inheritAttrs
+      inheritAttrs: type.inheritAttrs,
+      // state
+      ctx: EMPTY_OBJ,
+      data: EMPTY_OBJ,
+      props: EMPTY_OBJ,
+      attrs: EMPTY_OBJ,
+      slots: EMPTY_OBJ,
+      refs: EMPTY_OBJ,
+      setupState: EMPTY_OBJ,
+      setupContext: null,
+      // suspense related
+      suspense,
+      suspenseId: suspense ? suspense.pendingId : 0,
+      asyncDep: null,
+      asyncResolved: false,
+      // lifecycle hooks
+      // not using enums here because it results in computed properties
+      isMounted: false,
+      isUnmounted: false,
+      isDeactivated: false,
+      bc: null,
+      c: null,
+      bm: null,
+      m: null,
+      bu: null,
+      u: null,
+      um: null,
+      bum: null,
+      da: null,
+      a: null,
+      rtg: null,
+      rtc: null,
+      ec: null,
+      sp: null
+    };
+    {
+      instance.ctx = { _: instance };
+    }
+    instance.root = parent ? parent.root : instance;
+    instance.emit = emit.bind(null, instance);
+    if (vnode.ce) {
+      vnode.ce(instance);
+    }
+    return instance;
+  }
+  let currentInstance = null;
+  const getCurrentInstance = () => currentInstance || currentRenderingInstance;
+  let internalSetCurrentInstance;
+  let setInSSRSetupState;
+  {
+    const g = getGlobalThis();
+    const registerGlobalSetter = (key, setter) => {
+      let setters;
+      if (!(setters = g[key])) setters = g[key] = [];
+      setters.push(setter);
+      return (v) => {
+        if (setters.length > 1) setters.forEach((set) => set(v));
+        else setters[0](v);
+      };
+    };
+    internalSetCurrentInstance = registerGlobalSetter(
+      `__VUE_INSTANCE_SETTERS__`,
+      (v) => currentInstance = v
+    );
+    setInSSRSetupState = registerGlobalSetter(
+      `__VUE_SSR_SETTERS__`,
+      (v) => isInSSRComponentSetup = v
+    );
+  }
+  const setCurrentInstance = (instance) => {
+    const prev = currentInstance;
+    internalSetCurrentInstance(instance);
+    instance.scope.on();
+    return () => {
+      instance.scope.off();
+      internalSetCurrentInstance(prev);
+    };
+  };
+  const unsetCurrentInstance = () => {
+    currentInstance && currentInstance.scope.off();
+    internalSetCurrentInstance(null);
+  };
+  function isStatefulComponent(instance) {
+    return instance.vnode.shapeFlag & 4;
+  }
+  let isInSSRComponentSetup = false;
+  function setupComponent(instance, isSSR = false, optimized = false) {
+    isSSR && setInSSRSetupState(isSSR);
+    const { props, children } = instance.vnode;
+    const isStateful = isStatefulComponent(instance);
+    initProps(instance, props, isStateful, isSSR);
+    initSlots(instance, children, optimized || isSSR);
+    const setupResult = isStateful ? setupStatefulComponent(instance, isSSR) : void 0;
+    isSSR && setInSSRSetupState(false);
+    return setupResult;
+  }
+  function setupStatefulComponent(instance, isSSR) {
+    const Component = instance.type;
+    instance.accessCache = /* @__PURE__ */ Object.create(null);
+    instance.proxy = new Proxy(instance.ctx, PublicInstanceProxyHandlers);
+    const { setup } = Component;
+    if (setup) {
+      pauseTracking();
+      const setupContext = instance.setupContext = setup.length > 1 ? createSetupContext(instance) : null;
+      const reset = setCurrentInstance(instance);
+      const setupResult = callWithErrorHandling(
+        setup,
+        instance,
+        0,
+        [
+          instance.props,
+          setupContext
+        ]
+      );
+      const isAsyncSetup = isPromise(setupResult);
+      resetTracking();
+      reset();
+      if ((isAsyncSetup || instance.sp) && !isAsyncWrapper(instance)) {
+        markAsyncBoundary(instance);
+      }
+      if (isAsyncSetup) {
+        setupResult.then(unsetCurrentInstance, unsetCurrentInstance);
+        if (isSSR) {
+          return setupResult.then((resolvedResult) => {
+            handleSetupResult(instance, resolvedResult);
+          }).catch((e) => {
+            handleError(e, instance, 0);
+          });
+        } else {
+          instance.asyncDep = setupResult;
+        }
+      } else {
+        handleSetupResult(instance, setupResult);
+      }
+    } else {
+      finishComponentSetup(instance);
+    }
+  }
+  function handleSetupResult(instance, setupResult, isSSR) {
+    if (isFunction(setupResult)) {
+      if (instance.type.__ssrInlineRender) {
+        instance.ssrRender = setupResult;
+      } else {
+        instance.render = setupResult;
+      }
+    } else if (isObject(setupResult)) {
+      instance.setupState = proxyRefs(setupResult);
+    } else ;
+    finishComponentSetup(instance);
+  }
+  function finishComponentSetup(instance, isSSR, skipOptions) {
+    const Component = instance.type;
+    if (!instance.render) {
+      instance.render = Component.render || NOOP;
+    }
+    {
+      const reset = setCurrentInstance(instance);
+      pauseTracking();
+      try {
+        applyOptions(instance);
+      } finally {
+        resetTracking();
+        reset();
+      }
+    }
+  }
+  const attrsProxyHandlers = {
+    get(target, key) {
+      track(target, "get", "");
+      return target[key];
+    }
+  };
+  function createSetupContext(instance) {
+    const expose = (exposed) => {
+      instance.exposed = exposed || {};
+    };
+    {
+      return {
+        attrs: new Proxy(instance.attrs, attrsProxyHandlers),
+        slots: instance.slots,
+        emit: instance.emit,
+        expose
+      };
+    }
+  }
+  function getComponentPublicInstance(instance) {
+    if (instance.exposed) {
+      return instance.exposeProxy || (instance.exposeProxy = new Proxy(proxyRefs(markRaw(instance.exposed)), {
+        get(target, key) {
+          if (key in target) {
+            return target[key];
+          } else if (key in publicPropertiesMap) {
+            return publicPropertiesMap[key](instance);
+          }
+        },
+        has(target, key) {
+          return key in target || key in publicPropertiesMap;
+        }
+      }));
+    } else {
+      return instance.proxy;
+    }
+  }
+  const classifyRE = /(?:^|[-_])\w/g;
+  const classify = (str) => str.replace(classifyRE, (c) => c.toUpperCase()).replace(/[-_]/g, "");
+  function getComponentName(Component, includeInferred = true) {
+    return isFunction(Component) ? Component.displayName || Component.name : Component.name || includeInferred && Component.__name;
+  }
+  function formatComponentName(instance, Component, isRoot = false) {
+    let name = getComponentName(Component);
+    if (!name && Component.__file) {
+      const match = Component.__file.match(/([^/\\]+)\.\w+$/);
+      if (match) {
+        name = match[1];
+      }
+    }
+    if (!name && instance) {
+      const inferFromRegistry = (registry) => {
+        for (const key in registry) {
+          if (registry[key] === Component) {
+            return key;
+          }
+        }
+      };
+      name = inferFromRegistry(instance.components) || instance.parent && inferFromRegistry(
+        instance.parent.type.components
+      ) || inferFromRegistry(instance.appContext.components);
+    }
+    return name ? classify(name) : isRoot ? `App` : `Anonymous`;
+  }
+  function isClassComponent(value) {
+    return isFunction(value) && "__vccOpts" in value;
+  }
+  const computed = (getterOrOptions, debugOptions) => {
+    const c = /* @__PURE__ */ computed$1(getterOrOptions, debugOptions, isInSSRComponentSetup);
+    return c;
+  };
+  function h(type, propsOrChildren, children) {
+    try {
+      setBlockTracking(-1);
+      const l = arguments.length;
+      if (l === 2) {
+        if (isObject(propsOrChildren) && !isArray(propsOrChildren)) {
+          if (isVNode(propsOrChildren)) {
+            return createVNode(type, null, [propsOrChildren]);
+          }
+          return createVNode(type, propsOrChildren);
+        } else {
+          return createVNode(type, null, propsOrChildren);
+        }
+      } else {
+        if (l > 3) {
+          children = Array.prototype.slice.call(arguments, 2);
+        } else if (l === 3 && isVNode(children)) {
+          children = [children];
+        }
+        return createVNode(type, propsOrChildren, children);
+      }
+    } finally {
+      setBlockTracking(1);
+    }
+  }
+  const version = "3.5.38";
+  /**
+  * @vue/runtime-dom v3.5.38
+  * (c) 2018-present Yuxi (Evan) You and Vue contributors
+  * @license MIT
+  **/
+  let policy = void 0;
+  const tt = typeof window !== "undefined" && window.trustedTypes;
+  if (tt) {
+    try {
+      policy = /* @__PURE__ */ tt.createPolicy("vue", {
+        createHTML: (val) => val
+      });
+    } catch (e) {
+    }
+  }
+  const unsafeToTrustedHTML = policy ? (val) => policy.createHTML(val) : (val) => val;
+  const svgNS = "http://www.w3.org/2000/svg";
+  const mathmlNS = "http://www.w3.org/1998/Math/MathML";
+  const doc = typeof document !== "undefined" ? document : null;
+  const templateContainer = doc && /* @__PURE__ */ doc.createElement("template");
+  const nodeOps = {
+    insert: (child, parent, anchor) => {
+      parent.insertBefore(child, anchor || null);
+    },
+    remove: (child) => {
+      const parent = child.parentNode;
+      if (parent) {
+        parent.removeChild(child);
+      }
+    },
+    createElement: (tag, namespace, is, props) => {
+      const el = namespace === "svg" ? doc.createElementNS(svgNS, tag) : namespace === "mathml" ? doc.createElementNS(mathmlNS, tag) : is ? doc.createElement(tag, { is }) : doc.createElement(tag);
+      if (tag === "select" && props && props.multiple != null) {
+        el.setAttribute("multiple", props.multiple);
+      }
+      return el;
+    },
+    createText: (text) => doc.createTextNode(text),
+    createComment: (text) => doc.createComment(text),
+    setText: (node, text) => {
+      node.nodeValue = text;
+    },
+    setElementText: (el, text) => {
+      el.textContent = text;
+    },
+    parentNode: (node) => node.parentNode,
+    nextSibling: (node) => node.nextSibling,
+    querySelector: (selector) => doc.querySelector(selector),
+    setScopeId(el, id) {
+      el.setAttribute(id, "");
+    },
+    // __UNSAFE__
+    // Reason: innerHTML.
+    // Static content here can only come from compiled templates.
+    // As long as the user only uses trusted templates, this is safe.
+    insertStaticContent(content, parent, anchor, namespace, start, end) {
+      const before = anchor ? anchor.previousSibling : parent.lastChild;
+      if (start && (start === end || start.nextSibling)) {
+        while (true) {
+          parent.insertBefore(start.cloneNode(true), anchor);
+          if (start === end || !(start = start.nextSibling)) break;
+        }
+      } else {
+        templateContainer.innerHTML = unsafeToTrustedHTML(
+          namespace === "svg" ? `<svg>${content}</svg>` : namespace === "mathml" ? `<math>${content}</math>` : content
+        );
+        const template = templateContainer.content;
+        if (namespace === "svg" || namespace === "mathml") {
+          const wrapper = template.firstChild;
+          while (wrapper.firstChild) {
+            template.appendChild(wrapper.firstChild);
+          }
+          template.removeChild(wrapper);
+        }
+        parent.insertBefore(template, anchor);
+      }
+      return [
+        // first
+        before ? before.nextSibling : parent.firstChild,
+        // last
+        anchor ? anchor.previousSibling : parent.lastChild
+      ];
+    }
+  };
+  const vtcKey = /* @__PURE__ */ Symbol("_vtc");
+  function patchClass(el, value, isSVG) {
+    const transitionClasses = el[vtcKey];
+    if (transitionClasses) {
+      value = (value ? [value, ...transitionClasses] : [...transitionClasses]).join(" ");
+    }
+    if (value == null) {
+      el.removeAttribute("class");
+    } else if (isSVG) {
+      el.setAttribute("class", value);
+    } else {
+      el.className = value;
+    }
+  }
+  const vShowOriginalDisplay = /* @__PURE__ */ Symbol("_vod");
+  const vShowHidden = /* @__PURE__ */ Symbol("_vsh");
+  const vShow = {
+    // used for prop mismatch check during hydration
+    name: "show",
+    beforeMount(el, { value }, { transition }) {
+      el[vShowOriginalDisplay] = el.style.display === "none" ? "" : el.style.display;
+      if (transition && value) {
+        transition.beforeEnter(el);
+      } else {
+        setDisplay(el, value);
+      }
+    },
+    mounted(el, { value }, { transition }) {
+      if (transition && value) {
+        transition.enter(el);
+      }
+    },
+    updated(el, { value, oldValue }, { transition }) {
+      if (!value === !oldValue) return;
+      if (transition) {
+        if (value) {
+          transition.beforeEnter(el);
+          setDisplay(el, true);
+          transition.enter(el);
+        } else {
+          transition.leave(el, () => {
+            setDisplay(el, false);
+          });
+        }
+      } else {
+        setDisplay(el, value);
+      }
+    },
+    beforeUnmount(el, { value }) {
+      setDisplay(el, value);
+    }
+  };
+  function setDisplay(el, value) {
+    el.style.display = value ? el[vShowOriginalDisplay] : "none";
+    el[vShowHidden] = !value;
+  }
+  const CSS_VAR_TEXT = /* @__PURE__ */ Symbol("");
+  const displayRE = /(?:^|;)\s*display\s*:/;
+  function patchStyle(el, prev, next) {
+    const style = el.style;
+    const isCssString = isString(next);
+    let hasControlledDisplay = false;
+    if (next && !isCssString) {
+      if (prev) {
+        if (!isString(prev)) {
+          for (const key in prev) {
+            if (next[key] == null) {
+              setStyle(style, key, "");
+            }
+          }
+        } else {
+          for (const prevStyle of prev.split(";")) {
+            const key = prevStyle.slice(0, prevStyle.indexOf(":")).trim();
+            if (next[key] == null) {
+              setStyle(style, key, "");
+            }
+          }
+        }
+      }
+      for (const key in next) {
+        if (key === "display") {
+          hasControlledDisplay = true;
+        }
+        const value = next[key];
+        if (value != null) {
+          if (!shouldPreserveTextareaResizeStyle(
+            el,
+            key,
+            !isString(prev) && prev ? prev[key] : void 0,
+            value
+          )) {
+            setStyle(style, key, value);
+          }
+        } else {
+          setStyle(style, key, "");
+        }
+      }
+    } else {
+      if (isCssString) {
+        if (prev !== next) {
+          const cssVarText = style[CSS_VAR_TEXT];
+          if (cssVarText) {
+            next += ";" + cssVarText;
+          }
+          style.cssText = next;
+          hasControlledDisplay = displayRE.test(next);
+        }
+      } else if (prev) {
+        el.removeAttribute("style");
+      }
+    }
+    if (vShowOriginalDisplay in el) {
+      el[vShowOriginalDisplay] = hasControlledDisplay ? style.display : "";
+      if (el[vShowHidden]) {
+        style.display = "none";
+      }
+    }
+  }
+  const importantRE = /\s*!important$/;
+  function setStyle(style, name, val) {
+    if (isArray(val)) {
+      val.forEach((v) => setStyle(style, name, v));
+    } else {
+      if (val == null) val = "";
+      if (name.startsWith("--")) {
+        style.setProperty(name, val);
+      } else {
+        const prefixed = autoPrefix(style, name);
+        if (importantRE.test(val)) {
+          style.setProperty(
+            hyphenate(prefixed),
+            val.replace(importantRE, ""),
+            "important"
+          );
+        } else {
+          style[prefixed] = val;
+        }
+      }
+    }
+  }
+  const prefixes = ["Webkit", "Moz", "ms"];
+  const prefixCache = {};
+  function autoPrefix(style, rawName) {
+    const cached = prefixCache[rawName];
+    if (cached) {
+      return cached;
+    }
+    let name = camelize(rawName);
+    if (name !== "filter" && name in style) {
+      return prefixCache[rawName] = name;
+    }
+    name = capitalize(name);
+    for (let i = 0; i < prefixes.length; i++) {
+      const prefixed = prefixes[i] + name;
+      if (prefixed in style) {
+        return prefixCache[rawName] = prefixed;
+      }
+    }
+    return rawName;
+  }
+  function shouldPreserveTextareaResizeStyle(el, key, prev, next) {
+    return el.tagName === "TEXTAREA" && (key === "width" || key === "height") && isString(next) && prev === next;
+  }
+  const xlinkNS = "http://www.w3.org/1999/xlink";
+  function patchAttr(el, key, value, isSVG, instance, isBoolean = isSpecialBooleanAttr(key)) {
+    if (isSVG && key.startsWith("xlink:")) {
+      if (value == null) {
+        el.removeAttributeNS(xlinkNS, key.slice(6, key.length));
+      } else {
+        el.setAttributeNS(xlinkNS, key, value);
+      }
+    } else {
+      if (value == null || isBoolean && !includeBooleanAttr(value)) {
+        el.removeAttribute(key);
+      } else {
+        el.setAttribute(
+          key,
+          isBoolean ? "" : isSymbol(value) ? String(value) : value
+        );
+      }
+    }
+  }
+  function patchDOMProp(el, key, value, parentComponent, attrName) {
+    if (key === "innerHTML" || key === "textContent") {
+      if (value != null) {
+        el[key] = key === "innerHTML" ? unsafeToTrustedHTML(value) : value;
+      }
+      return;
+    }
+    const tag = el.tagName;
+    if (key === "value" && tag !== "PROGRESS" && // custom elements may use _value internally
+    !tag.includes("-")) {
+      const oldValue = tag === "OPTION" ? el.getAttribute("value") || "" : el.value;
+      const newValue = value == null ? (
+        // #11647: value should be set as empty string for null and undefined,
+        // but <input type="checkbox"> should be set as 'on'.
+        el.type === "checkbox" ? "on" : ""
+      ) : String(value);
+      if (oldValue !== newValue || !("_value" in el)) {
+        el.value = newValue;
+      }
+      if (value == null) {
+        el.removeAttribute(key);
+      }
+      el._value = value;
+      return;
+    }
+    let needRemove = false;
+    if (value === "" || value == null) {
+      const type = typeof el[key];
+      if (type === "boolean") {
+        value = includeBooleanAttr(value);
+      } else if (value == null && type === "string") {
+        value = "";
+        needRemove = true;
+      } else if (type === "number") {
+        value = 0;
+        needRemove = true;
+      }
+    }
+    try {
+      el[key] = value;
+    } catch (e) {
+    }
+    needRemove && el.removeAttribute(attrName || key);
+  }
+  function addEventListener(el, event, handler, options) {
+    el.addEventListener(event, handler, options);
+  }
+  function removeEventListener(el, event, handler, options) {
+    el.removeEventListener(event, handler, options);
+  }
+  const veiKey = /* @__PURE__ */ Symbol("_vei");
+  function patchEvent(el, rawName, prevValue, nextValue, instance = null) {
+    const invokers = el[veiKey] || (el[veiKey] = {});
+    const existingInvoker = invokers[rawName];
+    if (nextValue && existingInvoker) {
+      existingInvoker.value = nextValue;
+    } else {
+      const [name, options] = parseName(rawName);
+      if (nextValue) {
+        const invoker = invokers[rawName] = createInvoker(
+          nextValue,
+          instance
+        );
+        addEventListener(el, name, invoker, options);
+      } else if (existingInvoker) {
+        removeEventListener(el, name, existingInvoker, options);
+        invokers[rawName] = void 0;
+      }
+    }
+  }
+  const optionsModifierRE = /(?:Once|Passive|Capture)$/;
+  function parseName(name) {
+    let options;
+    if (optionsModifierRE.test(name)) {
+      options = {};
+      let m;
+      while (m = name.match(optionsModifierRE)) {
+        name = name.slice(0, name.length - m[0].length);
+        options[m[0].toLowerCase()] = true;
+      }
+    }
+    const event = name[2] === ":" ? name.slice(3) : hyphenate(name.slice(2));
+    return [event, options];
+  }
+  let cachedNow = 0;
+  const p = /* @__PURE__ */ Promise.resolve();
+  const getNow = () => cachedNow || (p.then(() => cachedNow = 0), cachedNow = Date.now());
+  function createInvoker(initialValue, instance) {
+    const invoker = (e) => {
+      if (!e._vts) {
+        e._vts = Date.now();
+      } else if (e._vts <= invoker.attached) {
+        return;
+      }
+      const value = invoker.value;
+      if (isArray(value)) {
+        const originalStop = e.stopImmediatePropagation;
+        e.stopImmediatePropagation = () => {
+          originalStop.call(e);
+          e._stopped = true;
+        };
+        const handlers = value.slice();
+        const args = [e];
+        for (let i = 0; i < handlers.length; i++) {
+          if (e._stopped) {
+            break;
+          }
+          const handler = handlers[i];
+          if (handler) {
+            callWithAsyncErrorHandling(
+              handler,
+              instance,
+              5,
+              args
+            );
+          }
+        }
+      } else {
+        callWithAsyncErrorHandling(
+          value,
+          instance,
+          5,
+          [e]
+        );
+      }
+    };
+    invoker.value = initialValue;
+    invoker.attached = getNow();
+    return invoker;
+  }
+  const isNativeOn = (key) => key.charCodeAt(0) === 111 && key.charCodeAt(1) === 110 && // lowercase letter
+  key.charCodeAt(2) > 96 && key.charCodeAt(2) < 123;
+  const patchProp = (el, key, prevValue, nextValue, namespace, parentComponent) => {
+    const isSVG = namespace === "svg";
+    if (key === "class") {
+      patchClass(el, nextValue, isSVG);
+    } else if (key === "style") {
+      patchStyle(el, prevValue, nextValue);
+    } else if (isOn(key)) {
+      if (!isModelListener(key)) {
+        patchEvent(el, key, prevValue, nextValue, parentComponent);
+      }
+    } else if (key[0] === "." ? (key = key.slice(1), true) : key[0] === "^" ? (key = key.slice(1), false) : shouldSetAsProp(el, key, nextValue, isSVG)) {
+      patchDOMProp(el, key, nextValue);
+      if (!el.tagName.includes("-") && (key === "value" || key === "checked" || key === "selected")) {
+        patchAttr(el, key, nextValue, isSVG, parentComponent, key !== "value");
+      }
+    } else if (
+      // #11081 force set props for possible async custom element
+      el._isVueCE && // #12408 check if it's declared prop or it's async custom element
+      (shouldSetAsPropForVueCE(el, key) || // @ts-expect-error _def is private
+      el._def.__asyncLoader && (/[A-Z]/.test(key) || !isString(nextValue)))
+    ) {
+      patchDOMProp(el, camelize(key), nextValue, parentComponent, key);
+    } else {
+      if (key === "true-value") {
+        el._trueValue = nextValue;
+      } else if (key === "false-value") {
+        el._falseValue = nextValue;
+      }
+      patchAttr(el, key, nextValue, isSVG);
+    }
+  };
+  function shouldSetAsProp(el, key, value, isSVG) {
+    if (isSVG) {
+      if (key === "innerHTML" || key === "textContent") {
+        return true;
+      }
+      if (key in el && isNativeOn(key) && isFunction(value)) {
+        return true;
+      }
+      return false;
+    }
+    if (key === "spellcheck" || key === "draggable" || key === "translate" || key === "autocorrect") {
+      return false;
+    }
+    if (key === "sandbox" && el.tagName === "IFRAME") {
+      return false;
+    }
+    if (key === "form") {
+      return false;
+    }
+    if (key === "list" && el.tagName === "INPUT") {
+      return false;
+    }
+    if (key === "type" && el.tagName === "TEXTAREA") {
+      return false;
+    }
+    if (key === "width" || key === "height") {
+      const tag = el.tagName;
+      if (tag === "IMG" || tag === "VIDEO" || tag === "CANVAS" || tag === "SOURCE") {
+        return false;
+      }
+    }
+    if (isNativeOn(key) && isString(value)) {
+      return false;
+    }
+    return key in el;
+  }
+  function shouldSetAsPropForVueCE(el, key) {
+    const props = (
+      // @ts-expect-error _def is private
+      el._def.props
+    );
+    if (!props) {
+      return false;
+    }
+    const camelKey = camelize(key);
+    return Array.isArray(props) ? props.some((prop) => camelize(prop) === camelKey) : Object.keys(props).some((prop) => camelize(prop) === camelKey);
+  }
+  const REMOVAL = {};
+  // @__NO_SIDE_EFFECTS__
+  function defineCustomElement(options, extraOptions, _createApp) {
+    let Comp = /* @__PURE__ */ defineComponent(options, extraOptions);
+    if (isPlainObject(Comp)) Comp = extend({}, Comp, extraOptions);
+    class VueCustomElement extends VueElement {
+      constructor(initialProps) {
+        super(Comp, initialProps, _createApp);
+      }
+    }
+    VueCustomElement.def = Comp;
+    return VueCustomElement;
+  }
+  const BaseClass = typeof HTMLElement !== "undefined" ? HTMLElement : class {
+  };
+  class VueElement extends BaseClass {
+    constructor(_def, _props = {}, _createApp = createApp) {
+      super();
+      this._def = _def;
+      this._props = _props;
+      this._createApp = _createApp;
+      this._isVueCE = true;
+      this._instance = null;
+      this._app = null;
+      this._nonce = this._def.nonce;
+      this._connected = false;
+      this._resolved = false;
+      this._patching = false;
+      this._dirty = false;
+      this._numberProps = null;
+      this._styleChildren = /* @__PURE__ */ new WeakSet();
+      this._styleAnchors = /* @__PURE__ */ new WeakMap();
+      this._ob = null;
+      if (this.shadowRoot && _createApp !== createApp) {
+        this._root = this.shadowRoot;
+      } else {
+        if (_def.shadowRoot !== false) {
+          this.attachShadow(
+            extend({}, _def.shadowRootOptions, {
+              mode: "open"
+            })
+          );
+          this._root = this.shadowRoot;
+        } else {
+          this._root = this;
+        }
+      }
+    }
+    connectedCallback() {
+      if (!this.isConnected) return;
+      if (!this.shadowRoot && !this._resolved) {
+        this._parseSlots();
+      }
+      this._connected = true;
+      let parent = this;
+      while (parent = parent && // #12479 should check assignedSlot first to get correct parent
+      (parent.assignedSlot || parent.parentNode || parent.host)) {
+        if (parent instanceof VueElement) {
+          this._parent = parent;
+          break;
+        }
+      }
+      if (!this._instance) {
+        if (this._resolved) {
+          this._mount(this._def);
+        } else {
+          if (parent && parent._pendingResolve) {
+            this._pendingResolve = parent._pendingResolve.then(() => {
+              this._pendingResolve = void 0;
+              this._resolveDef();
+            });
+          } else {
+            this._resolveDef();
+          }
+        }
+      }
+    }
+    _setParent(parent = this._parent) {
+      if (parent) {
+        this._instance.parent = parent._instance;
+        this._inheritParentContext(parent);
+      }
+    }
+    _inheritParentContext(parent = this._parent) {
+      if (parent && this._app) {
+        Object.setPrototypeOf(
+          this._app._context.provides,
+          parent._instance.provides
+        );
+      }
+    }
+    disconnectedCallback() {
+      this._connected = false;
+      nextTick(() => {
+        if (!this._connected) {
+          if (this._ob) {
+            this._ob.disconnect();
+            this._ob = null;
+          }
+          this._app && this._app.unmount();
+          if (this._instance) this._instance.ce = void 0;
+          this._app = this._instance = null;
+          if (this._teleportTargets) {
+            this._teleportTargets.clear();
+            this._teleportTargets = void 0;
+          }
+        }
+      });
+    }
+    _processMutations(mutations) {
+      for (const m of mutations) {
+        this._setAttr(m.attributeName);
+      }
+    }
+    /**
+     * resolve inner component definition (handle possible async component)
+     */
+    _resolveDef() {
+      if (this._pendingResolve) {
+        return;
+      }
+      for (let i = 0; i < this.attributes.length; i++) {
+        this._setAttr(this.attributes[i].name);
+      }
+      this._ob = new MutationObserver(this._processMutations.bind(this));
+      this._ob.observe(this, { attributes: true });
+      const resolve = (def2, isAsync = false) => {
+        this._resolved = true;
+        this._pendingResolve = void 0;
+        const { props, styles } = def2;
+        let numberProps;
+        if (props && !isArray(props)) {
+          for (const key in props) {
+            const opt = props[key];
+            if (opt === Number || opt && opt.type === Number) {
+              if (key in this._props) {
+                this._props[key] = toNumber(this._props[key]);
+              }
+              (numberProps || (numberProps = /* @__PURE__ */ Object.create(null)))[camelize(key)] = true;
+            }
+          }
+        }
+        this._numberProps = numberProps;
+        this._resolveProps(def2);
+        if (this.shadowRoot) {
+          this._applyStyles(styles);
+        }
+        this._mount(def2);
+      };
+      const asyncDef = this._def.__asyncLoader;
+      if (asyncDef) {
+        this._pendingResolve = asyncDef().then((def2) => {
+          def2.configureApp = this._def.configureApp;
+          resolve(this._def = def2, true);
+        });
+      } else {
+        resolve(this._def);
+      }
+    }
+    _mount(def2) {
+      this._app = this._createApp(def2);
+      this._inheritParentContext();
+      if (def2.configureApp) {
+        def2.configureApp(this._app);
+      }
+      this._app._ceVNode = this._createVNode();
+      this._app.mount(this._root);
+      const exposed = this._instance && this._instance.exposed;
+      if (!exposed) return;
+      for (const key in exposed) {
+        if (!hasOwn(this, key)) {
+          Object.defineProperty(this, key, {
+            // unwrap ref to be consistent with public instance behavior
+            get: () => unref(exposed[key])
+          });
+        }
+      }
+    }
+    _resolveProps(def2) {
+      const { props } = def2;
+      const declaredPropKeys = isArray(props) ? props : Object.keys(props || {});
+      for (const key of Object.keys(this)) {
+        if (key[0] !== "_" && declaredPropKeys.includes(key)) {
+          this._setProp(key, this[key]);
+        }
+      }
+      for (const key of declaredPropKeys.map(camelize)) {
+        Object.defineProperty(this, key, {
+          get() {
+            return this._getProp(key);
+          },
+          set(val) {
+            this._setProp(key, val, true, !this._patching);
+          }
+        });
+      }
+    }
+    _setAttr(key) {
+      if (key.startsWith("data-v-")) return;
+      const has = this.hasAttribute(key);
+      let value = has ? this.getAttribute(key) : REMOVAL;
+      const camelKey = camelize(key);
+      if (has && this._numberProps && this._numberProps[camelKey]) {
+        value = toNumber(value);
+      }
+      this._setProp(camelKey, value, false, true);
+    }
+    /**
+     * @internal
+     */
+    _getProp(key) {
+      return this._props[key];
+    }
+    /**
+     * @internal
+     */
+    _setProp(key, val, shouldReflect = true, shouldUpdate = false) {
+      if (val !== this._props[key]) {
+        this._dirty = true;
+        if (val === REMOVAL) {
+          delete this._props[key];
+        } else {
+          this._props[key] = val;
+          if (key === "key" && this._app) {
+            this._app._ceVNode.key = val;
+          }
+        }
+        if (shouldUpdate && this._instance) {
+          this._update();
+        }
+        if (shouldReflect) {
+          const ob = this._ob;
+          if (ob) {
+            this._processMutations(ob.takeRecords());
+            ob.disconnect();
+          }
+          if (val === true) {
+            this.setAttribute(hyphenate(key), "");
+          } else if (typeof val === "string" || typeof val === "number") {
+            this.setAttribute(hyphenate(key), val + "");
+          } else if (!val) {
+            this.removeAttribute(hyphenate(key));
+          }
+          ob && ob.observe(this, { attributes: true });
+        }
+      }
+    }
+    _update() {
+      const vnode = this._createVNode();
+      if (this._app) vnode.appContext = this._app._context;
+      render(vnode, this._root);
+    }
+    _createVNode() {
+      const baseProps = {};
+      if (!this.shadowRoot) {
+        baseProps.onVnodeMounted = baseProps.onVnodeUpdated = this._renderSlots.bind(this);
+      }
+      const vnode = createVNode(this._def, extend(baseProps, this._props));
+      if (!this._instance) {
+        vnode.ce = (instance) => {
+          this._instance = instance;
+          instance.ce = this;
+          instance.isCE = true;
+          const dispatch = (event, args) => {
+            this.dispatchEvent(
+              new CustomEvent(
+                event,
+                isPlainObject(args[0]) ? extend({ detail: args }, args[0]) : { detail: args }
+              )
+            );
+          };
+          instance.emit = (event, ...args) => {
+            dispatch(event, args);
+            if (hyphenate(event) !== event) {
+              dispatch(hyphenate(event), args);
+            }
+          };
+          this._setParent();
+        };
+      }
+      return vnode;
+    }
+    _applyStyles(styles, owner, parentComp) {
+      if (!styles) return;
+      if (owner) {
+        if (owner === this._def || this._styleChildren.has(owner)) {
+          return;
+        }
+        this._styleChildren.add(owner);
+      }
+      const nonce = this._nonce;
+      const root = this.shadowRoot;
+      const insertionAnchor = parentComp ? this._getStyleAnchor(parentComp) || this._getStyleAnchor(this._def) : this._getRootStyleInsertionAnchor(root);
+      let last = null;
+      for (let i = styles.length - 1; i >= 0; i--) {
+        const s = document.createElement("style");
+        if (nonce) s.setAttribute("nonce", nonce);
+        s.textContent = styles[i];
+        root.insertBefore(s, last || insertionAnchor);
+        last = s;
+        if (i === 0) {
+          if (!parentComp) this._styleAnchors.set(this._def, s);
+          if (owner) this._styleAnchors.set(owner, s);
+        }
+      }
+    }
+    _getStyleAnchor(comp) {
+      if (!comp) {
+        return null;
+      }
+      const anchor = this._styleAnchors.get(comp);
+      if (anchor && anchor.parentNode === this.shadowRoot) {
+        return anchor;
+      }
+      if (anchor) {
+        this._styleAnchors.delete(comp);
+      }
+      return null;
+    }
+    _getRootStyleInsertionAnchor(root) {
+      for (let i = 0; i < root.childNodes.length; i++) {
+        const node = root.childNodes[i];
+        if (!(node instanceof HTMLStyleElement)) {
+          return node;
+        }
+      }
+      return null;
+    }
+    /**
+     * Only called when shadowRoot is false
+     */
+    _parseSlots() {
+      const slots = this._slots = {};
+      let n;
+      while (n = this.firstChild) {
+        const slotName = n.nodeType === 1 && n.getAttribute("slot") || "default";
+        (slots[slotName] || (slots[slotName] = [])).push(n);
+        this.removeChild(n);
+      }
+    }
+    /**
+     * Only called when shadowRoot is false
+     */
+    _renderSlots() {
+      const outlets = this._getSlots();
+      const scopeId = this._instance.type.__scopeId;
+      for (let i = 0; i < outlets.length; i++) {
+        const o = outlets[i];
+        const slotName = o.getAttribute("name") || "default";
+        const content = this._slots[slotName];
+        const parent = o.parentNode;
+        if (content) {
+          for (const n of content) {
+            if (scopeId && n.nodeType === 1) {
+              const id = scopeId + "-s";
+              const walker = document.createTreeWalker(n, 1);
+              n.setAttribute(id, "");
+              let child;
+              while (child = walker.nextNode()) {
+                child.setAttribute(id, "");
+              }
+            }
+            parent.insertBefore(n, o);
+          }
+        } else {
+          while (o.firstChild) parent.insertBefore(o.firstChild, o);
+        }
+        parent.removeChild(o);
+      }
+    }
+    /**
+     * @internal
+     */
+    _getSlots() {
+      const roots = [this];
+      if (this._teleportTargets) {
+        roots.push(...this._teleportTargets);
+      }
+      const slots = /* @__PURE__ */ new Set();
+      for (const root of roots) {
+        const found = root.querySelectorAll("slot");
+        for (let i = 0; i < found.length; i++) {
+          slots.add(found[i]);
+        }
+      }
+      return Array.from(slots);
+    }
+    /**
+     * @internal
+     */
+    _injectChildStyle(comp, parentComp) {
+      this._applyStyles(comp.styles, comp, parentComp);
+    }
+    /**
+     * @internal
+     */
+    _beginPatch() {
+      this._patching = true;
+      this._dirty = false;
+    }
+    /**
+     * @internal
+     */
+    _endPatch() {
+      this._patching = false;
+      if (this._dirty && this._instance) {
+        this._update();
+      }
+    }
+    /**
+     * @internal
+     */
+    _hasShadowRoot() {
+      return this._def.shadowRoot !== false;
+    }
+    /**
+     * @internal
+     */
+    _removeChildStyle(comp) {
+    }
+  }
+  const getModelAssigner = (vnode) => {
+    const fn = vnode.props["onUpdate:modelValue"] || false;
+    return isArray(fn) ? (value) => invokeArrayFns(fn, value) : fn;
+  };
+  function onCompositionStart(e) {
+    e.target.composing = true;
+  }
+  function onCompositionEnd(e) {
+    const target = e.target;
+    if (target.composing) {
+      target.composing = false;
+      target.dispatchEvent(new Event("input"));
+    }
+  }
+  const assignKey = /* @__PURE__ */ Symbol("_assign");
+  function castValue(value, trim, number) {
+    if (trim) value = value.trim();
+    if (number) value = looseToNumber(value);
+    return value;
+  }
+  const vModelText = {
+    created(el, { modifiers: { lazy, trim, number } }, vnode) {
+      el[assignKey] = getModelAssigner(vnode);
+      const castToNumber = number || vnode.props && vnode.props.type === "number";
+      addEventListener(el, lazy ? "change" : "input", (e) => {
+        if (e.target.composing) return;
+        el[assignKey](castValue(el.value, trim, castToNumber));
+      });
+      if (trim || castToNumber) {
+        addEventListener(el, "change", () => {
+          el.value = castValue(el.value, trim, castToNumber);
+        });
+      }
+      if (!lazy) {
+        addEventListener(el, "compositionstart", onCompositionStart);
+        addEventListener(el, "compositionend", onCompositionEnd);
+        addEventListener(el, "change", onCompositionEnd);
+      }
+    },
+    // set value on mounted so it's after min/max for type="range"
+    mounted(el, { value }) {
+      el.value = value == null ? "" : value;
+    },
+    beforeUpdate(el, { value, oldValue, modifiers: { lazy, trim, number } }, vnode) {
+      el[assignKey] = getModelAssigner(vnode);
+      if (el.composing) return;
+      const elValue = (number || el.type === "number") && !/^0\d/.test(el.value) ? looseToNumber(el.value) : el.value;
+      const newValue = value == null ? "" : value;
+      if (elValue === newValue) {
+        return;
+      }
+      const rootNode = el.getRootNode();
+      if ((rootNode instanceof Document || rootNode instanceof ShadowRoot) && rootNode.activeElement === el && el.type !== "range") {
+        if (lazy && value === oldValue) {
+          return;
+        }
+        if (trim && el.value.trim() === newValue) {
+          return;
+        }
+      }
+      el.value = newValue;
+    }
+  };
+  const vModelCheckbox = {
+    // #4096 array checkboxes need to be deep traversed
+    deep: true,
+    created(el, _, vnode) {
+      el[assignKey] = getModelAssigner(vnode);
+      addEventListener(el, "change", () => {
+        const modelValue = el._modelValue;
+        const elementValue = getValue(el);
+        const checked = el.checked;
+        const assign = el[assignKey];
+        if (isArray(modelValue)) {
+          const index = looseIndexOf(modelValue, elementValue);
+          const found = index !== -1;
+          if (checked && !found) {
+            assign(modelValue.concat(elementValue));
+          } else if (!checked && found) {
+            const filtered = [...modelValue];
+            filtered.splice(index, 1);
+            assign(filtered);
+          }
+        } else if (isSet(modelValue)) {
+          const cloned = new Set(modelValue);
+          if (checked) {
+            cloned.add(elementValue);
+          } else {
+            cloned.delete(elementValue);
+          }
+          assign(cloned);
+        } else {
+          assign(getCheckboxValue(el, checked));
+        }
+      });
+    },
+    // set initial checked on mount to wait for true-value/false-value
+    mounted: setChecked,
+    beforeUpdate(el, binding, vnode) {
+      el[assignKey] = getModelAssigner(vnode);
+      setChecked(el, binding, vnode);
+    }
+  };
+  function setChecked(el, { value, oldValue }, vnode) {
+    el._modelValue = value;
+    let checked;
+    if (isArray(value)) {
+      checked = looseIndexOf(value, vnode.props.value) > -1;
+    } else if (isSet(value)) {
+      checked = value.has(vnode.props.value);
+    } else {
+      if (value === oldValue) return;
+      checked = looseEqual(value, getCheckboxValue(el, true));
+    }
+    if (el.checked !== checked) {
+      el.checked = checked;
+    }
+  }
+  const vModelRadio = {
+    created(el, { value }, vnode) {
+      el.checked = looseEqual(value, vnode.props.value);
+      el[assignKey] = getModelAssigner(vnode);
+      addEventListener(el, "change", () => {
+        el[assignKey](getValue(el));
+      });
+    },
+    beforeUpdate(el, { value, oldValue }, vnode) {
+      el[assignKey] = getModelAssigner(vnode);
+      if (value !== oldValue) {
+        el.checked = looseEqual(value, vnode.props.value);
+      }
+    }
+  };
+  const vModelSelect = {
+    // <select multiple> value need to be deep traversed
+    deep: true,
+    created(el, { value, modifiers: { number } }, vnode) {
+      const isSetModel = isSet(value);
+      addEventListener(el, "change", () => {
+        const selectedVal = Array.prototype.filter.call(el.options, (o) => o.selected).map(
+          (o) => number ? looseToNumber(getValue(o)) : getValue(o)
+        );
+        el[assignKey](
+          el.multiple ? isSetModel ? new Set(selectedVal) : selectedVal : selectedVal[0]
+        );
+        el._assigning = true;
+        nextTick(() => {
+          el._assigning = false;
+        });
+      });
+      el[assignKey] = getModelAssigner(vnode);
+    },
+    // set value in mounted & updated because <select> relies on its children
+    // <option>s.
+    mounted(el, { value }) {
+      setSelected(el, value);
+    },
+    beforeUpdate(el, _binding, vnode) {
+      el[assignKey] = getModelAssigner(vnode);
+    },
+    updated(el, { value }) {
+      if (!el._assigning) {
+        setSelected(el, value);
+      }
+    }
+  };
+  function setSelected(el, value) {
+    const isMultiple = el.multiple;
+    const isArrayValue = isArray(value);
+    if (isMultiple && !isArrayValue && !isSet(value)) {
+      return;
+    }
+    for (let i = 0, l = el.options.length; i < l; i++) {
+      const option = el.options[i];
+      const optionValue = getValue(option);
+      if (isMultiple) {
+        if (isArrayValue) {
+          const optionType = typeof optionValue;
+          if (optionType === "string" || optionType === "number") {
+            option.selected = value.some((v) => String(v) === String(optionValue));
+          } else {
+            option.selected = looseIndexOf(value, optionValue) > -1;
+          }
+        } else {
+          option.selected = value.has(optionValue);
+        }
+      } else if (looseEqual(getValue(option), value)) {
+        if (el.selectedIndex !== i) el.selectedIndex = i;
+        return;
+      }
+    }
+    if (!isMultiple && el.selectedIndex !== -1) {
+      el.selectedIndex = -1;
+    }
+  }
+  function getValue(el) {
+    return "_value" in el ? el._value : el.value;
+  }
+  function getCheckboxValue(el, checked) {
+    const key = checked ? "_trueValue" : "_falseValue";
+    return key in el ? el[key] : checked;
+  }
+  const rendererOptions = /* @__PURE__ */ extend({ patchProp }, nodeOps);
+  let renderer;
+  function ensureRenderer() {
+    return renderer || (renderer = createRenderer(rendererOptions));
+  }
+  const render = ((...args) => {
+    ensureRenderer().render(...args);
+  });
+  const createApp = ((...args) => {
+    const app = ensureRenderer().createApp(...args);
+    const { mount } = app;
+    app.mount = (containerOrSelector) => {
+      const container = normalizeContainer(containerOrSelector);
+      if (!container) return;
+      const component = app._component;
+      if (!isFunction(component) && !component.render && !component.template) {
+        component.template = container.innerHTML;
+      }
+      if (container.nodeType === 1) {
+        container.textContent = "";
+      }
+      const proxy = mount(container, false, resolveRootNamespace(container));
+      if (container instanceof Element) {
+        container.removeAttribute("v-cloak");
+        container.setAttribute("data-v-app", "");
+      }
+      return proxy;
+    };
+    return app;
+  });
+  function resolveRootNamespace(container) {
+    if (container instanceof SVGElement) {
+      return "svg";
+    }
+    if (typeof MathMLElement === "function" && container instanceof MathMLElement) {
+      return "mathml";
+    }
+  }
+  function normalizeContainer(container) {
+    if (isString(container)) {
+      const res = document.querySelector(container);
+      return res;
+    }
+    return container;
+  }
+  const fmt = new Intl.NumberFormat("es-CO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtShort = new Intl.NumberFormat("es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  function formatMoney(value) {
+    return fmt.format(Number(value) || 0);
+  }
+  function formatMoneyShort(value) {
+    return fmtShort.format(Number(value) || 0);
+  }
+  function safeMoney(value) {
+    return Math.round(Number(value) || 0);
+  }
+  const _style_0$1 = "\n.sim-section[data-v-cf739648] {\n  margin-bottom: 4px;\n}\n.sim-section--protecciones[data-v-cf739648] {\n  border: 1px solid #e5e7eb;\n  border-radius: 8px;\n  padding: 12px;\n  margin-bottom: 12px;\n  background: #f9fafb;\n}\n.sim-section-title--collapse[data-v-cf739648] {\n  cursor: pointer;\n  user-select: none;\n  display: flex;\n  align-items: center;\n  gap: 6px;\n}\n.sim-section-body[data-v-cf739648] {\n  padding-top: 12px;\n}\n.proteccion-bloque[data-v-cf739648] {\n  margin-bottom: 16px;\n}\n.sub-bloque[data-v-cf739648] {\n  margin-left: 20px;\n  margin-top: 8px;\n  padding-left: 12px;\n  border-left: 3px solid #d1d5db;\n}\n.sep-bloque[data-v-cf739648] {\n  border: none;\n  border-top: 1px dashed #d1d5db;\n  margin: 16px 0;\n}\n.campo-ayuda[data-v-cf739648] {\n  display: block;\n  font-size: 11px;\n  color: #6b7280;\n  font-weight: 400;\n  margin-top: 2px;\n}\n.alerta[data-v-cf739648] {\n  border-radius: 6px;\n  padding: 10px 12px;\n  font-size: 12px;\n  margin-top: 8px;\n  line-height: 1.5;\n}\n.alerta--warning[data-v-cf739648] {\n  background: #fffbeb;\n  border: 1px solid #f59e0b;\n  color: #92400e;\n}\n.alerta--danger[data-v-cf739648] {\n  background: #fef2f2;\n  border: 1px solid #ef4444;\n  color: #991b1b;\n}\n.alerta--info[data-v-cf739648] {\n  background: #eff6ff;\n  border: 1px solid #3b82f6;\n  color: #1e40af;\n}\n.alerta--sm[data-v-cf739648] {\n  padding: 6px 10px;\n  font-size: 11px;\n}\n.badge[data-v-cf739648] {\n  display: inline-block;\n  padding: 2px 8px;\n  border-radius: 9999px;\n  font-size: 10px;\n  font-weight: 600;\n  white-space: nowrap;\n}\n.badge-success[data-v-cf739648] { background: #d1fae5; color: #065f46;\n}\n.badge-warning[data-v-cf739648] { background: #fef3c7; color: #92400e;\n}\n.badge-danger[data-v-cf739648]  { background: #fee2e2; color: #991b1b;\n}\n.badge-default[data-v-cf739648] { background: #f3f4f6; color: #374151;\n}\n.results-row--validacion td[data-v-cf739648] {\n  background: #fff7ed;\n}\n.tarifa-texto[data-v-cf739648] {\n  font-size: 10px;\n  color: #6b7280;\n}\n.results-row--alerta td[data-v-cf739648] {\n  padding: 4px 8px;\n  background: #fffbeb;\n}\n";
+  const _export_sfc = (sfc, props) => {
+    const target = sfc.__vccOpts || sfc;
+    for (const [key, val] of props) {
+      target[key] = val;
+    }
+    return target;
+  };
+  const DEFAULT_DISTRIBUCIONES = {
+    derechosNotariales: { vendedor: 50, comprador: 50 },
+    retencionFuente: { vendedor: 100, comprador: 0 },
+    otrosGastos: { vendedor: 50, comprador: 50 },
+    cancelacionHipoteca: { vendedor: 100, comprador: 0 },
+    constitucionHipoteca: { vendedor: 0, comprador: 100 },
+    impuestoDepartamental: { vendedor: 0, comprador: 100 },
+    derechosRegistro: { vendedor: 0, comprador: 100 },
+    impuestoTimbre: { vendedor: 50, comprador: 50 },
+    comision: { vendedor: 100, comprador: 0 },
+    comisionPropiedad: { vendedor: 100, comprador: 0 },
+    // Protecciones familiares — distribuciones fijas
+    CANCELACION_AFECTACION_VIVIENDA_FAMILIAR: { vendedor: 100, comprador: 0 },
+    CONSTITUCION_AFECTACION_VIVIENDA_FAMILIAR: { vendedor: 0, comprador: 100 },
+    CANCELACION_PATRIMONIO_FAMILIA: { vendedor: 100, comprador: 0 },
+    CONSTITUCION_PATRIMONIO_FAMILIA_VOLUNTARIO: { vendedor: 0, comprador: 100 },
+    CONSTITUCION_PATRIMONIO_FAMILIA_VIS: { vendedor: 0, comprador: 100 }
+  };
+  const _sfc_main$1 = {
+    name: "SimuladorVenta",
+    props: {
+      configuracion: { type: Object, default: () => ({}) },
+      logo: { type: String, default: "" }
+    },
+    data() {
+      return {
+        valorInmueble: 0,
+        vendedorJuridico: 0,
+        cancelacionHipotecaSinCuantia: 0,
+        constitucionHipotecaComprador: 0,
+        // Campos heredados (backward compat) — deprecated, se mapean a pf
+        cancelacionAfectacionVendedor: 0,
+        constitucionAfectacionComprador: 0,
+        hipotecavendedor: 0,
+        hipotecacomprador: 0,
+        tipoPropiedad: "no_aplica",
+        // 'no_aplica' | 'urbana' | 'rural'
+        incluirComision: true,
+        mostrarDistribucionAvanzada: false,
+        distribuciones: { ...DEFAULT_DISTRIBUCIONES },
+        // Estado UI
+        ui: {
+          expandirLimitacionesVendedor: false,
+          expandirProteccionesComprador: false
+        },
+        // Estructura nueva de protecciones familiares
+        pf: {
+          vendedor: {
+            afectacionViviendaFamiliar: {
+              estado: "no",
+              requiereLevantamiento: false,
+              firmaConyugeOCompanero: "no_aplica",
+              modalidadLevantamiento: null
+            },
+            patrimonioFamilia: {
+              tipo: "no",
+              requiereCancelacion: false,
+              existenBeneficiariosMenores: "no",
+              existeSubsidioORestriccion: "no",
+              autorizacionJudicial: "no_aplica",
+              modalidadLevantamiento: null
+            }
+          },
+          comprador: {
+            compraParaViviendaFamiliar: "no",
+            situacionFamiliar: "sin_pareja",
+            afectacionViviendaFamiliar: {
+              constituir: false
+            },
+            patrimonioFamilia: {
+              tipo: "no",
+              beneficiariosMenores: "no",
+              cumpleCondicionesVoluntario: "no_sabe",
+              hipotecaAdquisicion: "no_sabe",
+              subsidioAsociado: "no",
+              compraVISConfirmada: "no_sabe"
+            }
+          }
+        }
+      };
+    },
+    computed: {
+      nc() {
+        const d = this.configuracion?.venta ?? this.configuracion ?? {};
+        return {
+          porcentajeGastosNotariales: Number(d.porcentajeGastosNotariales ?? 0.3),
+          valorConstitucionAfectacionViviendaFamiliar: Number(d.valorConstitucionAfectacionViviendaFamiliar ?? 57600),
+          porcentajeIva: Number(d.porcentajeIva ?? 19),
+          porcentajeConstitucionHipoteca: Number(d.porcentajeConstitucionHipoteca ?? 0.3),
+          portcentajeBeneficiencia: Number(d.portcentajeBeneficiencia ?? 1),
+          portcentajeRegistroCompra: Number(d.portcentajeRegistroCompra ?? 0.91),
+          valorbeneficienciaConstitucionHipoteca: Number(d.valorbeneficienciaConstitucionHipoteca ?? 185600),
+          porcentajeTimbre: Number(d.porcentajeTimbre ?? 1.5),
+          valorMinimoAplicaImpuestoTimbre: Number(d.valorMinimoAplicaImpuestoTimbre ?? 9413e5),
+          porcentajeRetencionFuente: Number(d.porcentajeRetencionFuente ?? 1),
+          otrosGastos: Number(d.otrosGastos ?? 2e5),
+          labelImpuestoDepartamental: d.labelImpuestoDepartamental || "Beneficencia",
+          comisionHabilitada: !!d.comisionHabilitada && d.comisionHabilitada !== "0",
+          porcentajeComision: Number(d.porcentajeComision ?? 3),
+          comisionMinima: Number(d.comisionMinima ?? 0),
+          labelComision: d.labelComision || "Comisión",
+          comisionPropiedadUrbanaHabilitada: !!d.comisionPropiedadUrbanaHabilitada && d.comisionPropiedadUrbanaHabilitada !== "0",
+          comisionPropiedadUrbanaPorcentaje: Number(d.comisionPropiedadUrbanaPorcentaje ?? 3),
+          comisionPropiedadUrbanaLabel: d.comisionPropiedadUrbanaLabel || "Comisión propiedad urbana",
+          comisionPropiedadRuralHabilitada: !!d.comisionPropiedadRuralHabilitada && d.comisionPropiedadRuralHabilitada !== "0",
+          comisionPropiedadRuralPorcentaje: Number(d.comisionPropiedadRuralPorcentaje ?? 5),
+          comisionPropiedadRuralLabel: d.comisionPropiedadRuralLabel || "Comisión propiedad rural",
+          notaPie: (d.notaPie || "").trim(),
+          impuestoTimbreRangos: Array.isArray(d.impuestoTimbreRangos) ? d.impuestoTimbreRangos : null,
+          protecciones_familiares: d.protecciones_familiares ?? null
+        };
+      },
+      mostrarComisionPropiedad() {
+        return this.nc.comisionPropiedadUrbanaHabilitada || this.nc.comisionPropiedadRuralHabilitada;
+      },
+      // Config de protecciones con fallback seguro
+      pfConfig() {
+        const raw = this.nc.protecciones_familiares;
+        const legacyValor = this.nc.valorConstitucionAfectacionViviendaFamiliar;
+        return {
+          afectacion_vivienda_familiar: {
+            cancelacion: {
+              activo: raw?.afectacion_vivienda_familiar?.cancelacion?.activo ?? true,
+              derechos_notariales: raw?.afectacion_vivienda_familiar?.cancelacion?.derechos_notariales ?? legacyValor,
+              aplica_iva: raw?.afectacion_vivienda_familiar?.cancelacion?.aplica_iva ?? true,
+              porcentaje_iva: raw?.afectacion_vivienda_familiar?.cancelacion?.porcentaje_iva ?? 19,
+              requiere_registro: raw?.afectacion_vivienda_familiar?.cancelacion?.requiere_registro ?? true,
+              derechos_registro_primer_folio: raw?.afectacion_vivienda_familiar?.cancelacion?.derechos_registro_primer_folio ?? 29500,
+              derechos_registro_folio_adicional: raw?.afectacion_vivienda_familiar?.cancelacion?.derechos_registro_folio_adicional ?? 15300,
+              responsable_por_defecto: raw?.afectacion_vivienda_familiar?.cancelacion?.responsable_por_defecto ?? "vendedor",
+              permitir_edicion_responsable: raw?.afectacion_vivienda_familiar?.cancelacion?.permitir_edicion_responsable ?? true
+            },
+            constitucion: {
+              activo: raw?.afectacion_vivienda_familiar?.constitucion?.activo ?? true,
+              derechos_notariales: raw?.afectacion_vivienda_familiar?.constitucion?.derechos_notariales ?? legacyValor,
+              aplica_iva: raw?.afectacion_vivienda_familiar?.constitucion?.aplica_iva ?? true,
+              porcentaje_iva: raw?.afectacion_vivienda_familiar?.constitucion?.porcentaje_iva ?? 19,
+              requiere_registro: raw?.afectacion_vivienda_familiar?.constitucion?.requiere_registro ?? true,
+              derechos_registro_primer_folio: raw?.afectacion_vivienda_familiar?.constitucion?.derechos_registro_primer_folio ?? 29500,
+              derechos_registro_folio_adicional: raw?.afectacion_vivienda_familiar?.constitucion?.derechos_registro_folio_adicional ?? 15300,
+              responsable_por_defecto: raw?.afectacion_vivienda_familiar?.constitucion?.responsable_por_defecto ?? "comprador",
+              permitir_edicion_responsable: raw?.afectacion_vivienda_familiar?.constitucion?.permitir_edicion_responsable ?? true
+            }
+          },
+          patrimonio_familia: {
+            cancelacion: {
+              activo: raw?.patrimonio_familia?.cancelacion?.activo ?? true,
+              derechos_notariales: raw?.patrimonio_familia?.cancelacion?.derechos_notariales ?? 90600,
+              aplica_iva: raw?.patrimonio_familia?.cancelacion?.aplica_iva ?? true,
+              porcentaje_iva: raw?.patrimonio_familia?.cancelacion?.porcentaje_iva ?? 19,
+              requiere_registro: raw?.patrimonio_familia?.cancelacion?.requiere_registro ?? true,
+              derechos_registro_primer_folio: raw?.patrimonio_familia?.cancelacion?.derechos_registro_primer_folio ?? 29500,
+              derechos_registro_folio_adicional: raw?.patrimonio_familia?.cancelacion?.derechos_registro_folio_adicional ?? 15300,
+              responsable_por_defecto: raw?.patrimonio_familia?.cancelacion?.responsable_por_defecto ?? "vendedor",
+              permitir_edicion_responsable: raw?.patrimonio_familia?.cancelacion?.permitir_edicion_responsable ?? true
+            },
+            constitucion_voluntaria: {
+              activo: raw?.patrimonio_familia?.constitucion_voluntaria?.activo ?? true,
+              derechos_notariales: raw?.patrimonio_familia?.constitucion_voluntaria?.derechos_notariales ?? 90600,
+              aplica_iva: raw?.patrimonio_familia?.constitucion_voluntaria?.aplica_iva ?? true,
+              porcentaje_iva: raw?.patrimonio_familia?.constitucion_voluntaria?.porcentaje_iva ?? 19,
+              requiere_registro: raw?.patrimonio_familia?.constitucion_voluntaria?.requiere_registro ?? true,
+              derechos_registro_primer_folio: raw?.patrimonio_familia?.constitucion_voluntaria?.derechos_registro_primer_folio ?? 29500,
+              derechos_registro_folio_adicional: raw?.patrimonio_familia?.constitucion_voluntaria?.derechos_registro_folio_adicional ?? 15300,
+              responsable_por_defecto: raw?.patrimonio_familia?.constitucion_voluntaria?.responsable_por_defecto ?? "comprador",
+              permitir_edicion_responsable: raw?.patrimonio_familia?.constitucion_voluntaria?.permitir_edicion_responsable ?? true
+            },
+            constitucion_vis: {
+              activo: raw?.patrimonio_familia?.constitucion_vis?.activo ?? true,
+              modo_calculo: raw?.patrimonio_familia?.constitucion_vis?.modo_calculo ?? "requiere_validacion",
+              derechos_notariales: raw?.patrimonio_familia?.constitucion_vis?.derechos_notariales ?? 0,
+              aplica_iva: raw?.patrimonio_familia?.constitucion_vis?.aplica_iva ?? false,
+              porcentaje_iva: 0,
+              requiere_registro: raw?.patrimonio_familia?.constitucion_vis?.requiere_registro ?? true,
+              derechos_registro_primer_folio: raw?.patrimonio_familia?.constitucion_vis?.derechos_registro_primer_folio ?? 0,
+              derechos_registro_folio_adicional: 0,
+              responsable_por_defecto: "comprador",
+              permitir_edicion_responsable: false,
+              mensaje_validacion: raw?.patrimonio_familia?.constitucion_vis?.mensaje_validacion ?? "La constitución de patrimonio de familia asociada a VIS debe confirmarse con la notaría, la constructora y las condiciones del subsidio o financiación."
+            }
+          }
+        };
+      },
+      // ============ ALERTAS ============
+      alertaFirmaAfectacionVendedor() {
+        const avf = this.pf.vendedor.afectacionViviendaFamiliar;
+        return avf.estado === "si" && avf.requiereLevantamiento && ["no", "no_sabe"].includes(avf.firmaConyugeOCompanero);
+      },
+      alertaMenoresPatrimonioVendedor() {
+        const p2 = this.pf.vendedor.patrimonioFamilia;
+        return p2.tipo !== "no" && (p2.tipo === "menores" || p2.existenBeneficiariosMenores === "si" || p2.existenBeneficiariosMenores === "no_sabe");
+      },
+      alertaVISPatrimonioVendedor() {
+        const p2 = this.pf.vendedor.patrimonioFamilia;
+        return ["vis", "subsidio"].includes(p2.tipo);
+      },
+      alertaMenoresPatrimonioComprador() {
+        const p2 = this.pf.comprador.patrimonioFamilia;
+        return p2.tipo === "voluntario" && ["si", "no_sabe"].includes(p2.beneficiariosMenores);
+      },
+      // ============ NORMALIZACIÓN BACKWARD COMPAT ============
+      normalizarConfiguracionProteccionesFamiliares() {
+        const afv = this.pf.vendedor.afectacionViviendaFamiliar;
+        const afc = this.pf.comprador.afectacionViviendaFamiliar;
+        if (afv.estado === "no" && this.cancelacionAfectacionVendedor === 1) {
+          return {
+            vendedorAfectacion: { estado: "si", requiereLevantamiento: true, firmaConyugeOCompanero: "si", modalidadLevantamiento: "misma_escritura_compraventa" },
+            compradorAfectacion: { constituir: afc.constituir || this.constitucionAfectacionComprador === 1 }
+          };
+        }
+        return null;
+      },
+      // ============ LÓGICA DE CÁLCULO PROTECCIONES FAMILIARES ============
+      cancelacionAfectacionCalculable() {
+        const v = this.pf.vendedor.afectacionViviendaFamiliar;
+        return v.estado === "si" && v.requiereLevantamiento && v.firmaConyugeOCompanero === "si" && v.modalidadLevantamiento !== null && v.modalidadLevantamiento !== "requiere_validacion";
+      },
+      cancelacionAfectacionRequiereValidacion() {
+        const v = this.pf.vendedor.afectacionViviendaFamiliar;
+        return v.estado === "si" && v.requiereLevantamiento && !this.cancelacionAfectacionCalculable;
+      },
+      cancelacionAfectacionEstimada() {
+        return this.pf.vendedor.afectacionViviendaFamiliar.estado === "no_sabe";
+      },
+      cancelacionPatrimonioCalculable() {
+        const p2 = this.pf.vendedor.patrimonioFamilia;
+        return p2.tipo !== "no" && p2.requiereCancelacion && p2.existenBeneficiariosMenores === "no" && p2.existeSubsidioORestriccion === "no" && ["no", "no_aplica"].includes(p2.autorizacionJudicial) && p2.modalidadLevantamiento === "escritura_publica";
+      },
+      cancelacionPatrimonioRequiereValidacion() {
+        const p2 = this.pf.vendedor.patrimonioFamilia;
+        return p2.tipo !== "no" && p2.requiereCancelacion && !this.cancelacionPatrimonioCalculable;
+      },
+      constitucionAfectacionCompradorCalculable() {
+        return (this.pf.comprador.compraParaViviendaFamiliar === "si" || this.pf.comprador.compraParaViviendaFamiliar === "no_sabe") && this.pf.comprador.afectacionViviendaFamiliar.constituir;
+      },
+      constitucionAfectacionCompradorEstimada() {
+        return this.constitucionAfectacionCompradorCalculable && this.pf.comprador.situacionFamiliar === "no_sabe";
+      },
+      constitucionPatrimonioVoluntarioCalculable() {
+        const p2 = this.pf.comprador.patrimonioFamilia;
+        return p2.tipo === "voluntario" && p2.cumpleCondicionesVoluntario === "si" && p2.beneficiariosMenores === "no" && p2.hipotecaAdquisicion !== "no_sabe";
+      },
+      constitucionPatrimonioVoluntarioRequiereValidacion() {
+        const p2 = this.pf.comprador.patrimonioFamilia;
+        return p2.tipo === "voluntario" && !this.constitucionPatrimonioVoluntarioCalculable;
+      },
+      constitucionPatrimonioVISActivo() {
+        return this.pf.comprador.patrimonioFamilia.tipo === "vis";
+      },
+      // ============ MOTOR DE CÁLCULO POR LÍNEAS ============
+      lineasCalculo() {
+        const cfg = this.nc;
+        const t = this.valorInmueble;
+        const lineas = [];
+        const distribuir = (valor, distribKey) => {
+          const dist = this.distribuciones[distribKey] ?? DEFAULT_DISTRIBUCIONES[distribKey] ?? { vendedor: 50 };
+          const pctVendedor = Number(dist.vendedor ?? 50);
+          const vendedor = Math.round(valor * pctVendedor / 100);
+          return { vendedor, comprador: Math.round(valor - vendedor) };
+        };
+        const calcActoSinCuantia = (subtipoCfg) => {
+          const notarial = subtipoCfg.derechos_notariales;
+          const iva = subtipoCfg.aplica_iva ? Math.round(notarial * subtipoCfg.porcentaje_iva / 100) : 0;
+          const registro = subtipoCfg.requiere_registro ? subtipoCfg.derechos_registro_primer_folio : 0;
+          return { notarial, iva, registro, total: notarial + iva + registro };
+        };
+        const agregarLinea = (codigo, concepto, tarifaTexto, categoria, valorVendedor, ivaVendedor, valorComprador, ivaComprador, estado = "calculado", alerta = null) => {
+          const valorTotal = valorVendedor + ivaVendedor + valorComprador + ivaComprador;
+          lineas.push({
+            codigo,
+            categoria,
+            concepto,
+            base: 0,
+            tarifaTexto,
+            derechosNotariales: valorVendedor + valorComprador,
+            iva: ivaVendedor + ivaComprador,
+            derechosRegistro: 0,
+            valorVendedor,
+            ivaVendedor,
+            valorComprador,
+            ivaComprador,
+            valorTotal,
+            responsablePorDefecto: valorVendedor > valorComprador ? "vendedor" : "comprador",
+            estado,
+            alerta,
+            visible: true
+          });
+        };
+        const agregarLineaConDistribucion = (codigo, concepto, tarifaTexto, categoria, montoBase, ivaBase, distribKey, estado = "calculado", alerta = null) => {
+          const d = distribuir(montoBase, distribKey);
+          const dIva = distribuir(ivaBase, distribKey);
+          agregarLinea(codigo, concepto, tarifaTexto, categoria, d.vendedor, dIva.vendedor, d.comprador, dIva.comprador, estado, alerta);
+        };
+        const notariales = t * cfg.porcentajeGastosNotariales / 100;
+        const ivaNotariales = Math.round(notariales * cfg.porcentajeIva / 100);
+        agregarLinea(
+          "derechosNotariales",
+          `Gastos compraventa notariales (${cfg.porcentajeGastosNotariales}%)`,
+          `${cfg.porcentajeGastosNotariales}% s/ valor`,
+          "notaria",
+          ...(() => {
+            const d = distribuir(notariales, "derechosNotariales");
+            const dIva = distribuir(ivaNotariales, "derechosNotariales");
+            return [d.vendedor, dIva.vendedor, d.comprador, dIva.comprador];
+          })()
+        );
+        if (this.vendedorJuridico === 0) {
+          const retencion = Math.round(t * cfg.porcentajeRetencionFuente / 100);
+          agregarLineaConDistribucion(
+            "retencionFuente",
+            `Retención en la fuente (${cfg.porcentajeRetencionFuente}%) — persona natural`,
+            `${cfg.porcentajeRetencionFuente}%`,
+            "retencion",
+            retencion,
+            0,
+            "retencionFuente"
+          );
+        }
+        agregarLineaConDistribucion(
+          "otrosGastos",
+          "Otros gastos (copias, folios, certificados)",
+          "Valor fijo",
+          "notaria",
+          cfg.otrosGastos,
+          0,
+          "otrosGastos"
+        );
+        if (this.cancelacionHipotecaSinCuantia === 1 && this.hipotecavendedor > 0) {
+          const monto = Math.round(this.hipotecavendedor * cfg.porcentajeConstitucionHipoteca / 100);
+          agregarLineaConDistribucion(
+            "CANCELACION_HIPOTECA_VENDEDOR",
+            `Cancelación hipoteca (${cfg.porcentajeConstitucionHipoteca}% s/ $${this.fmtShort(this.hipotecavendedor)})`,
+            `${cfg.porcentajeConstitucionHipoteca}%`,
+            "actos_vendedor",
+            monto,
+            0,
+            "cancelacionHipoteca"
+          );
+        }
+        if (this.constitucionHipotecaComprador === 1 && this.hipotecacomprador > 0) {
+          const monto = Math.round(this.hipotecacomprador * cfg.porcentajeConstitucionHipoteca / 100);
+          agregarLineaConDistribucion(
+            "CONSTITUCION_HIPOTECA_COMPRADOR",
+            `Constitución hipoteca (${cfg.porcentajeConstitucionHipoteca}% s/ $${this.fmtShort(this.hipotecacomprador)})`,
+            `${cfg.porcentajeConstitucionHipoteca}%`,
+            "actos_comprador",
+            monto,
+            0,
+            "constitucionHipoteca"
+          );
+        }
+        const pfCfg = this.pfConfig;
+        if (this.pf.vendedor.afectacionViviendaFamiliar.estado !== "no") {
+          if (this.cancelacionAfectacionCalculable) {
+            const sub = pfCfg.afectacion_vivienda_familiar.cancelacion;
+            const acto = calcActoSinCuantia(sub);
+            const modalidad = this.pf.vendedor.afectacionViviendaFamiliar.modalidadLevantamiento;
+            agregarLinea(
+              "CANCELACION_AFECTACION_VIVIENDA_FAMILIAR",
+              `Cancelación de afectación a vivienda familiar${modalidad === "misma_escritura_compraventa" ? " (en escritura de compraventa)" : " (escritura independiente)"}`,
+              "Acto sin cuantía",
+              "protecciones_familiares",
+              acto.notarial + acto.registro,
+              acto.iva,
+              0,
+              0,
+              "calculado",
+              null
+            );
+          } else if (this.cancelacionAfectacionRequiereValidacion) {
+            const alertaFirma = !this.cancelacionAfectacionCalculable ? "La afectación a vivienda familiar puede exigir el consentimiento y la firma del cónyuge o compañero permanente para vender o gravar el inmueble. Verifique este requisito con la notaría antes de continuar." : null;
+            agregarLinea(
+              "CANCELACION_AFECTACION_VIVIENDA_FAMILIAR",
+              "Cancelación de afectación a vivienda familiar",
+              "Requiere validación",
+              "protecciones_familiares",
+              0,
+              0,
+              0,
+              0,
+              "requiere_validacion_juridica",
+              alertaFirma
+            );
+          } else if (this.cancelacionAfectacionEstimada) {
+            agregarLinea(
+              "CANCELACION_AFECTACION_VIVIENDA_FAMILIAR",
+              "Cancelación de afectación a vivienda familiar",
+              "Estimado",
+              "protecciones_familiares",
+              0,
+              0,
+              0,
+              0,
+              "estimado",
+              "Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría."
+            );
+          }
+        }
+        if (this.pf.vendedor.patrimonioFamilia.tipo !== "no") {
+          if (this.cancelacionPatrimonioCalculable) {
+            const sub = pfCfg.patrimonio_familia.cancelacion;
+            const acto = calcActoSinCuantia(sub);
+            agregarLinea(
+              "CANCELACION_PATRIMONIO_FAMILIA",
+              "Cancelación de patrimonio de familia",
+              "Acto sin cuantía",
+              "protecciones_familiares",
+              acto.notarial + acto.registro,
+              acto.iva,
+              0,
+              0,
+              "calculado",
+              null
+            );
+          } else {
+            let alertaTexto = "La cancelación o venta de un inmueble con patrimonio de familia puede requerir documentación adicional, autorización judicial o validación notarial según el tipo de patrimonio y los beneficiarios inscritos.";
+            if (["vis", "subsidio"].includes(this.pf.vendedor.patrimonioFamilia.tipo)) {
+              alertaTexto = "La operación puede estar sujeta a condiciones especiales de patrimonio de familia, subsidio o restricción de transferencia. Confirme el procedimiento y los costos con la notaría, entidad otorgante o asesor jurídico.";
+            }
+            agregarLinea(
+              "CANCELACION_PATRIMONIO_FAMILIA",
+              "Cancelación de patrimonio de familia",
+              "Requiere validación",
+              "protecciones_familiares",
+              0,
+              0,
+              0,
+              0,
+              "requiere_validacion_juridica",
+              alertaTexto
+            );
+          }
+        }
+        if (this.pf.comprador.afectacionViviendaFamiliar.constituir || this.constitucionAfectacionComprador === 1) {
+          if (this.constitucionAfectacionCompradorCalculable) {
+            const sub = pfCfg.afectacion_vivienda_familiar.constitucion;
+            const acto = calcActoSinCuantia(sub);
+            const estado = this.constitucionAfectacionCompradorEstimada ? "estimado" : "calculado";
+            const alertaEstimado = estado === "estimado" ? "Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría." : null;
+            agregarLinea(
+              "CONSTITUCION_AFECTACION_VIVIENDA_FAMILIAR",
+              "Constitución de afectación a vivienda familiar",
+              "Acto sin cuantía",
+              "protecciones_familiares",
+              0,
+              0,
+              acto.notarial + acto.registro,
+              acto.iva,
+              estado,
+              alertaEstimado
+            );
+          }
+        }
+        if (this.pf.comprador.patrimonioFamilia.tipo === "voluntario") {
+          if (this.constitucionPatrimonioVoluntarioCalculable) {
+            const sub = pfCfg.patrimonio_familia.constitucion_voluntaria;
+            const acto = calcActoSinCuantia(sub);
+            agregarLinea(
+              "CONSTITUCION_PATRIMONIO_FAMILIA_VOLUNTARIO",
+              "Constitución de patrimonio de familia voluntario",
+              "Acto sin cuantía",
+              "protecciones_familiares",
+              0,
+              0,
+              acto.notarial + acto.registro,
+              acto.iva,
+              "calculado",
+              null
+            );
+          } else {
+            agregarLinea(
+              "CONSTITUCION_PATRIMONIO_FAMILIA_VOLUNTARIO",
+              "Constitución de patrimonio de familia voluntario",
+              "Requiere validación",
+              "protecciones_familiares",
+              0,
+              0,
+              0,
+              0,
+              "requiere_validacion_juridica",
+              "La cancelación o venta de un inmueble con patrimonio de familia puede requerir documentación adicional, autorización judicial o validación notarial según el tipo de patrimonio y los beneficiarios inscritos."
+            );
+          }
+        }
+        if (this.constitucionPatrimonioVISActivo) {
+          const sub = pfCfg.patrimonio_familia.constitucion_vis;
+          const esRequiereValidacion = sub.modo_calculo === "requiere_validacion";
+          if (esRequiereValidacion) {
+            agregarLinea(
+              "CONSTITUCION_PATRIMONIO_FAMILIA_VIS",
+              "Constitución de patrimonio de familia por compra VIS",
+              "Requiere confirmación",
+              "protecciones_familiares",
+              0,
+              0,
+              0,
+              0,
+              "requiere_validacion_juridica",
+              sub.mensaje_validacion
+            );
+          } else {
+            const acto = calcActoSinCuantia(sub);
+            agregarLinea(
+              "CONSTITUCION_PATRIMONIO_FAMILIA_VIS",
+              "Constitución de patrimonio de familia por compra VIS",
+              "Acto sin cuantía",
+              "protecciones_familiares",
+              0,
+              0,
+              acto.notarial + acto.registro,
+              acto.iva,
+              "estimado",
+              sub.mensaje_validacion
+            );
+          }
+        }
+        if (cfg.comisionHabilitada && this.incluirComision && t > 0) {
+          const monto = Math.round(t * cfg.porcentajeComision / 100);
+          const comision = cfg.comisionMinima > 0 ? Math.max(cfg.comisionMinima, monto) : monto;
+          agregarLineaConDistribucion(
+            "comision",
+            `${cfg.labelComision} (${cfg.porcentajeComision}%${cfg.comisionMinima > 0 ? ", mín. $" + this.fmtShort(cfg.comisionMinima) : ""})`,
+            `${cfg.porcentajeComision}%`,
+            "comision",
+            comision,
+            0,
+            "comision"
+          );
+        }
+        if (this.tipoPropiedad !== "no_aplica" && t > 0) {
+          const esUrbana = this.tipoPropiedad === "urbana";
+          const habilitada = esUrbana ? cfg.comisionPropiedadUrbanaHabilitada : cfg.comisionPropiedadRuralHabilitada;
+          if (habilitada) {
+            const pct = esUrbana ? cfg.comisionPropiedadUrbanaPorcentaje : cfg.comisionPropiedadRuralPorcentaje;
+            const label = esUrbana ? cfg.comisionPropiedadUrbanaLabel : cfg.comisionPropiedadRuralLabel;
+            const monto = Math.round(t * pct / 100);
+            agregarLineaConDistribucion(
+              "COMISION_PROPIEDAD",
+              `${label} (${pct}% s/ valor inmueble)`,
+              `${pct}%`,
+              "comision",
+              monto,
+              0,
+              "comisionPropiedad"
+            );
+          }
+        }
+        agregarLineaConDistribucion(
+          "beneficencia",
+          `${cfg.labelImpuestoDepartamental} (${cfg.portcentajeBeneficiencia}%)`,
+          `${cfg.portcentajeBeneficiencia}%`,
+          "impuesto_departamental",
+          Math.round(t * cfg.portcentajeBeneficiencia / 100),
+          0,
+          "impuestoDepartamental"
+        );
+        if (this.constitucionHipotecaComprador === 1 && cfg.valorbeneficienciaConstitucionHipoteca > 0) {
+          agregarLineaConDistribucion(
+            "beneficenciaHipoteca",
+            `${cfg.labelImpuestoDepartamental} — constitución hipoteca`,
+            "Valor fijo",
+            "impuesto_departamental",
+            cfg.valorbeneficienciaConstitucionHipoteca,
+            0,
+            "impuestoDepartamental"
+          );
+        }
+        agregarLineaConDistribucion(
+          "registroCompra",
+          `Derechos de registro (${cfg.portcentajeRegistroCompra}%)`,
+          `${cfg.portcentajeRegistroCompra}%`,
+          "registro",
+          Math.round(t * cfg.portcentajeRegistroCompra / 100),
+          0,
+          "derechosRegistro"
+        );
+        const timbre = this._calcTimbre(t, cfg);
+        if (timbre > 0) {
+          agregarLineaConDistribucion(
+            "impuestoTimbre",
+            `Impuesto de timbre (${cfg.porcentajeTimbre}%)`,
+            `${cfg.porcentajeTimbre}%`,
+            "impuesto_timbre",
+            timbre,
+            0,
+            "impuestoTimbre"
+          );
+        }
+        return lineas;
+      },
+      lineasNotariales() {
+        return this.lineasCalculo.filter((l) => ["notaria", "retencion", "actos_vendedor", "actos_comprador", "protecciones_familiares"].includes(l.categoria));
+      },
+      lineasComision() {
+        return this.lineasCalculo.filter((l) => l.categoria === "comision");
+      },
+      lineasImpuestos() {
+        return this.lineasCalculo.filter((l) => ["impuesto_departamental", "registro", "impuesto_timbre"].includes(l.categoria));
+      },
+      distribucionesEditables() {
+        const base = [
+          { key: "derechosNotariales", label: "Derechos notariales compraventa", defaultVendedor: 50, defaultComprador: 50 },
+          { key: "retencionFuente", label: "Retención en la fuente", defaultVendedor: 100, defaultComprador: 0 },
+          { key: "otrosGastos", label: "Otros gastos (copias, folios)", defaultVendedor: 50, defaultComprador: 50 },
+          { key: "cancelacionHipoteca", label: "Cancelación de hipoteca", defaultVendedor: 100, defaultComprador: 0 },
+          { key: "constitucionHipoteca", label: "Constitución de hipoteca", defaultVendedor: 0, defaultComprador: 100 },
+          { key: "impuestoDepartamental", label: this.nc.labelImpuestoDepartamental, defaultVendedor: 0, defaultComprador: 100 },
+          { key: "derechosRegistro", label: "Derechos de registro", defaultVendedor: 0, defaultComprador: 100 },
+          { key: "impuestoTimbre", label: "Impuesto de timbre", defaultVendedor: 50, defaultComprador: 50 }
+        ];
+        if (this.nc.comisionHabilitada) {
+          base.push({ key: "comision", label: this.nc.labelComision || "Comisión asesor", defaultVendedor: 100, defaultComprador: 0 });
+        }
+        if (this.tipoPropiedad !== "no_aplica") {
+          const esUrbana = this.tipoPropiedad === "urbana";
+          const habilitada = esUrbana ? this.nc.comisionPropiedadUrbanaHabilitada : this.nc.comisionPropiedadRuralHabilitada;
+          if (habilitada) {
+            const label = esUrbana ? this.nc.comisionPropiedadUrbanaLabel : this.nc.comisionPropiedadRuralLabel;
+            base.push({ key: "comisionPropiedad", label, defaultVendedor: 100, defaultComprador: 0 });
+          }
+        }
+        const pfCancelAfectacion = this.pfConfig.afectacion_vivienda_familiar.cancelacion;
+        if (pfCancelAfectacion.permitir_edicion_responsable && this.cancelacionAfectacionCalculable) {
+          base.push({ key: "CANCELACION_AFECTACION_VIVIENDA_FAMILIAR", label: "Cancelación afectación a vivienda familiar", defaultVendedor: 100, defaultComprador: 0 });
+        }
+        const pfConstAfectacion = this.pfConfig.afectacion_vivienda_familiar.constitucion;
+        if (pfConstAfectacion.permitir_edicion_responsable && this.constitucionAfectacionCompradorCalculable) {
+          base.push({ key: "CONSTITUCION_AFECTACION_VIVIENDA_FAMILIAR", label: "Constitución afectación a vivienda familiar", defaultVendedor: 0, defaultComprador: 100 });
+        }
+        const pfCancelPatrimonio = this.pfConfig.patrimonio_familia.cancelacion;
+        if (pfCancelPatrimonio.permitir_edicion_responsable && this.cancelacionPatrimonioCalculable) {
+          base.push({ key: "CANCELACION_PATRIMONIO_FAMILIA", label: "Cancelación patrimonio de familia", defaultVendedor: 100, defaultComprador: 0 });
+        }
+        const pfConstPatrimonio = this.pfConfig.patrimonio_familia.constitucion_voluntaria;
+        if (pfConstPatrimonio.permitir_edicion_responsable && this.constitucionPatrimonioVoluntarioCalculable) {
+          base.push({ key: "CONSTITUCION_PATRIMONIO_FAMILIA_VOLUNTARIO", label: "Constitución patrimonio de familia voluntario", defaultVendedor: 0, defaultComprador: 100 });
+        }
+        return base;
+      },
+      comisionCalculada() {
+        const cfg = this.nc;
+        if (!cfg.comisionHabilitada || !this.valorInmueble) return 0;
+        const monto = this.valorInmueble * cfg.porcentajeComision / 100;
+        return Math.round(cfg.comisionMinima > 0 ? Math.max(cfg.comisionMinima, monto) : monto);
+      },
+      totales() {
+        const sum = (arr, key) => arr.reduce((acc, l) => acc + (l[key] || 0), 0);
+        const notVendedor = sum(this.lineasNotariales, "valorVendedor") + sum(this.lineasNotariales, "ivaVendedor");
+        const notComprador = sum(this.lineasNotariales, "valorComprador") + sum(this.lineasNotariales, "ivaComprador");
+        const comVendedor = sum(this.lineasComision, "valorVendedor") + sum(this.lineasComision, "ivaVendedor");
+        const comComprador = sum(this.lineasComision, "valorComprador") + sum(this.lineasComision, "ivaComprador");
+        const impVendedor = sum(this.lineasImpuestos, "valorVendedor");
+        const impComprador = sum(this.lineasImpuestos, "valorComprador");
+        return {
+          notariales: { vendedor: Math.round(notVendedor), comprador: Math.round(notComprador), total: Math.round(notVendedor + notComprador) },
+          comision: { vendedor: Math.round(comVendedor), comprador: Math.round(comComprador), total: Math.round(comVendedor + comComprador) },
+          impuestos: { vendedor: Math.round(impVendedor), comprador: Math.round(impComprador), total: Math.round(impVendedor + impComprador) },
+          gran: {
+            vendedor: Math.round(notVendedor + comVendedor + impVendedor),
+            comprador: Math.round(notComprador + comComprador + impComprador),
+            total: Math.round(notVendedor + notComprador + comVendedor + comComprador + impVendedor + impComprador)
+          }
+        };
+      },
+      errors() {
+        const e = {};
+        if (!this.valorInmueble || this.valorInmueble <= 0) e.valorInmueble = "Ingrese el valor del inmueble.";
+        if (this.cancelacionHipotecaSinCuantia === 1 && (!this.hipotecavendedor || this.hipotecavendedor <= 0)) {
+          e.hipotecavendedor = "Ingrese el valor de la hipoteca.";
+        }
+        if (this.constitucionHipotecaComprador === 1 && (!this.hipotecacomprador || this.hipotecacomprador <= 0)) {
+          e.hipotecacomprador = "Ingrese el valor de la hipoteca.";
+        }
+        return e;
+      },
+      canPrint() {
+        return Object.keys(this.errors).length === 0;
+      }
+    },
+    watch: {
+      configuracion: {
+        deep: true,
+        handler() {
+          const dist = this.configuracion?.distribuciones ?? {};
+          Object.keys(dist).forEach((k) => {
+            if (dist[k] && typeof dist[k].vendedor === "number") {
+              this.distribuciones[k] = { vendedor: dist[k].vendedor, comprador: 100 - dist[k].vendedor };
+            }
+          });
+        }
+      },
+      // Auto-expandir si el usuario activa alguna protección
+      "pf.vendedor.afectacionViviendaFamiliar.estado"(val) {
+        if (val !== "no") this.ui.expandirLimitacionesVendedor = true;
+      },
+      "pf.vendedor.patrimonioFamilia.tipo"(val) {
+        if (val !== "no") this.ui.expandirLimitacionesVendedor = true;
+      },
+      "pf.comprador.compraParaViviendaFamiliar"(val) {
+        if (val !== "no") this.ui.expandirProteccionesComprador = true;
+      },
+      "pf.comprador.patrimonioFamilia.tipo"(val) {
+        if (val !== "no") this.ui.expandirProteccionesComprador = true;
+      }
+    },
+    created() {
+      const dist = this.configuracion?.distribuciones ?? {};
+      Object.keys(dist).forEach((k) => {
+        if (dist[k] && typeof dist[k].vendedor === "number") {
+          this.distribuciones[k] = { vendedor: dist[k].vendedor, comprador: 100 - dist[k].vendedor };
+        }
+      });
+      this.normalizarConfiguracionProteccionesFamiliares;
+    },
+    methods: {
+      fmt(v) {
+        return formatMoney(v);
+      },
+      fmtShort(v) {
+        return formatMoneyShort(v);
+      },
+      pctTotal(party) {
+        if (!this.valorInmueble) return "0,00";
+        const val = party === "total" ? this.totales.gran.total : party === "vendedor" ? this.totales.gran.vendedor : this.totales.gran.comprador;
+        return (val / this.valorInmueble * 100).toFixed(2).replace(".", ",");
+      },
+      actualizarDistribucion(key, parte, valor) {
+        const pct = Math.min(100, Math.max(0, Number(valor) || 0));
+        if (parte === "vendedor") {
+          this.distribuciones[key] = { vendedor: pct, comprador: 100 - pct };
+        } else {
+          this.distribuciones[key] = { comprador: pct, vendedor: 100 - pct };
+        }
+      },
+      _calcTimbre(valor, cfg) {
+        if (cfg.impuestoTimbreRangos && Array.isArray(cfg.impuestoTimbreRangos) && cfg.impuestoTimbreRangos.length) {
+          let total = 0, limite = 0;
+          for (const rango of cfg.impuestoTimbreRangos) {
+            if (valor <= limite) break;
+            const hasta = rango.hasta ?? Infinity;
+            const base = Math.min(valor, hasta) - limite;
+            if (base > 0) total += base * (rango.porcentaje / 100);
+            limite = hasta;
+          }
+          return Math.round(total);
+        }
+        return valor >= cfg.valorMinimoAplicaImpuestoTimbre ? Math.round(valor * cfg.porcentajeTimbre / 100) : 0;
+      },
+      badgeClass(estado) {
+        const map = {
+          calculado: "badge-success",
+          estimado: "badge-warning",
+          requiere_validacion_juridica: "badge-danger",
+          requiere_firma: "badge-warning"
+        };
+        return map[estado] ?? "badge-default";
+      },
+      badgeLabel(estado) {
+        const map = {
+          calculado: "Calculado",
+          estimado: "Estimado",
+          requiere_validacion_juridica: "Requiere validación jurídica",
+          requiere_firma: "Requiere firma"
+        };
+        return map[estado] ?? estado;
+      },
+      buildPrintHtml() {
+        const logo = this.logo ? `<img src="${this.logo}" style="max-height:56px;margin-bottom:10px;display:block;">` : "";
+        const fecha = (/* @__PURE__ */ new Date()).toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" });
+        const resumenLineas = this.lineasCalculo.map((l) => `
         <tr>
-          <td>${n.ingreso?n.ingreso.label:""}</td>
-          <td>${n.ingreso?this.fmtMoney(n.ingreso.value):""}</td>
-          <td>${n.descuento?n.descuento.label:""}</td>
-          <td>${n.descuento?this.fmtMoney(n.descuento.value):""}</td>
+          <td>${l.concepto}${l.tarifaTexto ? " — " + l.tarifaTexto : ""}</td>
+          <td>${l.estado === "requiere_validacion_juridica" ? "Ver alerta" : "$" + this.fmt(l.valorVendedor + l.ivaVendedor)}</td>
+          <td>${l.estado === "requiere_validacion_juridica" ? "Ver alerta" : "$" + this.fmt(l.valorComprador + l.ivaComprador)}</td>
+          <td>${l.estado === "requiere_validacion_juridica" ? "–" : "$" + this.fmt(l.valorTotal)}</td>
+          <td>${this.badgeLabel(l.estado)}</td>
         </tr>
-      `).join("");return`
+        ${l.alerta ? `<tr><td colspan="5" style="color:#92400e;font-size:10px;">⚠ ${l.alerta}</td></tr>` : ""}
+      `).join("");
+        const alertasValidacion = this.lineasCalculo.filter((l) => l.estado === "requiere_validacion_juridica" && l.alerta).map((l) => `<li><strong>${l.concepto}:</strong> ${l.alerta}</li>`).join("");
+        const datosGenerales = [
+          `<dt>Valor del inmueble:</dt><dd>$${this.fmt(this.valorInmueble)}</dd>`,
+          `<dt>Vendedor persona jurídica:</dt><dd>${this.vendedorJuridico ? "Sí" : "No"}</dd>`,
+          this.tipoPropiedad !== "no_aplica" ? `<dt>Tipo de propiedad:</dt><dd>${this.tipoPropiedad === "urbana" ? this.nc.comisionPropiedadUrbanaLabel : this.nc.comisionPropiedadRuralLabel} (${this.tipoPropiedad === "urbana" ? this.nc.comisionPropiedadUrbanaPorcentaje : this.nc.comisionPropiedadRuralPorcentaje}%)</dd>` : "",
+          this.cancelacionHipotecaSinCuantia ? `<dt>Hipoteca vendedor:</dt><dd>$${this.fmt(this.hipotecavendedor)}</dd>` : "",
+          this.constitucionHipotecaComprador ? `<dt>Hipoteca comprador:</dt><dd>$${this.fmt(this.hipotecacomprador)}</dd>` : "",
+          // Protecciones familiares
+          this.pf.vendedor.afectacionViviendaFamiliar.estado !== "no" ? `<dt>Afectación vivienda familiar vigente (vendedor):</dt><dd>${this.pf.vendedor.afectacionViviendaFamiliar.estado === "si" ? "Sí" : "Sin confirmar"}</dd>` : "",
+          this.pf.vendedor.patrimonioFamilia.tipo !== "no" ? `<dt>Patrimonio de familia (vendedor):</dt><dd>${this.pf.vendedor.patrimonioFamilia.tipo}</dd>` : "",
+          this.pf.comprador.afectacionViviendaFamiliar.constituir ? `<dt>Constitución afectación vivienda familiar (comprador):</dt><dd>Sí</dd>` : "",
+          this.pf.comprador.patrimonioFamilia.tipo !== "no" ? `<dt>Patrimonio de familia (comprador):</dt><dd>${this.pf.comprador.patrimonioFamilia.tipo}</dd>` : ""
+        ].filter(Boolean).join("");
+        return `
+        <div class="ph">${logo}<h1>Simulador de Gastos Notariales de Compraventa</h1><p>Fecha: ${fecha}</p></div>
+        <dl style="display:grid;grid-template-columns:auto 1fr;gap:4px 16px;font-size:11px;margin-bottom:16px;">${datosGenerales}</dl>
+        <table>
+          <thead><tr><th>Concepto</th><th>Vendedor</th><th>Comprador</th><th>Total</th><th>Estado</th></tr></thead>
+          <tbody>${resumenLineas}
+            <tr class="total-row"><td><strong>TOTAL VENDEDOR</strong></td><td><strong>$${this.fmt(this.totales.gran.vendedor)}</strong></td><td></td><td></td><td></td></tr>
+            <tr class="total-row"><td><strong>TOTAL COMPRADOR</strong></td><td></td><td><strong>$${this.fmt(this.totales.gran.comprador)}</strong></td><td></td><td></td></tr>
+            <tr class="grand-row"><td><strong>TOTAL GENERAL</strong></td><td colspan="2"></td><td><strong>$${this.fmt(this.totales.gran.total)}</strong></td><td></td></tr>
+          </tbody>
+        </table>
+        ${alertasValidacion ? `<ul style="margin-top:12px;font-size:10px;color:#92400e;">${alertasValidacion}</ul>` : ""}
+        <p class="disc">Esta simulación presenta valores aproximados con fines informativos. La constitución, cancelación o levantamiento de afectación a vivienda familiar y patrimonio de familia depende de las inscripciones vigentes, los beneficiarios, la situación familiar, subsidios, VIS y los requisitos de la notaría o autoridad competente. El resultado no reemplaza la revisión jurídica, tributaria ni notarial de la operación.</p>
+      `;
+      },
+      imprimir() {
+        if (!this.canPrint) return;
+        const estilos = [
+          "body{font-family:Arial,sans-serif;font-size:11px;padding:20px;color:#111827;margin:0;}",
+          ".ph{margin-bottom:14px;border-bottom:2px solid #374151;padding-bottom:8px;}",
+          "table{width:100%;border-collapse:collapse;margin-top:12px;}",
+          "th,td{border:1px solid #e5e7eb;padding:6px;text-align:left;font-size:10px;}",
+          "th{background:#1f2937;color:#fff;}",
+          ".total-row{background:#f3f4f6;}",
+          ".grand-row{background:#374151;color:#fff;}",
+          ".disc{margin-top:16px;font-size:9px;color:#6b7280;}"
+        ].join("");
+        const html = this.buildPrintHtml();
+        const fullDoc = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Simulación de Gastos</title><style>${estilos}</style></head><body>${html}</body></html>`;
+        const blob = new Blob([fullDoc], { type: "text/html;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const ventana = window.open(url, "_blank");
+        if (ventana) {
+          ventana.addEventListener("load", () => {
+            ventana.print();
+            URL.revokeObjectURL(url);
+          });
+        } else {
+          URL.revokeObjectURL(url);
+        }
+      }
+    }
+  };
+  const _hoisted_1$1 = { class: "simulador-venta" };
+  const _hoisted_2$1 = { class: "sim-section" };
+  const _hoisted_3$1 = { class: "row sim-controls" };
+  const _hoisted_4$1 = { class: "col-12" };
+  const _hoisted_5$1 = {
+    key: 0,
+    class: "field-error"
+  };
+  const _hoisted_6$1 = {
+    key: 0,
+    class: "sim-section"
+  };
+  const _hoisted_7$1 = { class: "row sim-controls" };
+  const _hoisted_8$1 = { class: "col-12" };
+  const _hoisted_9$1 = { class: "form-group" };
+  const _hoisted_10$1 = { class: "radio-group" };
+  const _hoisted_11$1 = { key: 0 };
+  const _hoisted_12$1 = { key: 1 };
+  const _hoisted_13$1 = { key: 1 };
+  const _hoisted_14$1 = { class: "sim-section" };
+  const _hoisted_15$1 = { class: "row sim-controls" };
+  const _hoisted_16$1 = { class: "col-4" };
+  const _hoisted_17$1 = { class: "form-group" };
+  const _hoisted_18$1 = { class: "radio-group" };
+  const _hoisted_19$1 = { class: "col-4" };
+  const _hoisted_20$1 = { class: "form-group" };
+  const _hoisted_21$1 = { class: "radio-group" };
+  const _hoisted_22$1 = {
+    key: 0,
+    class: "sub-input"
+  };
+  const _hoisted_23$1 = {
+    key: 0,
+    class: "field-error"
+  };
+  const _hoisted_24$1 = { class: "sim-section sim-section--protecciones" };
+  const _hoisted_25$1 = {
+    width: "14",
+    height: "14",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    "stroke-width": "2.5"
+  };
+  const _hoisted_26$1 = {
+    key: 0,
+    points: "18 15 12 9 6 15"
+  };
+  const _hoisted_27$1 = {
+    key: 1,
+    points: "6 9 12 15 18 9"
+  };
+  const _hoisted_28$1 = { class: "sim-section-body" };
+  const _hoisted_29$1 = { class: "proteccion-bloque" };
+  const _hoisted_30$1 = { class: "form-group" };
+  const _hoisted_31$1 = { class: "radio-group" };
+  const _hoisted_32$1 = {
+    key: 0,
+    class: "sub-bloque"
+  };
+  const _hoisted_33$1 = { class: "form-group" };
+  const _hoisted_34$1 = { class: "radio-group" };
+  const _hoisted_35$1 = { key: 0 };
+  const _hoisted_36$1 = { class: "form-group" };
+  const _hoisted_37$1 = { class: "radio-group" };
+  const _hoisted_38$1 = { class: "form-group" };
+  const _hoisted_39$1 = { class: "radio-group" };
+  const _hoisted_40$1 = {
+    key: 1,
+    class: "alerta alerta--warning"
+  };
+  const _hoisted_41$1 = {
+    key: 1,
+    class: "alerta alerta--info"
+  };
+  const _hoisted_42$1 = { class: "proteccion-bloque" };
+  const _hoisted_43$1 = { class: "form-group" };
+  const _hoisted_44$1 = { class: "radio-group" };
+  const _hoisted_45$1 = {
+    key: 0,
+    class: "sub-bloque"
+  };
+  const _hoisted_46$1 = { class: "form-group" };
+  const _hoisted_47$1 = { key: 0 };
+  const _hoisted_48$1 = { class: "form-group" };
+  const _hoisted_49$1 = { class: "radio-group" };
+  const _hoisted_50$1 = { class: "form-group" };
+  const _hoisted_51$1 = { class: "radio-group" };
+  const _hoisted_52$1 = { class: "form-group" };
+  const _hoisted_53$1 = { class: "radio-group" };
+  const _hoisted_54$1 = { class: "form-group" };
+  const _hoisted_55$1 = { class: "radio-group" };
+  const _hoisted_56$1 = {
+    key: 1,
+    class: "alerta alerta--danger"
+  };
+  const _hoisted_57$1 = {
+    key: 2,
+    class: "alerta alerta--warning"
+  };
+  const _hoisted_58$1 = {
+    key: 3,
+    class: "alerta alerta--info"
+  };
+  const _hoisted_59$1 = {
+    key: 2,
+    class: "sim-section"
+  };
+  const _hoisted_60$1 = { class: "sim-section-title" };
+  const _hoisted_61$1 = { class: "row sim-controls" };
+  const _hoisted_62$1 = { class: "col-12" };
+  const _hoisted_63$1 = { class: "form-group form-group--inline" };
+  const _hoisted_64$1 = { class: "toggle-label" };
+  const _hoisted_65$1 = { class: "toggle-text" };
+  const _hoisted_66$1 = { key: 0 };
+  const _hoisted_67$1 = { class: "sim-section" };
+  const _hoisted_68$1 = { class: "row sim-controls" };
+  const _hoisted_69$1 = { class: "col-6" };
+  const _hoisted_70$1 = { class: "form-group" };
+  const _hoisted_71$1 = { class: "radio-group" };
+  const _hoisted_72$1 = {
+    key: 0,
+    class: "sub-input"
+  };
+  const _hoisted_73 = {
+    key: 0,
+    class: "field-error"
+  };
+  const _hoisted_74 = { class: "sim-section sim-section--protecciones" };
+  const _hoisted_75 = {
+    width: "14",
+    height: "14",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    "stroke-width": "2.5"
+  };
+  const _hoisted_76 = {
+    key: 0,
+    points: "18 15 12 9 6 15"
+  };
+  const _hoisted_77 = {
+    key: 1,
+    points: "6 9 12 15 18 9"
+  };
+  const _hoisted_78 = { class: "sim-section-body" };
+  const _hoisted_79 = { class: "proteccion-bloque" };
+  const _hoisted_80 = { class: "form-group" };
+  const _hoisted_81 = { class: "radio-group" };
+  const _hoisted_82 = {
+    key: 0,
+    class: "sub-bloque"
+  };
+  const _hoisted_83 = { class: "form-group" };
+  const _hoisted_84 = { class: "radio-group" };
+  const _hoisted_85 = { class: "form-group" };
+  const _hoisted_86 = {
+    key: 0,
+    class: "alerta alerta--info"
+  };
+  const _hoisted_87 = { class: "proteccion-bloque" };
+  const _hoisted_88 = { class: "form-group" };
+  const _hoisted_89 = { class: "radio-group" };
+  const _hoisted_90 = {
+    key: 0,
+    class: "sub-bloque"
+  };
+  const _hoisted_91 = { class: "form-group" };
+  const _hoisted_92 = { class: "radio-group" };
+  const _hoisted_93 = { class: "form-group" };
+  const _hoisted_94 = { class: "radio-group" };
+  const _hoisted_95 = { class: "form-group" };
+  const _hoisted_96 = { class: "radio-group" };
+  const _hoisted_97 = {
+    key: 0,
+    class: "alerta alerta--danger"
+  };
+  const _hoisted_98 = {
+    key: 1,
+    class: "sub-bloque"
+  };
+  const _hoisted_99 = { class: "form-group" };
+  const _hoisted_100 = { class: "radio-group" };
+  const _hoisted_101 = { class: "form-group" };
+  const _hoisted_102 = { class: "radio-group" };
+  const _hoisted_103 = { class: "dist-avanzada" };
+  const _hoisted_104 = {
+    width: "12",
+    height: "12",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    "stroke-width": "2.5"
+  };
+  const _hoisted_105 = {
+    key: 0,
+    points: "18 15 12 9 6 15"
+  };
+  const _hoisted_106 = {
+    key: 1,
+    points: "6 9 12 15 18 9"
+  };
+  const _hoisted_107 = {
+    key: 0,
+    class: "dist-body"
+  };
+  const _hoisted_108 = { class: "table-wrapper" };
+  const _hoisted_109 = { class: "dist-table" };
+  const _hoisted_110 = ["value", "onChange"];
+  const _hoisted_111 = ["value", "onChange"];
+  const _hoisted_112 = { class: "sim-results" };
+  const _hoisted_113 = { class: "card" };
+  const _hoisted_114 = { class: "table-wrapper results-table-wrapper" };
+  const _hoisted_115 = {
+    ref: "tabla",
+    class: "results-table"
+  };
+  const _hoisted_116 = { class: "results-cell-label" };
+  const _hoisted_117 = {
+    key: 0,
+    class: "tarifa-texto"
+  };
+  const _hoisted_118 = { class: "results-cell-value" };
+  const _hoisted_119 = { class: "results-cell-value" };
+  const _hoisted_120 = { class: "results-cell-value" };
+  const _hoisted_121 = {
+    key: 0,
+    class: "results-row--alerta"
+  };
+  const _hoisted_122 = { colspan: "5" };
+  const _hoisted_123 = { class: "alerta alerta--warning alerta--sm" };
+  const _hoisted_124 = { class: "row-total" };
+  const _hoisted_125 = {
+    key: 0,
+    class: "row-total"
+  };
+  const _hoisted_126 = { class: "row-total" };
+  const _hoisted_127 = { class: "row-grand-total" };
+  const _hoisted_128 = {
+    key: 0,
+    class: "summary-cards"
+  };
+  const _hoisted_129 = { class: "summary-card card-vendedor" };
+  const _hoisted_130 = { class: "card-amount" };
+  const _hoisted_131 = { class: "card-sub" };
+  const _hoisted_132 = { class: "summary-card card-comprador" };
+  const _hoisted_133 = { class: "card-amount" };
+  const _hoisted_134 = { class: "card-sub" };
+  const _hoisted_135 = { class: "summary-card card-operacion summary-item-highlight" };
+  const _hoisted_136 = { class: "card-amount" };
+  const _hoisted_137 = { class: "card-sub" };
+  const _hoisted_138 = { class: "sim-actions-bottom" };
+  const _hoisted_139 = ["disabled"];
+  const _hoisted_140 = {
+    key: 3,
+    class: "sim-nota-pie"
+  };
+  function _sfc_render$1(_ctx, _cache, $props, $setup, $data, $options) {
+    return openBlock(), createElementBlock("div", _hoisted_1$1, [
+      createBaseVNode("div", _hoisted_2$1, [
+        createBaseVNode("div", _hoisted_3$1, [
+          createBaseVNode("div", _hoisted_4$1, [
+            createBaseVNode("div", {
+              class: normalizeClass(["form-group", { "has-error": $options.errors.valorInmueble }])
+            }, [
+              createBaseVNode("label", null, [
+                _cache[75] || (_cache[75] = createBaseVNode("strong", null, "Valor del inmueble:", -1)),
+                createTextVNode(" $" + toDisplayString($options.fmt($data.valorInmueble)), 1)
+              ]),
+              withDirectives(createBaseVNode("input", {
+                type: "number",
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => $data.valorInmueble = $event),
+                min: "0",
+                placeholder: "0"
+              }, null, 512), [
+                [
+                  vModelText,
+                  $data.valorInmueble,
+                  void 0,
+                  { number: true }
+                ]
+              ]),
+              $options.errors.valorInmueble ? (openBlock(), createElementBlock("span", _hoisted_5$1, toDisplayString($options.errors.valorInmueble), 1)) : createCommentVNode("", true)
+            ], 2)
+          ])
+        ])
+      ]),
+      _cache[190] || (_cache[190] = createBaseVNode("hr", null, null, -1)),
+      $options.mostrarComisionPropiedad ? (openBlock(), createElementBlock("div", _hoisted_6$1, [
+        createBaseVNode("div", _hoisted_7$1, [
+          createBaseVNode("div", _hoisted_8$1, [
+            createBaseVNode("div", _hoisted_9$1, [
+              _cache[77] || (_cache[77] = createBaseVNode("label", null, [
+                createBaseVNode("strong", null, "¿El inmueble es urbano o rural?"),
+                createBaseVNode("span", { class: "campo-ayuda" }, "Seleccione el tipo para incluir la comisión correspondiente en la liquidación. El porcentaje es configurable desde la administración.")
+              ], -1)),
+              createBaseVNode("div", _hoisted_10$1, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => $data.tipoPropiedad = $event),
+                    value: "no_aplica"
+                  }, null, 512), [
+                    [vModelRadio, $data.tipoPropiedad]
+                  ]),
+                  _cache[76] || (_cache[76] = createTextVNode(" Sin comisión de propiedad ", -1))
+                ]),
+                $options.nc.comisionPropiedadUrbanaHabilitada ? (openBlock(), createElementBlock("label", _hoisted_11$1, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => $data.tipoPropiedad = $event),
+                    value: "urbana"
+                  }, null, 512), [
+                    [vModelRadio, $data.tipoPropiedad]
+                  ]),
+                  createTextVNode(" " + toDisplayString($options.nc.comisionPropiedadUrbanaLabel) + " — " + toDisplayString($options.nc.comisionPropiedadUrbanaPorcentaje) + "% ", 1)
+                ])) : createCommentVNode("", true),
+                $options.nc.comisionPropiedadRuralHabilitada ? (openBlock(), createElementBlock("label", _hoisted_12$1, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => $data.tipoPropiedad = $event),
+                    value: "rural"
+                  }, null, 512), [
+                    [vModelRadio, $data.tipoPropiedad]
+                  ]),
+                  createTextVNode(" " + toDisplayString($options.nc.comisionPropiedadRuralLabel) + " — " + toDisplayString($options.nc.comisionPropiedadRuralPorcentaje) + "% ", 1)
+                ])) : createCommentVNode("", true)
+              ])
+            ])
+          ])
+        ])
+      ])) : createCommentVNode("", true),
+      $options.mostrarComisionPropiedad ? (openBlock(), createElementBlock("hr", _hoisted_13$1)) : createCommentVNode("", true),
+      createBaseVNode("div", _hoisted_14$1, [
+        _cache[84] || (_cache[84] = createBaseVNode("h3", { class: "sim-section-title" }, "Vendedor", -1)),
+        createBaseVNode("div", _hoisted_15$1, [
+          createBaseVNode("div", _hoisted_16$1, [
+            createBaseVNode("div", _hoisted_17$1, [
+              _cache[80] || (_cache[80] = createBaseVNode("label", null, [
+                createBaseVNode("strong", null, "¿El vendedor es persona jurídica?")
+              ], -1)),
+              createBaseVNode("div", _hoisted_18$1, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => $data.vendedorJuridico = $event),
+                    value: 1
+                  }, null, 512), [
+                    [
+                      vModelRadio,
+                      $data.vendedorJuridico,
+                      void 0,
+                      { number: true }
+                    ]
+                  ]),
+                  _cache[78] || (_cache[78] = createTextVNode(" SÍ", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => $data.vendedorJuridico = $event),
+                    value: 0
+                  }, null, 512), [
+                    [
+                      vModelRadio,
+                      $data.vendedorJuridico,
+                      void 0,
+                      { number: true }
+                    ]
+                  ]),
+                  _cache[79] || (_cache[79] = createTextVNode(" NO", -1))
+                ])
+              ])
+            ])
+          ]),
+          createBaseVNode("div", _hoisted_19$1, [
+            createBaseVNode("div", _hoisted_20$1, [
+              _cache[83] || (_cache[83] = createBaseVNode("label", null, [
+                createBaseVNode("strong", null, "¿Cancelación de hipoteca?")
+              ], -1)),
+              createBaseVNode("div", _hoisted_21$1, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => $data.cancelacionHipotecaSinCuantia = $event),
+                    value: 1
+                  }, null, 512), [
+                    [
+                      vModelRadio,
+                      $data.cancelacionHipotecaSinCuantia,
+                      void 0,
+                      { number: true }
+                    ]
+                  ]),
+                  _cache[81] || (_cache[81] = createTextVNode(" SÍ", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[7] || (_cache[7] = ($event) => $data.cancelacionHipotecaSinCuantia = $event),
+                    value: 0
+                  }, null, 512), [
+                    [
+                      vModelRadio,
+                      $data.cancelacionHipotecaSinCuantia,
+                      void 0,
+                      { number: true }
+                    ]
+                  ]),
+                  _cache[82] || (_cache[82] = createTextVNode(" NO", -1))
+                ])
+              ]),
+              $data.cancelacionHipotecaSinCuantia === 1 ? (openBlock(), createElementBlock("div", _hoisted_22$1, [
+                createBaseVNode("label", null, "Valor hipoteca: $" + toDisplayString($options.fmt($data.hipotecavendedor)), 1),
+                withDirectives(createBaseVNode("input", {
+                  type: "number",
+                  "onUpdate:modelValue": _cache[8] || (_cache[8] = ($event) => $data.hipotecavendedor = $event),
+                  min: "0",
+                  placeholder: "0",
+                  class: normalizeClass({ "input-error": $options.errors.hipotecavendedor })
+                }, null, 2), [
+                  [
+                    vModelText,
+                    $data.hipotecavendedor,
+                    void 0,
+                    { number: true }
+                  ]
+                ]),
+                $options.errors.hipotecavendedor ? (openBlock(), createElementBlock("span", _hoisted_23$1, toDisplayString($options.errors.hipotecavendedor), 1)) : createCommentVNode("", true)
+              ])) : createCommentVNode("", true)
+            ])
+          ])
+        ])
+      ]),
+      createBaseVNode("div", _hoisted_24$1, [
+        createBaseVNode("h3", {
+          class: "sim-section-title sim-section-title--collapse",
+          onClick: _cache[9] || (_cache[9] = ($event) => $data.ui.expandirLimitacionesVendedor = !$data.ui.expandirLimitacionesVendedor)
+        }, [
+          (openBlock(), createElementBlock("svg", _hoisted_25$1, [
+            $data.ui.expandirLimitacionesVendedor ? (openBlock(), createElementBlock("polyline", _hoisted_26$1)) : (openBlock(), createElementBlock("polyline", _hoisted_27$1))
+          ])),
+          _cache[85] || (_cache[85] = createTextVNode(" Limitaciones y gravámenes del inmueble vendido ", -1))
+        ]),
+        withDirectives(createBaseVNode("div", _hoisted_28$1, [
+          createBaseVNode("div", _hoisted_29$1, [
+            createBaseVNode("div", _hoisted_30$1, [
+              _cache[89] || (_cache[89] = createBaseVNode("label", null, [
+                createBaseVNode("strong", null, "¿El inmueble tiene afectación a vivienda familiar inscrita?"),
+                createBaseVNode("span", { class: "campo-ayuda" }, "La afectación a vivienda familiar es una restricción legal que limita la libre disposición del inmueble destinado a vivienda del hogar.")
+              ], -1)),
+              createBaseVNode("div", _hoisted_31$1, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[10] || (_cache[10] = ($event) => $data.pf.vendedor.afectacionViviendaFamiliar.estado = $event),
+                    value: "no"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.estado]
+                  ]),
+                  _cache[86] || (_cache[86] = createTextVNode(" No", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[11] || (_cache[11] = ($event) => $data.pf.vendedor.afectacionViviendaFamiliar.estado = $event),
+                    value: "si"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.estado]
+                  ]),
+                  _cache[87] || (_cache[87] = createTextVNode(" Sí", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[12] || (_cache[12] = ($event) => $data.pf.vendedor.afectacionViviendaFamiliar.estado = $event),
+                    value: "no_sabe"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.estado]
+                  ]),
+                  _cache[88] || (_cache[88] = createTextVNode(" No estoy seguro", -1))
+                ])
+              ])
+            ]),
+            $data.pf.vendedor.afectacionViviendaFamiliar.estado === "si" ? (openBlock(), createElementBlock("div", _hoisted_32$1, [
+              createBaseVNode("div", _hoisted_33$1, [
+                _cache[91] || (_cache[91] = createBaseVNode("label", null, "¿La afectación debe levantarse para realizar esta venta?", -1)),
+                createBaseVNode("div", _hoisted_34$1, [
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "checkbox",
+                      "onUpdate:modelValue": _cache[13] || (_cache[13] = ($event) => $data.pf.vendedor.afectacionViviendaFamiliar.requiereLevantamiento = $event)
+                    }, null, 512), [
+                      [vModelCheckbox, $data.pf.vendedor.afectacionViviendaFamiliar.requiereLevantamiento]
+                    ]),
+                    _cache[90] || (_cache[90] = createTextVNode(" Sí, requiere levantamiento", -1))
+                  ])
+                ])
+              ]),
+              $data.pf.vendedor.afectacionViviendaFamiliar.requiereLevantamiento ? (openBlock(), createElementBlock("div", _hoisted_35$1, [
+                createBaseVNode("div", _hoisted_36$1, [
+                  _cache[96] || (_cache[96] = createBaseVNode("label", null, "¿El cónyuge o compañero permanente firmará la escritura?", -1)),
+                  createBaseVNode("div", _hoisted_37$1, [
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[14] || (_cache[14] = ($event) => $data.pf.vendedor.afectacionViviendaFamiliar.firmaConyugeOCompanero = $event),
+                        value: "si"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.firmaConyugeOCompanero]
+                      ]),
+                      _cache[92] || (_cache[92] = createTextVNode(" Sí firmará", -1))
+                    ]),
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[15] || (_cache[15] = ($event) => $data.pf.vendedor.afectacionViviendaFamiliar.firmaConyugeOCompanero = $event),
+                        value: "no"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.firmaConyugeOCompanero]
+                      ]),
+                      _cache[93] || (_cache[93] = createTextVNode(" No firmará", -1))
+                    ]),
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[16] || (_cache[16] = ($event) => $data.pf.vendedor.afectacionViviendaFamiliar.firmaConyugeOCompanero = $event),
+                        value: "no_aplica"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.firmaConyugeOCompanero]
+                      ]),
+                      _cache[94] || (_cache[94] = createTextVNode(" No aplica", -1))
+                    ]),
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[17] || (_cache[17] = ($event) => $data.pf.vendedor.afectacionViviendaFamiliar.firmaConyugeOCompanero = $event),
+                        value: "no_sabe"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.firmaConyugeOCompanero]
+                      ]),
+                      _cache[95] || (_cache[95] = createTextVNode(" No sé", -1))
+                    ])
+                  ])
+                ]),
+                createBaseVNode("div", _hoisted_38$1, [
+                  _cache[100] || (_cache[100] = createBaseVNode("label", null, "¿En qué modalidad se realiza el levantamiento?", -1)),
+                  createBaseVNode("div", _hoisted_39$1, [
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[18] || (_cache[18] = ($event) => $data.pf.vendedor.afectacionViviendaFamiliar.modalidadLevantamiento = $event),
+                        value: "misma_escritura_compraventa"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.modalidadLevantamiento]
+                      ]),
+                      _cache[97] || (_cache[97] = createTextVNode(" En la misma escritura de compraventa", -1))
+                    ]),
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[19] || (_cache[19] = ($event) => $data.pf.vendedor.afectacionViviendaFamiliar.modalidadLevantamiento = $event),
+                        value: "escritura_independiente"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.modalidadLevantamiento]
+                      ]),
+                      _cache[98] || (_cache[98] = createTextVNode(" En escritura independiente", -1))
+                    ]),
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[20] || (_cache[20] = ($event) => $data.pf.vendedor.afectacionViviendaFamiliar.modalidadLevantamiento = $event),
+                        value: "requiere_validacion"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.modalidadLevantamiento]
+                      ]),
+                      _cache[99] || (_cache[99] = createTextVNode(" Requiere validación notarial", -1))
+                    ])
+                  ])
+                ])
+              ])) : createCommentVNode("", true),
+              $options.alertaFirmaAfectacionVendedor ? (openBlock(), createElementBlock("div", _hoisted_40$1, [..._cache[101] || (_cache[101] = [
+                createBaseVNode("strong", null, "Firma de cónyuge o compañero permanente:", -1),
+                createTextVNode(" La afectación a vivienda familiar puede exigir el consentimiento y la firma del cónyuge o compañero permanente para vender o gravar el inmueble. Verifique este requisito con la notaría antes de continuar. ", -1)
+              ])])) : createCommentVNode("", true)
+            ])) : createCommentVNode("", true),
+            $data.pf.vendedor.afectacionViviendaFamiliar.estado === "no_sabe" ? (openBlock(), createElementBlock("div", _hoisted_41$1, " Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría. ")) : createCommentVNode("", true)
+          ]),
+          _cache[129] || (_cache[129] = createBaseVNode("hr", { class: "sep-bloque" }, null, -1)),
+          createBaseVNode("div", _hoisted_42$1, [
+            createBaseVNode("div", _hoisted_43$1, [
+              _cache[108] || (_cache[108] = createBaseVNode("label", null, [
+                createBaseVNode("strong", null, "¿El inmueble tiene patrimonio de familia inembargable inscrito?"),
+                createBaseVNode("span", { class: "campo-ayuda" }, "El patrimonio de familia inembargable protege el inmueble de embargos. Puede ser voluntario, asociado a compra VIS o a subsidio de vivienda.")
+              ], -1)),
+              createBaseVNode("div", _hoisted_44$1, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[21] || (_cache[21] = ($event) => $data.pf.vendedor.patrimonioFamilia.tipo = $event),
+                    value: "no"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.vendedor.patrimonioFamilia.tipo]
+                  ]),
+                  _cache[102] || (_cache[102] = createTextVNode(" No", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[22] || (_cache[22] = ($event) => $data.pf.vendedor.patrimonioFamilia.tipo = $event),
+                    value: "voluntario"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.vendedor.patrimonioFamilia.tipo]
+                  ]),
+                  _cache[103] || (_cache[103] = createTextVNode(" Sí, patrimonio de familia voluntario", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[23] || (_cache[23] = ($event) => $data.pf.vendedor.patrimonioFamilia.tipo = $event),
+                    value: "vis"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.vendedor.patrimonioFamilia.tipo]
+                  ]),
+                  _cache[104] || (_cache[104] = createTextVNode(" Sí, asociado a compra VIS", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[24] || (_cache[24] = ($event) => $data.pf.vendedor.patrimonioFamilia.tipo = $event),
+                    value: "subsidio"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.vendedor.patrimonioFamilia.tipo]
+                  ]),
+                  _cache[105] || (_cache[105] = createTextVNode(" Sí, asociado a subsidio de vivienda", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[25] || (_cache[25] = ($event) => $data.pf.vendedor.patrimonioFamilia.tipo = $event),
+                    value: "menores"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.vendedor.patrimonioFamilia.tipo]
+                  ]),
+                  _cache[106] || (_cache[106] = createTextVNode(" Sí, con beneficiarios menores de edad", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[26] || (_cache[26] = ($event) => $data.pf.vendedor.patrimonioFamilia.tipo = $event),
+                    value: "no_sabe"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.vendedor.patrimonioFamilia.tipo]
+                  ]),
+                  _cache[107] || (_cache[107] = createTextVNode(" No estoy seguro", -1))
+                ])
+              ])
+            ]),
+            $data.pf.vendedor.patrimonioFamilia.tipo !== "no" ? (openBlock(), createElementBlock("div", _hoisted_45$1, [
+              createBaseVNode("div", _hoisted_46$1, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "checkbox",
+                    "onUpdate:modelValue": _cache[27] || (_cache[27] = ($event) => $data.pf.vendedor.patrimonioFamilia.requiereCancelacion = $event)
+                  }, null, 512), [
+                    [vModelCheckbox, $data.pf.vendedor.patrimonioFamilia.requiereCancelacion]
+                  ]),
+                  _cache[109] || (_cache[109] = createTextVNode(" ¿Se requiere cancelar o levantar el patrimonio de familia para realizar la venta?", -1))
+                ])
+              ]),
+              $data.pf.vendedor.patrimonioFamilia.requiereCancelacion ? (openBlock(), createElementBlock("div", _hoisted_47$1, [
+                createBaseVNode("div", _hoisted_48$1, [
+                  _cache[113] || (_cache[113] = createBaseVNode("label", null, "¿Existen hijos o beneficiarios menores de edad?", -1)),
+                  createBaseVNode("div", _hoisted_49$1, [
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[28] || (_cache[28] = ($event) => $data.pf.vendedor.patrimonioFamilia.existenBeneficiariosMenores = $event),
+                        value: "si"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.patrimonioFamilia.existenBeneficiariosMenores]
+                      ]),
+                      _cache[110] || (_cache[110] = createTextVNode(" Sí", -1))
+                    ]),
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[29] || (_cache[29] = ($event) => $data.pf.vendedor.patrimonioFamilia.existenBeneficiariosMenores = $event),
+                        value: "no"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.patrimonioFamilia.existenBeneficiariosMenores]
+                      ]),
+                      _cache[111] || (_cache[111] = createTextVNode(" No", -1))
+                    ]),
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[30] || (_cache[30] = ($event) => $data.pf.vendedor.patrimonioFamilia.existenBeneficiariosMenores = $event),
+                        value: "no_sabe"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.patrimonioFamilia.existenBeneficiariosMenores]
+                      ]),
+                      _cache[112] || (_cache[112] = createTextVNode(" No sé", -1))
+                    ])
+                  ])
+                ]),
+                createBaseVNode("div", _hoisted_50$1, [
+                  _cache[117] || (_cache[117] = createBaseVNode("label", null, "¿Existe subsidio vigente o restricción de transferencia?", -1)),
+                  createBaseVNode("div", _hoisted_51$1, [
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[31] || (_cache[31] = ($event) => $data.pf.vendedor.patrimonioFamilia.existeSubsidioORestriccion = $event),
+                        value: "si"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.patrimonioFamilia.existeSubsidioORestriccion]
+                      ]),
+                      _cache[114] || (_cache[114] = createTextVNode(" Sí", -1))
+                    ]),
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[32] || (_cache[32] = ($event) => $data.pf.vendedor.patrimonioFamilia.existeSubsidioORestriccion = $event),
+                        value: "no"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.patrimonioFamilia.existeSubsidioORestriccion]
+                      ]),
+                      _cache[115] || (_cache[115] = createTextVNode(" No", -1))
+                    ]),
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[33] || (_cache[33] = ($event) => $data.pf.vendedor.patrimonioFamilia.existeSubsidioORestriccion = $event),
+                        value: "no_sabe"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.patrimonioFamilia.existeSubsidioORestriccion]
+                      ]),
+                      _cache[116] || (_cache[116] = createTextVNode(" No sé", -1))
+                    ])
+                  ])
+                ]),
+                createBaseVNode("div", _hoisted_52$1, [
+                  _cache[122] || (_cache[122] = createBaseVNode("label", null, "¿Se cuenta con autorización judicial o trámite jurídico aplicable?", -1)),
+                  createBaseVNode("div", _hoisted_53$1, [
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[34] || (_cache[34] = ($event) => $data.pf.vendedor.patrimonioFamilia.autorizacionJudicial = $event),
+                        value: "si"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.patrimonioFamilia.autorizacionJudicial]
+                      ]),
+                      _cache[118] || (_cache[118] = createTextVNode(" Sí", -1))
+                    ]),
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[35] || (_cache[35] = ($event) => $data.pf.vendedor.patrimonioFamilia.autorizacionJudicial = $event),
+                        value: "no"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.patrimonioFamilia.autorizacionJudicial]
+                      ]),
+                      _cache[119] || (_cache[119] = createTextVNode(" No", -1))
+                    ]),
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[36] || (_cache[36] = ($event) => $data.pf.vendedor.patrimonioFamilia.autorizacionJudicial = $event),
+                        value: "no_aplica"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.patrimonioFamilia.autorizacionJudicial]
+                      ]),
+                      _cache[120] || (_cache[120] = createTextVNode(" No aplica", -1))
+                    ]),
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[37] || (_cache[37] = ($event) => $data.pf.vendedor.patrimonioFamilia.autorizacionJudicial = $event),
+                        value: "no_sabe"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.patrimonioFamilia.autorizacionJudicial]
+                      ]),
+                      _cache[121] || (_cache[121] = createTextVNode(" No sé", -1))
+                    ])
+                  ])
+                ]),
+                createBaseVNode("div", _hoisted_54$1, [
+                  _cache[126] || (_cache[126] = createBaseVNode("label", null, "¿En qué modalidad se realiza el levantamiento?", -1)),
+                  createBaseVNode("div", _hoisted_55$1, [
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[38] || (_cache[38] = ($event) => $data.pf.vendedor.patrimonioFamilia.modalidadLevantamiento = $event),
+                        value: "escritura_publica"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.patrimonioFamilia.modalidadLevantamiento]
+                      ]),
+                      _cache[123] || (_cache[123] = createTextVNode(" Escritura pública", -1))
+                    ]),
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[39] || (_cache[39] = ($event) => $data.pf.vendedor.patrimonioFamilia.modalidadLevantamiento = $event),
+                        value: "tramite_judicial"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.patrimonioFamilia.modalidadLevantamiento]
+                      ]),
+                      _cache[124] || (_cache[124] = createTextVNode(" Trámite judicial", -1))
+                    ]),
+                    createBaseVNode("label", null, [
+                      withDirectives(createBaseVNode("input", {
+                        type: "radio",
+                        "onUpdate:modelValue": _cache[40] || (_cache[40] = ($event) => $data.pf.vendedor.patrimonioFamilia.modalidadLevantamiento = $event),
+                        value: "requiere_validacion"
+                      }, null, 512), [
+                        [vModelRadio, $data.pf.vendedor.patrimonioFamilia.modalidadLevantamiento]
+                      ]),
+                      _cache[125] || (_cache[125] = createTextVNode(" Requiere validación", -1))
+                    ])
+                  ])
+                ])
+              ])) : createCommentVNode("", true),
+              $options.alertaMenoresPatrimonioVendedor ? (openBlock(), createElementBlock("div", _hoisted_56$1, [..._cache[127] || (_cache[127] = [
+                createBaseVNode("strong", null, "Patrimonio de familia con menores beneficiarios:", -1),
+                createTextVNode(" El inmueble registra patrimonio de familia con posibles beneficiarios menores de edad. La venta o cancelación puede requerir validación jurídica y, según el caso, autorización judicial. Este simulador no incluye costos de procesos judiciales ni honorarios profesionales. ", -1)
+              ])])) : createCommentVNode("", true),
+              $options.alertaVISPatrimonioVendedor ? (openBlock(), createElementBlock("div", _hoisted_57$1, [..._cache[128] || (_cache[128] = [
+                createBaseVNode("strong", null, "VIS o subsidio de vivienda:", -1),
+                createTextVNode(" La operación puede estar sujeta a condiciones especiales de patrimonio de familia, subsidio o restricción de transferencia. Confirme el procedimiento y los costos con la notaría, entidad otorgante o asesor jurídico. ", -1)
+              ])])) : createCommentVNode("", true),
+              $data.pf.vendedor.patrimonioFamilia.tipo === "no_sabe" ? (openBlock(), createElementBlock("div", _hoisted_58$1, " Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría. ")) : createCommentVNode("", true)
+            ])) : createCommentVNode("", true)
+          ])
+        ], 512), [
+          [vShow, $data.ui.expandirLimitacionesVendedor]
+        ])
+      ]),
+      $options.nc.comisionHabilitada ? (openBlock(), createElementBlock("div", _hoisted_59$1, [
+        createBaseVNode("h3", _hoisted_60$1, toDisplayString($options.nc.labelComision || "Comisión inmobiliaria / asesor"), 1),
+        createBaseVNode("div", _hoisted_61$1, [
+          createBaseVNode("div", _hoisted_62$1, [
+            createBaseVNode("div", _hoisted_63$1, [
+              createBaseVNode("label", _hoisted_64$1, [
+                withDirectives(createBaseVNode("input", {
+                  type: "checkbox",
+                  "onUpdate:modelValue": _cache[41] || (_cache[41] = ($event) => $data.incluirComision = $event),
+                  class: "toggle-input"
+                }, null, 512), [
+                  [vModelCheckbox, $data.incluirComision]
+                ]),
+                createBaseVNode("span", _hoisted_65$1, [
+                  _cache[130] || (_cache[130] = createTextVNode(" Incluir comisión ", -1)),
+                  createBaseVNode("strong", null, toDisplayString($options.nc.porcentajeComision) + "%", 1),
+                  $options.nc.comisionMinima > 0 ? (openBlock(), createElementBlock("span", _hoisted_66$1, " (mínimo $" + toDisplayString($options.fmtShort($options.nc.comisionMinima)) + ")", 1)) : createCommentVNode("", true),
+                  _cache[131] || (_cache[131] = createTextVNode(" — actualmente ", -1)),
+                  createBaseVNode("strong", null, "$" + toDisplayString($options.fmt($options.comisionCalculada)), 1)
+                ])
+              ])
+            ])
+          ])
+        ])
+      ])) : createCommentVNode("", true),
+      createBaseVNode("div", _hoisted_67$1, [
+        _cache[135] || (_cache[135] = createBaseVNode("h3", { class: "sim-section-title" }, "Comprador", -1)),
+        createBaseVNode("div", _hoisted_68$1, [
+          createBaseVNode("div", _hoisted_69$1, [
+            createBaseVNode("div", _hoisted_70$1, [
+              _cache[134] || (_cache[134] = createBaseVNode("label", null, [
+                createBaseVNode("strong", null, "¿Constitución de hipoteca?")
+              ], -1)),
+              createBaseVNode("div", _hoisted_71$1, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[42] || (_cache[42] = ($event) => $data.constitucionHipotecaComprador = $event),
+                    value: 1
+                  }, null, 512), [
+                    [
+                      vModelRadio,
+                      $data.constitucionHipotecaComprador,
+                      void 0,
+                      { number: true }
+                    ]
+                  ]),
+                  _cache[132] || (_cache[132] = createTextVNode(" SÍ", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[43] || (_cache[43] = ($event) => $data.constitucionHipotecaComprador = $event),
+                    value: 0
+                  }, null, 512), [
+                    [
+                      vModelRadio,
+                      $data.constitucionHipotecaComprador,
+                      void 0,
+                      { number: true }
+                    ]
+                  ]),
+                  _cache[133] || (_cache[133] = createTextVNode(" NO", -1))
+                ])
+              ]),
+              $data.constitucionHipotecaComprador === 1 ? (openBlock(), createElementBlock("div", _hoisted_72$1, [
+                createBaseVNode("label", null, "Valor hipoteca: $" + toDisplayString($options.fmt($data.hipotecacomprador)), 1),
+                withDirectives(createBaseVNode("input", {
+                  type: "number",
+                  "onUpdate:modelValue": _cache[44] || (_cache[44] = ($event) => $data.hipotecacomprador = $event),
+                  min: "0",
+                  placeholder: "0",
+                  class: normalizeClass({ "input-error": $options.errors.hipotecacomprador })
+                }, null, 2), [
+                  [
+                    vModelText,
+                    $data.hipotecacomprador,
+                    void 0,
+                    { number: true }
+                  ]
+                ]),
+                $options.errors.hipotecacomprador ? (openBlock(), createElementBlock("span", _hoisted_73, toDisplayString($options.errors.hipotecacomprador), 1)) : createCommentVNode("", true)
+              ])) : createCommentVNode("", true)
+            ])
+          ])
+        ])
+      ]),
+      createBaseVNode("div", _hoisted_74, [
+        createBaseVNode("h3", {
+          class: "sim-section-title sim-section-title--collapse",
+          onClick: _cache[45] || (_cache[45] = ($event) => $data.ui.expandirProteccionesComprador = !$data.ui.expandirProteccionesComprador)
+        }, [
+          (openBlock(), createElementBlock("svg", _hoisted_75, [
+            $data.ui.expandirProteccionesComprador ? (openBlock(), createElementBlock("polyline", _hoisted_76)) : (openBlock(), createElementBlock("polyline", _hoisted_77))
+          ])),
+          _cache[136] || (_cache[136] = createTextVNode(" Protecciones familiares que solicita el comprador ", -1))
+        ]),
+        withDirectives(createBaseVNode("div", _hoisted_78, [
+          createBaseVNode("div", _hoisted_79, [
+            createBaseVNode("div", _hoisted_80, [
+              _cache[140] || (_cache[140] = createBaseVNode("label", null, [
+                createBaseVNode("strong", null, "¿El comprador adquiere el inmueble para vivienda familiar?")
+              ], -1)),
+              createBaseVNode("div", _hoisted_81, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[46] || (_cache[46] = ($event) => $data.pf.comprador.compraParaViviendaFamiliar = $event),
+                    value: "si"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.comprador.compraParaViviendaFamiliar]
+                  ]),
+                  _cache[137] || (_cache[137] = createTextVNode(" Sí", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[47] || (_cache[47] = ($event) => $data.pf.comprador.compraParaViviendaFamiliar = $event),
+                    value: "no"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.comprador.compraParaViviendaFamiliar]
+                  ]),
+                  _cache[138] || (_cache[138] = createTextVNode(" No", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[48] || (_cache[48] = ($event) => $data.pf.comprador.compraParaViviendaFamiliar = $event),
+                    value: "no_sabe"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.comprador.compraParaViviendaFamiliar]
+                  ]),
+                  _cache[139] || (_cache[139] = createTextVNode(" No estoy seguro", -1))
+                ])
+              ])
+            ]),
+            $data.pf.comprador.compraParaViviendaFamiliar === "si" ? (openBlock(), createElementBlock("div", _hoisted_82, [
+              createBaseVNode("div", _hoisted_83, [
+                _cache[145] || (_cache[145] = createBaseVNode("label", null, "¿Situación familiar del comprador?", -1)),
+                createBaseVNode("div", _hoisted_84, [
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[49] || (_cache[49] = ($event) => $data.pf.comprador.situacionFamiliar = $event),
+                      value: "casado"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.situacionFamiliar]
+                    ]),
+                    _cache[141] || (_cache[141] = createTextVNode(" Casado/a", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[50] || (_cache[50] = ($event) => $data.pf.comprador.situacionFamiliar = $event),
+                      value: "union_marital"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.situacionFamiliar]
+                    ]),
+                    _cache[142] || (_cache[142] = createTextVNode(" Unión marital de hecho", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[51] || (_cache[51] = ($event) => $data.pf.comprador.situacionFamiliar = $event),
+                      value: "sin_pareja"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.situacionFamiliar]
+                    ]),
+                    _cache[143] || (_cache[143] = createTextVNode(" Sin pareja", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[52] || (_cache[52] = ($event) => $data.pf.comprador.situacionFamiliar = $event),
+                      value: "no_sabe"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.situacionFamiliar]
+                    ]),
+                    _cache[144] || (_cache[144] = createTextVNode(" No sé", -1))
+                  ])
+                ])
+              ]),
+              createBaseVNode("div", _hoisted_85, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "checkbox",
+                    "onUpdate:modelValue": _cache[53] || (_cache[53] = ($event) => $data.pf.comprador.afectacionViviendaFamiliar.constituir = $event)
+                  }, null, 512), [
+                    [vModelCheckbox, $data.pf.comprador.afectacionViviendaFamiliar.constituir]
+                  ]),
+                  _cache[146] || (_cache[146] = createTextVNode(" ¿Desea incluir la afectación a vivienda familiar en la escritura? ", -1))
+                ])
+              ]),
+              $data.pf.comprador.situacionFamiliar === "no_sabe" && $data.pf.comprador.afectacionViviendaFamiliar.constituir ? (openBlock(), createElementBlock("div", _hoisted_86, " Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría. ")) : createCommentVNode("", true)
+            ])) : createCommentVNode("", true)
+          ]),
+          _cache[174] || (_cache[174] = createBaseVNode("hr", { class: "sep-bloque" }, null, -1)),
+          createBaseVNode("div", _hoisted_87, [
+            createBaseVNode("div", _hoisted_88, [
+              _cache[151] || (_cache[151] = createBaseVNode("label", null, [
+                createBaseVNode("strong", null, "¿El comprador desea constituir patrimonio de familia?")
+              ], -1)),
+              createBaseVNode("div", _hoisted_89, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[54] || (_cache[54] = ($event) => $data.pf.comprador.patrimonioFamilia.tipo = $event),
+                    value: "no"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.comprador.patrimonioFamilia.tipo]
+                  ]),
+                  _cache[147] || (_cache[147] = createTextVNode(" No", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[55] || (_cache[55] = ($event) => $data.pf.comprador.patrimonioFamilia.tipo = $event),
+                    value: "voluntario"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.comprador.patrimonioFamilia.tipo]
+                  ]),
+                  _cache[148] || (_cache[148] = createTextVNode(" Sí, patrimonio de familia voluntario", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[56] || (_cache[56] = ($event) => $data.pf.comprador.patrimonioFamilia.tipo = $event),
+                    value: "vis"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.comprador.patrimonioFamilia.tipo]
+                  ]),
+                  _cache[149] || (_cache[149] = createTextVNode(" Sí, compra VIS", -1))
+                ]),
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "radio",
+                    "onUpdate:modelValue": _cache[57] || (_cache[57] = ($event) => $data.pf.comprador.patrimonioFamilia.tipo = $event),
+                    value: "no_sabe"
+                  }, null, 512), [
+                    [vModelRadio, $data.pf.comprador.patrimonioFamilia.tipo]
+                  ]),
+                  _cache[150] || (_cache[150] = createTextVNode(" No estoy seguro", -1))
+                ])
+              ])
+            ]),
+            $data.pf.comprador.patrimonioFamilia.tipo === "voluntario" ? (openBlock(), createElementBlock("div", _hoisted_90, [
+              createBaseVNode("div", _hoisted_91, [
+                _cache[155] || (_cache[155] = createBaseVNode("label", null, "¿Existen beneficiarios menores de edad?", -1)),
+                createBaseVNode("div", _hoisted_92, [
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[58] || (_cache[58] = ($event) => $data.pf.comprador.patrimonioFamilia.beneficiariosMenores = $event),
+                      value: "si"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.beneficiariosMenores]
+                    ]),
+                    _cache[152] || (_cache[152] = createTextVNode(" Sí", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[59] || (_cache[59] = ($event) => $data.pf.comprador.patrimonioFamilia.beneficiariosMenores = $event),
+                      value: "no"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.beneficiariosMenores]
+                    ]),
+                    _cache[153] || (_cache[153] = createTextVNode(" No", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[60] || (_cache[60] = ($event) => $data.pf.comprador.patrimonioFamilia.beneficiariosMenores = $event),
+                      value: "no_sabe"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.beneficiariosMenores]
+                    ]),
+                    _cache[154] || (_cache[154] = createTextVNode(" No sé", -1))
+                  ])
+                ])
+              ]),
+              createBaseVNode("div", _hoisted_93, [
+                _cache[159] || (_cache[159] = createBaseVNode("label", null, "¿El inmueble cumple las condiciones para patrimonio de familia voluntario?", -1)),
+                createBaseVNode("div", _hoisted_94, [
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[61] || (_cache[61] = ($event) => $data.pf.comprador.patrimonioFamilia.cumpleCondicionesVoluntario = $event),
+                      value: "si"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.cumpleCondicionesVoluntario]
+                    ]),
+                    _cache[156] || (_cache[156] = createTextVNode(" Sí", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[62] || (_cache[62] = ($event) => $data.pf.comprador.patrimonioFamilia.cumpleCondicionesVoluntario = $event),
+                      value: "no"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.cumpleCondicionesVoluntario]
+                    ]),
+                    _cache[157] || (_cache[157] = createTextVNode(" No", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[63] || (_cache[63] = ($event) => $data.pf.comprador.patrimonioFamilia.cumpleCondicionesVoluntario = $event),
+                      value: "no_sabe"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.cumpleCondicionesVoluntario]
+                    ]),
+                    _cache[158] || (_cache[158] = createTextVNode(" No sé", -1))
+                  ])
+                ])
+              ]),
+              createBaseVNode("div", _hoisted_95, [
+                _cache[163] || (_cache[163] = createBaseVNode("label", null, "¿El inmueble tiene hipoteca vigente?", -1)),
+                createBaseVNode("div", _hoisted_96, [
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[64] || (_cache[64] = ($event) => $data.pf.comprador.patrimonioFamilia.hipotecaAdquisicion = $event),
+                      value: "si"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.hipotecaAdquisicion]
+                    ]),
+                    _cache[160] || (_cache[160] = createTextVNode(" Sí", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[65] || (_cache[65] = ($event) => $data.pf.comprador.patrimonioFamilia.hipotecaAdquisicion = $event),
+                      value: "no"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.hipotecaAdquisicion]
+                    ]),
+                    _cache[161] || (_cache[161] = createTextVNode(" No", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[66] || (_cache[66] = ($event) => $data.pf.comprador.patrimonioFamilia.hipotecaAdquisicion = $event),
+                      value: "no_sabe"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.hipotecaAdquisicion]
+                    ]),
+                    _cache[162] || (_cache[162] = createTextVNode(" No sé", -1))
+                  ])
+                ])
+              ]),
+              $options.alertaMenoresPatrimonioComprador ? (openBlock(), createElementBlock("div", _hoisted_97, [..._cache[164] || (_cache[164] = [
+                createBaseVNode("strong", null, "Patrimonio de familia con menores beneficiarios:", -1),
+                createTextVNode(" El inmueble registra patrimonio de familia con posibles beneficiarios menores de edad. La constitución puede requerir validación jurídica. Este simulador no incluye costos de procesos judiciales ni honorarios profesionales. ", -1)
+              ])])) : createCommentVNode("", true)
+            ])) : createCommentVNode("", true),
+            $data.pf.comprador.patrimonioFamilia.tipo === "vis" ? (openBlock(), createElementBlock("div", _hoisted_98, [
+              createBaseVNode("div", _hoisted_99, [
+                _cache[168] || (_cache[168] = createBaseVNode("label", null, "¿La compra se encuentra confirmada como VIS?", -1)),
+                createBaseVNode("div", _hoisted_100, [
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[67] || (_cache[67] = ($event) => $data.pf.comprador.patrimonioFamilia.compraVISConfirmada = $event),
+                      value: "si"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.compraVISConfirmada]
+                    ]),
+                    _cache[165] || (_cache[165] = createTextVNode(" Sí", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[68] || (_cache[68] = ($event) => $data.pf.comprador.patrimonioFamilia.compraVISConfirmada = $event),
+                      value: "no"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.compraVISConfirmada]
+                    ]),
+                    _cache[166] || (_cache[166] = createTextVNode(" No", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[69] || (_cache[69] = ($event) => $data.pf.comprador.patrimonioFamilia.compraVISConfirmada = $event),
+                      value: "no_sabe"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.compraVISConfirmada]
+                    ]),
+                    _cache[167] || (_cache[167] = createTextVNode(" No sé", -1))
+                  ])
+                ])
+              ]),
+              createBaseVNode("div", _hoisted_101, [
+                _cache[172] || (_cache[172] = createBaseVNode("label", null, "¿Existe subsidio de vivienda asociado?", -1)),
+                createBaseVNode("div", _hoisted_102, [
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[70] || (_cache[70] = ($event) => $data.pf.comprador.patrimonioFamilia.subsidioAsociado = $event),
+                      value: "si"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.subsidioAsociado]
+                    ]),
+                    _cache[169] || (_cache[169] = createTextVNode(" Sí", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[71] || (_cache[71] = ($event) => $data.pf.comprador.patrimonioFamilia.subsidioAsociado = $event),
+                      value: "no"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.subsidioAsociado]
+                    ]),
+                    _cache[170] || (_cache[170] = createTextVNode(" No", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[72] || (_cache[72] = ($event) => $data.pf.comprador.patrimonioFamilia.subsidioAsociado = $event),
+                      value: "no_sabe"
+                    }, null, 512), [
+                      [vModelRadio, $data.pf.comprador.patrimonioFamilia.subsidioAsociado]
+                    ]),
+                    _cache[171] || (_cache[171] = createTextVNode(" No sé", -1))
+                  ])
+                ])
+              ]),
+              _cache[173] || (_cache[173] = createBaseVNode("div", { class: "alerta alerta--warning" }, [
+                createBaseVNode("strong", null, "VIS o subsidio de vivienda:"),
+                createTextVNode(" La operación puede estar sujeta a condiciones especiales de patrimonio de familia, subsidio o restricción de transferencia. Confirme el procedimiento y los costos con la notaría, entidad otorgante o asesor jurídico. ")
+              ], -1))
+            ])) : createCommentVNode("", true)
+          ])
+        ], 512), [
+          [vShow, $data.ui.expandirProteccionesComprador]
+        ])
+      ]),
+      createBaseVNode("div", _hoisted_103, [
+        createBaseVNode("button", {
+          type: "button",
+          class: "dist-toggle",
+          onClick: _cache[73] || (_cache[73] = ($event) => $data.mostrarDistribucionAvanzada = !$data.mostrarDistribucionAvanzada)
+        }, [
+          (openBlock(), createElementBlock("svg", _hoisted_104, [
+            $data.mostrarDistribucionAvanzada ? (openBlock(), createElementBlock("polyline", _hoisted_105)) : (openBlock(), createElementBlock("polyline", _hoisted_106))
+          ])),
+          _cache[175] || (_cache[175] = createTextVNode(" Distribución avanzada de gastos ", -1))
+        ]),
+        $data.mostrarDistribucionAvanzada ? (openBlock(), createElementBlock("div", _hoisted_107, [
+          _cache[177] || (_cache[177] = createBaseVNode("p", { class: "dist-desc" }, "Ajusta cómo se distribuye cada gasto entre vendedor y comprador. El porcentaje complementario se actualiza automáticamente.", -1)),
+          createBaseVNode("div", _hoisted_108, [
+            createBaseVNode("table", _hoisted_109, [
+              _cache[176] || (_cache[176] = createBaseVNode("thead", null, [
+                createBaseVNode("tr", null, [
+                  createBaseVNode("th", null, "Concepto"),
+                  createBaseVNode("th", null, "Vendedor %"),
+                  createBaseVNode("th", null, "Comprador %")
+                ])
+              ], -1)),
+              createBaseVNode("tbody", null, [
+                (openBlock(true), createElementBlock(Fragment, null, renderList($options.distribucionesEditables, (item) => {
+                  return openBlock(), createElementBlock("tr", {
+                    key: item.key
+                  }, [
+                    createBaseVNode("td", null, toDisplayString(item.label), 1),
+                    createBaseVNode("td", null, [
+                      createBaseVNode("input", {
+                        type: "number",
+                        min: "0",
+                        max: "100",
+                        value: $data.distribuciones[item.key]?.vendedor ?? item.defaultVendedor,
+                        onChange: ($event) => $options.actualizarDistribucion(item.key, "vendedor", $event.target.value)
+                      }, null, 40, _hoisted_110)
+                    ]),
+                    createBaseVNode("td", null, [
+                      createBaseVNode("input", {
+                        type: "number",
+                        min: "0",
+                        max: "100",
+                        value: $data.distribuciones[item.key]?.comprador ?? item.defaultComprador,
+                        onChange: ($event) => $options.actualizarDistribucion(item.key, "comprador", $event.target.value)
+                      }, null, 40, _hoisted_111)
+                    ])
+                  ]);
+                }), 128))
+              ])
+            ])
+          ])
+        ])) : createCommentVNode("", true)
+      ]),
+      createBaseVNode("div", _hoisted_112, [
+        createBaseVNode("div", _hoisted_113, [
+          createBaseVNode("div", _hoisted_114, [
+            createBaseVNode("table", _hoisted_115, [
+              _cache[186] || (_cache[186] = createBaseVNode("thead", null, [
+                createBaseVNode("tr", null, [
+                  createBaseVNode("th", null, "Concepto"),
+                  createBaseVNode("th", null, "Vendedor"),
+                  createBaseVNode("th", null, "Comprador"),
+                  createBaseVNode("th", null, "Total"),
+                  createBaseVNode("th", null, "Estado")
+                ])
+              ], -1)),
+              createBaseVNode("tbody", null, [
+                (openBlock(true), createElementBlock(Fragment, null, renderList($options.lineasCalculo, (linea) => {
+                  return openBlock(), createElementBlock(Fragment, {
+                    key: linea.codigo
+                  }, [
+                    createBaseVNode("tr", {
+                      class: normalizeClass(["results-row", `results-row--${linea.categoria}`, { "results-row--validacion": linea.estado !== "calculado" && linea.estado !== "estimado" }])
+                    }, [
+                      createBaseVNode("td", _hoisted_116, [
+                        createTextVNode(toDisplayString(linea.concepto) + " ", 1),
+                        linea.tarifaTexto ? (openBlock(), createElementBlock("span", _hoisted_117, " — " + toDisplayString(linea.tarifaTexto), 1)) : createCommentVNode("", true)
+                      ]),
+                      createBaseVNode("td", _hoisted_118, toDisplayString(linea.estado === "requiere_validacion_juridica" ? "–" : "$" + $options.fmt(linea.valorVendedor + linea.ivaVendedor)), 1),
+                      createBaseVNode("td", _hoisted_119, toDisplayString(linea.estado === "requiere_validacion_juridica" ? "–" : "$" + $options.fmt(linea.valorComprador + linea.ivaComprador)), 1),
+                      createBaseVNode("td", _hoisted_120, toDisplayString(linea.estado === "requiere_validacion_juridica" ? "Ver alerta" : "$" + $options.fmt(linea.valorTotal)), 1),
+                      createBaseVNode("td", null, [
+                        createBaseVNode("span", {
+                          class: normalizeClass(["badge", $options.badgeClass(linea.estado)])
+                        }, toDisplayString($options.badgeLabel(linea.estado)), 3)
+                      ])
+                    ], 2),
+                    linea.alerta ? (openBlock(), createElementBlock("tr", _hoisted_121, [
+                      createBaseVNode("td", _hoisted_122, [
+                        createBaseVNode("div", _hoisted_123, toDisplayString(linea.alerta), 1)
+                      ])
+                    ])) : createCommentVNode("", true)
+                  ], 64);
+                }), 128)),
+                createBaseVNode("tr", _hoisted_124, [
+                  _cache[178] || (_cache[178] = createBaseVNode("td", null, [
+                    createBaseVNode("strong", null, "Subtotal gastos notariales y retenciones")
+                  ], -1)),
+                  createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.notariales.vendedor)), 1),
+                  createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.notariales.comprador)), 1),
+                  createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.notariales.total)), 1),
+                  _cache[179] || (_cache[179] = createBaseVNode("td", null, null, -1))
+                ]),
+                $options.lineasComision.length > 0 ? (openBlock(), createElementBlock("tr", _hoisted_125, [
+                  _cache[180] || (_cache[180] = createBaseVNode("td", null, [
+                    createBaseVNode("strong", null, "Subtotal comisiones")
+                  ], -1)),
+                  createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.comision.vendedor)), 1),
+                  createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.comision.comprador)), 1),
+                  createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.comision.total)), 1),
+                  _cache[181] || (_cache[181] = createBaseVNode("td", null, null, -1))
+                ])) : createCommentVNode("", true),
+                createBaseVNode("tr", _hoisted_126, [
+                  _cache[182] || (_cache[182] = createBaseVNode("td", null, [
+                    createBaseVNode("strong", null, "Subtotal impuestos y registro")
+                  ], -1)),
+                  createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.impuestos.vendedor)), 1),
+                  createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.impuestos.comprador)), 1),
+                  createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.impuestos.total)), 1),
+                  _cache[183] || (_cache[183] = createBaseVNode("td", null, null, -1))
+                ]),
+                createBaseVNode("tr", _hoisted_127, [
+                  _cache[184] || (_cache[184] = createBaseVNode("td", null, [
+                    createBaseVNode("strong", null, "TOTAL GASTOS APROXIMADOS")
+                  ], -1)),
+                  createBaseVNode("td", null, [
+                    createBaseVNode("strong", null, "$" + toDisplayString($options.fmt($options.totales.gran.vendedor)), 1)
+                  ]),
+                  createBaseVNode("td", null, [
+                    createBaseVNode("strong", null, "$" + toDisplayString($options.fmt($options.totales.gran.comprador)), 1)
+                  ]),
+                  createBaseVNode("td", null, [
+                    createBaseVNode("strong", null, "$" + toDisplayString($options.fmt($options.totales.gran.total)), 1)
+                  ]),
+                  _cache[185] || (_cache[185] = createBaseVNode("td", null, null, -1))
+                ])
+              ])
+            ], 512)
+          ])
+        ]),
+        $data.valorInmueble > 0 ? (openBlock(), createElementBlock("div", _hoisted_128, [
+          createBaseVNode("div", _hoisted_129, [
+            _cache[187] || (_cache[187] = createBaseVNode("span", null, "Vendedor", -1)),
+            createBaseVNode("div", _hoisted_130, "$" + toDisplayString($options.fmt($options.totales.gran.vendedor)), 1),
+            createBaseVNode("div", _hoisted_131, toDisplayString($options.pctTotal("vendedor")) + "% del valor", 1)
+          ]),
+          createBaseVNode("div", _hoisted_132, [
+            _cache[188] || (_cache[188] = createBaseVNode("span", null, "Comprador", -1)),
+            createBaseVNode("div", _hoisted_133, "$" + toDisplayString($options.fmt($options.totales.gran.comprador)), 1),
+            createBaseVNode("div", _hoisted_134, toDisplayString($options.pctTotal("comprador")) + "% del valor", 1)
+          ]),
+          createBaseVNode("div", _hoisted_135, [
+            _cache[189] || (_cache[189] = createBaseVNode("span", null, "Total operación", -1)),
+            createBaseVNode("div", _hoisted_136, "$" + toDisplayString($options.fmt($options.totales.gran.total)), 1),
+            createBaseVNode("div", _hoisted_137, toDisplayString($options.pctTotal("total")) + "% del valor", 1)
+          ])
+        ])) : createCommentVNode("", true)
+      ]),
+      createBaseVNode("div", _hoisted_138, [
+        createBaseVNode("button", {
+          type: "button",
+          class: "btn-imprimir",
+          disabled: !$options.canPrint,
+          onClick: _cache[74] || (_cache[74] = (...args) => $options.imprimir && $options.imprimir(...args))
+        }, " Imprimir / PDF ", 8, _hoisted_139)
+      ]),
+      $options.nc.notaPie ? (openBlock(), createElementBlock("p", _hoisted_140, toDisplayString($options.nc.notaPie), 1)) : createCommentVNode("", true)
+    ]);
+  }
+  const SimuladorVenta = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["render", _sfc_render$1], ["styles", [_style_0$1]], ["__scopeId", "data-v-cf739648"]]);
+  const _style_0 = "\n.sim-form-strip[data-v-0196cea1] { padding: 16px;\n}\n.strip-grid[data-v-0196cea1] { display: flex; flex-wrap: wrap; gap: 16px;\n}\n.strip-block[data-v-0196cea1] { flex: 1; min-width: 220px;\n}\n.strip-block-wide[data-v-0196cea1] { flex: 2; min-width: 320px;\n}\n.strip-label[data-v-0196cea1] { font-size: 12px; font-weight: 600; text-transform: uppercase; color: #6b7280; margin-bottom: 8px;\n}\n.grid[data-v-0196cea1] { display: grid; gap: 12px;\n}\n.grid-2[data-v-0196cea1] { grid-template-columns: repeat(2, 1fr);\n}\n.grid-3[data-v-0196cea1] { grid-template-columns: repeat(3, 1fr);\n}\n.field label[data-v-0196cea1] { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px;\n}\n.field input[data-v-0196cea1], .field select[data-v-0196cea1] { width: 100%; padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;\n}\n.checkbox-field[data-v-0196cea1] { display: flex; align-items: center; gap: 8px;\n}\n.label-hint[data-v-0196cea1] { font-size: 10px; color: #6b7280; margin-left: 4px;\n}\n.inline-badges[data-v-0196cea1] { display: flex; gap: 6px;\n}\n.badge[data-v-0196cea1] { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 10px; font-weight: 600;\n}\n.badge-warning[data-v-0196cea1] { background: #fef3c7; color: #92400e;\n}\n.summary-strip[data-v-0196cea1] { display: flex; gap: 12px; margin-top: 16px;\n}\n.summary-item[data-v-0196cea1] { flex: 1; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center;\n}\n.summary-item-highlight[data-v-0196cea1] { background: #374151; color: #fff;\n}\n.summary-item-value[data-v-0196cea1] { font-size: 18px; font-weight: 700;\n}\n.row-total[data-v-0196cea1] { background: #f3f4f6;\n}\n.row-grand-total[data-v-0196cea1] { background: #374151; color: #fff;\n}\n";
+  const _sfc_main = {
+    name: "SimuladorArriendo",
+    props: {
+      configuracion: { type: Object, default: () => ({}) },
+      logo: { type: String, default: "" }
+    },
+    data() {
+      const cfg = this.normalizarConfiguracion(this.configuracion);
+      return {
+        tipoInmuebleOpciones: [
+          { value: "vivienda", text: "Vivienda" },
+          { value: "local_comercial", text: "Local comercial" },
+          { value: "oficina", text: "Oficina" },
+          { value: "consultorio", text: "Consultorio" },
+          { value: "bodega", text: "Bodega" },
+          { value: "parqueadero", text: "Parqueadero" },
+          { value: "otro", text: "Otro" }
+        ],
+        seguroBaseOpciones: ["canon", "canon_mas_administracion", "canon_mas_iva", "canon_mas_administracion_mas_iva"],
+        ui: { showAdvanced: !!cfg.interfaz?.expandirOpcionesAvanzadasPorDefecto },
+        form: this.buildInitialForm(cfg)
+      };
+    },
+    computed: {
+      normalizedConfig() {
+        return this.normalizarConfiguracion(this.configuracion);
+      },
+      resolvedLogo() {
+        return this.logo || this.normalizedConfig.logo || "";
+      },
+      notaPie() {
+        return (this.configuracion.notaPie || "").trim();
+      },
+      grupoTributarioInmueble() {
+        return this.resolverGrupoTributarioInmueble();
+      },
+      mostrarBloqueIvaCanon() {
+        return this.grupoTributarioInmueble !== "vivienda";
+      },
+      ivaCanonActivo() {
+        const grupo = this.grupoTributarioInmueble;
+        if (grupo === "comercial") {
+          return this.form.regimenPropietario === "responsable_iva" || this.form.propietarioResponsableIva;
+        }
+        if (grupo === "validar") {
+          return this.form.aplicaIvaCanonManual || this.form.regimenPropietario === "responsable_iva";
+        }
+        return false;
+      },
+      calc() {
+        const ivaCanon = this.calcularIvaCanon();
+        const comision = this.calcularComision(ivaCanon);
+        const ivaComision = this.calcularIvaComision(comision);
+        const seguro = this.calcularSeguro(ivaCanon);
+        const retencionFuente = this.calcularRetencionFuente();
+        const retencionIca = this.calcularReteIca();
+        const retencionIva = this.calcularReteIva(ivaCanon);
+        const otrosDescuentos = this.calcularOtrosDescuentos();
+        const totalIngresos = safeMoney(this.form.canon + ivaCanon);
+        const descuentosSinBancarios = comision + ivaComision + seguro + retencionFuente + retencionIca + retencionIva + otrosDescuentos;
+        const baseGastosBancarios = Math.max(0, totalIngresos - descuentosSinBancarios);
+        const gastosBancarios = this.calcularGastosBancarios(baseGastosBancarios);
+        const totalDescuentos = safeMoney(descuentosSinBancarios + gastosBancarios);
+        return {
+          canon: safeMoney(this.form.canon),
+          administracion: this.form.tieneAdministracion ? safeMoney(this.form.valorAdministracion) : 0,
+          ivaCanon,
+          totalIngresos,
+          valorComision: comision,
+          ivaComision,
+          valorSeguro: seguro,
+          gastosBancarios,
+          retencionFuente,
+          retencionIca,
+          retencionIva,
+          otrosDescuentos,
+          totalDescuentos,
+          valorRentaRecibir: safeMoney(totalIngresos - totalDescuentos)
+        };
+      },
+      ingresosRows() {
+        const rows = [{ label: "Canon de arrendamiento", value: this.calc.canon }];
+        if (this.ivaCanonActivo) {
+          const pct = this.normalizedConfig.porcentajeIva;
+          rows.push({ label: `IVA ${pct}% sobre canon (inmueble comercial / régimen común)`, value: this.calc.ivaCanon });
+        }
+        return rows;
+      },
+      descuentosRows() {
+        const rows = [];
+        const pct = this.normalizedConfig.porcentajeIva;
+        if (this.form.comision.activa && this.calc.valorComision > 0) {
+          rows.push({ label: "Comisión inmobiliaria", value: this.calc.valorComision });
+          if (this.form.comision.aplicaIva && this.calc.ivaComision > 0) {
+            rows.push({ label: `IVA sobre comisión (${pct}%)`, value: this.calc.ivaComision });
+          }
+        }
+        if (this.form.aplicarSeguro && this.calc.valorSeguro > 0) {
+          rows.push({ label: "Seguro / póliza de arrendamiento", value: this.calc.valorSeguro });
+        }
+        if (this.form.aplicarGastosBancarios && this.calc.gastosBancarios > 0) {
+          const m = this.form.gastosBancarios.modalidad;
+          let gastoLabel = "Gastos bancarios";
+          if (m === "cuatro_por_mil") gastoLabel = "Gastos bancarios (4×1.000 s/ valor a girar)";
+          else if (m === "porcentaje") gastoLabel = `Gastos bancarios (${this.form.gastosBancarios.porcentaje}% s/ valor a girar)`;
+          rows.push({ label: gastoLabel, value: this.calc.gastosBancarios });
+        }
+        if (this.form.condicionesTributarias.aplicarRetencionFuente && this.calc.retencionFuente > 0) {
+          rows.push({ label: `Retención en la fuente (${this.form.retenciones.fuente.porcentaje}%) sobre arrendamiento`, value: this.calc.retencionFuente });
+        }
+        if (this.form.condicionesTributarias.aplicarRetencionIca && this.calc.retencionIca > 0) {
+          rows.push({ label: `ReteICA (${this.form.retenciones.ica.tarifaPorMil}/1000) sobre arrendamiento`, value: this.calc.retencionIca });
+        }
+        if (this.form.condicionesTributarias.aplicarRetencionIva && this.ivaCanonActivo && this.calc.retencionIva > 0) {
+          rows.push({ label: `Retención de IVA (${pct}%)`, value: this.calc.retencionIva });
+        }
+        return rows;
+      },
+      resultadoFilas() {
+        const len = Math.max(this.ingresosRows.length, this.descuentosRows.length);
+        return Array.from({ length: len }, (_, i) => ({
+          ingreso: this.ingresosRows[i] || null,
+          descuento: this.descuentosRows[i] || null
+        }));
+      },
+      errores() {
+        return this.validarFormulario();
+      },
+      canPrint() {
+        return this.errores.length === 0;
+      }
+    },
+    watch: {
+      configuracion: {
+        deep: true,
+        handler() {
+          this.syncFormWithConfig(this.normalizedConfig);
+        }
+      },
+      "form.tipoInmueble"() {
+        this.reiniciarCamposCondicionales();
+      },
+      "form.tieneAdministracion"() {
+        this.reiniciarCamposCondicionales();
+      },
+      "form.aplicarSeguro"() {
+        this.reiniciarCamposCondicionales();
+      },
+      "form.aplicarGastosBancarios"() {
+        this.reiniciarCamposCondicionales();
+      },
+      "form.condicionesTributarias.aplicarRetencionFuente"() {
+        this.reiniciarCamposCondicionales();
+      },
+      "form.condicionesTributarias.aplicarRetencionIca"() {
+        this.reiniciarCamposCondicionales();
+      },
+      "form.condicionesTributarias.aplicarRetencionIva"() {
+        this.reiniciarCamposCondicionales();
+      },
+      "form.regimenPropietario"(val) {
+        if (val === "responsable_iva") {
+          this.form.propietarioResponsableIva = true;
+          this.form.aplicaIvaCanonManual = true;
+        } else if (val === "no_responsable") {
+          this.form.propietarioResponsableIva = false;
+          this.form.aplicaIvaCanonManual = false;
+        }
+      },
+      "form.regimenArrendatario"(val) {
+        if (val === "responsable_iva") {
+          this.form.condicionesTributarias.aplicarRetencionFuente = true;
+          this.form.condicionesTributarias.aplicarRetencionIca = true;
+        } else if (val === "no_responsable") {
+          this.form.condicionesTributarias.aplicarRetencionFuente = false;
+          this.form.condicionesTributarias.aplicarRetencionIca = false;
+        }
+      }
+    },
+    methods: {
+      normalizarNumero(v, def2 = 0) {
+        const n = Number(v);
+        return Number.isFinite(n) ? Math.max(0, n) : def2;
+      },
+      safeMoney(v) {
+        return safeMoney(v);
+      },
+      normalizarConfiguracion(cfg) {
+        const c = cfg || {};
+        const bool = (key, override, def2) => override != null ? !!override : c[key] !== void 0 ? String(c[key]) === "1" : def2;
+        const porcentajeIva = this.normalizarNumero(c.porcentajeIva ?? c.valoresTributarios?.porcentajeIvaGeneral, 19);
+        const comisionPct = this.normalizarNumero(c.comision?.porcentaje ?? c.comisionTotalInmobiliaria, 9.5);
+        const comisionMin = this.normalizarNumero(c.comision?.valorMinimo ?? c.comisionMinimaInmobiliaria, 0);
+        const seguroPct = this.normalizarNumero(c.seguro?.porcentaje ?? c.seguroCanonArrendamiento, 2.5);
+        const gastosFijo = this.normalizarNumero(c.gastosBancarios?.valorFijo ?? c.costoBancarioFijo, 0);
+        const retFuentePct = this.normalizarNumero(c.retenciones?.fuente?.porcentaje ?? c.porcentajeRetencionFuente, 0);
+        const retIcaMil = this.normalizarNumero(c.retenciones?.ica?.tarifaPorMil ?? c.porcentajeRetencionIca, 0);
+        const retIvaPct = this.normalizarNumero(c.retenciones?.iva?.porcentaje ?? c.porcentajeRetencionIVA, 0);
+        return {
+          porcentajeIva,
+          logo: c.logo || "",
+          interfaz: { expandirOpcionesAvanzadasPorDefecto: false },
+          comision: {
+            activa: bool("comisionActiva", c.comision?.activa, true),
+            modalidad: c.comision?.modalidad || c.comisionModalidad || "porcentaje_con_minimo",
+            porcentaje: comisionPct,
+            valorMinimo: comisionMin,
+            aplicaIva: bool("comisionAplicaIva", c.comision?.aplicaIva, true)
+          },
+          administracion: {
+            activaPorDefecto: false,
+            incluirEnBaseComision: bool("incluirAdministracionEnBaseComision", c.administracion?.incluirEnBaseComision, true),
+            incluirEnBaseSeguro: bool("incluirAdministracionEnBaseSeguro", c.administracion?.incluirEnBaseSeguro, true)
+          },
+          seguro: {
+            activoPorDefecto: bool("seguroActivo", c.seguro?.activoPorDefecto, true),
+            modalidad: c.seguro?.modalidad || c.seguroModalidad || "porcentaje",
+            porcentaje: seguroPct,
+            valorFijo: this.normalizarNumero(c.seguro?.valorFijo ?? c.seguroValorFijo, 0),
+            base: c.seguro?.base || c.seguroBase || "canon_mas_administracion_mas_iva"
+          },
+          gastosBancarios: {
+            activosPorDefecto: bool("gastosBancariosActivos", c.gastosBancarios?.activosPorDefecto, true),
+            modalidad: c.gastosBancarios?.modalidad || c.gastosBancariosModalidad || "cuatro_por_mil",
+            porcentaje: this.normalizarNumero(c.gastosBancarios?.porcentaje, 4e-3),
+            valorFijo: gastosFijo,
+            base: c.gastosBancarios?.base || "canon_mas_administracion"
+          },
+          retenciones: {
+            fuente: {
+              activaPorDefecto: bool("retencionFuenteActiva", c.retenciones?.fuente?.activaPorDefecto, true),
+              porcentaje: retFuentePct
+            },
+            ica: {
+              activaPorDefecto: bool("retencionIcaActiva", c.retenciones?.ica?.activaPorDefecto, true),
+              tarifaPorMil: retIcaMil
+            },
+            iva: {
+              activaPorDefecto: bool("retencionIvaActiva", c.retenciones?.iva?.activaPorDefecto, false),
+              porcentaje: retIvaPct
+            }
+          }
+        };
+      },
+      buildInitialForm(cfg) {
+        return {
+          tipoInmueble: "vivienda",
+          canon: 0,
+          tieneAdministracion: !!cfg.administracion.activaPorDefecto,
+          valorAdministracion: 0,
+          incluirAdministracionEnBaseComision: !!cfg.administracion.incluirEnBaseComision,
+          incluirAdministracionEnBaseSeguro: !!cfg.administracion.incluirEnBaseSeguro,
+          regimenPropietario: "",
+          regimenArrendatario: "",
+          propietarioResponsableIva: false,
+          aplicaIvaCanonManual: false,
+          condicionesTributarias: {
+            aplicarRetencionFuente: !!cfg.retenciones.fuente.activaPorDefecto,
+            aplicarRetencionIca: !!cfg.retenciones.ica.activaPorDefecto,
+            aplicarRetencionIva: !!cfg.retenciones.iva.activaPorDefecto
+          },
+          retenciones: {
+            fuente: { porcentaje: this.normalizarNumero(cfg.retenciones.fuente.porcentaje) },
+            ica: { tarifaPorMil: this.normalizarNumero(cfg.retenciones.ica.tarifaPorMil) },
+            iva: { porcentaje: this.normalizarNumero(cfg.retenciones.iva.porcentaje) }
+          },
+          comision: {
+            activa: cfg.comision.activa !== false,
+            modalidad: cfg.comision.modalidad || "porcentaje_con_minimo",
+            porcentaje: this.normalizarNumero(cfg.comision.porcentaje),
+            valorMinimo: this.normalizarNumero(cfg.comision.valorMinimo),
+            aplicaIva: !!cfg.comision.aplicaIva
+          },
+          aplicarSeguro: !!cfg.seguro.activoPorDefecto,
+          seguro: {
+            modalidad: cfg.seguro.modalidad || "porcentaje",
+            porcentaje: this.normalizarNumero(cfg.seguro.porcentaje),
+            valorFijo: this.normalizarNumero(cfg.seguro.valorFijo),
+            base: cfg.seguro.base || "canon_mas_administracion_mas_iva"
+          },
+          aplicarGastosBancarios: !!cfg.gastosBancarios.activosPorDefecto,
+          gastosBancarios: {
+            modalidad: cfg.gastosBancarios.modalidad || "cuatro_por_mil",
+            porcentaje: this.normalizarNumero(cfg.gastosBancarios.porcentaje, 4e-3),
+            valorFijo: this.normalizarNumero(cfg.gastosBancarios.valorFijo),
+            base: cfg.gastosBancarios.base || "canon_mas_administracion"
+          },
+          mostrarOtrosDescuentos: false,
+          otrosDescuentos: []
+        };
+      },
+      syncFormWithConfig(cfg) {
+        this.form.incluirAdministracionEnBaseComision = !!cfg.administracion.incluirEnBaseComision;
+        this.form.incluirAdministracionEnBaseSeguro = !!cfg.administracion.incluirEnBaseSeguro;
+        this.form.comision.aplicaIva = !!cfg.comision.aplicaIva;
+      },
+      resolverGrupoTributarioInmueble() {
+        const inmueble = this.form.tipoInmueble;
+        const viviendas = ["vivienda", "parqueadero"];
+        const comerciales = ["local_comercial", "oficina", "consultorio", "bodega"];
+        if (viviendas.includes(inmueble)) return "vivienda";
+        if (comerciales.includes(inmueble)) return "comercial";
+        return "validar";
+      },
+      reiniciarCamposCondicionales() {
+      },
+      calcularBaseCanon() {
+        let base = this.form.canon;
+        if (this.form.tieneAdministracion) base += this.form.valorAdministracion;
+        return base;
+      },
+      calcularBaseSeguro(ivaCanon) {
+        const base = this.form.seguro.base || "canon";
+        let val = this.form.canon;
+        const admin = this.form.tieneAdministracion && this.form.incluirAdministracionEnBaseSeguro ? this.form.valorAdministracion : 0;
+        if (base === "canon") return val;
+        if (base === "canon_mas_administracion") return val + admin;
+        if (base === "canon_mas_iva") return val + ivaCanon;
+        if (base === "canon_mas_administracion_mas_iva") return val + admin + ivaCanon;
+        return val;
+      },
+      calcularBaseComision(ivaCanon) {
+        let base = this.form.canon;
+        if (this.form.incluirAdministracionEnBaseComision && this.form.tieneAdministracion) {
+          base += this.form.valorAdministracion;
+        }
+        return base;
+      },
+      calcularIvaCanon() {
+        if (!this.ivaCanonActivo || !this.form.canon) return 0;
+        const pct = this.normalizedConfig.porcentajeIva;
+        return safeMoney(this.form.canon * pct / 100);
+      },
+      calcularComision(ivaCanon) {
+        if (!this.form.comision.activa) return 0;
+        const base = this.calcularBaseComision(ivaCanon);
+        if (base <= 0) return 0;
+        const modalidad = this.form.comision.modalidad;
+        if (modalidad === "valor_fijo") return safeMoney(this.form.comision.valorMinimo);
+        const pct = safeMoney(base * this.form.comision.porcentaje / 100);
+        if (modalidad === "porcentaje_con_minimo") {
+          return Math.max(pct, safeMoney(this.form.comision.valorMinimo));
+        }
+        return pct;
+      },
+      calcularIvaComision(comision) {
+        if (!this.form.comision.aplicaIva || comision <= 0) return 0;
+        const pct = this.normalizedConfig.porcentajeIva;
+        return safeMoney(comision * pct / 100);
+      },
+      calcularSeguro(ivaCanon) {
+        if (!this.form.aplicarSeguro) return 0;
+        const base = this.calcularBaseSeguro(ivaCanon);
+        if (base <= 0) return 0;
+        if (this.form.seguro.modalidad === "valor_fijo") return safeMoney(this.form.seguro.valorFijo);
+        return safeMoney(base * this.form.seguro.porcentaje / 100);
+      },
+      calcularGastosBancarios(baseValorAGirar) {
+        if (!this.form.aplicarGastosBancarios) return 0;
+        const modalidad = this.form.gastosBancarios.modalidad;
+        if (modalidad === "valor_fijo") return safeMoney(this.form.gastosBancarios.valorFijo);
+        const base = Math.max(0, baseValorAGirar);
+        if (modalidad === "cuatro_por_mil") return safeMoney(base * 4e-3);
+        return safeMoney(base * this.form.gastosBancarios.porcentaje / 100);
+      },
+      calcularRetencionFuente() {
+        if (!this.form.condicionesTributarias.aplicarRetencionFuente || !this.form.canon) return 0;
+        return safeMoney(this.form.canon * this.form.retenciones.fuente.porcentaje / 100);
+      },
+      calcularReteIca() {
+        if (!this.form.condicionesTributarias.aplicarRetencionIca || !this.form.canon) return 0;
+        return safeMoney(this.form.canon * this.form.retenciones.ica.tarifaPorMil / 1e3);
+      },
+      calcularReteIva(ivaCanon) {
+        if (!this.form.condicionesTributarias.aplicarRetencionIva || !this.ivaCanonActivo) return 0;
+        const pct = this.normalizedConfig.porcentajeIva;
+        return safeMoney(ivaCanon * pct / 100);
+      },
+      calcularOtrosDescuentos() {
+        return this.form.otrosDescuentos?.reduce((acc, d) => acc + (d.valor || 0), 0) || 0;
+      },
+      validarFormulario() {
+        const errores = [];
+        if (!this.form.canon || this.form.canon <= 0) errores.push("El canon mensual debe ser mayor a cero.");
+        return errores;
+      },
+      formatInputMoney(v) {
+        if (!v) return "";
+        return String(Math.round(Number(v) || 0));
+      },
+      updateMoneyField(field, rawValue) {
+        const num = Number(String(rawValue).replace(/[^0-9]/g, "")) || 0;
+        const parts = field.split(".");
+        if (parts.length === 1) {
+          this.form[field] = num;
+        } else if (parts.length === 2) {
+          this.form[parts[0]][parts[1]] = num;
+        }
+      },
+      fmtMoney(v) {
+        return formatMoney(v);
+      },
+      calcularResumen() {
+        return {
+          canonMensual: this.calc.canon,
+          totalDescuentos: this.calc.totalDescuentos,
+          valorNeto: this.calc.valorRentaRecibir
+        };
+      },
+      seguroBaseLabel(base) {
+        const map = {
+          canon: "Canon",
+          canon_mas_administracion: "Canon + administración",
+          canon_mas_iva: "Canon + IVA sobre canon",
+          canon_mas_administracion_mas_iva: "Canon + administración + IVA sobre canon"
+        };
+        return map[base] || base;
+      },
+      buildPrintHtml() {
+        const logo = this.resolvedLogo ? `<img src="${this.resolvedLogo}" alt="Logo" class="print-logo" />` : "";
+        const fecha = (/* @__PURE__ */ new Date()).toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" });
+        const resumen = this.calcularResumen();
+        const filas = this.resultadoFilas.map((f) => `
+        <tr>
+          <td>${f.ingreso ? f.ingreso.label : ""}</td>
+          <td>${f.ingreso ? this.fmtMoney(f.ingreso.value) : ""}</td>
+          <td>${f.descuento ? f.descuento.label : ""}</td>
+          <td>${f.descuento ? this.fmtMoney(f.descuento.value) : ""}</td>
+        </tr>
+      `).join("");
+        return `
         <div class="print-root">
           <div class="print-header">
-            ${t}
+            ${logo}
             <div>
               <h1>Simulador de Arriendo</h1>
-              <p>Tipo de inmueble: ${((o=this.tipoInmuebleOpciones.find(n=>n.value===this.form.tipoInmueble))==null?void 0:o.text)||""}</p>
+              <p>Fecha: ${fecha}</p>
               <p>Canon: ${this.fmtMoney(this.calc.canon)}</p>
-              ${this.form.tieneAdministracion?`<p>Administración: ${this.fmtMoney(this.calc.administracion)}</p>`:""}
+              ${this.form.tieneAdministracion ? `<p>Administración: ${this.fmtMoney(this.calc.administracion)}</p>` : ""}
             </div>
           </div>
           <div class="print-summary">
-            <div class="print-card"><strong>Canon mensual</strong><span>${this.fmtMoney(e.canonMensual)}</span></div>
-            <div class="print-card"><strong>Total descuentos</strong><span>${this.fmtMoney(e.totalDescuentos)}</span></div>
-            <div class="print-card highlight"><strong>Valor neto aproximado a recibir</strong><span>${this.fmtMoney(e.valorNeto)}</span></div>
+            <div class="print-card"><strong>Canon mensual</strong><span>${this.fmtMoney(resumen.canonMensual)}</span></div>
+            <div class="print-card"><strong>Total descuentos</strong><span>${this.fmtMoney(resumen.totalDescuentos)}</span></div>
+            <div class="print-card highlight"><strong>Valor neto a recibir</strong><span>${this.fmtMoney(resumen.valorNeto)}</span></div>
           </div>
           <table>
-            <thead>
-              <tr>
-                <th>Ingresos</th>
-                <th>Valor</th>
-                <th>Descuentos</th>
-                <th>Valor</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Ingresos</th><th>Valor</th><th>Descuentos</th><th>Valor</th></tr></thead>
             <tbody>
-              ${i}
+              ${filas}
               <tr>
                 <td><strong>TOTAL INGRESOS</strong></td>
                 <td><strong>${this.fmtMoney(this.calc.totalIngresos)}</strong></td>
@@ -67,12 +9784,653 @@
             Esta simulación presenta valores aproximados con fines informativos. El resultado puede variar según las condiciones tributarias de las partes, la destinación del inmueble y las políticas comerciales configuradas por la inmobiliaria. Para confirmar la liquidación definitiva, valide la información con el asesor responsable.
           </p>
         </div>
-      `},imprimir(){if(!this.canPrint)return;const e=["body{font-family:Arial,sans-serif;color:#1f2937;padding:24px;margin:0;}",".print-header{display:flex;gap:16px;align-items:center;margin-bottom:20px;}",".print-logo{max-height:60px;}",".print-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}",".print-card{border:1px solid #e5e7eb;border-radius:8px;padding:12px;background:#f8fafc;display:flex;flex-direction:column;gap:6px;}",".highlight{background:#374151;color:#fff;}","table{width:100%;border-collapse:collapse;}","th,td{border:1px solid #e5e7eb;padding:8px;text-align:left;font-size:12px;}","th{background:#1f2937;color:#fff;}",".print-note{margin-top:16px;font-size:11px;color:#6b7280;}"].join(""),t=this.buildPrintHtml(),i=window.open("","_blank","width=960,height=720");i&&(i.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Simulador de Arriendo</title><style>${e}</style></head><body>${t}</body></html>`),i.document.close(),i.focus(),i.onload=()=>{i.print(),i.onafterprint=()=>i.close()})}}},el={class:"simulador-arriendo"},tl={class:"sim-layout"},il={class:"sim-form-strip card"},ol={class:"strip-grid"},nl={class:"strip-block strip-block-wide"},rl={class:"grid grid-3"},sl={class:"field"},al=["value"],ll={key:0,class:"field"},cl={for:"comisionPorcentaje"},dl={key:0,class:"label-hint"},ul={key:1,class:"label-hint"},fl={class:"field"},pl=["value"],ml={key:0,class:"inline-badges",style:{"margin-bottom":"8px"}},hl={class:"field checkbox-field"},gl={key:1,class:"field"},bl=["value"],vl={class:"grid grid-2"},_l={class:"field"},xl={class:"field"},yl={key:0,class:"strip-block strip-block-wide"},Cl={class:"toggle-list"},wl={key:0,class:"toggle-card"},Al={key:1,class:"toggle-card"},Il={key:2,class:"toggle-card"},Sl={class:"sim-results"},Ml={class:"card"},Tl={class:"table-wrapper results-table-wrapper"},Rl={class:"results-table"},jl={class:"results-cell-label"},El={class:"results-cell-value"},Ol={class:"results-cell-label"},Pl={class:"results-cell-value"},Nl={class:"row-total"},Fl={class:"row-grand-total"},Vl={class:"summary-strip"},Dl={class:"summary-item"},kl={class:"summary-item-value"},Bl={class:"summary-item"},zl={class:"summary-item-value"},Hl={class:"summary-item summary-item-highlight"},Ll={class:"summary-item-value"},Ul={class:"sim-actions-bottom"},Gl=["disabled"],Wl={key:0,class:"sim-nota-pie"};function Kl(e,t,i,o,n,r){return O(),F("div",el,[l("div",tl,[l("section",il,[l("div",ol,[l("section",nl,[l("div",rl,[l("div",sl,[t[12]||(t[12]=l("label",{for:"canon"},"Canon mensual",-1)),l("input",{id:"canon",value:r.formatInputMoney(n.form.canon),type:"text",inputmode:"numeric",placeholder:"0",onInput:t[0]||(t[0]=s=>r.updateMoneyField("canon",s.target.value))},null,40,al)]),n.form.comision.activa&&n.form.comision.modalidad!=="valor_fijo"?(O(),F("div",ll,[l("label",cl,[t[13]||(t[13]=te(" Comisión (%) ",-1)),n.form.comision.modalidad==="porcentaje_con_minimo"&&r.calc.valorComision>0?(O(),F("span",dl,I(r.calc.valorComision<=n.form.comision.valorMinimo?"→ aplica mínimo":`→ ${r.fmtMoney(r.calc.valorComision)}`),1)):n.form.comision.modalidad==="porcentaje"&&r.calc.valorComision>0?(O(),F("span",ul,"= "+I(r.fmtMoney(r.calc.valorComision)),1)):ie("",!0)]),Z(l("input",{id:"comisionPorcentaje","onUpdate:modelValue":t[1]||(t[1]=s=>n.form.comision.porcentaje=s),type:"number",min:"0",max:"100",step:"0.01"},null,512),[[Ti,n.form.comision.porcentaje,void 0,{number:!0}]])])):ie("",!0),l("div",fl,[t[14]||(t[14]=l("label",{for:"tipoInmueble"},"Tipo de inmueble",-1)),Z(l("select",{id:"tipoInmueble","onUpdate:modelValue":t[2]||(t[2]=s=>n.form.tipoInmueble=s)},[(O(!0),F(re,null,It(n.tipoInmuebleOpciones,s=>(O(),F("option",{key:s.value,value:s.value},I(s.text),9,pl))),128))],512),[[xo,n.form.tipoInmueble]])])]),r.grupoTributarioInmueble==="validar"?(O(),F("div",ml,[...t[15]||(t[15]=[l("span",{class:"badge badge-warning"},"IVA requiere validación manual",-1)])])):ie("",!0),l("div",hl,[l("label",null,[Z(l("input",{"onUpdate:modelValue":t[3]||(t[3]=s=>n.form.tieneAdministracion=s),type:"checkbox"},null,512),[[Yt,n.form.tieneAdministracion]]),t[16]||(t[16]=te(" ¿El inmueble tiene cuota de administración? ",-1))])]),n.form.tieneAdministracion?(O(),F("div",gl,[t[17]||(t[17]=l("label",{for:"valorAdministracion"},"Valor de la cuota de administración",-1)),l("input",{id:"valorAdministracion",value:r.formatInputMoney(n.form.valorAdministracion),type:"text",inputmode:"numeric",placeholder:"0",onInput:t[4]||(t[4]=s=>r.updateMoneyField("valorAdministracion",s.target.value))},null,40,bl)])):ie("",!0),l("div",vl,[l("div",_l,[t[19]||(t[19]=l("label",{for:"regimenPropietario"},"Régimen tributario del propietario",-1)),Z(l("select",{id:"regimenPropietario","onUpdate:modelValue":t[5]||(t[5]=s=>n.form.regimenPropietario=s)},[...t[18]||(t[18]=[l("option",{value:""},"— Sin seleccionar —",-1),l("option",{value:"no_responsable"},"Persona natural / No responsable de IVA",-1),l("option",{value:"responsable_iva"},"Responsable de IVA (Régimen Común)",-1)])],512),[[xo,n.form.regimenPropietario]])]),l("div",xl,[t[21]||(t[21]=l("label",{for:"regimenArrendatario"},"Régimen tributario del arrendatario",-1)),Z(l("select",{id:"regimenArrendatario","onUpdate:modelValue":t[6]||(t[6]=s=>n.form.regimenArrendatario=s)},[...t[20]||(t[20]=[l("option",{value:""},"— Sin seleccionar —",-1),l("option",{value:"no_responsable"},"Persona natural / No responsable de IVA",-1),l("option",{value:"responsable_iva"},"Responsable de IVA (Régimen Común)",-1)])],512),[[xo,n.form.regimenArrendatario]])])])]),r.mostrarBloqueIvaCanon?(O(),F("section",yl,[l("div",Cl,[r.grupoTributarioInmueble==="validar"?(O(),F("label",wl,[Z(l("input",{"onUpdate:modelValue":t[7]||(t[7]=s=>n.form.aplicaIvaCanonManual=s),type:"checkbox"},null,512),[[Yt,n.form.aplicaIvaCanonManual]]),t[22]||(t[22]=l("span",null,"¿Aplicar IVA sobre el canon manualmente?",-1))])):(O(),F("label",Al,[Z(l("input",{"onUpdate:modelValue":t[8]||(t[8]=s=>n.form.propietarioResponsableIva=s),type:"checkbox"},null,512),[[Yt,n.form.propietarioResponsableIva]]),t[23]||(t[23]=l("span",null,"¿El propietario es responsable de IVA?",-1))])),r.ivaCanonActivo?(O(),F("label",Il,[Z(l("input",{"onUpdate:modelValue":t[9]||(t[9]=s=>n.form.condicionesTributarias.aplicarRetencionIva=s),type:"checkbox"},null,512),[[Yt,n.form.condicionesTributarias.aplicarRetencionIva]]),t[24]||(t[24]=l("span",null,"¿Aplicar retención de IVA?",-1))])):ie("",!0)])])):ie("",!0)])]),l("section",Sl,[l("section",Ml,[l("div",Tl,[l("table",Rl,[t[28]||(t[28]=l("thead",null,[l("tr",null,[l("th",{colspan:"2"},"INGRESOS"),l("th",{colspan:"2"},"EGRESOS")])],-1)),l("tbody",null,[(O(!0),F(re,null,It(r.resultadoFilas,(s,a)=>(O(),F("tr",{key:a},[l("td",jl,I(s.ingreso?s.ingreso.label:""),1),l("td",El,I(s.ingreso?r.fmtMoney(s.ingreso.value):""),1),l("td",Ol,I(s.descuento?s.descuento.label:""),1),l("td",Pl,I(s.descuento?r.fmtMoney(s.descuento.value):""),1)]))),128)),l("tr",Nl,[t[25]||(t[25]=l("td",null,[l("strong",null,"TOTAL INGRESOS")],-1)),l("td",null,[l("strong",null,I(r.fmtMoney(r.calc.totalIngresos)),1)]),t[26]||(t[26]=l("td",null,[l("strong",null,"TOTAL EGRESOS")],-1)),l("td",null,[l("strong",null,I(r.fmtMoney(r.calc.totalDescuentos)),1)])]),l("tr",Fl,[t[27]||(t[27]=l("td",{colspan:"3"},[l("strong",null,"VALOR TOTAL RENTA A RECIBIR POR EL PROPIETARIO")],-1)),l("td",null,[l("strong",null,I(r.fmtMoney(r.calc.valorRentaRecibir)),1)])])])])])]),l("div",Vl,[l("div",Dl,[t[29]||(t[29]=l("span",{class:"summary-item-label"},"Canon mensual",-1)),l("strong",kl,I(r.fmtMoney(r.calc.canon)),1)]),l("div",Bl,[t[30]||(t[30]=l("span",{class:"summary-item-label"},"Total descuentos",-1)),l("strong",zl,I(r.fmtMoney(r.calc.totalDescuentos)),1)]),l("div",Hl,[t[31]||(t[31]=l("span",{class:"summary-item-label"},"Valor neto a recibir",-1)),l("strong",Ll,I(r.fmtMoney(r.calc.valorRentaRecibir)),1)])]),l("div",Ul,[l("button",{type:"button",class:"btn btn-secondary",onClick:t[10]||(t[10]=(...s)=>r.limpiarFormulario&&r.limpiarFormulario(...s))},"Limpiar simulación"),l("button",{type:"button",class:"btn btn-primary",disabled:!r.canPrint,onClick:t[11]||(t[11]=(...s)=>r.imprimir&&r.imprimir(...s))},"Imprimir / PDF",8,Gl)]),r.notaPie?(O(),F("p",Wl,I(r.notaPie),1)):ie("",!0)])])])}const $l=yo(Qa,[["render",Kl],["styles",[Xa]],["__scopeId","data-v-0d4ca615"]]),ql=".sim-section{margin-bottom:4px}.form-group--inline{display:flex;align-items:center}.toggle-label{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:400!important}.toggle-input{width:auto!important;height:16px;cursor:pointer}.toggle-text{font-size:13px;color:#374151}.sim-section-title{font-size:.95rem;font-weight:700;color:var(--sim-primary, #374151);margin:0 0 10px;padding-bottom:4px;border-bottom:1px solid #e5e7eb}.sub-input{margin-top:8px;padding:8px;background:#f9fafb;border-radius:4px;border:1px solid #e5e7eb}.sub-input label{font-size:12px;color:#6b7280;margin-bottom:4px}.has-error input,input.input-error{border-color:#dc2626!important}.field-error{display:block;font-size:11px;color:#dc2626;margin-top:3px}.row-iva td{color:#6b7280;font-style:italic;font-size:12px}.row-separator td{height:8px;border:none!important;background:transparent!important}.badge{display:inline-block;padding:1px 6px;border-radius:10px;font-size:10px;font-weight:600;margin-left:4px;vertical-align:middle}.badge-warning{background:#fef3c7;color:#92400e}.badge-danger{background:#fee2e2;color:#991b1b}.summary-cards{display:flex;gap:12px;margin:20px 0 16px;flex-wrap:wrap}.summary-card{flex:1 1 160px;padding:14px 16px;border-radius:8px;border:1px solid #e2e8f0}.card-vendedor{background:#f9fafb;border-color:#9ca3af}.card-comprador{background:#f3f4f6;border-color:#6b7280}.card-operacion{background:#e5e7eb;border-color:#4b5563}.card-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:4px}.card-amount{font-size:1.15rem;font-weight:700;color:#111827;line-height:1.2}.card-sub{font-size:11px;color:#6b7280;margin-top:4px}@media(max-width:480px){.summary-cards{flex-direction:column}.summary-card{flex:none}}.dist-avanzada{margin-bottom:16px}.dist-toggle{display:flex;align-items:center;gap:8px;width:100%;background:none;border:1px solid #e5e7eb;border-radius:4px;padding:7px 12px;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;text-align:left;transition:background .15s}.dist-toggle:hover{background:#f3f4f6}.dist-body{border:1px solid #e5e7eb;border-top:none;border-radius:0 0 4px 4px;padding:12px;background:#fafafa}.dist-desc{font-size:11px;color:#9ca3af;margin-bottom:10px}.dist-table th{padding:6px 8px}.dist-table td{padding:4px 8px}.dist-input{width:64px!important;padding:3px 6px!important;font-size:12px!important;text-align:center}",Jl={name:"SimuladorVenta",props:{configuracion:{type:Object,default:()=>({})},logo:{type:String,default:""}},data(){return{valorInmueble:0,vendedorJuridico:0,cancelacionHipotecaSinCuantia:0,constitucionHipotecaComprador:0,cancelacionAfectacionVendedor:0,constitucionAfectacionComprador:0,hipotecavendedor:0,hipotecacomprador:0,incluirComision:!0,mostrarDistribucionAvanzada:!1,distribuciones:{derechosNotariales:{vendedor:50,comprador:50},retencionFuente:{vendedor:100,comprador:0},otrosGastos:{vendedor:50,comprador:50},cancelacionHipoteca:{vendedor:100,comprador:0},constitucionHipoteca:{vendedor:0,comprador:100},cancelacionAfectacion:{vendedor:100,comprador:0},constitucionAfectacion:{vendedor:0,comprador:100},impuestoDepartamental:{vendedor:0,comprador:100},derechosRegistro:{vendedor:0,comprador:100},impuestoTimbre:{vendedor:50,comprador:50},comision:{vendedor:100,comprador:0}}}},created(){var t;const e=((t=this.configuracion)==null?void 0:t.distribuciones)??{};Object.keys(this.distribuciones).forEach(i=>{if(e[i]&&typeof e[i].vendedor=="number"){const o=Math.min(100,Math.max(0,Number(e[i].vendedor)));this.distribuciones[i]={vendedor:o,comprador:100-o}}})},computed:{nc(){var t;const e=this.configuracion??{};return{porcentajeGastosNotariales:Number(e.porcentajeGastosNotariales??.3),valorConstitucionAfectacionViviendaFamiliar:Number(e.valorConstitucionAfectacionViviendaFamiliar??57600),porcentajeIva:Number(e.porcentajeIva??19),porcentajeConstitucionHipoteca:Number(e.porcentajeConstitucionHipoteca??.3),portcentajeBeneficiencia:Number(e.portcentajeBeneficiencia??1),portcentajeRegistroCompra:Number(e.portcentajeRegistroCompra??.91),valorbeneficienciaConstitucionHipoteca:Number(e.valorbeneficienciaConstitucionHipoteca??185600),porcentajeTimbre:Number(e.porcentajeTimbre??1.5),valorMinimoAplicaImpuestoTimbre:Number(e.valorMinimoAplicaImpuestoTimbre??9413e5),porcentajeRetencionFuente:Number(e.porcentajeRetencionFuente??1),otrosGastos:Number(e.otrosGastos??2e5),labelImpuestoDepartamental:e.labelImpuestoDepartamental??"Beneficencia",impuestoTimbreRangos:((t=e.impuestoTimbre)==null?void 0:t.rangos)??null,comisionHabilitada:String(e.comisionHabilitada)==="1",porcentajeComision:Number(e.porcentajeComision??3),comisionMinima:Number(e.comisionMinima??0),labelComision:e.labelComision||"Comisión inmobiliaria/asesor"}},errors(){const e={};return this.valorInmueble<0&&(e.valorInmueble="El valor debe ser mayor a cero."),this.cancelacionHipotecaSinCuantia===1&&this.hipotecavendedor<=0&&(e.hipotecavendedor="Ingrese el valor de la hipoteca."),this.constitucionHipotecaComprador===1&&this.hipotecacomprador<=0&&(e.hipotecacomprador="Ingrese el valor de la hipoteca."),e},lineasCalculo(){const e=this.nc,t=this.valorInmueble,i=[],o=(a,c)=>{const p=this.distribuciones[c]??{vendedor:50},f=Number(p.vendedor??50),h=Math.round(a*f/100);return{vendedor:h,comprador:Math.round(a-h)}},n=(a,c,p,f,h,A,S,D="calculado")=>{const j=o(h,S),Y=A>0?Math.round(A*e.porcentajeIva/100):0,H=o(Y,S);i.push({id:a,label:c,labelCorto:p,categoria:f,vendedor:j.vendedor,comprador:j.comprador,ivaVendedor:H.vendedor,ivaComprador:H.comprador,estado:D})},r=t*e.porcentajeGastosNotariales/100;if(n("derechosNotariales",`Gastos compraventa notariales (${e.porcentajeGastosNotariales}%)`,"gastos notariales","notaria",r,r,"derechosNotariales"),this.vendedorJuridico===0&&n("retencionFuente",`Retención en la fuente (${e.porcentajeRetencionFuente}%) — persona natural`,"retención","retencion",t*e.porcentajeRetencionFuente/100,0,"retencionFuente"),n("otrosGastos","Otros gastos (copias, folios, certificados)","otros gastos","notaria",e.otrosGastos,e.otrosGastos,"otrosGastos"),this.cancelacionHipotecaSinCuantia===1&&this.hipotecavendedor>0){const a=this.hipotecavendedor*e.porcentajeConstitucionHipoteca/100;n("hipotecaVendedor",`Cancelación hipoteca (${e.porcentajeConstitucionHipoteca}% s/ $${this.fmtShort(this.hipotecavendedor)})`,"cancelación hipoteca","actos_vendedor",a,a,"cancelacionHipoteca")}if(this.constitucionHipotecaComprador===1&&this.hipotecacomprador>0){const a=this.hipotecacomprador*e.porcentajeConstitucionHipoteca/100;n("hipotecaComprador",`Constitución hipoteca (${e.porcentajeConstitucionHipoteca}% s/ $${this.fmtShort(this.hipotecacomprador)})`,"constitución hipoteca","actos_comprador",a,a,"constitucionHipoteca")}if(this.cancelacionAfectacionVendedor===1&&n("afectacionVendedor","Cancelación afectación vivienda familiar","cancelación afectación","actos_vendedor",e.valorConstitucionAfectacionViviendaFamiliar,e.valorConstitucionAfectacionViviendaFamiliar,"cancelacionAfectacion"),this.constitucionAfectacionComprador===1&&n("afectacionComprador","Constitución afectación vivienda familiar","constitución afectación","actos_comprador",e.valorConstitucionAfectacionViviendaFamiliar,e.valorConstitucionAfectacionViviendaFamiliar,"constitucionAfectacion"),e.comisionHabilitada&&this.incluirComision&&t>0){const a=t*e.porcentajeComision/100,c=e.comisionMinima>0?Math.max(e.comisionMinima,a):a;n("comision",`${e.labelComision} (${e.porcentajeComision}%${e.comisionMinima>0?", mín. $"+this.fmtShort(e.comisionMinima):""})`,e.labelComision.toLowerCase(),"comision",c,c,"comision")}n("beneficencia",`${e.labelImpuestoDepartamental} (${e.portcentajeBeneficiencia}%)`,e.labelImpuestoDepartamental.toLowerCase(),"impuesto_departamental",t*e.portcentajeBeneficiencia/100,0,"impuestoDepartamental"),this.constitucionHipotecaComprador===1&&e.valorbeneficienciaConstitucionHipoteca>0&&n("beneficenciaHipoteca",`${e.labelImpuestoDepartamental} — constitución hipoteca`,e.labelImpuestoDepartamental.toLowerCase(),"impuesto_departamental",e.valorbeneficienciaConstitucionHipoteca,0,"impuestoDepartamental"),n("registroCompra",`Derechos de registro (${e.portcentajeRegistroCompra}%)`,"registro","registro",t*e.portcentajeRegistroCompra/100,0,"derechosRegistro");const s=this._calcTimbre(t,e);return s>0&&n("impuestoTimbre",`Impuesto de timbre (${e.porcentajeTimbre}%)`,"timbre","impuesto_timbre",s,0,"impuestoTimbre"),i},lineasNotariales(){return this.lineasCalculo.filter(e=>["notaria","retencion","actos_vendedor","actos_comprador"].includes(e.categoria))},lineasComision(){return this.lineasCalculo.filter(e=>e.categoria==="comision")},lineasImpuestos(){return this.lineasCalculo.filter(e=>["impuesto_departamental","registro","impuesto_timbre"].includes(e.categoria))},distribucionesEditables(){const e=[{key:"derechosNotariales",label:"Derechos notariales compraventa"},{key:"retencionFuente",label:"Retención en la fuente"},{key:"otrosGastos",label:"Otros gastos (copias, folios)"},{key:"cancelacionHipoteca",label:"Cancelación de hipoteca"},{key:"constitucionHipoteca",label:"Constitución de hipoteca"},{key:"cancelacionAfectacion",label:"Cancelación afectación vivienda familiar"},{key:"constitucionAfectacion",label:"Constitución afectación vivienda familiar"},{key:"impuestoDepartamental",label:this.nc.labelImpuestoDepartamental},{key:"derechosRegistro",label:"Derechos de registro"},{key:"impuestoTimbre",label:"Impuesto de timbre"}];return this.nc.comisionHabilitada&&e.push({key:"comision",label:this.nc.labelComision}),e},comisionCalculada(){const e=this.nc;if(!e.comisionHabilitada||!this.valorInmueble)return 0;const t=this.valorInmueble*e.porcentajeComision/100;return Math.round(e.comisionMinima>0?Math.max(e.comisionMinima,t):t)},totales(){const e=(a,c)=>a.reduce((p,f)=>p+f[c],0),t=e(this.lineasNotariales,"vendedor")+e(this.lineasNotariales,"ivaVendedor"),i=e(this.lineasNotariales,"comprador")+e(this.lineasNotariales,"ivaComprador"),o=e(this.lineasComision,"vendedor")+e(this.lineasComision,"ivaVendedor"),n=e(this.lineasComision,"comprador")+e(this.lineasComision,"ivaComprador"),r=e(this.lineasImpuestos,"vendedor"),s=e(this.lineasImpuestos,"comprador");return{notariales:{vendedor:Math.round(t),comprador:Math.round(i),total:Math.round(t+i)},comision:{vendedor:Math.round(o),comprador:Math.round(n),total:Math.round(o+n)},impuestos:{vendedor:Math.round(r),comprador:Math.round(s),total:Math.round(r+s)},gran:{vendedor:Math.round(t+o+r),comprador:Math.round(i+n+s),total:Math.round(t+i+o+n+r+s)}}},pctTotal(){return this.valorInmueble?(this.totales.gran.total/this.valorInmueble*100).toFixed(2).replace(".",","):"0,00"}},methods:{distribuirValor(e,t){const i=Number((t==null?void 0:t.vendedor)??50),o=Math.round(e*i/100);return{vendedor:o,comprador:Math.round(e-o)}},actualizarDistribucion(e,t,i){const o=Math.min(100,Math.max(0,Number(i)||0));t==="vendedor"?this.distribuciones[e]={vendedor:o,comprador:100-o}:this.distribuciones[e]={comprador:o,vendedor:100-o}},_calcTimbre(e,t){if(t.impuestoTimbreRangos&&Array.isArray(t.impuestoTimbreRangos)&&t.impuestoTimbreRangos.length){let i=0,o=0;for(const n of t.impuestoTimbreRangos){if(e<=o)break;const r=n.hasta??1/0,s=Math.min(e,r)-o;s>0&&(i+=s*(n.porcentaje/100)),o=r}return Math.round(i)}return e>=t.valorMinimoAplicaImpuestoTimbre?Math.round(e*t.porcentajeTimbre/100):0},fmt(e){return new Intl.NumberFormat("es-CO",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(e)||0)},fmtShort(e){return new Intl.NumberFormat("es-CO",{minimumFractionDigits:0,maximumFractionDigits:0}).format(Number(e)||0)},imprimir(){var f;const e=((f=this.$refs.tabla)==null?void 0:f.outerHTML)??"",t=this.logo?`<img src="${this.logo}" style="max-height:56px;margin-bottom:10px;display:block;">`:"",i=new Date().toLocaleDateString("es-CO",{year:"numeric",month:"long",day:"numeric"}),o=[`<dt>Valor del inmueble:</dt><dd>$${this.fmt(this.valorInmueble)}</dd>`,`<dt>Vendedor persona jurídica:</dt><dd>${this.vendedorJuridico?"Sí":"No"}</dd>`,this.cancelacionHipotecaSinCuantia?`<dt>Hipoteca vendedor:</dt><dd>$${this.fmt(this.hipotecavendedor)}</dd>`:"",this.cancelacionAfectacionVendedor?"<dt>Afectación vendedor:</dt><dd>Sí</dd>":"",this.constitucionHipotecaComprador?`<dt>Hipoteca comprador:</dt><dd>$${this.fmt(this.hipotecacomprador)}</dd>`:"",this.constitucionAfectacionComprador?"<dt>Afectación comprador:</dt><dd>Sí</dd>":"",this.nc.comisionHabilitada&&this.incluirComision?`<dt>${this.nc.labelComision}:</dt><dd>$${this.fmt(this.comisionCalculada)}</dd>`:""].filter(Boolean).join(""),n=["body{font-family:Arial,sans-serif;font-size:11px;padding:20px;color:#111827;margin:0;}","img{max-height:56px;}",".ph{margin-bottom:14px;border-bottom:2px solid #374151;padding-bottom:8px;}","h2{color:#1f2937;margin:4px 0 2px;font-size:14px;}",".pd{color:#6b7280;font-size:10px;}",".pi{margin-bottom:14px;background:#f3f4f6;padding:10px;border-radius:4px;}",".pi h3{color:#374151;font-size:11px;margin:0 0 6px;}","dl{display:grid;grid-template-columns:1fr 1fr;gap:2px 16px;}","dt{font-weight:bold;color:#374151;}dd{margin:0;}","table{width:100%;border-collapse:collapse;margin-bottom:14px;}","th{background:#1f2937;color:#fff;padding:6px 8px;text-align:left;font-size:11px;}","td{padding:5px 8px;border-bottom:1px solid #e5e7eb;font-size:11px;}","tr:nth-child(even) td{background:#f9fafb;}",".row-iva td{color:#6b7280;font-style:italic;}",".row-separator td{height:6px;border:none;background:transparent!important;}",".row-total td{background:#e5e7eb!important;font-weight:bold;}",".row-grand-total td{background:#1f2937!important;color:#fff;font-weight:bold;}",".disc{font-size:9px;color:#9ca3af;margin-top:12px;border-top:1px solid #e5e7eb;padding-top:8px;}","@media print{*{-webkit-print-color-adjust:exact;color-adjust:exact;print-color-adjust:exact;}}"].join(`
-`),r=`
-        <div class="ph">${t}<h2>Simulación de Gastos — Compraventa</h2><div class="pd">${i}</div></div>
-        <div class="pi"><h3>Datos ingresados</h3><dl>${o}</dl></div>
-        ${e}
-        <p class="disc">Valores aproximados con fines informativos. Los montos definitivos pueden variar
-        según la notaría, la Superintendencia de Notariado y Registro, la Secretaría de Hacienda
-        departamental y las condiciones particulares del negocio. Consulte con un profesional jurídico.</p>
-      `,s=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Simulación de Gastos</title><style>${n}</style></head><body>${r}</body></html>`,a=new Blob([s],{type:"text/html;charset=utf-8"}),c=URL.createObjectURL(a),p=window.open(c,"_blank");p?p.addEventListener("load",function(){p.print(),URL.revokeObjectURL(c)}):URL.revokeObjectURL(c)}}},Yl={class:"simulador-venta"},Xl={class:"sim-section"},Zl={class:"row sim-controls"},Ql={class:"col-12"},ec={key:0,class:"field-error"},tc={class:"sim-section"},ic={class:"row sim-controls"},oc={class:"col-4"},nc={class:"form-group"},rc={class:"radio-group"},sc={class:"col-4"},ac={class:"form-group"},lc={class:"radio-group"},cc={key:0,class:"sub-input"},dc={key:0,class:"field-error"},uc={class:"col-4"},fc={class:"form-group"},pc={class:"radio-group"},mc={key:0,class:"sim-section"},hc={class:"sim-section-title"},gc={class:"row sim-controls"},bc={class:"col-12"},vc={class:"form-group form-group--inline"},_c={class:"toggle-label"},xc={class:"toggle-text"},yc={key:0},Cc={class:"sim-section"},wc={class:"row sim-controls"},Ac={class:"col-6"},Ic={class:"form-group"},Sc={class:"radio-group"},Mc={key:0,class:"sub-input"},Tc={key:0,class:"field-error"},Rc={class:"col-6"},jc={class:"form-group"},Ec={class:"radio-group"},Oc={class:"dist-avanzada"},Pc={xmlns:"http://www.w3.org/2000/svg",width:"12",height:"12",viewBox:"0 0 24 24",fill:"none",stroke:"currentColor","stroke-width":"2.5","stroke-linecap":"round","stroke-linejoin":"round"},Nc={key:0,points:"6 9 12 15 18 9"},Fc={key:1,points:"18 15 12 9 6 15"},Vc={key:0,class:"dist-body"},Dc={class:"table-wrapper"},kc={class:"dist-table"},Bc=["value","onChange"],zc=["value","onChange"],Hc={class:"table-wrapper"},Lc={ref:"tabla"},Uc={key:0,class:"badge badge-warning"},Gc={key:1,class:"badge badge-danger"},Wc={key:0,class:"row-iva"},Kc={class:"row-total"},$c={key:0,class:"row-iva"},qc={class:"row-total"},Jc={class:"row-total"},Yc={class:"row-grand-total"},Xc={key:1,class:"summary-cards"},Zc={class:"summary-card card-vendedor"},Qc={class:"card-amount"},ed={class:"card-sub"},td={class:"summary-card card-comprador"},id={class:"card-amount"},od={class:"card-sub"},nd={class:"summary-card card-operacion"},rd={class:"card-amount"},sd={class:"card-sub"},ad={xmlns:"http://www.w3.org/2000/svg",width:"14",height:"14",viewBox:"0 0 24 24",fill:"none",stroke:"currentColor","stroke-width":"2","stroke-linecap":"round","stroke-linejoin":"round",style:{"vertical-align":"middle","margin-right":"5px"}};function ld(e,t,i,o,n,r){return O(),F("div",Yl,[l("div",Xl,[l("div",Zl,[l("div",Ql,[l("div",{class:_t(["form-group",{"has-error":r.errors.valorInmueble}])},[l("label",null,[t[16]||(t[16]=l("strong",null,"Valor del inmueble:",-1)),te(" $"+I(r.fmt(n.valorInmueble)),1)]),Z(l("input",{type:"number","onUpdate:modelValue":t[0]||(t[0]=s=>n.valorInmueble=s),min:"0",placeholder:"0"},null,512),[[Ti,n.valorInmueble,void 0,{number:!0}]]),r.errors.valorInmueble?(O(),F("span",ec,I(r.errors.valorInmueble),1)):ie("",!0)],2)])])]),t[51]||(t[51]=l("hr",null,null,-1)),l("div",tc,[t[26]||(t[26]=l("h3",{class:"sim-section-title"},"Vendedor",-1)),l("div",ic,[l("div",oc,[l("div",nc,[t[19]||(t[19]=l("label",null,[l("strong",null,"¿El vendedor es persona jurídica?")],-1)),l("div",rc,[l("label",null,[Z(l("input",{type:"radio","onUpdate:modelValue":t[1]||(t[1]=s=>n.vendedorJuridico=s),value:1},null,512),[[Ve,n.vendedorJuridico,void 0,{number:!0}]]),t[17]||(t[17]=te(" SÍ",-1))]),l("label",null,[Z(l("input",{type:"radio","onUpdate:modelValue":t[2]||(t[2]=s=>n.vendedorJuridico=s),value:0},null,512),[[Ve,n.vendedorJuridico,void 0,{number:!0}]]),t[18]||(t[18]=te(" NO",-1))])])])]),l("div",sc,[l("div",ac,[t[22]||(t[22]=l("label",null,[l("strong",null,"¿Cancelación de hipoteca?")],-1)),l("div",lc,[l("label",null,[Z(l("input",{type:"radio","onUpdate:modelValue":t[3]||(t[3]=s=>n.cancelacionHipotecaSinCuantia=s),value:1},null,512),[[Ve,n.cancelacionHipotecaSinCuantia,void 0,{number:!0}]]),t[20]||(t[20]=te(" SÍ",-1))]),l("label",null,[Z(l("input",{type:"radio","onUpdate:modelValue":t[4]||(t[4]=s=>n.cancelacionHipotecaSinCuantia=s),value:0},null,512),[[Ve,n.cancelacionHipotecaSinCuantia,void 0,{number:!0}]]),t[21]||(t[21]=te(" NO",-1))])]),n.cancelacionHipotecaSinCuantia===1?(O(),F("div",cc,[l("label",null,"Valor hipoteca: $"+I(r.fmt(n.hipotecavendedor)),1),Z(l("input",{type:"number","onUpdate:modelValue":t[5]||(t[5]=s=>n.hipotecavendedor=s),min:"0",placeholder:"0",class:_t({"input-error":r.errors.hipotecavendedor})},null,2),[[Ti,n.hipotecavendedor,void 0,{number:!0}]]),r.errors.hipotecavendedor?(O(),F("span",dc,I(r.errors.hipotecavendedor),1)):ie("",!0)])):ie("",!0)])]),l("div",uc,[l("div",fc,[t[25]||(t[25]=l("label",null,[l("strong",null,"¿Cancelación afectación vivienda familiar?")],-1)),l("div",pc,[l("label",null,[Z(l("input",{type:"radio","onUpdate:modelValue":t[6]||(t[6]=s=>n.cancelacionAfectacionVendedor=s),value:1},null,512),[[Ve,n.cancelacionAfectacionVendedor,void 0,{number:!0}]]),t[23]||(t[23]=te(" SÍ",-1))]),l("label",null,[Z(l("input",{type:"radio","onUpdate:modelValue":t[7]||(t[7]=s=>n.cancelacionAfectacionVendedor=s),value:0},null,512),[[Ve,n.cancelacionAfectacionVendedor,void 0,{number:!0}]]),t[24]||(t[24]=te(" NO",-1))])])])])])]),r.nc.comisionHabilitada?(O(),F("div",mc,[l("h3",hc,I(r.nc.labelComision||"Comisión inmobiliaria / asesor"),1),l("div",gc,[l("div",bc,[l("div",vc,[l("label",_c,[Z(l("input",{type:"checkbox","onUpdate:modelValue":t[8]||(t[8]=s=>n.incluirComision=s),class:"toggle-input"},null,512),[[Yt,n.incluirComision]]),l("span",xc,[t[27]||(t[27]=te(" Incluir comisión ",-1)),l("strong",null,I(r.nc.porcentajeComision)+"%",1),r.nc.comisionMinima>0?(O(),F("span",yc," (mínimo $"+I(r.fmtShort(r.nc.comisionMinima))+")",1)):ie("",!0),t[28]||(t[28]=te(" — actualmente ",-1)),l("strong",null,"$"+I(r.fmt(r.comisionCalculada)),1)])])])])])])):ie("",!0),l("div",Cc,[t[35]||(t[35]=l("h3",{class:"sim-section-title"},"Comprador",-1)),l("div",wc,[l("div",Ac,[l("div",Ic,[t[31]||(t[31]=l("label",null,[l("strong",null,"¿Constitución de hipoteca?")],-1)),l("div",Sc,[l("label",null,[Z(l("input",{type:"radio","onUpdate:modelValue":t[9]||(t[9]=s=>n.constitucionHipotecaComprador=s),value:1},null,512),[[Ve,n.constitucionHipotecaComprador,void 0,{number:!0}]]),t[29]||(t[29]=te(" SÍ",-1))]),l("label",null,[Z(l("input",{type:"radio","onUpdate:modelValue":t[10]||(t[10]=s=>n.constitucionHipotecaComprador=s),value:0},null,512),[[Ve,n.constitucionHipotecaComprador,void 0,{number:!0}]]),t[30]||(t[30]=te(" NO",-1))])]),n.constitucionHipotecaComprador===1?(O(),F("div",Mc,[l("label",null,"Valor hipoteca: $"+I(r.fmt(n.hipotecacomprador)),1),Z(l("input",{type:"number","onUpdate:modelValue":t[11]||(t[11]=s=>n.hipotecacomprador=s),min:"0",placeholder:"0",class:_t({"input-error":r.errors.hipotecacomprador})},null,2),[[Ti,n.hipotecacomprador,void 0,{number:!0}]]),r.errors.hipotecacomprador?(O(),F("span",Tc,I(r.errors.hipotecacomprador),1)):ie("",!0)])):ie("",!0)])]),l("div",Rc,[l("div",jc,[t[34]||(t[34]=l("label",null,[l("strong",null,"¿Constitución afectación vivienda familiar?")],-1)),l("div",Ec,[l("label",null,[Z(l("input",{type:"radio","onUpdate:modelValue":t[12]||(t[12]=s=>n.constitucionAfectacionComprador=s),value:1},null,512),[[Ve,n.constitucionAfectacionComprador,void 0,{number:!0}]]),t[32]||(t[32]=te(" SÍ",-1))]),l("label",null,[Z(l("input",{type:"radio","onUpdate:modelValue":t[13]||(t[13]=s=>n.constitucionAfectacionComprador=s),value:0},null,512),[[Ve,n.constitucionAfectacionComprador,void 0,{number:!0}]]),t[33]||(t[33]=te(" NO",-1))])])])])])]),l("div",Oc,[l("button",{type:"button",class:"dist-toggle",onClick:t[14]||(t[14]=s=>n.mostrarDistribucionAvanzada=!n.mostrarDistribucionAvanzada)},[(O(),F("svg",Pc,[n.mostrarDistribucionAvanzada?(O(),F("polyline",Fc)):(O(),F("polyline",Nc))])),t[36]||(t[36]=te(" Distribución avanzada de gastos ",-1))]),n.mostrarDistribucionAvanzada?(O(),F("div",Vc,[t[38]||(t[38]=l("p",{class:"dist-desc"},"Ajusta cómo se distribuye cada gasto entre vendedor y comprador. El porcentaje complementario se actualiza automáticamente.",-1)),l("div",Dc,[l("table",kc,[t[37]||(t[37]=l("thead",null,[l("tr",null,[l("th",null,"Concepto"),l("th",null,"Vendedor %"),l("th",null,"Comprador %")])],-1)),l("tbody",null,[(O(!0),F(re,null,It(r.distribucionesEditables,s=>(O(),F("tr",{key:s.key},[l("td",null,I(s.label),1),l("td",null,[l("input",{type:"number",class:"dist-input",min:"0",max:"100",step:"1",value:n.distribuciones[s.key].vendedor,onChange:a=>r.actualizarDistribucion(s.key,"vendedor",a.target.value)},null,40,Bc)]),l("td",null,[l("input",{type:"number",class:"dist-input",min:"0",max:"100",step:"1",value:n.distribuciones[s.key].comprador,onChange:a=>r.actualizarDistribucion(s.key,"comprador",a.target.value)},null,40,zc)])]))),128))])])])])):ie("",!0)]),l("div",Hc,[l("table",Lc,[t[45]||(t[45]=l("thead",null,[l("tr",null,[l("th",null,"Concepto"),l("th",null,"Vendedor"),l("th",null,"Comprador"),l("th",null,"Total")])],-1)),l("tbody",null,[(O(!0),F(re,null,It(r.lineasNotariales,s=>(O(),F(re,{key:s.id},[l("tr",null,[l("td",null,[te(I(s.label)+" ",1),s.estado==="estimado"?(O(),F("span",Uc,"Estimado")):ie("",!0),s.estado==="requiere_validacion"?(O(),F("span",Gc,"Verificar")):ie("",!0)]),l("td",null,"$"+I(r.fmt(s.vendedor)),1),l("td",null,"$"+I(r.fmt(s.comprador)),1),l("td",null,"$"+I(r.fmt(s.vendedor+s.comprador)),1)]),s.ivaVendedor>0||s.ivaComprador>0?(O(),F("tr",Wc,[l("td",null,[l("i",null,"IVA "+I(r.nc.porcentajeIva)+"% sobre "+I(s.labelCorto),1)]),l("td",null,"$"+I(r.fmt(s.ivaVendedor)),1),l("td",null,"$"+I(r.fmt(s.ivaComprador)),1),l("td",null,"$"+I(r.fmt(s.ivaVendedor+s.ivaComprador)),1)])):ie("",!0)],64))),128)),l("tr",Kc,[t[39]||(t[39]=l("td",null,[l("strong",null,"TOTAL GASTOS NOTARIALES APROXIMADOS")],-1)),l("td",null,[l("strong",null,"$"+I(r.fmt(r.totales.notariales.vendedor)),1)]),l("td",null,[l("strong",null,"$"+I(r.fmt(r.totales.notariales.comprador)),1)]),l("td",null,[l("strong",null,"$"+I(r.fmt(r.totales.notariales.total)),1)])]),r.lineasComision.length>0?(O(),F(re,{key:0},[t[41]||(t[41]=l("tr",null,[l("td",{colspan:"4",class:"row-separator"})],-1)),(O(!0),F(re,null,It(r.lineasComision,s=>(O(),F(re,{key:s.id},[l("tr",null,[l("td",null,I(s.label),1),l("td",null,"$"+I(r.fmt(s.vendedor)),1),l("td",null,"$"+I(r.fmt(s.comprador)),1),l("td",null,"$"+I(r.fmt(s.vendedor+s.comprador)),1)]),s.ivaVendedor>0||s.ivaComprador>0?(O(),F("tr",$c,[l("td",null,[l("i",null,"IVA "+I(r.nc.porcentajeIva)+"% sobre "+I(s.labelCorto),1)]),l("td",null,"$"+I(r.fmt(s.ivaVendedor)),1),l("td",null,"$"+I(r.fmt(s.ivaComprador)),1),l("td",null,"$"+I(r.fmt(s.ivaVendedor+s.ivaComprador)),1)])):ie("",!0)],64))),128)),l("tr",qc,[t[40]||(t[40]=l("td",null,[l("strong",null,"TOTAL COMISIÓN")],-1)),l("td",null,[l("strong",null,"$"+I(r.fmt(r.totales.comision.vendedor)),1)]),l("td",null,[l("strong",null,"$"+I(r.fmt(r.totales.comision.comprador)),1)]),l("td",null,[l("strong",null,"$"+I(r.fmt(r.totales.comision.total)),1)])])],64)):ie("",!0),t[44]||(t[44]=l("tr",null,[l("td",{colspan:"4",class:"row-separator"})],-1)),(O(!0),F(re,null,It(r.lineasImpuestos,s=>(O(),F("tr",{key:s.id},[l("td",null,I(s.label),1),l("td",null,"$"+I(r.fmt(s.vendedor)),1),l("td",null,"$"+I(r.fmt(s.comprador)),1),l("td",null,"$"+I(r.fmt(s.vendedor+s.comprador)),1)]))),128)),l("tr",Jc,[t[42]||(t[42]=l("td",null,[l("strong",null,"TOTAL BENEFICENCIA Y REGISTRO")],-1)),l("td",null,[l("strong",null,"$"+I(r.fmt(r.totales.impuestos.vendedor)),1)]),l("td",null,[l("strong",null,"$"+I(r.fmt(r.totales.impuestos.comprador)),1)]),l("td",null,[l("strong",null,"$"+I(r.fmt(r.totales.impuestos.total)),1)])]),l("tr",Yc,[t[43]||(t[43]=l("td",null,[l("strong",null,"GRAN TOTAL (APROXIMADO)")],-1)),l("td",null,[l("strong",null,"$"+I(r.fmt(r.totales.gran.vendedor)),1)]),l("td",null,[l("strong",null,"$"+I(r.fmt(r.totales.gran.comprador)),1)]),l("td",null,[l("strong",null,"$"+I(r.fmt(r.totales.gran.total)),1)])])])],512)]),n.valorInmueble>0?(O(),F("div",Xc,[l("div",Zc,[t[46]||(t[46]=l("div",{class:"card-label"},"Vendedor paga",-1)),l("div",Qc,"$"+I(r.fmt(r.totales.gran.vendedor)),1),l("div",ed,"Neto recibe: $"+I(r.fmt(Math.max(0,n.valorInmueble-r.totales.gran.vendedor))),1)]),l("div",td,[t[47]||(t[47]=l("div",{class:"card-label"},"Comprador paga",-1)),l("div",id,"$"+I(r.fmt(r.totales.gran.comprador)),1),l("div",od,"Precio + gastos: $"+I(r.fmt(n.valorInmueble+r.totales.gran.comprador)),1)]),l("div",nd,[t[48]||(t[48]=l("div",{class:"card-label"},"Total gastos operación",-1)),l("div",rd,"$"+I(r.fmt(r.totales.gran.total)),1),l("div",sd,I(r.pctTotal)+"% del valor del inmueble",1)])])):ie("",!0),t[52]||(t[52]=l("p",{class:"sim-nota"},[l("strong",null,"Nota:"),te(" Este simulador calcula valores "),l("strong",null,"aproximados"),te(" de notaría, registro e impuestos para una compraventa en Colombia. Los montos definitivos pueden variar según la notaría, la Superintendencia de Notariado y Registro, la Secretaría de Hacienda departamental y las condiciones particulares del negocio. Consulte con un profesional jurídico antes de tomar decisiones financieras. ")],-1)),t[53]||(t[53]=l("hr",null,null,-1)),l("button",{class:"btn-print",onClick:t[15]||(t[15]=(...s)=>r.imprimir&&r.imprimir(...s))},[(O(),F("svg",ad,[...t[49]||(t[49]=[l("polyline",{points:"6 9 6 2 18 2 18 9"},null,-1),l("path",{d:"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"},null,-1),l("rect",{x:"6",y:"14",width:"12",height:"8"},null,-1)])])),t[50]||(t[50]=te(" Imprimir / PDF ",-1))])])}const cd=yo(Jl,[["render",ld],["styles",[ql]]]),dd="*,*:before,*:after{box-sizing:border-box;margin:0;padding:0}.simulador-root{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;font-size:14px;line-height:1.5;color:#212529;width:100%}.row{display:flex;flex-wrap:wrap;margin-left:-8px;margin-right:-8px}[class*=col-]{padding-left:8px;padding-right:8px;margin-bottom:12px}.col-12{width:100%}.col-6{width:50%}.col-4{width:33.333%}@media(max-width:768px){.col-6,.col-4{width:100%}}.sim-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #374151;width:100%}.sim-header img{max-height:56px;max-width:160px;object-fit:contain}.sim-header h2{font-size:1.2rem;font-weight:700;color:#1f2937;margin:0}.form-group{margin-bottom:14px}.form-group label{display:block;font-weight:600;margin-bottom:4px;color:#374151}.form-group label strong{color:#1f2937}input[type=number],select{display:block;width:100%;padding:7px 10px;font-size:14px;border:1px solid #d1d5db;border-radius:4px;background:#fff;color:#111827;transition:border-color .15s}input[type=number]:focus,select:focus{outline:none;border-color:#6b7280;box-shadow:0 0 0 3px #6b728026}.radio-group{display:flex;gap:16px;flex-wrap:wrap}.radio-group label{display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer}.radio-group input[type=radio]{width:auto;cursor:pointer}hr{border:none;border-top:1px solid #dee2e6;margin:16px 0}.table-wrapper{overflow-x:auto;width:100%}table{width:100%;border-collapse:collapse;font-size:13px}thead tr{background-color:#1f2937;color:#fff}thead th{padding:10px 12px;font-weight:600;text-align:left}tbody tr:nth-child(2n){background-color:#f9fafb}tbody tr:hover{background-color:#f3f4f6}tbody td{padding:8px 12px;border-bottom:1px solid #e5e7eb;vertical-align:top}tbody td.text-right{text-align:right}.row-total td{background-color:#e5e7eb;font-weight:700}.row-grand-total td{background-color:#1f2937;color:#fff;font-weight:700}.sim-nota{font-size:12px;color:#6b7280;margin-top:12px;font-style:italic}.btn-print{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;font-size:13px;font-weight:600;color:#374151;background:#fff;border:2px solid #374151;border-radius:4px;cursor:pointer;transition:background .15s,color .15s;margin-top:12px}.btn-print:hover{background:#374151;color:#fff}@media print{.btn-print,.sim-controls{display:none!important}table{page-break-inside:auto}tr{page-break-inside:avoid}thead{display:table-header-group}}",ud={name:"CodweltSimulador",components:{SimuladorArriendo:$l,SimuladorVenta:cd},props:{modo:{type:Boolean,default:!0},configuracion:{type:Object,default:()=>({})}}},fd={class:"simulador-root"};function pd(e,t,i,o,n,r){const s=gn("SimuladorArriendo"),a=gn("SimuladorVenta");return O(),F("div",fd,[i.modo===!0?(O(),po(s,{key:0,configuracion:i.configuracion.arriendo||{},logo:i.configuracion.system&&i.configuracion.system.logo?i.configuracion.system.logo:""},null,8,["configuracion","logo"])):(O(),po(a,{key:1,configuracion:i.configuracion.venta||{},logo:i.configuracion.system&&i.configuracion.system.logo?i.configuracion.system.logo:""},null,8,["configuracion","logo"]))])}const md=Ga(yo(ud,[["render",pd],["styles",[dd]]]));customElements.get("codwelt-simulador")||customElements.define("codwelt-simulador",md)})();
+      `;
+      },
+      imprimir() {
+        if (!this.canPrint) return;
+        const estilos = [
+          "body{font-family:Arial,sans-serif;color:#1f2937;padding:24px;margin:0;}",
+          ".print-header{display:flex;gap:16px;align-items:center;margin-bottom:20px;}",
+          ".print-logo{max-height:60px;}",
+          ".print-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}",
+          ".print-card{border:1px solid #e5e7eb;border-radius:8px;padding:12px;background:#f8fafc;display:flex;flex-direction:column;gap:6px;}",
+          ".highlight{background:#374151;color:#fff;}",
+          "table{width:100%;border-collapse:collapse;}",
+          "th,td{border:1px solid #e5e7eb;padding:8px;text-align:left;font-size:12px;}",
+          "th{background:#1f2937;color:#fff;}",
+          ".print-note{margin-top:16px;font-size:11px;color:#6b7280;}"
+        ].join("");
+        const html = this.buildPrintHtml();
+        const win = window.open("", "_blank", "width=960,height=720");
+        if (win) {
+          win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Simulador de Arriendo</title><style>${estilos}</style></head><body>${html}</body></html>`);
+          win.document.close();
+          win.focus();
+          win.onload = () => {
+            win.print();
+            win.onafterprint = () => win.close();
+          };
+        }
+      }
+    }
+  };
+  const _hoisted_1 = { class: "simulador-arriendo" };
+  const _hoisted_2 = { class: "sim-layout" };
+  const _hoisted_3 = { class: "sim-form-strip card" };
+  const _hoisted_4 = { class: "strip-grid" };
+  const _hoisted_5 = { class: "strip-block strip-block-wide" };
+  const _hoisted_6 = { class: "grid grid-3" };
+  const _hoisted_7 = { class: "field" };
+  const _hoisted_8 = ["value"];
+  const _hoisted_9 = {
+    key: 0,
+    class: "field"
+  };
+  const _hoisted_10 = { for: "comisionPorcentaje" };
+  const _hoisted_11 = {
+    key: 0,
+    class: "label-hint"
+  };
+  const _hoisted_12 = {
+    key: 1,
+    class: "label-hint"
+  };
+  const _hoisted_13 = { class: "field" };
+  const _hoisted_14 = ["value"];
+  const _hoisted_15 = {
+    key: 0,
+    class: "inline-badges",
+    style: { "margin-bottom": "8px" }
+  };
+  const _hoisted_16 = { class: "field checkbox-field" };
+  const _hoisted_17 = {
+    key: 1,
+    class: "field"
+  };
+  const _hoisted_18 = ["value"];
+  const _hoisted_19 = { class: "grid grid-2" };
+  const _hoisted_20 = { class: "field" };
+  const _hoisted_21 = { class: "field" };
+  const _hoisted_22 = {
+    key: 0,
+    class: "strip-block"
+  };
+  const _hoisted_23 = { class: "field checkbox-field" };
+  const _hoisted_24 = {
+    key: 0,
+    class: "field checkbox-field"
+  };
+  const _hoisted_25 = {
+    key: 0,
+    class: "card"
+  };
+  const _hoisted_26 = { class: "strip-grid" };
+  const _hoisted_27 = { class: "strip-block" };
+  const _hoisted_28 = { class: "field checkbox-field" };
+  const _hoisted_29 = {
+    key: 0,
+    class: "field"
+  };
+  const _hoisted_30 = {
+    key: 1,
+    class: "field"
+  };
+  const _hoisted_31 = ["value"];
+  const _hoisted_32 = {
+    key: 2,
+    class: "field"
+  };
+  const _hoisted_33 = ["value"];
+  const _hoisted_34 = {
+    key: 3,
+    class: "field checkbox-field"
+  };
+  const _hoisted_35 = { class: "strip-block" };
+  const _hoisted_36 = { class: "field checkbox-field" };
+  const _hoisted_37 = { key: 0 };
+  const _hoisted_38 = { class: "field" };
+  const _hoisted_39 = {
+    key: 0,
+    class: "field"
+  };
+  const _hoisted_40 = {
+    key: 1,
+    class: "field"
+  };
+  const _hoisted_41 = ["value"];
+  const _hoisted_42 = { class: "field" };
+  const _hoisted_43 = ["value"];
+  const _hoisted_44 = { class: "strip-block" };
+  const _hoisted_45 = { class: "field checkbox-field" };
+  const _hoisted_46 = { key: 0 };
+  const _hoisted_47 = { class: "field" };
+  const _hoisted_48 = {
+    key: 0,
+    class: "field"
+  };
+  const _hoisted_49 = {
+    key: 1,
+    class: "field"
+  };
+  const _hoisted_50 = ["value"];
+  const _hoisted_51 = { class: "strip-block" };
+  const _hoisted_52 = { class: "field checkbox-field" };
+  const _hoisted_53 = {
+    key: 0,
+    class: "field"
+  };
+  const _hoisted_54 = { class: "field checkbox-field" };
+  const _hoisted_55 = {
+    key: 1,
+    class: "field"
+  };
+  const _hoisted_56 = {
+    key: 2,
+    class: "field checkbox-field"
+  };
+  const _hoisted_57 = { class: "sim-results" };
+  const _hoisted_58 = { class: "card" };
+  const _hoisted_59 = { class: "table-wrapper results-table-wrapper" };
+  const _hoisted_60 = { class: "results-table" };
+  const _hoisted_61 = { class: "row-total" };
+  const _hoisted_62 = { class: "row-grand-total" };
+  const _hoisted_63 = { class: "summary-strip" };
+  const _hoisted_64 = { class: "summary-item" };
+  const _hoisted_65 = { class: "summary-item-value" };
+  const _hoisted_66 = { class: "summary-item" };
+  const _hoisted_67 = { class: "summary-item-value" };
+  const _hoisted_68 = { class: "summary-item summary-item-highlight" };
+  const _hoisted_69 = { class: "summary-item-value" };
+  const _hoisted_70 = { class: "sim-actions-bottom" };
+  const _hoisted_71 = ["disabled"];
+  const _hoisted_72 = {
+    key: 1,
+    class: "sim-nota-pie"
+  };
+  function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
+    return openBlock(), createElementBlock("div", _hoisted_1, [
+      createBaseVNode("div", _hoisted_2, [
+        createBaseVNode("section", _hoisted_3, [
+          createBaseVNode("div", _hoisted_4, [
+            createBaseVNode("section", _hoisted_5, [
+              createBaseVNode("div", _hoisted_6, [
+                createBaseVNode("div", _hoisted_7, [
+                  _cache[29] || (_cache[29] = createBaseVNode("label", { for: "canon" }, "Canon mensual", -1)),
+                  createBaseVNode("input", {
+                    id: "canon",
+                    value: $options.formatInputMoney($data.form.canon),
+                    type: "text",
+                    inputmode: "numeric",
+                    placeholder: "0",
+                    onInput: _cache[0] || (_cache[0] = ($event) => $options.updateMoneyField("canon", $event.target.value))
+                  }, null, 40, _hoisted_8)
+                ]),
+                $data.form.comision.activa && $data.form.comision.modalidad !== "valor_fijo" ? (openBlock(), createElementBlock("div", _hoisted_9, [
+                  createBaseVNode("label", _hoisted_10, [
+                    _cache[30] || (_cache[30] = createTextVNode(" Comisión (%) ", -1)),
+                    $data.form.comision.modalidad === "porcentaje_con_minimo" && $options.calc.valorComision > 0 ? (openBlock(), createElementBlock("span", _hoisted_11, toDisplayString($options.calc.valorComision <= $data.form.comision.valorMinimo ? "→ aplica mínimo" : `→ ${$options.fmtMoney($options.calc.valorComision)}`), 1)) : $data.form.comision.modalidad === "porcentaje" && $options.calc.valorComision > 0 ? (openBlock(), createElementBlock("span", _hoisted_12, " = " + toDisplayString($options.fmtMoney($options.calc.valorComision)), 1)) : createCommentVNode("", true)
+                  ]),
+                  withDirectives(createBaseVNode("input", {
+                    id: "comisionPorcentaje",
+                    "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => $data.form.comision.porcentaje = $event),
+                    type: "number",
+                    min: "0",
+                    max: "100",
+                    step: "0.01"
+                  }, null, 512), [
+                    [
+                      vModelText,
+                      $data.form.comision.porcentaje,
+                      void 0,
+                      { number: true }
+                    ]
+                  ])
+                ])) : createCommentVNode("", true),
+                createBaseVNode("div", _hoisted_13, [
+                  _cache[31] || (_cache[31] = createBaseVNode("label", { for: "tipoInmueble" }, "Tipo de inmueble", -1)),
+                  withDirectives(createBaseVNode("select", {
+                    id: "tipoInmueble",
+                    "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => $data.form.tipoInmueble = $event)
+                  }, [
+                    (openBlock(true), createElementBlock(Fragment, null, renderList($data.tipoInmuebleOpciones, (op) => {
+                      return openBlock(), createElementBlock("option", {
+                        key: op.value,
+                        value: op.value
+                      }, toDisplayString(op.text), 9, _hoisted_14);
+                    }), 128))
+                  ], 512), [
+                    [vModelSelect, $data.form.tipoInmueble]
+                  ])
+                ])
+              ]),
+              $options.grupoTributarioInmueble === "validar" ? (openBlock(), createElementBlock("div", _hoisted_15, [..._cache[32] || (_cache[32] = [
+                createBaseVNode("span", { class: "badge badge-warning" }, "IVA requiere validación manual", -1)
+              ])])) : createCommentVNode("", true),
+              createBaseVNode("div", _hoisted_16, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => $data.form.tieneAdministracion = $event),
+                    type: "checkbox"
+                  }, null, 512), [
+                    [vModelCheckbox, $data.form.tieneAdministracion]
+                  ]),
+                  _cache[33] || (_cache[33] = createTextVNode(" ¿El inmueble tiene cuota de administración? ", -1))
+                ])
+              ]),
+              $data.form.tieneAdministracion ? (openBlock(), createElementBlock("div", _hoisted_17, [
+                _cache[34] || (_cache[34] = createBaseVNode("label", { for: "valorAdministracion" }, "Valor de la cuota de administración", -1)),
+                createBaseVNode("input", {
+                  id: "valorAdministracion",
+                  value: $options.formatInputMoney($data.form.valorAdministracion),
+                  type: "text",
+                  inputmode: "numeric",
+                  placeholder: "0",
+                  onInput: _cache[4] || (_cache[4] = ($event) => $options.updateMoneyField("valorAdministracion", $event.target.value))
+                }, null, 40, _hoisted_18)
+              ])) : createCommentVNode("", true),
+              createBaseVNode("div", _hoisted_19, [
+                createBaseVNode("div", _hoisted_20, [
+                  _cache[36] || (_cache[36] = createBaseVNode("label", { for: "regimenPropietario" }, "Régimen tributario del propietario", -1)),
+                  withDirectives(createBaseVNode("select", {
+                    id: "regimenPropietario",
+                    "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => $data.form.regimenPropietario = $event)
+                  }, [..._cache[35] || (_cache[35] = [
+                    createBaseVNode("option", { value: "" }, "— Sin seleccionar —", -1),
+                    createBaseVNode("option", { value: "no_responsable" }, "Persona natural / No responsable de IVA", -1),
+                    createBaseVNode("option", { value: "responsable_iva" }, "Responsable de IVA (régimen común)", -1)
+                  ])], 512), [
+                    [vModelSelect, $data.form.regimenPropietario]
+                  ])
+                ]),
+                createBaseVNode("div", _hoisted_21, [
+                  _cache[38] || (_cache[38] = createBaseVNode("label", { for: "regimenArrendatario" }, "Régimen tributario del arrendatario", -1)),
+                  withDirectives(createBaseVNode("select", {
+                    id: "regimenArrendatario",
+                    "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => $data.form.regimenArrendatario = $event)
+                  }, [..._cache[37] || (_cache[37] = [
+                    createBaseVNode("option", { value: "" }, "— Sin seleccionar —", -1),
+                    createBaseVNode("option", { value: "no_responsable" }, "Persona natural / No responsable", -1),
+                    createBaseVNode("option", { value: "responsable_iva" }, "Empresa / Agente de retención", -1)
+                  ])], 512), [
+                    [vModelSelect, $data.form.regimenArrendatario]
+                  ])
+                ])
+              ])
+            ]),
+            $options.mostrarBloqueIvaCanon ? (openBlock(), createElementBlock("section", _hoisted_22, [
+              _cache[41] || (_cache[41] = createBaseVNode("h4", { class: "strip-label" }, "IVA sobre canon", -1)),
+              createBaseVNode("div", _hoisted_23, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    "onUpdate:modelValue": _cache[7] || (_cache[7] = ($event) => $data.form.propietarioResponsableIva = $event),
+                    type: "checkbox"
+                  }, null, 512), [
+                    [vModelCheckbox, $data.form.propietarioResponsableIva]
+                  ]),
+                  _cache[39] || (_cache[39] = createTextVNode(" El propietario es responsable de IVA ", -1))
+                ])
+              ]),
+              $options.grupoTributarioInmueble === "validar" ? (openBlock(), createElementBlock("div", _hoisted_24, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    "onUpdate:modelValue": _cache[8] || (_cache[8] = ($event) => $data.form.aplicaIvaCanonManual = $event),
+                    type: "checkbox"
+                  }, null, 512), [
+                    [vModelCheckbox, $data.form.aplicaIvaCanonManual]
+                  ]),
+                  _cache[40] || (_cache[40] = createTextVNode(" Aplicar IVA sobre canon (confirmado) ", -1))
+                ])
+              ])) : createCommentVNode("", true)
+            ])) : createCommentVNode("", true)
+          ])
+        ]),
+        $data.ui.showAdvanced || true ? (openBlock(), createElementBlock("section", _hoisted_25, [
+          createBaseVNode("div", _hoisted_26, [
+            createBaseVNode("div", _hoisted_27, [
+              _cache[48] || (_cache[48] = createBaseVNode("h4", { class: "strip-label" }, "Comisión inmobiliaria", -1)),
+              createBaseVNode("div", _hoisted_28, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    "onUpdate:modelValue": _cache[9] || (_cache[9] = ($event) => $data.form.comision.activa = $event),
+                    type: "checkbox"
+                  }, null, 512), [
+                    [vModelCheckbox, $data.form.comision.activa]
+                  ]),
+                  _cache[42] || (_cache[42] = createTextVNode(" Aplicar comisión", -1))
+                ])
+              ]),
+              $data.form.comision.activa ? (openBlock(), createElementBlock("div", _hoisted_29, [
+                _cache[44] || (_cache[44] = createBaseVNode("label", null, "Modalidad", -1)),
+                withDirectives(createBaseVNode("select", {
+                  "onUpdate:modelValue": _cache[10] || (_cache[10] = ($event) => $data.form.comision.modalidad = $event)
+                }, [..._cache[43] || (_cache[43] = [
+                  createBaseVNode("option", { value: "porcentaje" }, "Porcentaje", -1),
+                  createBaseVNode("option", { value: "porcentaje_con_minimo" }, "Porcentaje con mínimo", -1),
+                  createBaseVNode("option", { value: "valor_fijo" }, "Valor fijo", -1)
+                ])], 512), [
+                  [vModelSelect, $data.form.comision.modalidad]
+                ])
+              ])) : createCommentVNode("", true),
+              $data.form.comision.activa && $data.form.comision.modalidad === "valor_fijo" ? (openBlock(), createElementBlock("div", _hoisted_30, [
+                _cache[45] || (_cache[45] = createBaseVNode("label", null, "Valor fijo comisión", -1)),
+                createBaseVNode("input", {
+                  value: $options.formatInputMoney($data.form.comision.valorMinimo),
+                  type: "text",
+                  inputmode: "numeric",
+                  onInput: _cache[11] || (_cache[11] = ($event) => $options.updateMoneyField("comision.valorMinimo", $event.target.value))
+                }, null, 40, _hoisted_31)
+              ])) : createCommentVNode("", true),
+              $data.form.comision.activa && $data.form.comision.modalidad === "porcentaje_con_minimo" ? (openBlock(), createElementBlock("div", _hoisted_32, [
+                _cache[46] || (_cache[46] = createBaseVNode("label", null, "Valor mínimo comisión", -1)),
+                createBaseVNode("input", {
+                  value: $options.formatInputMoney($data.form.comision.valorMinimo),
+                  type: "text",
+                  inputmode: "numeric",
+                  onInput: _cache[12] || (_cache[12] = ($event) => $options.updateMoneyField("comision.valorMinimo", $event.target.value))
+                }, null, 40, _hoisted_33)
+              ])) : createCommentVNode("", true),
+              $data.form.comision.activa ? (openBlock(), createElementBlock("div", _hoisted_34, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    "onUpdate:modelValue": _cache[13] || (_cache[13] = ($event) => $data.form.comision.aplicaIva = $event),
+                    type: "checkbox"
+                  }, null, 512), [
+                    [vModelCheckbox, $data.form.comision.aplicaIva]
+                  ]),
+                  _cache[47] || (_cache[47] = createTextVNode(" IVA sobre comisión", -1))
+                ])
+              ])) : createCommentVNode("", true)
+            ]),
+            createBaseVNode("div", _hoisted_35, [
+              _cache[55] || (_cache[55] = createBaseVNode("h4", { class: "strip-label" }, "Seguro / póliza", -1)),
+              createBaseVNode("div", _hoisted_36, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    "onUpdate:modelValue": _cache[14] || (_cache[14] = ($event) => $data.form.aplicarSeguro = $event),
+                    type: "checkbox"
+                  }, null, 512), [
+                    [vModelCheckbox, $data.form.aplicarSeguro]
+                  ]),
+                  _cache[49] || (_cache[49] = createTextVNode(" Aplicar seguro / póliza", -1))
+                ])
+              ]),
+              $data.form.aplicarSeguro ? (openBlock(), createElementBlock("div", _hoisted_37, [
+                createBaseVNode("div", _hoisted_38, [
+                  _cache[51] || (_cache[51] = createBaseVNode("label", null, "Modalidad", -1)),
+                  withDirectives(createBaseVNode("select", {
+                    "onUpdate:modelValue": _cache[15] || (_cache[15] = ($event) => $data.form.seguro.modalidad = $event)
+                  }, [..._cache[50] || (_cache[50] = [
+                    createBaseVNode("option", { value: "porcentaje" }, "Porcentaje", -1),
+                    createBaseVNode("option", { value: "valor_fijo" }, "Valor fijo", -1)
+                  ])], 512), [
+                    [vModelSelect, $data.form.seguro.modalidad]
+                  ])
+                ]),
+                $data.form.seguro.modalidad === "porcentaje" ? (openBlock(), createElementBlock("div", _hoisted_39, [
+                  _cache[52] || (_cache[52] = createBaseVNode("label", null, "% seguro", -1)),
+                  withDirectives(createBaseVNode("input", {
+                    "onUpdate:modelValue": _cache[16] || (_cache[16] = ($event) => $data.form.seguro.porcentaje = $event),
+                    type: "number",
+                    min: "0",
+                    step: "0.01"
+                  }, null, 512), [
+                    [
+                      vModelText,
+                      $data.form.seguro.porcentaje,
+                      void 0,
+                      { number: true }
+                    ]
+                  ])
+                ])) : createCommentVNode("", true),
+                $data.form.seguro.modalidad === "valor_fijo" ? (openBlock(), createElementBlock("div", _hoisted_40, [
+                  _cache[53] || (_cache[53] = createBaseVNode("label", null, "Valor fijo seguro", -1)),
+                  createBaseVNode("input", {
+                    value: $options.formatInputMoney($data.form.seguro.valorFijo),
+                    type: "text",
+                    inputmode: "numeric",
+                    onInput: _cache[17] || (_cache[17] = ($event) => $options.updateMoneyField("seguro.valorFijo", $event.target.value))
+                  }, null, 40, _hoisted_41)
+                ])) : createCommentVNode("", true),
+                createBaseVNode("div", _hoisted_42, [
+                  _cache[54] || (_cache[54] = createBaseVNode("label", null, "Base de cálculo", -1)),
+                  withDirectives(createBaseVNode("select", {
+                    "onUpdate:modelValue": _cache[18] || (_cache[18] = ($event) => $data.form.seguro.base = $event)
+                  }, [
+                    (openBlock(true), createElementBlock(Fragment, null, renderList($data.seguroBaseOpciones, (op) => {
+                      return openBlock(), createElementBlock("option", {
+                        key: op,
+                        value: op
+                      }, toDisplayString($options.seguroBaseLabel(op)), 9, _hoisted_43);
+                    }), 128))
+                  ], 512), [
+                    [vModelSelect, $data.form.seguro.base]
+                  ])
+                ])
+              ])) : createCommentVNode("", true)
+            ]),
+            createBaseVNode("div", _hoisted_44, [
+              _cache[61] || (_cache[61] = createBaseVNode("h4", { class: "strip-label" }, "Gastos bancarios", -1)),
+              createBaseVNode("div", _hoisted_45, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    "onUpdate:modelValue": _cache[19] || (_cache[19] = ($event) => $data.form.aplicarGastosBancarios = $event),
+                    type: "checkbox"
+                  }, null, 512), [
+                    [vModelCheckbox, $data.form.aplicarGastosBancarios]
+                  ]),
+                  _cache[56] || (_cache[56] = createTextVNode(" Aplicar gastos bancarios", -1))
+                ])
+              ]),
+              $data.form.aplicarGastosBancarios ? (openBlock(), createElementBlock("div", _hoisted_46, [
+                createBaseVNode("div", _hoisted_47, [
+                  _cache[58] || (_cache[58] = createBaseVNode("label", null, "Modalidad", -1)),
+                  withDirectives(createBaseVNode("select", {
+                    "onUpdate:modelValue": _cache[20] || (_cache[20] = ($event) => $data.form.gastosBancarios.modalidad = $event)
+                  }, [..._cache[57] || (_cache[57] = [
+                    createBaseVNode("option", { value: "cuatro_por_mil" }, "Cuatro por mil", -1),
+                    createBaseVNode("option", { value: "porcentaje" }, "Porcentaje personalizado", -1),
+                    createBaseVNode("option", { value: "valor_fijo" }, "Valor fijo", -1)
+                  ])], 512), [
+                    [vModelSelect, $data.form.gastosBancarios.modalidad]
+                  ])
+                ]),
+                $data.form.gastosBancarios.modalidad === "porcentaje" ? (openBlock(), createElementBlock("div", _hoisted_48, [
+                  _cache[59] || (_cache[59] = createBaseVNode("label", null, "% gastos bancarios", -1)),
+                  withDirectives(createBaseVNode("input", {
+                    "onUpdate:modelValue": _cache[21] || (_cache[21] = ($event) => $data.form.gastosBancarios.porcentaje = $event),
+                    type: "number",
+                    min: "0",
+                    step: "0.001"
+                  }, null, 512), [
+                    [
+                      vModelText,
+                      $data.form.gastosBancarios.porcentaje,
+                      void 0,
+                      { number: true }
+                    ]
+                  ])
+                ])) : createCommentVNode("", true),
+                $data.form.gastosBancarios.modalidad === "valor_fijo" ? (openBlock(), createElementBlock("div", _hoisted_49, [
+                  _cache[60] || (_cache[60] = createBaseVNode("label", null, "Valor fijo", -1)),
+                  createBaseVNode("input", {
+                    value: $options.formatInputMoney($data.form.gastosBancarios.valorFijo),
+                    type: "text",
+                    inputmode: "numeric",
+                    onInput: _cache[22] || (_cache[22] = ($event) => $options.updateMoneyField("gastosBancarios.valorFijo", $event.target.value))
+                  }, null, 40, _hoisted_50)
+                ])) : createCommentVNode("", true)
+              ])) : createCommentVNode("", true)
+            ]),
+            createBaseVNode("div", _hoisted_51, [
+              _cache[67] || (_cache[67] = createBaseVNode("h4", { class: "strip-label" }, "Retenciones", -1)),
+              createBaseVNode("div", _hoisted_52, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    "onUpdate:modelValue": _cache[23] || (_cache[23] = ($event) => $data.form.condicionesTributarias.aplicarRetencionFuente = $event),
+                    type: "checkbox"
+                  }, null, 512), [
+                    [vModelCheckbox, $data.form.condicionesTributarias.aplicarRetencionFuente]
+                  ]),
+                  _cache[62] || (_cache[62] = createTextVNode(" Retención en la fuente", -1))
+                ])
+              ]),
+              $data.form.condicionesTributarias.aplicarRetencionFuente ? (openBlock(), createElementBlock("div", _hoisted_53, [
+                _cache[63] || (_cache[63] = createBaseVNode("label", null, "% retención fuente", -1)),
+                withDirectives(createBaseVNode("input", {
+                  "onUpdate:modelValue": _cache[24] || (_cache[24] = ($event) => $data.form.retenciones.fuente.porcentaje = $event),
+                  type: "number",
+                  min: "0",
+                  step: "0.01"
+                }, null, 512), [
+                  [
+                    vModelText,
+                    $data.form.retenciones.fuente.porcentaje,
+                    void 0,
+                    { number: true }
+                  ]
+                ])
+              ])) : createCommentVNode("", true),
+              createBaseVNode("div", _hoisted_54, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    "onUpdate:modelValue": _cache[25] || (_cache[25] = ($event) => $data.form.condicionesTributarias.aplicarRetencionIca = $event),
+                    type: "checkbox"
+                  }, null, 512), [
+                    [vModelCheckbox, $data.form.condicionesTributarias.aplicarRetencionIca]
+                  ]),
+                  _cache[64] || (_cache[64] = createTextVNode(" ReteICA", -1))
+                ])
+              ]),
+              $data.form.condicionesTributarias.aplicarRetencionIca ? (openBlock(), createElementBlock("div", _hoisted_55, [
+                _cache[65] || (_cache[65] = createBaseVNode("label", null, "Tarifa ICA (por mil)", -1)),
+                withDirectives(createBaseVNode("input", {
+                  "onUpdate:modelValue": _cache[26] || (_cache[26] = ($event) => $data.form.retenciones.ica.tarifaPorMil = $event),
+                  type: "number",
+                  min: "0",
+                  step: "0.01"
+                }, null, 512), [
+                  [
+                    vModelText,
+                    $data.form.retenciones.ica.tarifaPorMil,
+                    void 0,
+                    { number: true }
+                  ]
+                ])
+              ])) : createCommentVNode("", true),
+              $options.ivaCanonActivo ? (openBlock(), createElementBlock("div", _hoisted_56, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    "onUpdate:modelValue": _cache[27] || (_cache[27] = ($event) => $data.form.condicionesTributarias.aplicarRetencionIva = $event),
+                    type: "checkbox"
+                  }, null, 512), [
+                    [vModelCheckbox, $data.form.condicionesTributarias.aplicarRetencionIva]
+                  ]),
+                  _cache[66] || (_cache[66] = createTextVNode(" Retención de IVA", -1))
+                ])
+              ])) : createCommentVNode("", true)
+            ])
+          ])
+        ])) : createCommentVNode("", true),
+        createBaseVNode("div", _hoisted_57, [
+          createBaseVNode("div", _hoisted_58, [
+            createBaseVNode("div", _hoisted_59, [
+              createBaseVNode("table", _hoisted_60, [
+                _cache[71] || (_cache[71] = createBaseVNode("thead", null, [
+                  createBaseVNode("tr", null, [
+                    createBaseVNode("th", null, "Ingresos"),
+                    createBaseVNode("th", null, "Valor"),
+                    createBaseVNode("th", null, "Descuentos"),
+                    createBaseVNode("th", null, "Valor")
+                  ])
+                ], -1)),
+                createBaseVNode("tbody", null, [
+                  (openBlock(true), createElementBlock(Fragment, null, renderList($options.resultadoFilas, (fila, idx) => {
+                    return openBlock(), createElementBlock("tr", { key: idx }, [
+                      createBaseVNode("td", null, toDisplayString(fila.ingreso ? fila.ingreso.label : ""), 1),
+                      createBaseVNode("td", null, toDisplayString(fila.ingreso ? $options.fmtMoney(fila.ingreso.value) : ""), 1),
+                      createBaseVNode("td", null, toDisplayString(fila.descuento ? fila.descuento.label : ""), 1),
+                      createBaseVNode("td", null, toDisplayString(fila.descuento ? $options.fmtMoney(fila.descuento.value) : ""), 1)
+                    ]);
+                  }), 128)),
+                  createBaseVNode("tr", _hoisted_61, [
+                    _cache[68] || (_cache[68] = createBaseVNode("td", null, [
+                      createBaseVNode("strong", null, "TOTAL INGRESOS")
+                    ], -1)),
+                    createBaseVNode("td", null, [
+                      createBaseVNode("strong", null, toDisplayString($options.fmtMoney($options.calc.totalIngresos)), 1)
+                    ]),
+                    _cache[69] || (_cache[69] = createBaseVNode("td", null, [
+                      createBaseVNode("strong", null, "TOTAL DESCUENTOS")
+                    ], -1)),
+                    createBaseVNode("td", null, [
+                      createBaseVNode("strong", null, toDisplayString($options.fmtMoney($options.calc.totalDescuentos)), 1)
+                    ])
+                  ]),
+                  createBaseVNode("tr", _hoisted_62, [
+                    _cache[70] || (_cache[70] = createBaseVNode("td", { colspan: "3" }, [
+                      createBaseVNode("strong", null, "VALOR TOTAL RENTA A RECIBIR POR EL PROPIETARIO")
+                    ], -1)),
+                    createBaseVNode("td", null, [
+                      createBaseVNode("strong", null, toDisplayString($options.fmtMoney($options.calc.valorRentaRecibir)), 1)
+                    ])
+                  ])
+                ])
+              ])
+            ])
+          ]),
+          createBaseVNode("div", _hoisted_63, [
+            createBaseVNode("div", _hoisted_64, [
+              _cache[72] || (_cache[72] = createBaseVNode("span", null, "Canon mensual", -1)),
+              createBaseVNode("div", _hoisted_65, toDisplayString($options.fmtMoney($options.calc.canon)), 1)
+            ]),
+            createBaseVNode("div", _hoisted_66, [
+              _cache[73] || (_cache[73] = createBaseVNode("span", null, "Total descuentos", -1)),
+              createBaseVNode("div", _hoisted_67, toDisplayString($options.fmtMoney($options.calc.totalDescuentos)), 1)
+            ]),
+            createBaseVNode("div", _hoisted_68, [
+              _cache[74] || (_cache[74] = createBaseVNode("span", null, "Valor neto a recibir", -1)),
+              createBaseVNode("div", _hoisted_69, toDisplayString($options.fmtMoney($options.calc.valorRentaRecibir)), 1)
+            ])
+          ])
+        ]),
+        createBaseVNode("div", _hoisted_70, [
+          createBaseVNode("button", {
+            type: "button",
+            disabled: !$options.canPrint,
+            onClick: _cache[28] || (_cache[28] = (...args) => $options.imprimir && $options.imprimir(...args))
+          }, "Imprimir / PDF", 8, _hoisted_71)
+        ]),
+        $options.notaPie ? (openBlock(), createElementBlock("p", _hoisted_72, toDisplayString($options.notaPie), 1)) : createCommentVNode("", true)
+      ])
+    ]);
+  }
+  const SimuladorArriendo = /* @__PURE__ */ _export_sfc(_sfc_main, [["render", _sfc_render], ["styles", [_style_0]], ["__scopeId", "data-v-0196cea1"]]);
+  const SimuladorRoot = /* @__PURE__ */ defineComponent({
+    name: "CodweltSimulador",
+    props: {
+      modo: { type: String, default: "venta" },
+      configuracion: { type: String, default: "{}" },
+      logo: { type: String, default: "" }
+    },
+    setup(props) {
+      return () => {
+        let config = {};
+        try {
+          config = props.configuracion ? JSON.parse(props.configuracion) : {};
+        } catch {
+          config = {};
+        }
+        const modeConfig = props.modo === "venta" ? config.venta || {} : config.arriendo || {};
+        const systemLogo = config.system?.logo || props.logo || "";
+        if (props.modo === "venta") {
+          return h(SimuladorVenta, { configuracion: modeConfig, logo: systemLogo });
+        }
+        return h(SimuladorArriendo, { configuracion: modeConfig, logo: systemLogo });
+      };
+    }
+  });
+  const SimuladorElement = /* @__PURE__ */ defineCustomElement(SimuladorRoot);
+  if (!customElements.get("codwelt-simulador")) {
+    customElements.define("codwelt-simulador", SimuladorElement);
+  }
+})();

@@ -57,8 +57,93 @@ final class SimulatorSettings
                 'porcentajeComision' => '3',
                 'comisionMinima' => '0',
                 'labelComision' => '',
+                'comisionPropiedadUrbanaHabilitada' => '1',
+                'comisionPropiedadUrbanaPorcentaje' => '3',
+                'comisionPropiedadUrbanaLabel' => 'Comisión propiedad urbana',
+                'comisionPropiedadRuralHabilitada' => '1',
+                'comisionPropiedadRuralPorcentaje' => '5',
+                'comisionPropiedadRuralLabel' => 'Comisión propiedad rural',
                 'introConceptos' => '',
                 'notaPie' => '',
+                'protecciones_familiares' => self::defaultsProteccionesFamiliares(),
+            ],
+        ];
+    }
+
+    public static function defaultsProteccionesFamiliares(): array
+    {
+        return [
+            'vigencia_desde' => '2026-01-01',
+            'vigencia_hasta' => '2026-12-31',
+
+            'valores_por_defecto' => [
+                'tarifa_notarial_acto_sin_cuantia' => 90600,
+                'registro_acto_sin_cuantia_primer_folio' => 29500,
+                'registro_acto_sin_cuantia_folio_adicional' => 15300,
+                'iva_porcentaje' => 19,
+            ],
+
+            'afectacion_vivienda_familiar' => [
+                'cancelacion' => [
+                    'activo' => true,
+                    'derechos_notariales' => 90600,
+                    'aplica_iva' => true,
+                    'porcentaje_iva' => 19,
+                    'requiere_registro' => true,
+                    'derechos_registro_primer_folio' => 29500,
+                    'derechos_registro_folio_adicional' => 15300,
+                    'responsable_por_defecto' => 'vendedor',
+                    'permitir_edicion_responsable' => true,
+                ],
+                'constitucion' => [
+                    'activo' => true,
+                    'derechos_notariales' => 90600,
+                    'aplica_iva' => true,
+                    'porcentaje_iva' => 19,
+                    'requiere_registro' => true,
+                    'derechos_registro_primer_folio' => 29500,
+                    'derechos_registro_folio_adicional' => 15300,
+                    'responsable_por_defecto' => 'comprador',
+                    'permitir_edicion_responsable' => true,
+                ],
+            ],
+
+            'patrimonio_familia' => [
+                'cancelacion' => [
+                    'activo' => true,
+                    'derechos_notariales' => 90600,
+                    'aplica_iva' => true,
+                    'porcentaje_iva' => 19,
+                    'requiere_registro' => true,
+                    'derechos_registro_primer_folio' => 29500,
+                    'derechos_registro_folio_adicional' => 15300,
+                    'responsable_por_defecto' => 'vendedor',
+                    'permitir_edicion_responsable' => true,
+                ],
+                'constitucion_voluntaria' => [
+                    'activo' => true,
+                    'derechos_notariales' => 90600,
+                    'aplica_iva' => true,
+                    'porcentaje_iva' => 19,
+                    'requiere_registro' => true,
+                    'derechos_registro_primer_folio' => 29500,
+                    'derechos_registro_folio_adicional' => 15300,
+                    'responsable_por_defecto' => 'comprador',
+                    'permitir_edicion_responsable' => true,
+                ],
+                'constitucion_vis' => [
+                    'activo' => true,
+                    'modo_calculo' => 'requiere_validacion',
+                    'derechos_notariales' => 0,
+                    'aplica_iva' => false,
+                    'porcentaje_iva' => 0,
+                    'requiere_registro' => true,
+                    'derechos_registro_primer_folio' => 0,
+                    'derechos_registro_folio_adicional' => 0,
+                    'responsable_por_defecto' => 'comprador',
+                    'permitir_edicion_responsable' => false,
+                    'mensaje_validacion' => 'La constitución de patrimonio de familia asociada a VIS debe confirmarse con la notaría, la constructora y las condiciones del subsidio o financiación.',
+                ],
             ],
         ];
     }
@@ -202,7 +287,8 @@ final class SimulatorSettings
                         'label' => __('Gastos notariales (%)', 'homlity-real-estate'),
                     ],
                     'valorConstitucionAfectacionViviendaFamiliar' => [
-                        'label' => __('Valor constitución afectación vivienda familiar', 'homlity-real-estate'),
+                        'label' => __('Valor constitución afectación vivienda familiar (campo heredado)', 'homlity-real-estate'),
+                        'help' => __('Valor de referencia para compatibilidad con simulaciones anteriores. Los valores vigentes se configuran en Protecciones Familiares.', 'homlity-real-estate'),
                     ],
                     'porcentajeIva' => [
                         'label' => __('IVA (%)', 'homlity-real-estate'),
@@ -246,7 +332,31 @@ final class SimulatorSettings
                         'label' => __('Comisión mínima', 'homlity-real-estate'),
                     ],
                     'labelComision' => [
-                        'label' => __('Etiqueta de la comisión', 'homlity-real-estate'),
+                        'label' => __('Etiqueta de la comisión asesor', 'homlity-real-estate'),
+                    ],
+                    'comisionPropiedadUrbanaHabilitada' => [
+                        'label' => __('Comisión propiedad urbana', 'homlity-real-estate'),
+                        'type' => 'checkbox',
+                        'checkboxLabel' => __('Habilitar opción de comisión para propiedad urbana en el simulador', 'homlity-real-estate'),
+                    ],
+                    'comisionPropiedadUrbanaPorcentaje' => [
+                        'label' => __('Porcentaje comisión propiedad urbana (%)', 'homlity-real-estate'),
+                        'help' => __('Se aplica sobre el valor del inmueble. Por defecto 3%.', 'homlity-real-estate'),
+                    ],
+                    'comisionPropiedadUrbanaLabel' => [
+                        'label' => __('Etiqueta comisión propiedad urbana', 'homlity-real-estate'),
+                    ],
+                    'comisionPropiedadRuralHabilitada' => [
+                        'label' => __('Comisión propiedad rural', 'homlity-real-estate'),
+                        'type' => 'checkbox',
+                        'checkboxLabel' => __('Habilitar opción de comisión para propiedad rural en el simulador', 'homlity-real-estate'),
+                    ],
+                    'comisionPropiedadRuralPorcentaje' => [
+                        'label' => __('Porcentaje comisión propiedad rural (%)', 'homlity-real-estate'),
+                        'help' => __('Se aplica sobre el valor del inmueble. Por defecto 5%.', 'homlity-real-estate'),
+                    ],
+                    'comisionPropiedadRuralLabel' => [
+                        'label' => __('Etiqueta comisión propiedad rural', 'homlity-real-estate'),
                     ],
                     'introConceptos' => [
                         'label' => __('Descripción de conceptos', 'homlity-real-estate'),
@@ -291,7 +401,116 @@ final class SimulatorSettings
             }
         }
 
+        // Sanitize nested protecciones_familiares for venta.
+        $rawPf = $input['venta']['protecciones_familiares'] ?? null;
+        $sanitized['venta']['protecciones_familiares'] = self::sanitizeProteccionesFamiliares(
+            is_array($rawPf) ? $rawPf : []
+        );
+
         return $sanitized;
+    }
+
+    /**
+     * Sanitize the nested protecciones_familiares configuration block.
+     * Merges incoming values over defaults so missing keys always fall back safely.
+     */
+    public static function sanitizeProteccionesFamiliares(array $input): array
+    {
+        $defaults = self::defaultsProteccionesFamiliares();
+
+        $sanitized = $defaults;
+
+        // Vigencias.
+        if (!empty($input['vigencia_desde'])) {
+            $sanitized['vigencia_desde'] = sanitize_text_field($input['vigencia_desde']);
+        }
+        if (!empty($input['vigencia_hasta'])) {
+            $sanitized['vigencia_hasta'] = sanitize_text_field($input['vigencia_hasta']);
+        }
+
+        // Valores por defecto.
+        $numericKeys = ['tarifa_notarial_acto_sin_cuantia', 'registro_acto_sin_cuantia_primer_folio', 'registro_acto_sin_cuantia_folio_adicional', 'iva_porcentaje'];
+        foreach ($numericKeys as $key) {
+            if (isset($input['valores_por_defecto'][$key])) {
+                $sanitized['valores_por_defecto'][$key] = (int) $input['valores_por_defecto'][$key];
+            }
+        }
+
+        // Actos de afectación vivienda familiar (cancelacion / constitucion).
+        $afectacionSubtipos = ['cancelacion', 'constitucion'];
+        foreach ($afectacionSubtipos as $subtipo) {
+            $sanitized['afectacion_vivienda_familiar'][$subtipo] = self::sanitizeActoSinCuantia(
+                $input['afectacion_vivienda_familiar'][$subtipo] ?? [],
+                $defaults['afectacion_vivienda_familiar'][$subtipo]
+            );
+        }
+
+        // Actos de patrimonio de familia (cancelacion / constitucion_voluntaria / constitucion_vis).
+        $patrimonioSubtipos = ['cancelacion', 'constitucion_voluntaria'];
+        foreach ($patrimonioSubtipos as $subtipo) {
+            $sanitized['patrimonio_familia'][$subtipo] = self::sanitizeActoSinCuantia(
+                $input['patrimonio_familia'][$subtipo] ?? [],
+                $defaults['patrimonio_familia'][$subtipo]
+            );
+        }
+
+        // constitucion_vis has an extra text field.
+        $rawVis = $input['patrimonio_familia']['constitucion_vis'] ?? [];
+        $sanitized['patrimonio_familia']['constitucion_vis'] = self::sanitizeActoSinCuantia(
+            $rawVis,
+            $defaults['patrimonio_familia']['constitucion_vis']
+        );
+        $rawModo = $rawVis['modo_calculo'] ?? $defaults['patrimonio_familia']['constitucion_vis']['modo_calculo'];
+        $allowedModos = ['requiere_validacion', 'cobrado', 'exento', 'incluido'];
+        $sanitized['patrimonio_familia']['constitucion_vis']['modo_calculo'] = in_array($rawModo, $allowedModos, true) ? $rawModo : 'requiere_validacion';
+        if (!empty($rawVis['mensaje_validacion'])) {
+            $sanitized['patrimonio_familia']['constitucion_vis']['mensaje_validacion'] = sanitize_textarea_field($rawVis['mensaje_validacion']);
+        }
+
+        return $sanitized;
+    }
+
+    /**
+     * Sanitize a single acto-sin-cuantia configuration block.
+     */
+    private static function sanitizeActoSinCuantia(array $input, array $defaults): array
+    {
+        $sanitized = $defaults;
+
+        $boolKeys = ['activo', 'aplica_iva', 'requiere_registro', 'permitir_edicion_responsable'];
+        foreach ($boolKeys as $key) {
+            if (array_key_exists($key, $input)) {
+                $sanitized[$key] = (bool) $input[$key];
+            }
+        }
+
+        $intKeys = ['derechos_notariales', 'porcentaje_iva', 'derechos_registro_primer_folio', 'derechos_registro_folio_adicional'];
+        foreach ($intKeys as $key) {
+            if (isset($input[$key])) {
+                $sanitized[$key] = (int) $input[$key];
+            }
+        }
+
+        $allowedResponsables = ['vendedor', 'comprador'];
+        if (!empty($input['responsable_por_defecto']) && in_array($input['responsable_por_defecto'], $allowedResponsables, true)) {
+            $sanitized['responsable_por_defecto'] = $input['responsable_por_defecto'];
+        }
+
+        return $sanitized;
+    }
+
+    /**
+     * Resolve the protecciones_familiares config with safe fallbacks.
+     * Used by SimulatorService when delivering config to the frontend.
+     */
+    public static function resolveProteccionesFamiliares(array $ventaConfig): array
+    {
+        $stored = $ventaConfig['protecciones_familiares'] ?? [];
+        if (!is_array($stored)) {
+            $stored = [];
+        }
+
+        return array_replace_recursive(self::defaultsProteccionesFamiliares(), $stored);
     }
 
     public static function resolveLogo(): string

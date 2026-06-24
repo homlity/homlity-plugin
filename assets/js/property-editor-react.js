@@ -245,7 +245,7 @@
     var _ac = useState(String(meta.bedrooms || '')), bedrooms = _ac[0], setBedrooms = _ac[1];
     var _ad = useState(String(meta.bathrooms || '')), bathrooms = _ad[0], setBathrooms = _ad[1];
     var _ae = useState(String(meta.parking || '')), parking = _ae[0], setParking = _ae[1];
-    var _af = useState(String(meta.condition || '')), condition = _af[0], setCondition = _af[1];
+    var _af = useState(String(selected.condition || '')), condition = _af[0], setCondition = _af[1];
     var _af2 = useState((selected.features || []).map(function (id) { return String(id); })), selectedFeatures = _af2[0], setSelectedFeatures = _af2[1];
     var _af3 = useState((selected.nearby || []).map(function (id) { return String(id); })), selectedNearby = _af3[0], setSelectedNearby = _af3[1];
     var _af4 = useState((selected.tags || []).map(function (id) { return String(id); })), selectedTags = _af4[0], setSelectedTags = _af4[1];
@@ -765,7 +765,7 @@
           h('h2', null, 'Configuración comercial'),
           h(Field, { label: 'Tipo de inmueble', required: true, error: hasError('type') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_type', value: type, required: true, onChange: setType, options: opts.types || [] })),
           h(Field, { label: 'Gestión', required: true, error: hasError('operation') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_operation', value: operation, required: true, onChange: setOperation, options: opts.operations || [] })),
-          h(Field, { label: 'Estado inmueble' }, h(Input, { name: 'property_condition', value: condition, onChange: setCondition })),
+          h(Field, { label: 'Estado inmueble' }, h(Select, { name: 'property_condition', value: condition, onChange: setCondition, options: opts.condition_options || [], placeholder: 'Sin especificar' })),
           h(Field, { label: 'Código (auto)' }, h(Input, { name: 'property_code', value: code, readOnly: true })),
           isSyncedProperty && h('p', { className: 'description' }, 'Código bloqueado por sincronización (webhook/web.homlity.com).'),
           h(Field, { label: 'Año de construido' }, h(Input, { name: 'property_age', value: yearBuilt, type: 'number', onChange: setYearBuilt }))
