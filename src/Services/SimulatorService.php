@@ -104,7 +104,7 @@ class SimulatorService implements ServiceInterface
 
         $elementId = wp_unique_id('homlity-simulator-');
         $configJson = wp_json_encode($config);
-        $isRent = $mode === 'arriendo' ? 'true' : 'false';
+        $modeJson = wp_json_encode($mode);
         $intro = trim((string) ($settings[$mode]['introConceptos'] ?? ''));
 
         ob_start();
@@ -120,12 +120,12 @@ class SimulatorService implements ServiceInterface
             (function () {
                 var config = <?php echo $configJson ?: '{}'; ?>;
                 var elementId = <?php echo wp_json_encode($elementId); ?>;
-                var isRent = <?php echo $isRent; ?>;
+                var mode = <?php echo $modeJson ?: '"venta"'; ?>;
 
                 var applyConfig = function () {
                     var el = document.getElementById(elementId);
                     if (!el) return;
-                    el.modo = isRent;
+                    el.modo = mode;
                     el.configuracion = config;
                 };
 

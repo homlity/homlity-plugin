@@ -1454,16 +1454,144 @@ export default {
 </script>
 
 <style scoped>
+.simulador-venta {
+  color: #111827;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 .sim-section {
-  margin-bottom: 4px;
+  margin-bottom: 18px;
+  padding: 18px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
+.sim-section > hr,
+.simulador-venta > hr {
+  margin: 18px 0;
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.row.sim-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.col-12,
+.col-6,
+.col-4 {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.col-12 {
+  flex: 1 1 100%;
+}
+
+.col-6 {
+  flex: 1 1 calc(50% - 8px);
+}
+
+.col-4 {
+  flex: 1 1 calc(33.333% - 11px);
+}
+
+.sim-section--protecciones,
+.dist-avanzada,
+.sim-results > .card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
+.form-group {
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+}
+
+.form-group--inline {
+  display: flex;
+  align-items: center;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select,
+.dist-table input {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #111827;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.dist-table input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+.radio-group {
+  display: grid;
+  gap: 8px;
+}
+
+.radio-group label,
+.toggle-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 0;
+  font-weight: 500;
+}
+
+.radio-group input[type="radio"],
+.radio-group input[type="checkbox"],
+.toggle-input {
+  margin-top: 2px;
+  accent-color: #2563eb;
+}
+
+.toggle-text {
+  display: inline-block;
+}
+
+.sub-input,
+.sub-bloque {
+  margin-top: 12px;
 }
 
 .sim-section--protecciones {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 12px;
+  padding: 16px;
   background: #f9fafb;
+}
+
+.sim-section-title {
+  margin: 0 0 12px;
+  color: #0f172a;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .sim-section-title--collapse {
@@ -1484,7 +1612,6 @@ export default {
 
 .sub-bloque {
   margin-left: 20px;
-  margin-top: 8px;
   padding-left: 12px;
   border-left: 3px solid #d1d5db;
 }
@@ -1497,17 +1624,18 @@ export default {
 
 .campo-ayuda {
   display: block;
-  font-size: 11px;
-  color: #6b7280;
-  font-weight: 400;
   margin-top: 2px;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.45;
 }
 
 .alerta {
-  border-radius: 6px;
-  padding: 10px 12px;
-  font-size: 12px;
   margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 12px;
   line-height: 1.5;
 }
 
@@ -1548,6 +1676,76 @@ export default {
 .badge-danger  { background: #fee2e2; color: #991b1b; }
 .badge-default { background: #f3f4f6; color: #374151; }
 
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.dist-avanzada,
+.sim-results > .card {
+  padding: 16px;
+}
+
+.dist-toggle,
+.btn-imprimir {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0f172a, #334155);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+}
+
+.dist-body {
+  margin-top: 14px;
+}
+
+.dist-desc {
+  margin: 0 0 14px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.dist-table,
+.results-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.dist-table th,
+.dist-table td,
+.results-table th,
+.results-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  vertical-align: top;
+}
+
+.dist-table th,
+.results-table th {
+  background: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.results-cell-label {
+  font-weight: 600;
+}
+
+.results-cell-value {
+  white-space: nowrap;
+}
+
 .results-row--validacion td {
   background: #fff7ed;
 }
@@ -1560,5 +1758,104 @@ export default {
 .results-row--alerta td {
   padding: 4px 8px;
   background: #fffbeb;
+}
+
+.row-total {
+  background: #f8fafc;
+}
+
+.row-grand-total {
+  background: #1f2937;
+  color: #ffffff;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.summary-card {
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+}
+
+.summary-card span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.card-amount {
+  margin-top: 8px;
+  color: #0f172a;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.card-sub {
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.summary-item-highlight {
+  background: linear-gradient(135deg, #1f2937, #334155);
+  border-color: transparent;
+}
+
+.summary-item-highlight span,
+.summary-item-highlight .card-amount,
+.summary-item-highlight .card-sub {
+  color: #ffffff;
+}
+
+.sim-actions-bottom {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-imprimir:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sim-nota-pie {
+  margin: 8px 0 0;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .col-4,
+  .col-6 {
+    flex-basis: 100%;
+  }
+
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .sim-section,
+  .form-group,
+  .dist-avanzada,
+  .sim-section--protecciones {
+    padding: 14px;
+  }
+
+  .sim-actions-bottom {
+    justify-content: stretch;
+  }
+
+  .btn-imprimir {
+    width: 100%;
+    justify-content: center;
+  }
 }
 </style>

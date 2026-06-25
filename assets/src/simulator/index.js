@@ -6,14 +6,18 @@ const SimuladorRoot = defineComponent({
   name: 'CodweltSimulador',
   props: {
     modo: { type: String, default: 'venta' },
-    configuracion: { type: String, default: '{}' },
+    configuracion: { type: [String, Object], default: '{}' },
     logo: { type: String, default: '' },
   },
   setup(props) {
     return () => {
       let config = {};
       try {
-        config = props.configuracion ? JSON.parse(props.configuracion) : {};
+        if (typeof props.configuracion === 'string') {
+          config = props.configuracion ? JSON.parse(props.configuracion) : {};
+        } else {
+          config = props.configuracion || {};
+        }
       } catch {
         config = {};
       }
