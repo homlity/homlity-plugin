@@ -28,11 +28,6 @@ class SimulatorService implements ServiceInterface
         add_shortcode('homlity_simulador', [$this, 'renderShortcode']);
         add_shortcode('homlity_simulador_venta', [$this, 'renderShortcodeSale']);
         add_shortcode('homlity_simulador_arriendo', [$this, 'renderShortcodeRent']);
-
-        // Backwards compatibility with the theme shortcodes.
-        add_shortcode('codwelt_simulador', [$this, 'renderShortcode']);
-        add_shortcode('codwelt_simulador_venta', [$this, 'renderShortcodeSale']);
-        add_shortcode('codwelt_simulador_arriendo', [$this, 'renderShortcodeRent']);
     }
 
     public static function registerAssets(): void
