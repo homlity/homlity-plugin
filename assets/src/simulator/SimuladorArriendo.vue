@@ -122,7 +122,7 @@
       </section>
 
       <!-- Bloque de descuentos y opciones -->
-      <section class="card" v-if="ui.showAdvanced || true">
+      <section class="card" v-if="showRestrictedRentOptions">
         <div class="strip-grid">
 
           <!-- Comisión -->
@@ -282,6 +282,10 @@
                   <td><strong>TOTAL DESCUENTOS</strong></td>
                   <td><strong>{{ fmtMoney(calc.totalDescuentos) }}</strong></td>
                 </tr>
+                <tr v-if="form.aplicarGastosBancarios && calc.gastosBancarios > 0" class="row-subtotal">
+                  <td colspan="3"><strong>SUBTOTAL RENTA A RECIBIR ANTES DE GASTOS BANCARIOS</strong></td>
+                  <td><strong>{{ fmtMoney(calc.subtotalAntesGastosBancarios) }}</strong></td>
+                </tr>
                 <tr class="row-grand-total">
                   <td colspan="3"><strong>VALOR TOTAL RENTA A RECIBIR POR EL PROPIETARIO</strong></td>
                   <td><strong>{{ fmtMoney(calc.valorRentaRecibir) }}</strong></td>
@@ -310,10 +314,9 @@
 
       <!-- Acciones -->
       <div class="sim-actions-bottom">
+        <div v-if="notaPieHtml" class="sim-nota-pie" v-html="notaPieHtml"></div>
         <button type="button" :disabled="!canPrint" @click="imprimir">Imprimir / PDF</button>
       </div>
-
-      <p v-if="notaPie" class="sim-nota-pie">{{ notaPie }}</p>
 
     </div>
   </div>
@@ -353,12 +356,24 @@ export default {
       return this.normalizarConfiguracion(this.configuracion);
     },
 
+    isLoggedIn() {
+      return !!this.configuracion?.system?.isLoggedIn;
+    },
+
+    showRestrictedRentOptions() {
+      return this.isLoggedIn;
+    },
+
     resolvedLogo() {
       return this.logo || this.normalizedConfig.logo || '';
     },
 
     notaPie() {
       return (this.configuracion.notaPie || '').trim();
+    },
+
+    notaPieHtml() {
+      return this.formatNoteHtml(this.notaPie);
     },
 
     grupoTributarioInmueble() {
@@ -390,16 +405,16 @@ export default {
       const retencionIva = this.calcularReteIva(ivaCanon);
       const otrosDescuentos = this.calcularOtrosDescuentos();
       const totalIngresos = safeMoney(this.form.canon + ivaCanon);
-      // Subtotal sin gastos bancarios → base sobre la que se aplica el porcentaje / 4x1000
       const descuentosSinBancarios = comision + ivaComision + seguro + retencionFuente + retencionIca + retencionIva + otrosDescuentos;
-      const baseGastosBancarios = Math.max(0, totalIngresos - descuentosSinBancarios);
-      const gastosBancarios = this.calcularGastosBancarios(baseGastosBancarios);
+      const subtotalAntesGastosBancarios = Math.max(0, safeMoney(totalIngresos - descuentosSinBancarios));
+      const gastosBancarios = this.calcularGastosBancarios(subtotalAntesGastosBancarios);
       const totalDescuentos = safeMoney(descuentosSinBancarios + gastosBancarios);
       return {
         canon: safeMoney(this.form.canon),
         administracion: this.form.tieneAdministracion ? safeMoney(this.form.valorAdministracion) : 0,
         ivaCanon,
         totalIngresos,
+        subtotalAntesGastosBancarios,
         valorComision: comision,
         ivaComision,
         valorSeguro: seguro,
@@ -434,13 +449,6 @@ export default {
       if (this.form.aplicarSeguro && this.calc.valorSeguro > 0) {
         rows.push({ label: 'Seguro / póliza de arrendamiento', value: this.calc.valorSeguro });
       }
-      if (this.form.aplicarGastosBancarios && this.calc.gastosBancarios > 0) {
-        const m = this.form.gastosBancarios.modalidad;
-        let gastoLabel = 'Gastos bancarios';
-        if (m === 'cuatro_por_mil') gastoLabel = 'Gastos bancarios (4×1.000 s/ valor a girar)';
-        else if (m === 'porcentaje') gastoLabel = `Gastos bancarios (${this.form.gastosBancarios.porcentaje}% s/ valor a girar)`;
-        rows.push({ label: gastoLabel, value: this.calc.gastosBancarios });
-      }
       if (this.form.condicionesTributarias.aplicarRetencionFuente && this.calc.retencionFuente > 0) {
         rows.push({ label: `Retención en la fuente (${this.form.retenciones.fuente.porcentaje}%) sobre arrendamiento`, value: this.calc.retencionFuente });
       }
@@ -449,6 +457,13 @@ export default {
       }
       if (this.form.condicionesTributarias.aplicarRetencionIva && this.ivaCanonActivo && this.calc.retencionIva > 0) {
         rows.push({ label: `Retención de IVA (${pct}%)`, value: this.calc.retencionIva });
+      }
+      if (this.form.aplicarGastosBancarios && this.calc.gastosBancarios > 0) {
+        const m = this.form.gastosBancarios.modalidad;
+        let gastoLabel = 'Gastos bancarios';
+        if (m === 'cuatro_por_mil') gastoLabel = 'Gastos bancarios (4×1.000 s/ subtotal a recibir)';
+        else if (m === 'porcentaje') gastoLabel = `Gastos bancarios (${this.form.gastosBancarios.porcentaje}% s/ subtotal a recibir)`;
+        rows.push({ label: gastoLabel, value: this.calc.gastosBancarios });
       }
       return rows;
     },
@@ -498,6 +513,28 @@ export default {
     normalizarNumero(v, def = 0) {
       const n = Number(v);
       return Number.isFinite(n) ? Math.max(0, n) : def;
+    },
+
+    escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    },
+
+    formatNoteHtml(value) {
+      const text = String(value || '').trim();
+      if (!text) return '';
+      if (/<[a-z][\s\S]*>/i.test(text)) {
+        return text;
+      }
+
+      return text
+        .split(/\n{2,}/)
+        .map((block) => `<p>${this.escapeHtml(block).replace(/\n/g, '<br>')}</p>`)
+        .join('');
     },
 
     safeMoney(v) {
@@ -1021,6 +1058,10 @@ export default {
   background: #f8fafc;
 }
 
+.row-subtotal {
+  background: #eef4ff;
+}
+
 .row-grand-total {
   background: #1f2937;
   color: #ffffff;
@@ -1065,8 +1106,11 @@ export default {
 }
 
 .sim-actions-bottom {
+  margin-top: 18px;
   display: flex;
-  justify-content: flex-end;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
 }
 
 .sim-actions-bottom button {
@@ -1087,9 +1131,21 @@ export default {
 }
 
 .sim-nota-pie {
-  margin: 6px 0 0;
+  flex: 1 1 auto;
+  margin: 0;
   color: #6b7280;
   font-size: 12px;
+}
+
+.sim-nota-pie :deep(p),
+.sim-nota-pie :deep(ul),
+.sim-nota-pie :deep(ol) {
+  margin: 0 0 0.85em;
+}
+
+.sim-nota-pie :deep(ul),
+.sim-nota-pie :deep(ol) {
+  padding-left: 18px;
 }
 
 @media (max-width: 900px) {
@@ -1111,7 +1167,8 @@ export default {
   }
 
   .sim-actions-bottom {
-    justify-content: stretch;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .sim-actions-bottom button {

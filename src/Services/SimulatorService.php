@@ -99,6 +99,7 @@ class SimulatorService implements ServiceInterface
             'venta' => $settings['venta'],
             'system' => [
                 'logo' => SimulatorSettings::resolveLogo(),
+                'isLoggedIn' => is_user_logged_in(),
             ],
         ];
 

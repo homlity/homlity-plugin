@@ -2,6 +2,26 @@ import { defineCustomElement, defineComponent, h } from 'vue';
 import SimuladorVenta from './SimuladorVenta.vue';
 import SimuladorArriendo from './SimuladorArriendo.vue';
 
+const shadowBaseStyles = `
+  :host {
+    display: block;
+    width: 100%;
+    color: #111827;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: left;
+    box-sizing: border-box;
+  }
+
+  :host,
+  :host *,
+  :host *::before,
+  :host *::after {
+    box-sizing: border-box;
+  }
+`;
+
 const SimuladorRoot = defineComponent({
   name: 'CodweltSimulador',
   props: {
@@ -33,7 +53,10 @@ const SimuladorRoot = defineComponent({
   },
 });
 
-const SimuladorElement = defineCustomElement(SimuladorRoot);
+const SimuladorElement = defineCustomElement(SimuladorRoot, {
+  shadowRoot: true,
+  styles: [shadowBaseStyles],
+});
 
 if (!customElements.get('codwelt-simulador')) {
   customElements.define('codwelt-simulador', SimuladorElement);

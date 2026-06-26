@@ -73,49 +73,23 @@ class Homlity_Consignment_Manager
         $primary_color = sanitize_hex_color($atts['primary_color']) ?: '#2563eb';
         $text_color    = sanitize_hex_color($atts['text_color'])    ?: '#1f2937';
 
-        // The configuracion object is injected after the element mounts.
-        // urlPlugin must be without trailing slash: /wp-json/homlity
-        $url_plugin   = untrailingslashit(rest_url('homlity'));
-        $configuracion = wp_json_encode([
-            'urlPlugin'       => $url_plugin,
-            'theme'           => [
-                'color' => [
-                    'primary' => $primary_color,
-                    'text'    => $text_color,
-                ],
-            ],
-            'georeferencing'  => [
-                'country' => [
-                    'id'   => 1,
-                    'name' => sanitize_text_field(self::option('default_country', 'Colombia')),
-                ],
-            ],
+        $instance_config = wp_json_encode([
+            'provider'      => sanitize_key($atts['provider']),
+            'redirectUrl'   => esc_url_raw($atts['redirect_url']),
+            'primaryColor'  => $primary_color,
+            'textColor'     => $text_color,
         ]);
 
-        // Unique ID to support multiple shortcodes on same page
         static $instance = 0;
         $instance++;
-        $el_id = 'homlity-consignacion-' . $instance;
+        $el_id = 'homlity-consignment-form-root-' . $instance;
 
-        // Inject config as an inline script that runs AFTER the Vue bundle.
-        // wp_add_inline_script appends JS to the bundle's script tag in the footer,
-        // so by the time it executes the custom element is already defined and mounted.
-        wp_add_inline_script(
-            'homlity-consignacion',
-            '(function(){var el=document.getElementById(' . wp_json_encode($el_id) . ');'
-            . 'if(el){el.configuracion=' . $configuracion . ';}})()',
-            'after'
-        );
-
-        // --primary se inyecta como inline style para que el color sea visible
-        // desde el primer render, sin esperar al watcher de Vue.
         return sprintf(
-            '<div class="homlity-consignment-wrap" style="--primary:%s;--homlity-text:%s;">' .
-            '<homlity-consignacion id="%s"></homlity-consignacion>' .
-            '</div>',
+            '<div id="%1$s" class="homlity-consignment-wrap" data-homlity-consignment-root data-config="%2$s" style="--hcf-primary:%3$s;--hcf-text:%4$s;"></div>',
+            esc_attr($el_id),
+            esc_attr($instance_config),
             esc_attr($primary_color),
-            esc_attr($text_color),
-            esc_attr($el_id)
+            esc_attr($text_color)
         );
     }
 
@@ -123,17 +97,26 @@ class Homlity_Consignment_Manager
 
     public static function enqueueAssets(): void
     {
-        $dist = HOMLITY_PLUGIN_URL . 'assets/dist/';
-        $ver  = HOMLITY_PLUGIN_VERSION;
+        $dist_path = HOMLITY_PLUGIN_PATH . 'assets/dist/';
+        $dist_url  = HOMLITY_PLUGIN_URL . 'assets/dist/';
+        $asset_file = $dist_path . 'index.asset.php';
+        $asset = file_exists($asset_file)
+            ? include $asset_file
+            : ['dependencies' => ['wp-element'], 'version' => HOMLITY_PLUGIN_VERSION];
 
-        // Vue web component bundle (self-contained, no dependencies)
         wp_enqueue_script(
-            'homlity-consignacion',
-            $dist . 'homlity-consignacion.js',
-            [],
-            $ver,
+            'homlity-consignment-form',
+            $dist_url . 'index.js',
+            $asset['dependencies'],
+            $asset['version'],
             true
         );
+
+        wp_localize_script('homlity-consignment-form', 'homlityConsignmentConfig', [
+            'restBase' => untrailingslashit(rest_url('homlity/v1/consignment')),
+            'nonce'    => wp_create_nonce('wp_rest'),
+            'cssUrl'   => $dist_url . 'index.css',
+        ]);
     }
 
     // ── Elementor widget ──────────────────────────────────────────────────

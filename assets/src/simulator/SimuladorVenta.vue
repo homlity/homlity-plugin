@@ -51,12 +51,19 @@
     <hr v-if="mostrarComisionPropiedad" />
 
     <!-- ===================== VENDEDOR ===================== -->
-    <div class="sim-section">
-      <h3 class="sim-section-title">Vendedor</h3>
-      <div class="row sim-controls">
+    <div class="sim-section sim-section--protecciones">
+      <h3 class="sim-section-title sim-section-title--collapse" @click="ui.expandirVendedor = !ui.expandirVendedor">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline v-if="ui.expandirVendedor" points="18 15 12 9 6 15"/>
+          <polyline v-else points="6 9 12 15 18 9"/>
+        </svg>
+        Vendedor
+      </h3>
+      <div v-show="ui.expandirVendedor" class="sim-section-body">
+        <div class="row sim-controls">
 
         <!-- Persona jurídica -->
-        <div class="col-4">
+        <div class="col-6">
           <div class="form-group">
             <label><strong>¿El vendedor es persona jurídica?</strong></label>
             <div class="radio-group">
@@ -67,7 +74,7 @@
         </div>
 
         <!-- Cancelación hipoteca vendedor -->
-        <div class="col-4">
+        <div class="col-6">
           <div class="form-group">
             <label><strong>¿Cancelación de hipoteca?</strong></label>
             <div class="radio-group">
@@ -88,23 +95,14 @@
           </div>
         </div>
 
-      </div>
-    </div>
+        </div>
 
-    <!-- Limitaciones y gravámenes del inmueble vendido -->
-    <div class="sim-section sim-section--protecciones">
-      <h3 class="sim-section-title sim-section-title--collapse" @click="ui.expandirLimitacionesVendedor = !ui.expandirLimitacionesVendedor">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polyline v-if="ui.expandirLimitacionesVendedor" points="18 15 12 9 6 15"/>
-          <polyline v-else points="6 9 12 15 18 9"/>
-        </svg>
-        Limitaciones y gravámenes del inmueble vendido
-      </h3>
+        <hr class="sep-bloque" />
 
-      <div v-show="ui.expandirLimitacionesVendedor" class="sim-section-body">
+        <div class="proteccion-bloque">
+          <h4 class="sim-section-title">Limitaciones y gravámenes del inmueble vendido</h4>
 
         <!-- 3.1 Afectación a vivienda familiar existente -->
-        <div class="proteccion-bloque">
           <div class="form-group">
             <label><strong>¿El inmueble tiene afectación a vivienda familiar inscrita?</strong>
               <span class="campo-ayuda">La afectación a vivienda familiar es una restricción legal que limita la libre disposición del inmueble destinado a vivienda del hogar.</span>
@@ -156,12 +154,9 @@
           <div v-if="pf.vendedor.afectacionViviendaFamiliar.estado === 'no_sabe'" class="alerta alerta--info">
             Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría.
           </div>
-        </div>
+          <hr class="sep-bloque" />
 
-        <hr class="sep-bloque" />
-
-        <!-- 3.2 Patrimonio de familia existente -->
-        <div class="proteccion-bloque">
+          <!-- 3.2 Patrimonio de familia existente -->
           <div class="form-group">
             <label><strong>¿El inmueble tiene patrimonio de familia inembargable inscrito?</strong>
               <span class="campo-ayuda">El patrimonio de familia inembargable protege el inmueble de embargos. Puede ser voluntario, asociado a compra VIS o a subsidio de vivienda.</span>
@@ -238,32 +233,36 @@
           </div>
         </div>
 
-      </div>
-    </div>
-
-    <!-- Comisión (opcional) -->
-    <div v-if="nc.comisionHabilitada" class="sim-section">
-      <h3 class="sim-section-title">{{ nc.labelComision || 'Comisión inmobiliaria / asesor' }}</h3>
-      <div class="row sim-controls">
-        <div class="col-12">
-          <div class="form-group form-group--inline">
-            <label class="toggle-label">
-              <input type="checkbox" v-model="incluirComision" class="toggle-input" />
-              <span class="toggle-text">
-                Incluir comisión <strong>{{ nc.porcentajeComision }}%</strong>
-                <span v-if="nc.comisionMinima > 0"> (mínimo ${{ fmtShort(nc.comisionMinima) }})</span>
-                — actualmente <strong>${{ fmt(comisionCalculada) }}</strong>
-              </span>
-            </label>
+        <template v-if="nc.comisionHabilitada">
+          <hr class="sep-bloque" />
+          <div class="proteccion-bloque">
+            <h4 class="sim-section-title">{{ nc.labelComision || 'Comisión inmobiliaria / asesor' }}</h4>
+            <div class="form-group form-group--inline">
+              <label class="toggle-label">
+                <input type="checkbox" v-model="incluirComision" class="toggle-input" />
+                <span class="toggle-text">
+                  Incluir comisión <strong>{{ nc.porcentajeComision }}%</strong>
+                  <span v-if="nc.comisionMinima > 0"> (mínimo ${{ fmtShort(nc.comisionMinima) }})</span>
+                  — actualmente <strong>${{ fmt(comisionCalculada) }}</strong>
+                </span>
+              </label>
+            </div>
           </div>
-        </div>
+        </template>
       </div>
     </div>
 
     <!-- ===================== COMPRADOR ===================== -->
-    <div class="sim-section">
-      <h3 class="sim-section-title">Comprador</h3>
-      <div class="row sim-controls">
+    <div class="sim-section sim-section--protecciones">
+      <h3 class="sim-section-title sim-section-title--collapse" @click="ui.expandirComprador = !ui.expandirComprador">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline v-if="ui.expandirComprador" points="18 15 12 9 6 15"/>
+          <polyline v-else points="6 9 12 15 18 9"/>
+        </svg>
+        Comprador
+      </h3>
+      <div v-show="ui.expandirComprador" class="sim-section-body">
+        <div class="row sim-controls">
 
         <!-- Constitución hipoteca comprador -->
         <div class="col-6">
@@ -287,23 +286,14 @@
           </div>
         </div>
 
-      </div>
-    </div>
+        </div>
 
-    <!-- Protecciones familiares del comprador -->
-    <div class="sim-section sim-section--protecciones">
-      <h3 class="sim-section-title sim-section-title--collapse" @click="ui.expandirProteccionesComprador = !ui.expandirProteccionesComprador">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polyline v-if="ui.expandirProteccionesComprador" points="18 15 12 9 6 15"/>
-          <polyline v-else points="6 9 12 15 18 9"/>
-        </svg>
-        Protecciones familiares que solicita el comprador
-      </h3>
+        <hr class="sep-bloque" />
 
-      <div v-show="ui.expandirProteccionesComprador" class="sim-section-body">
+        <div class="proteccion-bloque">
+          <h4 class="sim-section-title">Protecciones familiares que solicita el comprador</h4>
 
         <!-- 4.1 Afectación a vivienda familiar del comprador -->
-        <div class="proteccion-bloque">
           <div class="form-group">
             <label><strong>¿El comprador adquiere el inmueble para vivienda familiar?</strong></label>
             <div class="radio-group">
@@ -335,12 +325,9 @@
               Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría.
             </div>
           </div>
-        </div>
+          <hr class="sep-bloque" />
 
-        <hr class="sep-bloque" />
-
-        <!-- 4.2 Patrimonio de familia del comprador -->
-        <div class="proteccion-bloque">
+          <!-- 4.2 Patrimonio de familia del comprador -->
           <div class="form-group">
             <label><strong>¿El comprador desea constituir patrimonio de familia?</strong></label>
             <div class="radio-group">
@@ -405,46 +392,6 @@
             </div>
           </div>
 
-        </div>
-      </div>
-    </div>
-
-    <!-- Distribución avanzada -->
-    <div class="dist-avanzada">
-      <button type="button" class="dist-toggle" @click="mostrarDistribucionAvanzada = !mostrarDistribucionAvanzada">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polyline v-if="mostrarDistribucionAvanzada" points="18 15 12 9 6 15"/>
-          <polyline v-else points="6 9 12 15 18 9"/>
-        </svg>
-        Distribución avanzada de gastos
-      </button>
-      <div v-if="mostrarDistribucionAvanzada" class="dist-body">
-        <p class="dist-desc">Ajusta cómo se distribuye cada gasto entre vendedor y comprador. El porcentaje complementario se actualiza automáticamente.</p>
-        <div class="table-wrapper">
-          <table class="dist-table">
-            <thead>
-              <tr><th>Concepto</th><th>Vendedor %</th><th>Comprador %</th></tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in distribucionesEditables" :key="item.key">
-                <td>{{ item.label }}</td>
-                <td>
-                  <input
-                    type="number" min="0" max="100"
-                    :value="distribuciones[item.key]?.vendedor ?? item.defaultVendedor"
-                    @change="actualizarDistribucion(item.key, 'vendedor', $event.target.value)"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number" min="0" max="100"
-                    :value="distribuciones[item.key]?.comprador ?? item.defaultComprador"
-                    @change="actualizarDistribucion(item.key, 'comprador', $event.target.value)"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </div>
     </div>
@@ -540,12 +487,11 @@
 
     <!-- Acciones -->
     <div class="sim-actions-bottom">
+      <div v-if="notaPieHtml" class="sim-nota-pie" v-html="notaPieHtml"></div>
       <button type="button" class="btn-imprimir" :disabled="!canPrint" @click="imprimir">
         Imprimir / PDF
       </button>
     </div>
-
-    <p v-if="nc.notaPie" class="sim-nota-pie">{{ nc.notaPie }}</p>
 
   </div>
 </template>
@@ -595,13 +541,12 @@ export default {
       hipotecacomprador: 0,
       tipoPropiedad: 'no_aplica', // 'no_aplica' | 'urbana' | 'rural'
       incluirComision: true,
-      mostrarDistribucionAvanzada: false,
       distribuciones: { ...DEFAULT_DISTRIBUCIONES },
 
       // Estado UI
       ui: {
-        expandirLimitacionesVendedor: false,
-        expandirProteccionesComprador: false,
+        expandirVendedor: true,
+        expandirComprador: true,
       },
 
       // Estructura nueva de protecciones familiares
@@ -675,6 +620,10 @@ export default {
 
     mostrarComisionPropiedad() {
       return this.nc.comisionPropiedadUrbanaHabilitada || this.nc.comisionPropiedadRuralHabilitada;
+    },
+
+    notaPieHtml() {
+      return this.formatNoteHtml(this.nc.notaPie);
     },
 
     // Config de protecciones con fallback seguro
@@ -1295,16 +1244,16 @@ export default {
 
     // Auto-expandir si el usuario activa alguna protección
     'pf.vendedor.afectacionViviendaFamiliar.estado'(val) {
-      if (val !== 'no') this.ui.expandirLimitacionesVendedor = true;
+      if (val !== 'no') this.ui.expandirVendedor = true;
     },
     'pf.vendedor.patrimonioFamilia.tipo'(val) {
-      if (val !== 'no') this.ui.expandirLimitacionesVendedor = true;
+      if (val !== 'no') this.ui.expandirVendedor = true;
     },
     'pf.comprador.compraParaViviendaFamiliar'(val) {
-      if (val !== 'no') this.ui.expandirProteccionesComprador = true;
+      if (val !== 'no') this.ui.expandirComprador = true;
     },
     'pf.comprador.patrimonioFamilia.tipo'(val) {
-      if (val !== 'no') this.ui.expandirProteccionesComprador = true;
+      if (val !== 'no') this.ui.expandirComprador = true;
     },
   },
 
@@ -1324,6 +1273,28 @@ export default {
   methods: {
     fmt(v) { return formatMoney(v); },
     fmtShort(v) { return formatMoneyShort(v); },
+
+    escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    },
+
+    formatNoteHtml(value) {
+      const text = String(value || '').trim();
+      if (!text) return '';
+      if (/<[a-z][\s\S]*>/i.test(text)) {
+        return text;
+      }
+
+      return text
+        .split(/\n{2,}/)
+        .map((block) => `<p>${this.escapeHtml(block).replace(/\n/g, '<br>')}</p>`)
+        .join('');
+    },
 
     pctTotal(party) {
       if (!this.valorInmueble) return '0,00';
@@ -1522,14 +1493,14 @@ export default {
   align-items: center;
 }
 
-.form-group label {
+.form-group > label {
   display: block;
   margin-bottom: 8px;
   font-size: 13px;
   font-weight: 600;
 }
 
-.form-group input,
+.form-group input:not([type="radio"]):not([type="checkbox"]),
 .form-group select,
 .dist-table input {
   width: 100%;
@@ -1544,7 +1515,7 @@ export default {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.form-group input:focus,
+.form-group input:not([type="radio"]):not([type="checkbox"]):focus,
 .form-group select:focus,
 .dist-table input:focus {
   outline: none;
@@ -1554,10 +1525,26 @@ export default {
 
 .radio-group {
   display: grid;
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px 12px;
 }
 
-.radio-group label,
+.radio-group label {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  margin-bottom: 0;
+  min-height: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  background: #ffffff;
+  font-weight: 500;
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+
 .toggle-label {
   display: flex;
   align-items: flex-start;
@@ -1569,7 +1556,13 @@ export default {
 .radio-group input[type="radio"],
 .radio-group input[type="checkbox"],
 .toggle-input {
-  margin-top: 2px;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
   accent-color: #2563eb;
 }
 
@@ -1815,8 +1808,11 @@ export default {
 }
 
 .sim-actions-bottom {
+  margin-top: 18px;
   display: flex;
-  justify-content: flex-end;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
 }
 
 .btn-imprimir:disabled {
@@ -1825,15 +1821,31 @@ export default {
 }
 
 .sim-nota-pie {
-  margin: 8px 0 0;
+  flex: 1 1 auto;
+  margin: 0;
   color: #6b7280;
   font-size: 12px;
+}
+
+.sim-nota-pie :deep(p),
+.sim-nota-pie :deep(ul),
+.sim-nota-pie :deep(ol) {
+  margin: 0 0 0.85em;
+}
+
+.sim-nota-pie :deep(ul),
+.sim-nota-pie :deep(ol) {
+  padding-left: 18px;
 }
 
 @media (max-width: 900px) {
   .col-4,
   .col-6 {
     flex-basis: 100%;
+  }
+
+  .radio-group {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   }
 
   .summary-cards {
@@ -1850,12 +1862,17 @@ export default {
   }
 
   .sim-actions-bottom {
-    justify-content: stretch;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .btn-imprimir {
     width: 100%;
     justify-content: center;
+  }
+
+  .radio-group {
+    grid-template-columns: 1fr;
   }
 }
 </style>

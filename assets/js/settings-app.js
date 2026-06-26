@@ -735,7 +735,7 @@
                                 key: 'simulator-rent',
                                 eyebrow: __('Simuladores', 'homlity-real-estate'),
                                 title: simulatorFields.arriendo.title,
-                                description: __('Ajusta los valores por defecto y el comportamiento del simulador de arriendo.', 'homlity-real-estate'),
+                                description: __('Ajusta los valores por defecto y el comportamiento del simulador de arriendo. Shortcodes: [homlity_simulador modo="arriendo"] y [homlity_simulador_arriendo].', 'homlity-real-estate'),
                             },
                             el(
                                 'div',
@@ -752,7 +752,7 @@
                                 key: 'simulator-sale',
                                 eyebrow: __('Simuladores', 'homlity-real-estate'),
                                 title: simulatorFields.venta.title,
-                                description: __('Define los porcentajes y etiquetas base del simulador de venta.', 'homlity-real-estate'),
+                                description: __('Define los porcentajes y etiquetas base del simulador de venta. Shortcodes: [homlity_simulador modo="venta"] y [homlity_simulador_venta].', 'homlity-real-estate'),
                             },
                             el(
                                 'div',

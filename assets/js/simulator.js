@@ -7030,7 +7030,7 @@
   function safeMoney(value) {
     return Math.round(Number(value) || 0);
   }
-  const _style_0$1 = '\n.simulador-venta[data-v-ea39da31] {\n  color: #111827;\n  font-size: 14px;\n  line-height: 1.5;\n}\n.sim-section[data-v-ea39da31] {\n  margin-bottom: 18px;\n  padding: 18px;\n  background: #ffffff;\n  border: 1px solid #e5e7eb;\n  border-radius: 14px;\n  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);\n}\n.sim-section > hr[data-v-ea39da31],\n.simulador-venta > hr[data-v-ea39da31] {\n  margin: 18px 0;\n  border: 0;\n  border-top: 1px solid #e5e7eb;\n}\n.row.sim-controls[data-v-ea39da31] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 16px;\n}\n.col-12[data-v-ea39da31],\n.col-6[data-v-ea39da31],\n.col-4[data-v-ea39da31] {\n  min-width: 0;\n  box-sizing: border-box;\n}\n.col-12[data-v-ea39da31] {\n  flex: 1 1 100%;\n}\n.col-6[data-v-ea39da31] {\n  flex: 1 1 calc(50% - 8px);\n}\n.col-4[data-v-ea39da31] {\n  flex: 1 1 calc(33.333% - 11px);\n}\n.sim-section--protecciones[data-v-ea39da31],\n.dist-avanzada[data-v-ea39da31],\n.sim-results > .card[data-v-ea39da31] {\n  background: #ffffff;\n  border: 1px solid #e5e7eb;\n  border-radius: 14px;\n  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);\n}\n.form-group[data-v-ea39da31] {\n  padding: 16px;\n  background: #f8fafc;\n  border: 1px solid #dbe3ee;\n  border-radius: 12px;\n}\n.form-group--inline[data-v-ea39da31] {\n  display: flex;\n  align-items: center;\n}\n.form-group label[data-v-ea39da31] {\n  display: block;\n  margin-bottom: 8px;\n  font-size: 13px;\n  font-weight: 600;\n}\n.form-group input[data-v-ea39da31],\n.form-group select[data-v-ea39da31],\n.dist-table input[data-v-ea39da31] {\n  width: 100%;\n  min-width: 0;\n  padding: 10px 12px;\n  border: 1px solid #cbd5e1;\n  border-radius: 10px;\n  background: #ffffff;\n  color: #111827;\n  font-size: 14px;\n  box-sizing: border-box;\n  transition: border-color 0.2s ease, box-shadow 0.2s ease;\n}\n.form-group input[data-v-ea39da31]:focus,\n.form-group select[data-v-ea39da31]:focus,\n.dist-table input[data-v-ea39da31]:focus {\n  outline: none;\n  border-color: #2563eb;\n  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);\n}\n.radio-group[data-v-ea39da31] {\n  display: grid;\n  gap: 8px;\n}\n.radio-group label[data-v-ea39da31],\n.toggle-label[data-v-ea39da31] {\n  display: flex;\n  align-items: flex-start;\n  gap: 10px;\n  margin-bottom: 0;\n  font-weight: 500;\n}\n.radio-group input[type="radio"][data-v-ea39da31],\n.radio-group input[type="checkbox"][data-v-ea39da31],\n.toggle-input[data-v-ea39da31] {\n  margin-top: 2px;\n  accent-color: #2563eb;\n}\n.toggle-text[data-v-ea39da31] {\n  display: inline-block;\n}\n.sub-input[data-v-ea39da31],\n.sub-bloque[data-v-ea39da31] {\n  margin-top: 12px;\n}\n.sim-section--protecciones[data-v-ea39da31] {\n  padding: 16px;\n  background: #f9fafb;\n}\n.sim-section-title[data-v-ea39da31] {\n  margin: 0 0 12px;\n  color: #0f172a;\n  font-size: 18px;\n  font-weight: 700;\n}\n.sim-section-title--collapse[data-v-ea39da31] {\n  cursor: pointer;\n  user-select: none;\n  display: flex;\n  align-items: center;\n  gap: 6px;\n}\n.sim-section-body[data-v-ea39da31] {\n  padding-top: 12px;\n}\n.proteccion-bloque[data-v-ea39da31] {\n  margin-bottom: 16px;\n}\n.sub-bloque[data-v-ea39da31] {\n  margin-left: 20px;\n  padding-left: 12px;\n  border-left: 3px solid #d1d5db;\n}\n.sep-bloque[data-v-ea39da31] {\n  border: none;\n  border-top: 1px dashed #d1d5db;\n  margin: 16px 0;\n}\n.campo-ayuda[data-v-ea39da31] {\n  display: block;\n  margin-top: 2px;\n  color: #6b7280;\n  font-size: 11px;\n  font-weight: 400;\n  line-height: 1.45;\n}\n.alerta[data-v-ea39da31] {\n  margin-top: 8px;\n  padding: 10px 12px;\n  border-radius: 6px;\n  font-size: 12px;\n  line-height: 1.5;\n}\n.alerta--warning[data-v-ea39da31] {\n  background: #fffbeb;\n  border: 1px solid #f59e0b;\n  color: #92400e;\n}\n.alerta--danger[data-v-ea39da31] {\n  background: #fef2f2;\n  border: 1px solid #ef4444;\n  color: #991b1b;\n}\n.alerta--info[data-v-ea39da31] {\n  background: #eff6ff;\n  border: 1px solid #3b82f6;\n  color: #1e40af;\n}\n.alerta--sm[data-v-ea39da31] {\n  padding: 6px 10px;\n  font-size: 11px;\n}\n.badge[data-v-ea39da31] {\n  display: inline-block;\n  padding: 2px 8px;\n  border-radius: 9999px;\n  font-size: 10px;\n  font-weight: 600;\n  white-space: nowrap;\n}\n.badge-success[data-v-ea39da31] { background: #d1fae5; color: #065f46;\n}\n.badge-warning[data-v-ea39da31] { background: #fef3c7; color: #92400e;\n}\n.badge-danger[data-v-ea39da31]  { background: #fee2e2; color: #991b1b;\n}\n.badge-default[data-v-ea39da31] { background: #f3f4f6; color: #374151;\n}\n.table-wrapper[data-v-ea39da31] {\n  width: 100%;\n  overflow-x: auto;\n}\n.dist-avanzada[data-v-ea39da31],\n.sim-results > .card[data-v-ea39da31] {\n  padding: 16px;\n}\n.dist-toggle[data-v-ea39da31],\n.btn-imprimir[data-v-ea39da31] {\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  padding: 11px 18px;\n  border: 0;\n  border-radius: 10px;\n  background: linear-gradient(135deg, #0f172a, #334155);\n  color: #ffffff;\n  font-size: 13px;\n  font-weight: 700;\n  cursor: pointer;\n  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);\n}\n.dist-body[data-v-ea39da31] {\n  margin-top: 14px;\n}\n.dist-desc[data-v-ea39da31] {\n  margin: 0 0 14px;\n  color: #64748b;\n  font-size: 13px;\n}\n.dist-table[data-v-ea39da31],\n.results-table[data-v-ea39da31] {\n  width: 100%;\n  min-width: 720px;\n  border-collapse: collapse;\n  table-layout: fixed;\n}\n.dist-table th[data-v-ea39da31],\n.dist-table td[data-v-ea39da31],\n.results-table th[data-v-ea39da31],\n.results-table td[data-v-ea39da31] {\n  padding: 12px 10px;\n  border-bottom: 1px solid #e5e7eb;\n  text-align: left;\n  vertical-align: top;\n}\n.dist-table th[data-v-ea39da31],\n.results-table th[data-v-ea39da31] {\n  background: #f8fafc;\n  color: #334155;\n  font-size: 12px;\n  font-weight: 700;\n}\n.results-cell-label[data-v-ea39da31] {\n  font-weight: 600;\n}\n.results-cell-value[data-v-ea39da31] {\n  white-space: nowrap;\n}\n.results-row--validacion td[data-v-ea39da31] {\n  background: #fff7ed;\n}\n.tarifa-texto[data-v-ea39da31] {\n  font-size: 10px;\n  color: #6b7280;\n}\n.results-row--alerta td[data-v-ea39da31] {\n  padding: 4px 8px;\n  background: #fffbeb;\n}\n.row-total[data-v-ea39da31] {\n  background: #f8fafc;\n}\n.row-grand-total[data-v-ea39da31] {\n  background: #1f2937;\n  color: #ffffff;\n}\n.summary-cards[data-v-ea39da31] {\n  display: grid;\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n  gap: 12px;\n  margin-top: 16px;\n}\n.summary-card[data-v-ea39da31] {\n  padding: 16px;\n  border: 1px solid #e5e7eb;\n  border-radius: 12px;\n  background: linear-gradient(180deg, #ffffff, #f8fafc);\n}\n.summary-card span[data-v-ea39da31] {\n  display: block;\n  color: #64748b;\n  font-size: 12px;\n  font-weight: 600;\n}\n.card-amount[data-v-ea39da31] {\n  margin-top: 8px;\n  color: #0f172a;\n  font-size: 22px;\n  font-weight: 700;\n}\n.card-sub[data-v-ea39da31] {\n  margin-top: 4px;\n  color: #64748b;\n  font-size: 12px;\n}\n.summary-item-highlight[data-v-ea39da31] {\n  background: linear-gradient(135deg, #1f2937, #334155);\n  border-color: transparent;\n}\n.summary-item-highlight span[data-v-ea39da31],\n.summary-item-highlight .card-amount[data-v-ea39da31],\n.summary-item-highlight .card-sub[data-v-ea39da31] {\n  color: #ffffff;\n}\n.sim-actions-bottom[data-v-ea39da31] {\n  display: flex;\n  justify-content: flex-end;\n}\n.btn-imprimir[data-v-ea39da31]:disabled {\n  opacity: 0.55;\n  cursor: not-allowed;\n}\n.sim-nota-pie[data-v-ea39da31] {\n  margin: 8px 0 0;\n  color: #6b7280;\n  font-size: 12px;\n}\n@media (max-width: 900px) {\n.col-4[data-v-ea39da31],\n  .col-6[data-v-ea39da31] {\n    flex-basis: 100%;\n}\n.summary-cards[data-v-ea39da31] {\n    grid-template-columns: 1fr;\n}\n}\n@media (max-width: 640px) {\n.sim-section[data-v-ea39da31],\n  .form-group[data-v-ea39da31],\n  .dist-avanzada[data-v-ea39da31],\n  .sim-section--protecciones[data-v-ea39da31] {\n    padding: 14px;\n}\n.sim-actions-bottom[data-v-ea39da31] {\n    justify-content: stretch;\n}\n.btn-imprimir[data-v-ea39da31] {\n    width: 100%;\n    justify-content: center;\n}\n}\n';
+  const _style_0$1 = '\n.simulador-venta[data-v-627a44c0] {\n  color: #111827;\n  font-size: 14px;\n  line-height: 1.5;\n}\n.sim-section[data-v-627a44c0] {\n  margin-bottom: 18px;\n  padding: 18px;\n  background: #ffffff;\n  border: 1px solid #e5e7eb;\n  border-radius: 14px;\n  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);\n}\n.sim-section > hr[data-v-627a44c0],\n.simulador-venta > hr[data-v-627a44c0] {\n  margin: 18px 0;\n  border: 0;\n  border-top: 1px solid #e5e7eb;\n}\n.row.sim-controls[data-v-627a44c0] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 16px;\n}\n.col-12[data-v-627a44c0],\n.col-6[data-v-627a44c0],\n.col-4[data-v-627a44c0] {\n  min-width: 0;\n  box-sizing: border-box;\n}\n.col-12[data-v-627a44c0] {\n  flex: 1 1 100%;\n}\n.col-6[data-v-627a44c0] {\n  flex: 1 1 calc(50% - 8px);\n}\n.col-4[data-v-627a44c0] {\n  flex: 1 1 calc(33.333% - 11px);\n}\n.sim-section--protecciones[data-v-627a44c0],\n.dist-avanzada[data-v-627a44c0],\n.sim-results > .card[data-v-627a44c0] {\n  background: #ffffff;\n  border: 1px solid #e5e7eb;\n  border-radius: 14px;\n  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);\n}\n.form-group[data-v-627a44c0] {\n  padding: 16px;\n  background: #f8fafc;\n  border: 1px solid #dbe3ee;\n  border-radius: 12px;\n}\n.form-group--inline[data-v-627a44c0] {\n  display: flex;\n  align-items: center;\n}\n.form-group > label[data-v-627a44c0] {\n  display: block;\n  margin-bottom: 8px;\n  font-size: 13px;\n  font-weight: 600;\n}\n.form-group input[data-v-627a44c0]:not([type="radio"]):not([type="checkbox"]),\n.form-group select[data-v-627a44c0],\n.dist-table input[data-v-627a44c0] {\n  width: 100%;\n  min-width: 0;\n  padding: 10px 12px;\n  border: 1px solid #cbd5e1;\n  border-radius: 10px;\n  background: #ffffff;\n  color: #111827;\n  font-size: 14px;\n  box-sizing: border-box;\n  transition: border-color 0.2s ease, box-shadow 0.2s ease;\n}\n.form-group input[data-v-627a44c0]:not([type="radio"]):not([type="checkbox"]):focus,\n.form-group select[data-v-627a44c0]:focus,\n.dist-table input[data-v-627a44c0]:focus {\n  outline: none;\n  border-color: #2563eb;\n  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);\n}\n.radio-group[data-v-627a44c0] {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\n  gap: 10px 12px;\n}\n.radio-group label[data-v-627a44c0] {\n  display: grid;\n  grid-template-columns: 18px minmax(0, 1fr);\n  align-items: start;\n  gap: 12px;\n  margin-bottom: 0;\n  min-height: 100%;\n  padding: 12px 14px;\n  border: 1px solid #dbe3ee;\n  border-radius: 12px;\n  background: #ffffff;\n  font-weight: 500;\n  line-height: 1.45;\n  box-sizing: border-box;\n}\n.toggle-label[data-v-627a44c0] {\n  display: flex;\n  align-items: flex-start;\n  gap: 10px;\n  margin-bottom: 0;\n  font-weight: 500;\n}\n.radio-group input[type="radio"][data-v-627a44c0],\n.radio-group input[type="checkbox"][data-v-627a44c0],\n.toggle-input[data-v-627a44c0] {\n  width: 18px;\n  height: 18px;\n  margin: 2px 0 0;\n  padding: 0;\n  border: 0;\n  box-shadow: none;\n  background: transparent;\n  accent-color: #2563eb;\n}\n.toggle-text[data-v-627a44c0] {\n  display: inline-block;\n}\n.sub-input[data-v-627a44c0],\n.sub-bloque[data-v-627a44c0] {\n  margin-top: 12px;\n}\n.sim-section--protecciones[data-v-627a44c0] {\n  padding: 16px;\n  background: #f9fafb;\n}\n.sim-section-title[data-v-627a44c0] {\n  margin: 0 0 12px;\n  color: #0f172a;\n  font-size: 18px;\n  font-weight: 700;\n}\n.sim-section-title--collapse[data-v-627a44c0] {\n  cursor: pointer;\n  user-select: none;\n  display: flex;\n  align-items: center;\n  gap: 6px;\n}\n.sim-section-body[data-v-627a44c0] {\n  padding-top: 12px;\n}\n.proteccion-bloque[data-v-627a44c0] {\n  margin-bottom: 16px;\n}\n.sub-bloque[data-v-627a44c0] {\n  margin-left: 20px;\n  padding-left: 12px;\n  border-left: 3px solid #d1d5db;\n}\n.sep-bloque[data-v-627a44c0] {\n  border: none;\n  border-top: 1px dashed #d1d5db;\n  margin: 16px 0;\n}\n.campo-ayuda[data-v-627a44c0] {\n  display: block;\n  margin-top: 2px;\n  color: #6b7280;\n  font-size: 11px;\n  font-weight: 400;\n  line-height: 1.45;\n}\n.alerta[data-v-627a44c0] {\n  margin-top: 8px;\n  padding: 10px 12px;\n  border-radius: 6px;\n  font-size: 12px;\n  line-height: 1.5;\n}\n.alerta--warning[data-v-627a44c0] {\n  background: #fffbeb;\n  border: 1px solid #f59e0b;\n  color: #92400e;\n}\n.alerta--danger[data-v-627a44c0] {\n  background: #fef2f2;\n  border: 1px solid #ef4444;\n  color: #991b1b;\n}\n.alerta--info[data-v-627a44c0] {\n  background: #eff6ff;\n  border: 1px solid #3b82f6;\n  color: #1e40af;\n}\n.alerta--sm[data-v-627a44c0] {\n  padding: 6px 10px;\n  font-size: 11px;\n}\n.badge[data-v-627a44c0] {\n  display: inline-block;\n  padding: 2px 8px;\n  border-radius: 9999px;\n  font-size: 10px;\n  font-weight: 600;\n  white-space: nowrap;\n}\n.badge-success[data-v-627a44c0] { background: #d1fae5; color: #065f46;\n}\n.badge-warning[data-v-627a44c0] { background: #fef3c7; color: #92400e;\n}\n.badge-danger[data-v-627a44c0]  { background: #fee2e2; color: #991b1b;\n}\n.badge-default[data-v-627a44c0] { background: #f3f4f6; color: #374151;\n}\n.table-wrapper[data-v-627a44c0] {\n  width: 100%;\n  overflow-x: auto;\n}\n.dist-avanzada[data-v-627a44c0],\n.sim-results > .card[data-v-627a44c0] {\n  padding: 16px;\n}\n.dist-toggle[data-v-627a44c0],\n.btn-imprimir[data-v-627a44c0] {\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  padding: 11px 18px;\n  border: 0;\n  border-radius: 10px;\n  background: linear-gradient(135deg, #0f172a, #334155);\n  color: #ffffff;\n  font-size: 13px;\n  font-weight: 700;\n  cursor: pointer;\n  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);\n}\n.dist-body[data-v-627a44c0] {\n  margin-top: 14px;\n}\n.dist-desc[data-v-627a44c0] {\n  margin: 0 0 14px;\n  color: #64748b;\n  font-size: 13px;\n}\n.dist-table[data-v-627a44c0],\n.results-table[data-v-627a44c0] {\n  width: 100%;\n  min-width: 720px;\n  border-collapse: collapse;\n  table-layout: fixed;\n}\n.dist-table th[data-v-627a44c0],\n.dist-table td[data-v-627a44c0],\n.results-table th[data-v-627a44c0],\n.results-table td[data-v-627a44c0] {\n  padding: 12px 10px;\n  border-bottom: 1px solid #e5e7eb;\n  text-align: left;\n  vertical-align: top;\n}\n.dist-table th[data-v-627a44c0],\n.results-table th[data-v-627a44c0] {\n  background: #f8fafc;\n  color: #334155;\n  font-size: 12px;\n  font-weight: 700;\n}\n.results-cell-label[data-v-627a44c0] {\n  font-weight: 600;\n}\n.results-cell-value[data-v-627a44c0] {\n  white-space: nowrap;\n}\n.results-row--validacion td[data-v-627a44c0] {\n  background: #fff7ed;\n}\n.tarifa-texto[data-v-627a44c0] {\n  font-size: 10px;\n  color: #6b7280;\n}\n.results-row--alerta td[data-v-627a44c0] {\n  padding: 4px 8px;\n  background: #fffbeb;\n}\n.row-total[data-v-627a44c0] {\n  background: #f8fafc;\n}\n.row-grand-total[data-v-627a44c0] {\n  background: #1f2937;\n  color: #ffffff;\n}\n.summary-cards[data-v-627a44c0] {\n  display: grid;\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n  gap: 12px;\n  margin-top: 16px;\n}\n.summary-card[data-v-627a44c0] {\n  padding: 16px;\n  border: 1px solid #e5e7eb;\n  border-radius: 12px;\n  background: linear-gradient(180deg, #ffffff, #f8fafc);\n}\n.summary-card span[data-v-627a44c0] {\n  display: block;\n  color: #64748b;\n  font-size: 12px;\n  font-weight: 600;\n}\n.card-amount[data-v-627a44c0] {\n  margin-top: 8px;\n  color: #0f172a;\n  font-size: 22px;\n  font-weight: 700;\n}\n.card-sub[data-v-627a44c0] {\n  margin-top: 4px;\n  color: #64748b;\n  font-size: 12px;\n}\n.summary-item-highlight[data-v-627a44c0] {\n  background: linear-gradient(135deg, #1f2937, #334155);\n  border-color: transparent;\n}\n.summary-item-highlight span[data-v-627a44c0],\n.summary-item-highlight .card-amount[data-v-627a44c0],\n.summary-item-highlight .card-sub[data-v-627a44c0] {\n  color: #ffffff;\n}\n.sim-actions-bottom[data-v-627a44c0] {\n  margin-top: 18px;\n  display: flex;\n  align-items: flex-start;\n  justify-content: space-between;\n  gap: 18px;\n}\n.btn-imprimir[data-v-627a44c0]:disabled {\n  opacity: 0.55;\n  cursor: not-allowed;\n}\n.sim-nota-pie[data-v-627a44c0] {\n  flex: 1 1 auto;\n  margin: 0;\n  color: #6b7280;\n  font-size: 12px;\n}\n.sim-nota-pie[data-v-627a44c0] p,\n.sim-nota-pie[data-v-627a44c0] ul,\n.sim-nota-pie[data-v-627a44c0] ol {\n  margin: 0 0 0.85em;\n}\n.sim-nota-pie[data-v-627a44c0] ul,\n.sim-nota-pie[data-v-627a44c0] ol {\n  padding-left: 18px;\n}\n@media (max-width: 900px) {\n.col-4[data-v-627a44c0],\n  .col-6[data-v-627a44c0] {\n    flex-basis: 100%;\n}\n.radio-group[data-v-627a44c0] {\n    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));\n}\n.summary-cards[data-v-627a44c0] {\n    grid-template-columns: 1fr;\n}\n}\n@media (max-width: 640px) {\n.sim-section[data-v-627a44c0],\n  .form-group[data-v-627a44c0],\n  .dist-avanzada[data-v-627a44c0],\n  .sim-section--protecciones[data-v-627a44c0] {\n    padding: 14px;\n}\n.sim-actions-bottom[data-v-627a44c0] {\n    flex-direction: column;\n    align-items: stretch;\n}\n.btn-imprimir[data-v-627a44c0] {\n    width: 100%;\n    justify-content: center;\n}\n.radio-group[data-v-627a44c0] {\n    grid-template-columns: 1fr;\n}\n}\n';
   const _export_sfc = (sfc, props) => {
     const target = sfc.__vccOpts || sfc;
     for (const [key, val] of props) {
@@ -7076,12 +7076,11 @@
         tipoPropiedad: "no_aplica",
         // 'no_aplica' | 'urbana' | 'rural'
         incluirComision: true,
-        mostrarDistribucionAvanzada: false,
         distribuciones: { ...DEFAULT_DISTRIBUCIONES },
         // Estado UI
         ui: {
-          expandirLimitacionesVendedor: false,
-          expandirProteccionesComprador: false
+          expandirVendedor: true,
+          expandirComprador: true
         },
         // Estructura nueva de protecciones familiares
         pf: {
@@ -7152,6 +7151,9 @@
       },
       mostrarComisionPropiedad() {
         return this.nc.comisionPropiedadUrbanaHabilitada || this.nc.comisionPropiedadRuralHabilitada;
+      },
+      notaPieHtml() {
+        return this.formatNoteHtml(this.nc.notaPie);
       },
       // Config de protecciones con fallback seguro
       pfConfig() {
@@ -7731,16 +7733,16 @@
       },
       // Auto-expandir si el usuario activa alguna protección
       "pf.vendedor.afectacionViviendaFamiliar.estado"(val) {
-        if (val !== "no") this.ui.expandirLimitacionesVendedor = true;
+        if (val !== "no") this.ui.expandirVendedor = true;
       },
       "pf.vendedor.patrimonioFamilia.tipo"(val) {
-        if (val !== "no") this.ui.expandirLimitacionesVendedor = true;
+        if (val !== "no") this.ui.expandirVendedor = true;
       },
       "pf.comprador.compraParaViviendaFamiliar"(val) {
-        if (val !== "no") this.ui.expandirProteccionesComprador = true;
+        if (val !== "no") this.ui.expandirComprador = true;
       },
       "pf.comprador.patrimonioFamilia.tipo"(val) {
-        if (val !== "no") this.ui.expandirProteccionesComprador = true;
+        if (val !== "no") this.ui.expandirComprador = true;
       }
     },
     created() {
@@ -7758,6 +7760,17 @@
       },
       fmtShort(v) {
         return formatMoneyShort(v);
+      },
+      escapeHtml(value) {
+        return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      },
+      formatNoteHtml(value) {
+        const text = String(value || "").trim();
+        if (!text) return "";
+        if (/<[a-z][\s\S]*>/i.test(text)) {
+          return text;
+        }
+        return text.split(/\n{2,}/).map((block) => `<p>${this.escapeHtml(block).replace(/\n/g, "<br>")}</p>`).join("");
       },
       pctTotal(party) {
         if (!this.valorInmueble) return "0,00";
@@ -7892,24 +7905,8 @@
   const _hoisted_11$1 = { key: 0 };
   const _hoisted_12$1 = { key: 1 };
   const _hoisted_13$1 = { key: 1 };
-  const _hoisted_14$1 = { class: "sim-section" };
-  const _hoisted_15$1 = { class: "row sim-controls" };
-  const _hoisted_16$1 = { class: "col-4" };
-  const _hoisted_17$1 = { class: "form-group" };
-  const _hoisted_18$1 = { class: "radio-group" };
-  const _hoisted_19$1 = { class: "col-4" };
-  const _hoisted_20$1 = { class: "form-group" };
-  const _hoisted_21$1 = { class: "radio-group" };
-  const _hoisted_22$1 = {
-    key: 0,
-    class: "sub-input"
-  };
-  const _hoisted_23$1 = {
-    key: 0,
-    class: "field-error"
-  };
-  const _hoisted_24$1 = { class: "sim-section sim-section--protecciones" };
-  const _hoisted_25$1 = {
+  const _hoisted_14$1 = { class: "sim-section sim-section--protecciones" };
+  const _hoisted_15$1 = {
     width: "14",
     height: "14",
     viewBox: "0 0 24 24",
@@ -7917,78 +7914,104 @@
     stroke: "currentColor",
     "stroke-width": "2.5"
   };
-  const _hoisted_26$1 = {
+  const _hoisted_16$1 = {
     key: 0,
     points: "18 15 12 9 6 15"
   };
-  const _hoisted_27$1 = {
+  const _hoisted_17$1 = {
     key: 1,
     points: "6 9 12 15 18 9"
   };
-  const _hoisted_28$1 = { class: "sim-section-body" };
-  const _hoisted_29$1 = { class: "proteccion-bloque" };
-  const _hoisted_30$1 = { class: "form-group" };
-  const _hoisted_31$1 = { class: "radio-group" };
-  const _hoisted_32$1 = {
+  const _hoisted_18$1 = { class: "sim-section-body" };
+  const _hoisted_19$1 = { class: "row sim-controls" };
+  const _hoisted_20$1 = { class: "col-6" };
+  const _hoisted_21$1 = { class: "form-group" };
+  const _hoisted_22$1 = { class: "radio-group" };
+  const _hoisted_23$1 = { class: "col-6" };
+  const _hoisted_24$1 = { class: "form-group" };
+  const _hoisted_25$1 = { class: "radio-group" };
+  const _hoisted_26$1 = {
+    key: 0,
+    class: "sub-input"
+  };
+  const _hoisted_27$1 = {
+    key: 0,
+    class: "field-error"
+  };
+  const _hoisted_28$1 = { class: "proteccion-bloque" };
+  const _hoisted_29$1 = { class: "form-group" };
+  const _hoisted_30$1 = { class: "radio-group" };
+  const _hoisted_31$1 = {
     key: 0,
     class: "sub-bloque"
   };
-  const _hoisted_33$1 = { class: "form-group" };
-  const _hoisted_34$1 = { class: "radio-group" };
-  const _hoisted_35$1 = { key: 0 };
-  const _hoisted_36$1 = { class: "form-group" };
-  const _hoisted_37$1 = { class: "radio-group" };
-  const _hoisted_38$1 = { class: "form-group" };
-  const _hoisted_39$1 = { class: "radio-group" };
-  const _hoisted_40$1 = {
+  const _hoisted_32$1 = { class: "form-group" };
+  const _hoisted_33$1 = { class: "radio-group" };
+  const _hoisted_34$1 = { key: 0 };
+  const _hoisted_35$1 = { class: "form-group" };
+  const _hoisted_36$1 = { class: "radio-group" };
+  const _hoisted_37$1 = { class: "form-group" };
+  const _hoisted_38$1 = { class: "radio-group" };
+  const _hoisted_39$1 = {
     key: 1,
     class: "alerta alerta--warning"
   };
-  const _hoisted_41$1 = {
+  const _hoisted_40$1 = {
     key: 1,
     class: "alerta alerta--info"
   };
-  const _hoisted_42$1 = { class: "proteccion-bloque" };
-  const _hoisted_43$1 = { class: "form-group" };
-  const _hoisted_44$1 = { class: "radio-group" };
-  const _hoisted_45$1 = {
-    key: 0,
+  const _hoisted_41$1 = { class: "form-group" };
+  const _hoisted_42$1 = { class: "radio-group" };
+  const _hoisted_43$1 = {
+    key: 2,
     class: "sub-bloque"
   };
+  const _hoisted_44$1 = { class: "form-group" };
+  const _hoisted_45$1 = { key: 0 };
   const _hoisted_46$1 = { class: "form-group" };
-  const _hoisted_47$1 = { key: 0 };
+  const _hoisted_47$1 = { class: "radio-group" };
   const _hoisted_48$1 = { class: "form-group" };
   const _hoisted_49$1 = { class: "radio-group" };
   const _hoisted_50$1 = { class: "form-group" };
   const _hoisted_51$1 = { class: "radio-group" };
   const _hoisted_52$1 = { class: "form-group" };
   const _hoisted_53$1 = { class: "radio-group" };
-  const _hoisted_54$1 = { class: "form-group" };
-  const _hoisted_55$1 = { class: "radio-group" };
-  const _hoisted_56$1 = {
+  const _hoisted_54$1 = {
     key: 1,
     class: "alerta alerta--danger"
   };
-  const _hoisted_57$1 = {
+  const _hoisted_55$1 = {
     key: 2,
     class: "alerta alerta--warning"
   };
-  const _hoisted_58$1 = {
+  const _hoisted_56$1 = {
     key: 3,
     class: "alerta alerta--info"
   };
-  const _hoisted_59$1 = {
-    key: 2,
-    class: "sim-section"
+  const _hoisted_57$1 = { class: "proteccion-bloque" };
+  const _hoisted_58$1 = { class: "sim-section-title" };
+  const _hoisted_59$1 = { class: "form-group form-group--inline" };
+  const _hoisted_60$1 = { class: "toggle-label" };
+  const _hoisted_61$1 = { class: "toggle-text" };
+  const _hoisted_62$1 = { key: 0 };
+  const _hoisted_63$1 = { class: "sim-section sim-section--protecciones" };
+  const _hoisted_64$1 = {
+    width: "14",
+    height: "14",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    "stroke-width": "2.5"
   };
-  const _hoisted_60$1 = { class: "sim-section-title" };
-  const _hoisted_61$1 = { class: "row sim-controls" };
-  const _hoisted_62$1 = { class: "col-12" };
-  const _hoisted_63$1 = { class: "form-group form-group--inline" };
-  const _hoisted_64$1 = { class: "toggle-label" };
-  const _hoisted_65$1 = { class: "toggle-text" };
-  const _hoisted_66$1 = { key: 0 };
-  const _hoisted_67$1 = { class: "sim-section" };
+  const _hoisted_65$1 = {
+    key: 0,
+    points: "18 15 12 9 6 15"
+  };
+  const _hoisted_66$1 = {
+    key: 1,
+    points: "6 9 12 15 18 9"
+  };
+  const _hoisted_67$1 = { class: "sim-section-body" };
   const _hoisted_68$1 = { class: "row sim-controls" };
   const _hoisted_69$1 = { class: "col-6" };
   const _hoisted_70$1 = { class: "form-group" };
@@ -7997,139 +8020,92 @@
     key: 0,
     class: "sub-input"
   };
-  const _hoisted_73 = {
+  const _hoisted_73$1 = {
     key: 0,
     class: "field-error"
   };
-  const _hoisted_74 = { class: "sim-section sim-section--protecciones" };
-  const _hoisted_75 = {
-    width: "14",
-    height: "14",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    "stroke-width": "2.5"
-  };
-  const _hoisted_76 = {
-    key: 0,
-    points: "18 15 12 9 6 15"
-  };
+  const _hoisted_74 = { class: "proteccion-bloque" };
+  const _hoisted_75 = { class: "form-group" };
+  const _hoisted_76 = { class: "radio-group" };
   const _hoisted_77 = {
-    key: 1,
-    points: "6 9 12 15 18 9"
-  };
-  const _hoisted_78 = { class: "sim-section-body" };
-  const _hoisted_79 = { class: "proteccion-bloque" };
-  const _hoisted_80 = { class: "form-group" };
-  const _hoisted_81 = { class: "radio-group" };
-  const _hoisted_82 = {
     key: 0,
     class: "sub-bloque"
   };
-  const _hoisted_83 = { class: "form-group" };
-  const _hoisted_84 = { class: "radio-group" };
-  const _hoisted_85 = { class: "form-group" };
-  const _hoisted_86 = {
+  const _hoisted_78 = { class: "form-group" };
+  const _hoisted_79 = { class: "radio-group" };
+  const _hoisted_80 = { class: "form-group" };
+  const _hoisted_81 = {
     key: 0,
     class: "alerta alerta--info"
   };
-  const _hoisted_87 = { class: "proteccion-bloque" };
-  const _hoisted_88 = { class: "form-group" };
-  const _hoisted_89 = { class: "radio-group" };
-  const _hoisted_90 = {
-    key: 0,
+  const _hoisted_82 = { class: "form-group" };
+  const _hoisted_83 = { class: "radio-group" };
+  const _hoisted_84 = {
+    key: 1,
     class: "sub-bloque"
   };
-  const _hoisted_91 = { class: "form-group" };
-  const _hoisted_92 = { class: "radio-group" };
+  const _hoisted_85 = { class: "form-group" };
+  const _hoisted_86 = { class: "radio-group" };
+  const _hoisted_87 = { class: "form-group" };
+  const _hoisted_88 = { class: "radio-group" };
+  const _hoisted_89 = { class: "form-group" };
+  const _hoisted_90 = { class: "radio-group" };
+  const _hoisted_91 = {
+    key: 0,
+    class: "alerta alerta--danger"
+  };
+  const _hoisted_92 = {
+    key: 2,
+    class: "sub-bloque"
+  };
   const _hoisted_93 = { class: "form-group" };
   const _hoisted_94 = { class: "radio-group" };
   const _hoisted_95 = { class: "form-group" };
   const _hoisted_96 = { class: "radio-group" };
-  const _hoisted_97 = {
-    key: 0,
-    class: "alerta alerta--danger"
-  };
-  const _hoisted_98 = {
-    key: 1,
-    class: "sub-bloque"
-  };
-  const _hoisted_99 = { class: "form-group" };
-  const _hoisted_100 = { class: "radio-group" };
-  const _hoisted_101 = { class: "form-group" };
-  const _hoisted_102 = { class: "radio-group" };
-  const _hoisted_103 = { class: "dist-avanzada" };
-  const _hoisted_104 = {
-    width: "12",
-    height: "12",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    "stroke-width": "2.5"
-  };
-  const _hoisted_105 = {
-    key: 0,
-    points: "18 15 12 9 6 15"
-  };
-  const _hoisted_106 = {
-    key: 1,
-    points: "6 9 12 15 18 9"
-  };
-  const _hoisted_107 = {
-    key: 0,
-    class: "dist-body"
-  };
-  const _hoisted_108 = { class: "table-wrapper" };
-  const _hoisted_109 = { class: "dist-table" };
-  const _hoisted_110 = ["value", "onChange"];
-  const _hoisted_111 = ["value", "onChange"];
-  const _hoisted_112 = { class: "sim-results" };
-  const _hoisted_113 = { class: "card" };
-  const _hoisted_114 = { class: "table-wrapper results-table-wrapper" };
-  const _hoisted_115 = {
+  const _hoisted_97 = { class: "sim-results" };
+  const _hoisted_98 = { class: "card" };
+  const _hoisted_99 = { class: "table-wrapper results-table-wrapper" };
+  const _hoisted_100 = {
     ref: "tabla",
     class: "results-table"
   };
-  const _hoisted_116 = { class: "results-cell-label" };
-  const _hoisted_117 = {
+  const _hoisted_101 = { class: "results-cell-label" };
+  const _hoisted_102 = {
     key: 0,
     class: "tarifa-texto"
   };
-  const _hoisted_118 = { class: "results-cell-value" };
-  const _hoisted_119 = { class: "results-cell-value" };
-  const _hoisted_120 = { class: "results-cell-value" };
-  const _hoisted_121 = {
+  const _hoisted_103 = { class: "results-cell-value" };
+  const _hoisted_104 = { class: "results-cell-value" };
+  const _hoisted_105 = { class: "results-cell-value" };
+  const _hoisted_106 = {
     key: 0,
     class: "results-row--alerta"
   };
-  const _hoisted_122 = { colspan: "5" };
-  const _hoisted_123 = { class: "alerta alerta--warning alerta--sm" };
-  const _hoisted_124 = { class: "row-total" };
-  const _hoisted_125 = {
+  const _hoisted_107 = { colspan: "5" };
+  const _hoisted_108 = { class: "alerta alerta--warning alerta--sm" };
+  const _hoisted_109 = { class: "row-total" };
+  const _hoisted_110 = {
     key: 0,
     class: "row-total"
   };
-  const _hoisted_126 = { class: "row-total" };
-  const _hoisted_127 = { class: "row-grand-total" };
-  const _hoisted_128 = {
+  const _hoisted_111 = { class: "row-total" };
+  const _hoisted_112 = { class: "row-grand-total" };
+  const _hoisted_113 = {
     key: 0,
     class: "summary-cards"
   };
-  const _hoisted_129 = { class: "summary-card card-vendedor" };
-  const _hoisted_130 = { class: "card-amount" };
-  const _hoisted_131 = { class: "card-sub" };
-  const _hoisted_132 = { class: "summary-card card-comprador" };
-  const _hoisted_133 = { class: "card-amount" };
-  const _hoisted_134 = { class: "card-sub" };
-  const _hoisted_135 = { class: "summary-card card-operacion summary-item-highlight" };
-  const _hoisted_136 = { class: "card-amount" };
-  const _hoisted_137 = { class: "card-sub" };
-  const _hoisted_138 = { class: "sim-actions-bottom" };
-  const _hoisted_139 = ["disabled"];
-  const _hoisted_140 = {
-    key: 3,
-    class: "sim-nota-pie"
-  };
+  const _hoisted_114 = { class: "summary-card card-vendedor" };
+  const _hoisted_115 = { class: "card-amount" };
+  const _hoisted_116 = { class: "card-sub" };
+  const _hoisted_117 = { class: "summary-card card-comprador" };
+  const _hoisted_118 = { class: "card-amount" };
+  const _hoisted_119 = { class: "card-sub" };
+  const _hoisted_120 = { class: "summary-card card-operacion summary-item-highlight" };
+  const _hoisted_121 = { class: "card-amount" };
+  const _hoisted_122 = { class: "card-sub" };
+  const _hoisted_123 = { class: "sim-actions-bottom" };
+  const _hoisted_124 = ["innerHTML"];
+  const _hoisted_125 = ["disabled"];
   function _sfc_render$1(_ctx, _cache, $props, $setup, $data, $options) {
     return openBlock(), createElementBlock("div", _hoisted_1$1, [
       createBaseVNode("div", _hoisted_2$1, [
@@ -8139,7 +8115,7 @@
               class: normalizeClass(["form-group", { "has-error": $options.errors.valorInmueble }])
             }, [
               createBaseVNode("label", null, [
-                _cache[75] || (_cache[75] = createBaseVNode("strong", null, "Valor del inmueble:", -1)),
+                _cache[74] || (_cache[74] = createBaseVNode("strong", null, "Valor del inmueble:", -1)),
                 createTextVNode(" $" + toDisplayString($options.fmt($data.valorInmueble)), 1)
               ]),
               withDirectives(createBaseVNode("input", {
@@ -8160,12 +8136,12 @@
           ])
         ])
       ]),
-      _cache[190] || (_cache[190] = createBaseVNode("hr", null, null, -1)),
+      _cache[189] || (_cache[189] = createBaseVNode("hr", null, null, -1)),
       $options.mostrarComisionPropiedad ? (openBlock(), createElementBlock("div", _hoisted_6$1, [
         createBaseVNode("div", _hoisted_7$1, [
           createBaseVNode("div", _hoisted_8$1, [
             createBaseVNode("div", _hoisted_9$1, [
-              _cache[77] || (_cache[77] = createBaseVNode("label", null, [
+              _cache[76] || (_cache[76] = createBaseVNode("label", null, [
                 createBaseVNode("strong", null, "¿El inmueble es urbano o rural?"),
                 createBaseVNode("span", { class: "campo-ayuda" }, "Seleccione el tipo para incluir la comisión correspondiente en la liquidación. El porcentaje es configurable desde la administración.")
               ], -1)),
@@ -8178,7 +8154,7 @@
                   }, null, 512), [
                     [vModelRadio, $data.tipoPropiedad]
                   ]),
-                  _cache[76] || (_cache[76] = createTextVNode(" Sin comisión de propiedad ", -1))
+                  _cache[75] || (_cache[75] = createTextVNode(" Sin comisión de propiedad ", -1))
                 ]),
                 $options.nc.comisionPropiedadUrbanaHabilitada ? (openBlock(), createElementBlock("label", _hoisted_11$1, [
                   withDirectives(createBaseVNode("input", {
@@ -8207,124 +8183,123 @@
       ])) : createCommentVNode("", true),
       $options.mostrarComisionPropiedad ? (openBlock(), createElementBlock("hr", _hoisted_13$1)) : createCommentVNode("", true),
       createBaseVNode("div", _hoisted_14$1, [
-        _cache[84] || (_cache[84] = createBaseVNode("h3", { class: "sim-section-title" }, "Vendedor", -1)),
-        createBaseVNode("div", _hoisted_15$1, [
-          createBaseVNode("div", _hoisted_16$1, [
-            createBaseVNode("div", _hoisted_17$1, [
-              _cache[80] || (_cache[80] = createBaseVNode("label", null, [
-                createBaseVNode("strong", null, "¿El vendedor es persona jurídica?")
-              ], -1)),
-              createBaseVNode("div", _hoisted_18$1, [
-                createBaseVNode("label", null, [
-                  withDirectives(createBaseVNode("input", {
-                    type: "radio",
-                    "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => $data.vendedorJuridico = $event),
-                    value: 1
-                  }, null, 512), [
-                    [
-                      vModelRadio,
-                      $data.vendedorJuridico,
-                      void 0,
-                      { number: true }
-                    ]
+        createBaseVNode("h3", {
+          class: "sim-section-title sim-section-title--collapse",
+          onClick: _cache[4] || (_cache[4] = ($event) => $data.ui.expandirVendedor = !$data.ui.expandirVendedor)
+        }, [
+          (openBlock(), createElementBlock("svg", _hoisted_15$1, [
+            $data.ui.expandirVendedor ? (openBlock(), createElementBlock("polyline", _hoisted_16$1)) : (openBlock(), createElementBlock("polyline", _hoisted_17$1))
+          ])),
+          _cache[77] || (_cache[77] = createTextVNode(" Vendedor ", -1))
+        ]),
+        withDirectives(createBaseVNode("div", _hoisted_18$1, [
+          createBaseVNode("div", _hoisted_19$1, [
+            createBaseVNode("div", _hoisted_20$1, [
+              createBaseVNode("div", _hoisted_21$1, [
+                _cache[80] || (_cache[80] = createBaseVNode("label", null, [
+                  createBaseVNode("strong", null, "¿El vendedor es persona jurídica?")
+                ], -1)),
+                createBaseVNode("div", _hoisted_22$1, [
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => $data.vendedorJuridico = $event),
+                      value: 1
+                    }, null, 512), [
+                      [
+                        vModelRadio,
+                        $data.vendedorJuridico,
+                        void 0,
+                        { number: true }
+                      ]
+                    ]),
+                    _cache[78] || (_cache[78] = createTextVNode(" SÍ", -1))
                   ]),
-                  _cache[78] || (_cache[78] = createTextVNode(" SÍ", -1))
-                ]),
-                createBaseVNode("label", null, [
-                  withDirectives(createBaseVNode("input", {
-                    type: "radio",
-                    "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => $data.vendedorJuridico = $event),
-                    value: 0
-                  }, null, 512), [
-                    [
-                      vModelRadio,
-                      $data.vendedorJuridico,
-                      void 0,
-                      { number: true }
-                    ]
-                  ]),
-                  _cache[79] || (_cache[79] = createTextVNode(" NO", -1))
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => $data.vendedorJuridico = $event),
+                      value: 0
+                    }, null, 512), [
+                      [
+                        vModelRadio,
+                        $data.vendedorJuridico,
+                        void 0,
+                        { number: true }
+                      ]
+                    ]),
+                    _cache[79] || (_cache[79] = createTextVNode(" NO", -1))
+                  ])
                 ])
+              ])
+            ]),
+            createBaseVNode("div", _hoisted_23$1, [
+              createBaseVNode("div", _hoisted_24$1, [
+                _cache[83] || (_cache[83] = createBaseVNode("label", null, [
+                  createBaseVNode("strong", null, "¿Cancelación de hipoteca?")
+                ], -1)),
+                createBaseVNode("div", _hoisted_25$1, [
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[7] || (_cache[7] = ($event) => $data.cancelacionHipotecaSinCuantia = $event),
+                      value: 1
+                    }, null, 512), [
+                      [
+                        vModelRadio,
+                        $data.cancelacionHipotecaSinCuantia,
+                        void 0,
+                        { number: true }
+                      ]
+                    ]),
+                    _cache[81] || (_cache[81] = createTextVNode(" SÍ", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[8] || (_cache[8] = ($event) => $data.cancelacionHipotecaSinCuantia = $event),
+                      value: 0
+                    }, null, 512), [
+                      [
+                        vModelRadio,
+                        $data.cancelacionHipotecaSinCuantia,
+                        void 0,
+                        { number: true }
+                      ]
+                    ]),
+                    _cache[82] || (_cache[82] = createTextVNode(" NO", -1))
+                  ])
+                ]),
+                $data.cancelacionHipotecaSinCuantia === 1 ? (openBlock(), createElementBlock("div", _hoisted_26$1, [
+                  createBaseVNode("label", null, "Valor hipoteca: $" + toDisplayString($options.fmt($data.hipotecavendedor)), 1),
+                  withDirectives(createBaseVNode("input", {
+                    type: "number",
+                    "onUpdate:modelValue": _cache[9] || (_cache[9] = ($event) => $data.hipotecavendedor = $event),
+                    min: "0",
+                    placeholder: "0",
+                    class: normalizeClass({ "input-error": $options.errors.hipotecavendedor })
+                  }, null, 2), [
+                    [
+                      vModelText,
+                      $data.hipotecavendedor,
+                      void 0,
+                      { number: true }
+                    ]
+                  ]),
+                  $options.errors.hipotecavendedor ? (openBlock(), createElementBlock("span", _hoisted_27$1, toDisplayString($options.errors.hipotecavendedor), 1)) : createCommentVNode("", true)
+                ])) : createCommentVNode("", true)
               ])
             ])
           ]),
-          createBaseVNode("div", _hoisted_19$1, [
-            createBaseVNode("div", _hoisted_20$1, [
-              _cache[83] || (_cache[83] = createBaseVNode("label", null, [
-                createBaseVNode("strong", null, "¿Cancelación de hipoteca?")
-              ], -1)),
-              createBaseVNode("div", _hoisted_21$1, [
-                createBaseVNode("label", null, [
-                  withDirectives(createBaseVNode("input", {
-                    type: "radio",
-                    "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => $data.cancelacionHipotecaSinCuantia = $event),
-                    value: 1
-                  }, null, 512), [
-                    [
-                      vModelRadio,
-                      $data.cancelacionHipotecaSinCuantia,
-                      void 0,
-                      { number: true }
-                    ]
-                  ]),
-                  _cache[81] || (_cache[81] = createTextVNode(" SÍ", -1))
-                ]),
-                createBaseVNode("label", null, [
-                  withDirectives(createBaseVNode("input", {
-                    type: "radio",
-                    "onUpdate:modelValue": _cache[7] || (_cache[7] = ($event) => $data.cancelacionHipotecaSinCuantia = $event),
-                    value: 0
-                  }, null, 512), [
-                    [
-                      vModelRadio,
-                      $data.cancelacionHipotecaSinCuantia,
-                      void 0,
-                      { number: true }
-                    ]
-                  ]),
-                  _cache[82] || (_cache[82] = createTextVNode(" NO", -1))
-                ])
-              ]),
-              $data.cancelacionHipotecaSinCuantia === 1 ? (openBlock(), createElementBlock("div", _hoisted_22$1, [
-                createBaseVNode("label", null, "Valor hipoteca: $" + toDisplayString($options.fmt($data.hipotecavendedor)), 1),
-                withDirectives(createBaseVNode("input", {
-                  type: "number",
-                  "onUpdate:modelValue": _cache[8] || (_cache[8] = ($event) => $data.hipotecavendedor = $event),
-                  min: "0",
-                  placeholder: "0",
-                  class: normalizeClass({ "input-error": $options.errors.hipotecavendedor })
-                }, null, 2), [
-                  [
-                    vModelText,
-                    $data.hipotecavendedor,
-                    void 0,
-                    { number: true }
-                  ]
-                ]),
-                $options.errors.hipotecavendedor ? (openBlock(), createElementBlock("span", _hoisted_23$1, toDisplayString($options.errors.hipotecavendedor), 1)) : createCommentVNode("", true)
-              ])) : createCommentVNode("", true)
-            ])
-          ])
-        ])
-      ]),
-      createBaseVNode("div", _hoisted_24$1, [
-        createBaseVNode("h3", {
-          class: "sim-section-title sim-section-title--collapse",
-          onClick: _cache[9] || (_cache[9] = ($event) => $data.ui.expandirLimitacionesVendedor = !$data.ui.expandirLimitacionesVendedor)
-        }, [
-          (openBlock(), createElementBlock("svg", _hoisted_25$1, [
-            $data.ui.expandirLimitacionesVendedor ? (openBlock(), createElementBlock("polyline", _hoisted_26$1)) : (openBlock(), createElementBlock("polyline", _hoisted_27$1))
-          ])),
-          _cache[85] || (_cache[85] = createTextVNode(" Limitaciones y gravámenes del inmueble vendido ", -1))
-        ]),
-        withDirectives(createBaseVNode("div", _hoisted_28$1, [
-          createBaseVNode("div", _hoisted_29$1, [
-            createBaseVNode("div", _hoisted_30$1, [
-              _cache[89] || (_cache[89] = createBaseVNode("label", null, [
+          _cache[132] || (_cache[132] = createBaseVNode("hr", { class: "sep-bloque" }, null, -1)),
+          createBaseVNode("div", _hoisted_28$1, [
+            _cache[127] || (_cache[127] = createBaseVNode("h4", { class: "sim-section-title" }, "Limitaciones y gravámenes del inmueble vendido", -1)),
+            createBaseVNode("div", _hoisted_29$1, [
+              _cache[87] || (_cache[87] = createBaseVNode("label", null, [
                 createBaseVNode("strong", null, "¿El inmueble tiene afectación a vivienda familiar inscrita?"),
                 createBaseVNode("span", { class: "campo-ayuda" }, "La afectación a vivienda familiar es una restricción legal que limita la libre disposición del inmueble destinado a vivienda del hogar.")
               ], -1)),
-              createBaseVNode("div", _hoisted_31$1, [
+              createBaseVNode("div", _hoisted_30$1, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
                     type: "radio",
@@ -8333,7 +8308,7 @@
                   }, null, 512), [
                     [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.estado]
                   ]),
-                  _cache[86] || (_cache[86] = createTextVNode(" No", -1))
+                  _cache[84] || (_cache[84] = createTextVNode(" No", -1))
                 ]),
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
@@ -8343,7 +8318,7 @@
                   }, null, 512), [
                     [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.estado]
                   ]),
-                  _cache[87] || (_cache[87] = createTextVNode(" Sí", -1))
+                  _cache[85] || (_cache[85] = createTextVNode(" Sí", -1))
                 ]),
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
@@ -8353,14 +8328,14 @@
                   }, null, 512), [
                     [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.estado]
                   ]),
-                  _cache[88] || (_cache[88] = createTextVNode(" No estoy seguro", -1))
+                  _cache[86] || (_cache[86] = createTextVNode(" No estoy seguro", -1))
                 ])
               ])
             ]),
-            $data.pf.vendedor.afectacionViviendaFamiliar.estado === "si" ? (openBlock(), createElementBlock("div", _hoisted_32$1, [
-              createBaseVNode("div", _hoisted_33$1, [
-                _cache[91] || (_cache[91] = createBaseVNode("label", null, "¿La afectación debe levantarse para realizar esta venta?", -1)),
-                createBaseVNode("div", _hoisted_34$1, [
+            $data.pf.vendedor.afectacionViviendaFamiliar.estado === "si" ? (openBlock(), createElementBlock("div", _hoisted_31$1, [
+              createBaseVNode("div", _hoisted_32$1, [
+                _cache[89] || (_cache[89] = createBaseVNode("label", null, "¿La afectación debe levantarse para realizar esta venta?", -1)),
+                createBaseVNode("div", _hoisted_33$1, [
                   createBaseVNode("label", null, [
                     withDirectives(createBaseVNode("input", {
                       type: "checkbox",
@@ -8368,14 +8343,14 @@
                     }, null, 512), [
                       [vModelCheckbox, $data.pf.vendedor.afectacionViviendaFamiliar.requiereLevantamiento]
                     ]),
-                    _cache[90] || (_cache[90] = createTextVNode(" Sí, requiere levantamiento", -1))
+                    _cache[88] || (_cache[88] = createTextVNode(" Sí, requiere levantamiento", -1))
                   ])
                 ])
               ]),
-              $data.pf.vendedor.afectacionViviendaFamiliar.requiereLevantamiento ? (openBlock(), createElementBlock("div", _hoisted_35$1, [
-                createBaseVNode("div", _hoisted_36$1, [
-                  _cache[96] || (_cache[96] = createBaseVNode("label", null, "¿El cónyuge o compañero permanente firmará la escritura?", -1)),
-                  createBaseVNode("div", _hoisted_37$1, [
+              $data.pf.vendedor.afectacionViviendaFamiliar.requiereLevantamiento ? (openBlock(), createElementBlock("div", _hoisted_34$1, [
+                createBaseVNode("div", _hoisted_35$1, [
+                  _cache[94] || (_cache[94] = createBaseVNode("label", null, "¿El cónyuge o compañero permanente firmará la escritura?", -1)),
+                  createBaseVNode("div", _hoisted_36$1, [
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
                         type: "radio",
@@ -8384,7 +8359,7 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.firmaConyugeOCompanero]
                       ]),
-                      _cache[92] || (_cache[92] = createTextVNode(" Sí firmará", -1))
+                      _cache[90] || (_cache[90] = createTextVNode(" Sí firmará", -1))
                     ]),
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
@@ -8394,7 +8369,7 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.firmaConyugeOCompanero]
                       ]),
-                      _cache[93] || (_cache[93] = createTextVNode(" No firmará", -1))
+                      _cache[91] || (_cache[91] = createTextVNode(" No firmará", -1))
                     ]),
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
@@ -8404,7 +8379,7 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.firmaConyugeOCompanero]
                       ]),
-                      _cache[94] || (_cache[94] = createTextVNode(" No aplica", -1))
+                      _cache[92] || (_cache[92] = createTextVNode(" No aplica", -1))
                     ]),
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
@@ -8414,13 +8389,13 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.firmaConyugeOCompanero]
                       ]),
-                      _cache[95] || (_cache[95] = createTextVNode(" No sé", -1))
+                      _cache[93] || (_cache[93] = createTextVNode(" No sé", -1))
                     ])
                   ])
                 ]),
-                createBaseVNode("div", _hoisted_38$1, [
-                  _cache[100] || (_cache[100] = createBaseVNode("label", null, "¿En qué modalidad se realiza el levantamiento?", -1)),
-                  createBaseVNode("div", _hoisted_39$1, [
+                createBaseVNode("div", _hoisted_37$1, [
+                  _cache[98] || (_cache[98] = createBaseVNode("label", null, "¿En qué modalidad se realiza el levantamiento?", -1)),
+                  createBaseVNode("div", _hoisted_38$1, [
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
                         type: "radio",
@@ -8429,7 +8404,7 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.modalidadLevantamiento]
                       ]),
-                      _cache[97] || (_cache[97] = createTextVNode(" En la misma escritura de compraventa", -1))
+                      _cache[95] || (_cache[95] = createTextVNode(" En la misma escritura de compraventa", -1))
                     ]),
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
@@ -8439,7 +8414,7 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.modalidadLevantamiento]
                       ]),
-                      _cache[98] || (_cache[98] = createTextVNode(" En escritura independiente", -1))
+                      _cache[96] || (_cache[96] = createTextVNode(" En escritura independiente", -1))
                     ]),
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
@@ -8449,26 +8424,24 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.afectacionViviendaFamiliar.modalidadLevantamiento]
                       ]),
-                      _cache[99] || (_cache[99] = createTextVNode(" Requiere validación notarial", -1))
+                      _cache[97] || (_cache[97] = createTextVNode(" Requiere validación notarial", -1))
                     ])
                   ])
                 ])
               ])) : createCommentVNode("", true),
-              $options.alertaFirmaAfectacionVendedor ? (openBlock(), createElementBlock("div", _hoisted_40$1, [..._cache[101] || (_cache[101] = [
+              $options.alertaFirmaAfectacionVendedor ? (openBlock(), createElementBlock("div", _hoisted_39$1, [..._cache[99] || (_cache[99] = [
                 createBaseVNode("strong", null, "Firma de cónyuge o compañero permanente:", -1),
                 createTextVNode(" La afectación a vivienda familiar puede exigir el consentimiento y la firma del cónyuge o compañero permanente para vender o gravar el inmueble. Verifique este requisito con la notaría antes de continuar. ", -1)
               ])])) : createCommentVNode("", true)
             ])) : createCommentVNode("", true),
-            $data.pf.vendedor.afectacionViviendaFamiliar.estado === "no_sabe" ? (openBlock(), createElementBlock("div", _hoisted_41$1, " Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría. ")) : createCommentVNode("", true)
-          ]),
-          _cache[129] || (_cache[129] = createBaseVNode("hr", { class: "sep-bloque" }, null, -1)),
-          createBaseVNode("div", _hoisted_42$1, [
-            createBaseVNode("div", _hoisted_43$1, [
-              _cache[108] || (_cache[108] = createBaseVNode("label", null, [
+            $data.pf.vendedor.afectacionViviendaFamiliar.estado === "no_sabe" ? (openBlock(), createElementBlock("div", _hoisted_40$1, " Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría. ")) : createCommentVNode("", true),
+            _cache[128] || (_cache[128] = createBaseVNode("hr", { class: "sep-bloque" }, null, -1)),
+            createBaseVNode("div", _hoisted_41$1, [
+              _cache[106] || (_cache[106] = createBaseVNode("label", null, [
                 createBaseVNode("strong", null, "¿El inmueble tiene patrimonio de familia inembargable inscrito?"),
                 createBaseVNode("span", { class: "campo-ayuda" }, "El patrimonio de familia inembargable protege el inmueble de embargos. Puede ser voluntario, asociado a compra VIS o a subsidio de vivienda.")
               ], -1)),
-              createBaseVNode("div", _hoisted_44$1, [
+              createBaseVNode("div", _hoisted_42$1, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
                     type: "radio",
@@ -8477,7 +8450,7 @@
                   }, null, 512), [
                     [vModelRadio, $data.pf.vendedor.patrimonioFamilia.tipo]
                   ]),
-                  _cache[102] || (_cache[102] = createTextVNode(" No", -1))
+                  _cache[100] || (_cache[100] = createTextVNode(" No", -1))
                 ]),
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
@@ -8487,7 +8460,7 @@
                   }, null, 512), [
                     [vModelRadio, $data.pf.vendedor.patrimonioFamilia.tipo]
                   ]),
-                  _cache[103] || (_cache[103] = createTextVNode(" Sí, patrimonio de familia voluntario", -1))
+                  _cache[101] || (_cache[101] = createTextVNode(" Sí, patrimonio de familia voluntario", -1))
                 ]),
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
@@ -8497,7 +8470,7 @@
                   }, null, 512), [
                     [vModelRadio, $data.pf.vendedor.patrimonioFamilia.tipo]
                   ]),
-                  _cache[104] || (_cache[104] = createTextVNode(" Sí, asociado a compra VIS", -1))
+                  _cache[102] || (_cache[102] = createTextVNode(" Sí, asociado a compra VIS", -1))
                 ]),
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
@@ -8507,7 +8480,7 @@
                   }, null, 512), [
                     [vModelRadio, $data.pf.vendedor.patrimonioFamilia.tipo]
                   ]),
-                  _cache[105] || (_cache[105] = createTextVNode(" Sí, asociado a subsidio de vivienda", -1))
+                  _cache[103] || (_cache[103] = createTextVNode(" Sí, asociado a subsidio de vivienda", -1))
                 ]),
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
@@ -8517,7 +8490,7 @@
                   }, null, 512), [
                     [vModelRadio, $data.pf.vendedor.patrimonioFamilia.tipo]
                   ]),
-                  _cache[106] || (_cache[106] = createTextVNode(" Sí, con beneficiarios menores de edad", -1))
+                  _cache[104] || (_cache[104] = createTextVNode(" Sí, con beneficiarios menores de edad", -1))
                 ]),
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
@@ -8527,12 +8500,12 @@
                   }, null, 512), [
                     [vModelRadio, $data.pf.vendedor.patrimonioFamilia.tipo]
                   ]),
-                  _cache[107] || (_cache[107] = createTextVNode(" No estoy seguro", -1))
+                  _cache[105] || (_cache[105] = createTextVNode(" No estoy seguro", -1))
                 ])
               ])
             ]),
-            $data.pf.vendedor.patrimonioFamilia.tipo !== "no" ? (openBlock(), createElementBlock("div", _hoisted_45$1, [
-              createBaseVNode("div", _hoisted_46$1, [
+            $data.pf.vendedor.patrimonioFamilia.tipo !== "no" ? (openBlock(), createElementBlock("div", _hoisted_43$1, [
+              createBaseVNode("div", _hoisted_44$1, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
                     type: "checkbox",
@@ -8540,13 +8513,13 @@
                   }, null, 512), [
                     [vModelCheckbox, $data.pf.vendedor.patrimonioFamilia.requiereCancelacion]
                   ]),
-                  _cache[109] || (_cache[109] = createTextVNode(" ¿Se requiere cancelar o levantar el patrimonio de familia para realizar la venta?", -1))
+                  _cache[107] || (_cache[107] = createTextVNode(" ¿Se requiere cancelar o levantar el patrimonio de familia para realizar la venta?", -1))
                 ])
               ]),
-              $data.pf.vendedor.patrimonioFamilia.requiereCancelacion ? (openBlock(), createElementBlock("div", _hoisted_47$1, [
-                createBaseVNode("div", _hoisted_48$1, [
-                  _cache[113] || (_cache[113] = createBaseVNode("label", null, "¿Existen hijos o beneficiarios menores de edad?", -1)),
-                  createBaseVNode("div", _hoisted_49$1, [
+              $data.pf.vendedor.patrimonioFamilia.requiereCancelacion ? (openBlock(), createElementBlock("div", _hoisted_45$1, [
+                createBaseVNode("div", _hoisted_46$1, [
+                  _cache[111] || (_cache[111] = createBaseVNode("label", null, "¿Existen hijos o beneficiarios menores de edad?", -1)),
+                  createBaseVNode("div", _hoisted_47$1, [
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
                         type: "radio",
@@ -8555,7 +8528,7 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.patrimonioFamilia.existenBeneficiariosMenores]
                       ]),
-                      _cache[110] || (_cache[110] = createTextVNode(" Sí", -1))
+                      _cache[108] || (_cache[108] = createTextVNode(" Sí", -1))
                     ]),
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
@@ -8565,7 +8538,7 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.patrimonioFamilia.existenBeneficiariosMenores]
                       ]),
-                      _cache[111] || (_cache[111] = createTextVNode(" No", -1))
+                      _cache[109] || (_cache[109] = createTextVNode(" No", -1))
                     ]),
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
@@ -8575,13 +8548,13 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.patrimonioFamilia.existenBeneficiariosMenores]
                       ]),
-                      _cache[112] || (_cache[112] = createTextVNode(" No sé", -1))
+                      _cache[110] || (_cache[110] = createTextVNode(" No sé", -1))
                     ])
                   ])
                 ]),
-                createBaseVNode("div", _hoisted_50$1, [
-                  _cache[117] || (_cache[117] = createBaseVNode("label", null, "¿Existe subsidio vigente o restricción de transferencia?", -1)),
-                  createBaseVNode("div", _hoisted_51$1, [
+                createBaseVNode("div", _hoisted_48$1, [
+                  _cache[115] || (_cache[115] = createBaseVNode("label", null, "¿Existe subsidio vigente o restricción de transferencia?", -1)),
+                  createBaseVNode("div", _hoisted_49$1, [
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
                         type: "radio",
@@ -8590,7 +8563,7 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.patrimonioFamilia.existeSubsidioORestriccion]
                       ]),
-                      _cache[114] || (_cache[114] = createTextVNode(" Sí", -1))
+                      _cache[112] || (_cache[112] = createTextVNode(" Sí", -1))
                     ]),
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
@@ -8600,7 +8573,7 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.patrimonioFamilia.existeSubsidioORestriccion]
                       ]),
-                      _cache[115] || (_cache[115] = createTextVNode(" No", -1))
+                      _cache[113] || (_cache[113] = createTextVNode(" No", -1))
                     ]),
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
@@ -8610,13 +8583,13 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.patrimonioFamilia.existeSubsidioORestriccion]
                       ]),
-                      _cache[116] || (_cache[116] = createTextVNode(" No sé", -1))
+                      _cache[114] || (_cache[114] = createTextVNode(" No sé", -1))
                     ])
                   ])
                 ]),
-                createBaseVNode("div", _hoisted_52$1, [
-                  _cache[122] || (_cache[122] = createBaseVNode("label", null, "¿Se cuenta con autorización judicial o trámite jurídico aplicable?", -1)),
-                  createBaseVNode("div", _hoisted_53$1, [
+                createBaseVNode("div", _hoisted_50$1, [
+                  _cache[120] || (_cache[120] = createBaseVNode("label", null, "¿Se cuenta con autorización judicial o trámite jurídico aplicable?", -1)),
+                  createBaseVNode("div", _hoisted_51$1, [
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
                         type: "radio",
@@ -8625,7 +8598,7 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.patrimonioFamilia.autorizacionJudicial]
                       ]),
-                      _cache[118] || (_cache[118] = createTextVNode(" Sí", -1))
+                      _cache[116] || (_cache[116] = createTextVNode(" Sí", -1))
                     ]),
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
@@ -8635,7 +8608,7 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.patrimonioFamilia.autorizacionJudicial]
                       ]),
-                      _cache[119] || (_cache[119] = createTextVNode(" No", -1))
+                      _cache[117] || (_cache[117] = createTextVNode(" No", -1))
                     ]),
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
@@ -8645,7 +8618,7 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.patrimonioFamilia.autorizacionJudicial]
                       ]),
-                      _cache[120] || (_cache[120] = createTextVNode(" No aplica", -1))
+                      _cache[118] || (_cache[118] = createTextVNode(" No aplica", -1))
                     ]),
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
@@ -8655,13 +8628,13 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.patrimonioFamilia.autorizacionJudicial]
                       ]),
-                      _cache[121] || (_cache[121] = createTextVNode(" No sé", -1))
+                      _cache[119] || (_cache[119] = createTextVNode(" No sé", -1))
                     ])
                   ])
                 ]),
-                createBaseVNode("div", _hoisted_54$1, [
-                  _cache[126] || (_cache[126] = createBaseVNode("label", null, "¿En qué modalidad se realiza el levantamiento?", -1)),
-                  createBaseVNode("div", _hoisted_55$1, [
+                createBaseVNode("div", _hoisted_52$1, [
+                  _cache[124] || (_cache[124] = createBaseVNode("label", null, "¿En qué modalidad se realiza el levantamiento?", -1)),
+                  createBaseVNode("div", _hoisted_53$1, [
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
                         type: "radio",
@@ -8670,7 +8643,7 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.patrimonioFamilia.modalidadLevantamiento]
                       ]),
-                      _cache[123] || (_cache[123] = createTextVNode(" Escritura pública", -1))
+                      _cache[121] || (_cache[121] = createTextVNode(" Escritura pública", -1))
                     ]),
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
@@ -8680,7 +8653,7 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.patrimonioFamilia.modalidadLevantamiento]
                       ]),
-                      _cache[124] || (_cache[124] = createTextVNode(" Trámite judicial", -1))
+                      _cache[122] || (_cache[122] = createTextVNode(" Trámite judicial", -1))
                     ]),
                     createBaseVNode("label", null, [
                       withDirectives(createBaseVNode("input", {
@@ -8690,130 +8663,128 @@
                       }, null, 512), [
                         [vModelRadio, $data.pf.vendedor.patrimonioFamilia.modalidadLevantamiento]
                       ]),
-                      _cache[125] || (_cache[125] = createTextVNode(" Requiere validación", -1))
+                      _cache[123] || (_cache[123] = createTextVNode(" Requiere validación", -1))
                     ])
                   ])
                 ])
               ])) : createCommentVNode("", true),
-              $options.alertaMenoresPatrimonioVendedor ? (openBlock(), createElementBlock("div", _hoisted_56$1, [..._cache[127] || (_cache[127] = [
+              $options.alertaMenoresPatrimonioVendedor ? (openBlock(), createElementBlock("div", _hoisted_54$1, [..._cache[125] || (_cache[125] = [
                 createBaseVNode("strong", null, "Patrimonio de familia con menores beneficiarios:", -1),
                 createTextVNode(" El inmueble registra patrimonio de familia con posibles beneficiarios menores de edad. La venta o cancelación puede requerir validación jurídica y, según el caso, autorización judicial. Este simulador no incluye costos de procesos judiciales ni honorarios profesionales. ", -1)
               ])])) : createCommentVNode("", true),
-              $options.alertaVISPatrimonioVendedor ? (openBlock(), createElementBlock("div", _hoisted_57$1, [..._cache[128] || (_cache[128] = [
+              $options.alertaVISPatrimonioVendedor ? (openBlock(), createElementBlock("div", _hoisted_55$1, [..._cache[126] || (_cache[126] = [
                 createBaseVNode("strong", null, "VIS o subsidio de vivienda:", -1),
                 createTextVNode(" La operación puede estar sujeta a condiciones especiales de patrimonio de familia, subsidio o restricción de transferencia. Confirme el procedimiento y los costos con la notaría, entidad otorgante o asesor jurídico. ", -1)
               ])])) : createCommentVNode("", true),
-              $data.pf.vendedor.patrimonioFamilia.tipo === "no_sabe" ? (openBlock(), createElementBlock("div", _hoisted_58$1, " Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría. ")) : createCommentVNode("", true)
+              $data.pf.vendedor.patrimonioFamilia.tipo === "no_sabe" ? (openBlock(), createElementBlock("div", _hoisted_56$1, " Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría. ")) : createCommentVNode("", true)
             ])) : createCommentVNode("", true)
-          ])
-        ], 512), [
-          [vShow, $data.ui.expandirLimitacionesVendedor]
-        ])
-      ]),
-      $options.nc.comisionHabilitada ? (openBlock(), createElementBlock("div", _hoisted_59$1, [
-        createBaseVNode("h3", _hoisted_60$1, toDisplayString($options.nc.labelComision || "Comisión inmobiliaria / asesor"), 1),
-        createBaseVNode("div", _hoisted_61$1, [
-          createBaseVNode("div", _hoisted_62$1, [
-            createBaseVNode("div", _hoisted_63$1, [
-              createBaseVNode("label", _hoisted_64$1, [
-                withDirectives(createBaseVNode("input", {
-                  type: "checkbox",
-                  "onUpdate:modelValue": _cache[41] || (_cache[41] = ($event) => $data.incluirComision = $event),
-                  class: "toggle-input"
-                }, null, 512), [
-                  [vModelCheckbox, $data.incluirComision]
-                ]),
-                createBaseVNode("span", _hoisted_65$1, [
-                  _cache[130] || (_cache[130] = createTextVNode(" Incluir comisión ", -1)),
-                  createBaseVNode("strong", null, toDisplayString($options.nc.porcentajeComision) + "%", 1),
-                  $options.nc.comisionMinima > 0 ? (openBlock(), createElementBlock("span", _hoisted_66$1, " (mínimo $" + toDisplayString($options.fmtShort($options.nc.comisionMinima)) + ")", 1)) : createCommentVNode("", true),
-                  _cache[131] || (_cache[131] = createTextVNode(" — actualmente ", -1)),
-                  createBaseVNode("strong", null, "$" + toDisplayString($options.fmt($options.comisionCalculada)), 1)
+          ]),
+          $options.nc.comisionHabilitada ? (openBlock(), createElementBlock(Fragment, { key: 0 }, [
+            _cache[131] || (_cache[131] = createBaseVNode("hr", { class: "sep-bloque" }, null, -1)),
+            createBaseVNode("div", _hoisted_57$1, [
+              createBaseVNode("h4", _hoisted_58$1, toDisplayString($options.nc.labelComision || "Comisión inmobiliaria / asesor"), 1),
+              createBaseVNode("div", _hoisted_59$1, [
+                createBaseVNode("label", _hoisted_60$1, [
+                  withDirectives(createBaseVNode("input", {
+                    type: "checkbox",
+                    "onUpdate:modelValue": _cache[41] || (_cache[41] = ($event) => $data.incluirComision = $event),
+                    class: "toggle-input"
+                  }, null, 512), [
+                    [vModelCheckbox, $data.incluirComision]
+                  ]),
+                  createBaseVNode("span", _hoisted_61$1, [
+                    _cache[129] || (_cache[129] = createTextVNode(" Incluir comisión ", -1)),
+                    createBaseVNode("strong", null, toDisplayString($options.nc.porcentajeComision) + "%", 1),
+                    $options.nc.comisionMinima > 0 ? (openBlock(), createElementBlock("span", _hoisted_62$1, " (mínimo $" + toDisplayString($options.fmtShort($options.nc.comisionMinima)) + ")", 1)) : createCommentVNode("", true),
+                    _cache[130] || (_cache[130] = createTextVNode(" — actualmente ", -1)),
+                    createBaseVNode("strong", null, "$" + toDisplayString($options.fmt($options.comisionCalculada)), 1)
+                  ])
                 ])
               ])
             ])
-          ])
-        ])
-      ])) : createCommentVNode("", true),
-      createBaseVNode("div", _hoisted_67$1, [
-        _cache[135] || (_cache[135] = createBaseVNode("h3", { class: "sim-section-title" }, "Comprador", -1)),
-        createBaseVNode("div", _hoisted_68$1, [
-          createBaseVNode("div", _hoisted_69$1, [
-            createBaseVNode("div", _hoisted_70$1, [
-              _cache[134] || (_cache[134] = createBaseVNode("label", null, [
-                createBaseVNode("strong", null, "¿Constitución de hipoteca?")
-              ], -1)),
-              createBaseVNode("div", _hoisted_71$1, [
-                createBaseVNode("label", null, [
-                  withDirectives(createBaseVNode("input", {
-                    type: "radio",
-                    "onUpdate:modelValue": _cache[42] || (_cache[42] = ($event) => $data.constitucionHipotecaComprador = $event),
-                    value: 1
-                  }, null, 512), [
-                    [
-                      vModelRadio,
-                      $data.constitucionHipotecaComprador,
-                      void 0,
-                      { number: true }
-                    ]
-                  ]),
-                  _cache[132] || (_cache[132] = createTextVNode(" SÍ", -1))
-                ]),
-                createBaseVNode("label", null, [
-                  withDirectives(createBaseVNode("input", {
-                    type: "radio",
-                    "onUpdate:modelValue": _cache[43] || (_cache[43] = ($event) => $data.constitucionHipotecaComprador = $event),
-                    value: 0
-                  }, null, 512), [
-                    [
-                      vModelRadio,
-                      $data.constitucionHipotecaComprador,
-                      void 0,
-                      { number: true }
-                    ]
-                  ]),
-                  _cache[133] || (_cache[133] = createTextVNode(" NO", -1))
-                ])
-              ]),
-              $data.constitucionHipotecaComprador === 1 ? (openBlock(), createElementBlock("div", _hoisted_72$1, [
-                createBaseVNode("label", null, "Valor hipoteca: $" + toDisplayString($options.fmt($data.hipotecacomprador)), 1),
-                withDirectives(createBaseVNode("input", {
-                  type: "number",
-                  "onUpdate:modelValue": _cache[44] || (_cache[44] = ($event) => $data.hipotecacomprador = $event),
-                  min: "0",
-                  placeholder: "0",
-                  class: normalizeClass({ "input-error": $options.errors.hipotecacomprador })
-                }, null, 2), [
-                  [
-                    vModelText,
-                    $data.hipotecacomprador,
-                    void 0,
-                    { number: true }
-                  ]
-                ]),
-                $options.errors.hipotecacomprador ? (openBlock(), createElementBlock("span", _hoisted_73, toDisplayString($options.errors.hipotecacomprador), 1)) : createCommentVNode("", true)
-              ])) : createCommentVNode("", true)
-            ])
-          ])
+          ], 64)) : createCommentVNode("", true)
+        ], 512), [
+          [vShow, $data.ui.expandirVendedor]
         ])
       ]),
-      createBaseVNode("div", _hoisted_74, [
+      createBaseVNode("div", _hoisted_63$1, [
         createBaseVNode("h3", {
           class: "sim-section-title sim-section-title--collapse",
-          onClick: _cache[45] || (_cache[45] = ($event) => $data.ui.expandirProteccionesComprador = !$data.ui.expandirProteccionesComprador)
+          onClick: _cache[42] || (_cache[42] = ($event) => $data.ui.expandirComprador = !$data.ui.expandirComprador)
         }, [
-          (openBlock(), createElementBlock("svg", _hoisted_75, [
-            $data.ui.expandirProteccionesComprador ? (openBlock(), createElementBlock("polyline", _hoisted_76)) : (openBlock(), createElementBlock("polyline", _hoisted_77))
+          (openBlock(), createElementBlock("svg", _hoisted_64$1, [
+            $data.ui.expandirComprador ? (openBlock(), createElementBlock("polyline", _hoisted_65$1)) : (openBlock(), createElementBlock("polyline", _hoisted_66$1))
           ])),
-          _cache[136] || (_cache[136] = createTextVNode(" Protecciones familiares que solicita el comprador ", -1))
+          _cache[133] || (_cache[133] = createTextVNode(" Comprador ", -1))
         ]),
-        withDirectives(createBaseVNode("div", _hoisted_78, [
-          createBaseVNode("div", _hoisted_79, [
-            createBaseVNode("div", _hoisted_80, [
+        withDirectives(createBaseVNode("div", _hoisted_67$1, [
+          createBaseVNode("div", _hoisted_68$1, [
+            createBaseVNode("div", _hoisted_69$1, [
+              createBaseVNode("div", _hoisted_70$1, [
+                _cache[136] || (_cache[136] = createBaseVNode("label", null, [
+                  createBaseVNode("strong", null, "¿Constitución de hipoteca?")
+                ], -1)),
+                createBaseVNode("div", _hoisted_71$1, [
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[43] || (_cache[43] = ($event) => $data.constitucionHipotecaComprador = $event),
+                      value: 1
+                    }, null, 512), [
+                      [
+                        vModelRadio,
+                        $data.constitucionHipotecaComprador,
+                        void 0,
+                        { number: true }
+                      ]
+                    ]),
+                    _cache[134] || (_cache[134] = createTextVNode(" SÍ", -1))
+                  ]),
+                  createBaseVNode("label", null, [
+                    withDirectives(createBaseVNode("input", {
+                      type: "radio",
+                      "onUpdate:modelValue": _cache[44] || (_cache[44] = ($event) => $data.constitucionHipotecaComprador = $event),
+                      value: 0
+                    }, null, 512), [
+                      [
+                        vModelRadio,
+                        $data.constitucionHipotecaComprador,
+                        void 0,
+                        { number: true }
+                      ]
+                    ]),
+                    _cache[135] || (_cache[135] = createTextVNode(" NO", -1))
+                  ])
+                ]),
+                $data.constitucionHipotecaComprador === 1 ? (openBlock(), createElementBlock("div", _hoisted_72$1, [
+                  createBaseVNode("label", null, "Valor hipoteca: $" + toDisplayString($options.fmt($data.hipotecacomprador)), 1),
+                  withDirectives(createBaseVNode("input", {
+                    type: "number",
+                    "onUpdate:modelValue": _cache[45] || (_cache[45] = ($event) => $data.hipotecacomprador = $event),
+                    min: "0",
+                    placeholder: "0",
+                    class: normalizeClass({ "input-error": $options.errors.hipotecacomprador })
+                  }, null, 2), [
+                    [
+                      vModelText,
+                      $data.hipotecacomprador,
+                      void 0,
+                      { number: true }
+                    ]
+                  ]),
+                  $options.errors.hipotecacomprador ? (openBlock(), createElementBlock("span", _hoisted_73$1, toDisplayString($options.errors.hipotecacomprador), 1)) : createCommentVNode("", true)
+                ])) : createCommentVNode("", true)
+              ])
+            ])
+          ]),
+          _cache[176] || (_cache[176] = createBaseVNode("hr", { class: "sep-bloque" }, null, -1)),
+          createBaseVNode("div", _hoisted_74, [
+            _cache[174] || (_cache[174] = createBaseVNode("h4", { class: "sim-section-title" }, "Protecciones familiares que solicita el comprador", -1)),
+            createBaseVNode("div", _hoisted_75, [
               _cache[140] || (_cache[140] = createBaseVNode("label", null, [
                 createBaseVNode("strong", null, "¿El comprador adquiere el inmueble para vivienda familiar?")
               ], -1)),
-              createBaseVNode("div", _hoisted_81, [
+              createBaseVNode("div", _hoisted_76, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
                     type: "radio",
@@ -8846,10 +8817,10 @@
                 ])
               ])
             ]),
-            $data.pf.comprador.compraParaViviendaFamiliar === "si" ? (openBlock(), createElementBlock("div", _hoisted_82, [
-              createBaseVNode("div", _hoisted_83, [
+            $data.pf.comprador.compraParaViviendaFamiliar === "si" ? (openBlock(), createElementBlock("div", _hoisted_77, [
+              createBaseVNode("div", _hoisted_78, [
                 _cache[145] || (_cache[145] = createBaseVNode("label", null, "¿Situación familiar del comprador?", -1)),
-                createBaseVNode("div", _hoisted_84, [
+                createBaseVNode("div", _hoisted_79, [
                   createBaseVNode("label", null, [
                     withDirectives(createBaseVNode("input", {
                       type: "radio",
@@ -8892,7 +8863,7 @@
                   ])
                 ])
               ]),
-              createBaseVNode("div", _hoisted_85, [
+              createBaseVNode("div", _hoisted_80, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
                     type: "checkbox",
@@ -8903,16 +8874,14 @@
                   _cache[146] || (_cache[146] = createTextVNode(" ¿Desea incluir la afectación a vivienda familiar en la escritura? ", -1))
                 ])
               ]),
-              $data.pf.comprador.situacionFamiliar === "no_sabe" && $data.pf.comprador.afectacionViviendaFamiliar.constituir ? (openBlock(), createElementBlock("div", _hoisted_86, " Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría. ")) : createCommentVNode("", true)
-            ])) : createCommentVNode("", true)
-          ]),
-          _cache[174] || (_cache[174] = createBaseVNode("hr", { class: "sep-bloque" }, null, -1)),
-          createBaseVNode("div", _hoisted_87, [
-            createBaseVNode("div", _hoisted_88, [
+              $data.pf.comprador.situacionFamiliar === "no_sabe" && $data.pf.comprador.afectacionViviendaFamiliar.constituir ? (openBlock(), createElementBlock("div", _hoisted_81, " Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría. ")) : createCommentVNode("", true)
+            ])) : createCommentVNode("", true),
+            _cache[175] || (_cache[175] = createBaseVNode("hr", { class: "sep-bloque" }, null, -1)),
+            createBaseVNode("div", _hoisted_82, [
               _cache[151] || (_cache[151] = createBaseVNode("label", null, [
                 createBaseVNode("strong", null, "¿El comprador desea constituir patrimonio de familia?")
               ], -1)),
-              createBaseVNode("div", _hoisted_89, [
+              createBaseVNode("div", _hoisted_83, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
                     type: "radio",
@@ -8955,10 +8924,10 @@
                 ])
               ])
             ]),
-            $data.pf.comprador.patrimonioFamilia.tipo === "voluntario" ? (openBlock(), createElementBlock("div", _hoisted_90, [
-              createBaseVNode("div", _hoisted_91, [
+            $data.pf.comprador.patrimonioFamilia.tipo === "voluntario" ? (openBlock(), createElementBlock("div", _hoisted_84, [
+              createBaseVNode("div", _hoisted_85, [
                 _cache[155] || (_cache[155] = createBaseVNode("label", null, "¿Existen beneficiarios menores de edad?", -1)),
-                createBaseVNode("div", _hoisted_92, [
+                createBaseVNode("div", _hoisted_86, [
                   createBaseVNode("label", null, [
                     withDirectives(createBaseVNode("input", {
                       type: "radio",
@@ -8991,9 +8960,9 @@
                   ])
                 ])
               ]),
-              createBaseVNode("div", _hoisted_93, [
+              createBaseVNode("div", _hoisted_87, [
                 _cache[159] || (_cache[159] = createBaseVNode("label", null, "¿El inmueble cumple las condiciones para patrimonio de familia voluntario?", -1)),
-                createBaseVNode("div", _hoisted_94, [
+                createBaseVNode("div", _hoisted_88, [
                   createBaseVNode("label", null, [
                     withDirectives(createBaseVNode("input", {
                       type: "radio",
@@ -9026,9 +8995,9 @@
                   ])
                 ])
               ]),
-              createBaseVNode("div", _hoisted_95, [
+              createBaseVNode("div", _hoisted_89, [
                 _cache[163] || (_cache[163] = createBaseVNode("label", null, "¿El inmueble tiene hipoteca vigente?", -1)),
-                createBaseVNode("div", _hoisted_96, [
+                createBaseVNode("div", _hoisted_90, [
                   createBaseVNode("label", null, [
                     withDirectives(createBaseVNode("input", {
                       type: "radio",
@@ -9061,15 +9030,15 @@
                   ])
                 ])
               ]),
-              $options.alertaMenoresPatrimonioComprador ? (openBlock(), createElementBlock("div", _hoisted_97, [..._cache[164] || (_cache[164] = [
+              $options.alertaMenoresPatrimonioComprador ? (openBlock(), createElementBlock("div", _hoisted_91, [..._cache[164] || (_cache[164] = [
                 createBaseVNode("strong", null, "Patrimonio de familia con menores beneficiarios:", -1),
                 createTextVNode(" El inmueble registra patrimonio de familia con posibles beneficiarios menores de edad. La constitución puede requerir validación jurídica. Este simulador no incluye costos de procesos judiciales ni honorarios profesionales. ", -1)
               ])])) : createCommentVNode("", true)
             ])) : createCommentVNode("", true),
-            $data.pf.comprador.patrimonioFamilia.tipo === "vis" ? (openBlock(), createElementBlock("div", _hoisted_98, [
-              createBaseVNode("div", _hoisted_99, [
+            $data.pf.comprador.patrimonioFamilia.tipo === "vis" ? (openBlock(), createElementBlock("div", _hoisted_92, [
+              createBaseVNode("div", _hoisted_93, [
                 _cache[168] || (_cache[168] = createBaseVNode("label", null, "¿La compra se encuentra confirmada como VIS?", -1)),
-                createBaseVNode("div", _hoisted_100, [
+                createBaseVNode("div", _hoisted_94, [
                   createBaseVNode("label", null, [
                     withDirectives(createBaseVNode("input", {
                       type: "radio",
@@ -9102,9 +9071,9 @@
                   ])
                 ])
               ]),
-              createBaseVNode("div", _hoisted_101, [
+              createBaseVNode("div", _hoisted_95, [
                 _cache[172] || (_cache[172] = createBaseVNode("label", null, "¿Existe subsidio de vivienda asociado?", -1)),
-                createBaseVNode("div", _hoisted_102, [
+                createBaseVNode("div", _hoisted_96, [
                   createBaseVNode("label", null, [
                     withDirectives(createBaseVNode("input", {
                       type: "radio",
@@ -9144,67 +9113,14 @@
             ])) : createCommentVNode("", true)
           ])
         ], 512), [
-          [vShow, $data.ui.expandirProteccionesComprador]
+          [vShow, $data.ui.expandirComprador]
         ])
       ]),
-      createBaseVNode("div", _hoisted_103, [
-        createBaseVNode("button", {
-          type: "button",
-          class: "dist-toggle",
-          onClick: _cache[73] || (_cache[73] = ($event) => $data.mostrarDistribucionAvanzada = !$data.mostrarDistribucionAvanzada)
-        }, [
-          (openBlock(), createElementBlock("svg", _hoisted_104, [
-            $data.mostrarDistribucionAvanzada ? (openBlock(), createElementBlock("polyline", _hoisted_105)) : (openBlock(), createElementBlock("polyline", _hoisted_106))
-          ])),
-          _cache[175] || (_cache[175] = createTextVNode(" Distribución avanzada de gastos ", -1))
-        ]),
-        $data.mostrarDistribucionAvanzada ? (openBlock(), createElementBlock("div", _hoisted_107, [
-          _cache[177] || (_cache[177] = createBaseVNode("p", { class: "dist-desc" }, "Ajusta cómo se distribuye cada gasto entre vendedor y comprador. El porcentaje complementario se actualiza automáticamente.", -1)),
-          createBaseVNode("div", _hoisted_108, [
-            createBaseVNode("table", _hoisted_109, [
-              _cache[176] || (_cache[176] = createBaseVNode("thead", null, [
-                createBaseVNode("tr", null, [
-                  createBaseVNode("th", null, "Concepto"),
-                  createBaseVNode("th", null, "Vendedor %"),
-                  createBaseVNode("th", null, "Comprador %")
-                ])
-              ], -1)),
-              createBaseVNode("tbody", null, [
-                (openBlock(true), createElementBlock(Fragment, null, renderList($options.distribucionesEditables, (item) => {
-                  return openBlock(), createElementBlock("tr", {
-                    key: item.key
-                  }, [
-                    createBaseVNode("td", null, toDisplayString(item.label), 1),
-                    createBaseVNode("td", null, [
-                      createBaseVNode("input", {
-                        type: "number",
-                        min: "0",
-                        max: "100",
-                        value: $data.distribuciones[item.key]?.vendedor ?? item.defaultVendedor,
-                        onChange: ($event) => $options.actualizarDistribucion(item.key, "vendedor", $event.target.value)
-                      }, null, 40, _hoisted_110)
-                    ]),
-                    createBaseVNode("td", null, [
-                      createBaseVNode("input", {
-                        type: "number",
-                        min: "0",
-                        max: "100",
-                        value: $data.distribuciones[item.key]?.comprador ?? item.defaultComprador,
-                        onChange: ($event) => $options.actualizarDistribucion(item.key, "comprador", $event.target.value)
-                      }, null, 40, _hoisted_111)
-                    ])
-                  ]);
-                }), 128))
-              ])
-            ])
-          ])
-        ])) : createCommentVNode("", true)
-      ]),
-      createBaseVNode("div", _hoisted_112, [
-        createBaseVNode("div", _hoisted_113, [
-          createBaseVNode("div", _hoisted_114, [
-            createBaseVNode("table", _hoisted_115, [
-              _cache[186] || (_cache[186] = createBaseVNode("thead", null, [
+      createBaseVNode("div", _hoisted_97, [
+        createBaseVNode("div", _hoisted_98, [
+          createBaseVNode("div", _hoisted_99, [
+            createBaseVNode("table", _hoisted_100, [
+              _cache[185] || (_cache[185] = createBaseVNode("thead", null, [
                 createBaseVNode("tr", null, [
                   createBaseVNode("th", null, "Concepto"),
                   createBaseVNode("th", null, "Vendedor"),
@@ -9221,55 +9137,55 @@
                     createBaseVNode("tr", {
                       class: normalizeClass(["results-row", `results-row--${linea.categoria}`, { "results-row--validacion": linea.estado !== "calculado" && linea.estado !== "estimado" }])
                     }, [
-                      createBaseVNode("td", _hoisted_116, [
+                      createBaseVNode("td", _hoisted_101, [
                         createTextVNode(toDisplayString(linea.concepto) + " ", 1),
-                        linea.tarifaTexto ? (openBlock(), createElementBlock("span", _hoisted_117, " — " + toDisplayString(linea.tarifaTexto), 1)) : createCommentVNode("", true)
+                        linea.tarifaTexto ? (openBlock(), createElementBlock("span", _hoisted_102, " — " + toDisplayString(linea.tarifaTexto), 1)) : createCommentVNode("", true)
                       ]),
-                      createBaseVNode("td", _hoisted_118, toDisplayString(linea.estado === "requiere_validacion_juridica" ? "–" : "$" + $options.fmt(linea.valorVendedor + linea.ivaVendedor)), 1),
-                      createBaseVNode("td", _hoisted_119, toDisplayString(linea.estado === "requiere_validacion_juridica" ? "–" : "$" + $options.fmt(linea.valorComprador + linea.ivaComprador)), 1),
-                      createBaseVNode("td", _hoisted_120, toDisplayString(linea.estado === "requiere_validacion_juridica" ? "Ver alerta" : "$" + $options.fmt(linea.valorTotal)), 1),
+                      createBaseVNode("td", _hoisted_103, toDisplayString(linea.estado === "requiere_validacion_juridica" ? "–" : "$" + $options.fmt(linea.valorVendedor + linea.ivaVendedor)), 1),
+                      createBaseVNode("td", _hoisted_104, toDisplayString(linea.estado === "requiere_validacion_juridica" ? "–" : "$" + $options.fmt(linea.valorComprador + linea.ivaComprador)), 1),
+                      createBaseVNode("td", _hoisted_105, toDisplayString(linea.estado === "requiere_validacion_juridica" ? "Ver alerta" : "$" + $options.fmt(linea.valorTotal)), 1),
                       createBaseVNode("td", null, [
                         createBaseVNode("span", {
                           class: normalizeClass(["badge", $options.badgeClass(linea.estado)])
                         }, toDisplayString($options.badgeLabel(linea.estado)), 3)
                       ])
                     ], 2),
-                    linea.alerta ? (openBlock(), createElementBlock("tr", _hoisted_121, [
-                      createBaseVNode("td", _hoisted_122, [
-                        createBaseVNode("div", _hoisted_123, toDisplayString(linea.alerta), 1)
+                    linea.alerta ? (openBlock(), createElementBlock("tr", _hoisted_106, [
+                      createBaseVNode("td", _hoisted_107, [
+                        createBaseVNode("div", _hoisted_108, toDisplayString(linea.alerta), 1)
                       ])
                     ])) : createCommentVNode("", true)
                   ], 64);
                 }), 128)),
-                createBaseVNode("tr", _hoisted_124, [
-                  _cache[178] || (_cache[178] = createBaseVNode("td", null, [
+                createBaseVNode("tr", _hoisted_109, [
+                  _cache[177] || (_cache[177] = createBaseVNode("td", null, [
                     createBaseVNode("strong", null, "Subtotal gastos notariales y retenciones")
                   ], -1)),
                   createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.notariales.vendedor)), 1),
                   createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.notariales.comprador)), 1),
                   createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.notariales.total)), 1),
-                  _cache[179] || (_cache[179] = createBaseVNode("td", null, null, -1))
+                  _cache[178] || (_cache[178] = createBaseVNode("td", null, null, -1))
                 ]),
-                $options.lineasComision.length > 0 ? (openBlock(), createElementBlock("tr", _hoisted_125, [
-                  _cache[180] || (_cache[180] = createBaseVNode("td", null, [
+                $options.lineasComision.length > 0 ? (openBlock(), createElementBlock("tr", _hoisted_110, [
+                  _cache[179] || (_cache[179] = createBaseVNode("td", null, [
                     createBaseVNode("strong", null, "Subtotal comisiones")
                   ], -1)),
                   createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.comision.vendedor)), 1),
                   createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.comision.comprador)), 1),
                   createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.comision.total)), 1),
-                  _cache[181] || (_cache[181] = createBaseVNode("td", null, null, -1))
+                  _cache[180] || (_cache[180] = createBaseVNode("td", null, null, -1))
                 ])) : createCommentVNode("", true),
-                createBaseVNode("tr", _hoisted_126, [
-                  _cache[182] || (_cache[182] = createBaseVNode("td", null, [
+                createBaseVNode("tr", _hoisted_111, [
+                  _cache[181] || (_cache[181] = createBaseVNode("td", null, [
                     createBaseVNode("strong", null, "Subtotal impuestos y registro")
                   ], -1)),
                   createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.impuestos.vendedor)), 1),
                   createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.impuestos.comprador)), 1),
                   createBaseVNode("td", null, "$" + toDisplayString($options.fmt($options.totales.impuestos.total)), 1),
-                  _cache[183] || (_cache[183] = createBaseVNode("td", null, null, -1))
+                  _cache[182] || (_cache[182] = createBaseVNode("td", null, null, -1))
                 ]),
-                createBaseVNode("tr", _hoisted_127, [
-                  _cache[184] || (_cache[184] = createBaseVNode("td", null, [
+                createBaseVNode("tr", _hoisted_112, [
+                  _cache[183] || (_cache[183] = createBaseVNode("td", null, [
                     createBaseVNode("strong", null, "TOTAL GASTOS APROXIMADOS")
                   ], -1)),
                   createBaseVNode("td", null, [
@@ -9281,43 +9197,47 @@
                   createBaseVNode("td", null, [
                     createBaseVNode("strong", null, "$" + toDisplayString($options.fmt($options.totales.gran.total)), 1)
                   ]),
-                  _cache[185] || (_cache[185] = createBaseVNode("td", null, null, -1))
+                  _cache[184] || (_cache[184] = createBaseVNode("td", null, null, -1))
                 ])
               ])
             ], 512)
           ])
         ]),
-        $data.valorInmueble > 0 ? (openBlock(), createElementBlock("div", _hoisted_128, [
-          createBaseVNode("div", _hoisted_129, [
-            _cache[187] || (_cache[187] = createBaseVNode("span", null, "Vendedor", -1)),
-            createBaseVNode("div", _hoisted_130, "$" + toDisplayString($options.fmt($options.totales.gran.vendedor)), 1),
-            createBaseVNode("div", _hoisted_131, toDisplayString($options.pctTotal("vendedor")) + "% del valor", 1)
+        $data.valorInmueble > 0 ? (openBlock(), createElementBlock("div", _hoisted_113, [
+          createBaseVNode("div", _hoisted_114, [
+            _cache[186] || (_cache[186] = createBaseVNode("span", null, "Vendedor", -1)),
+            createBaseVNode("div", _hoisted_115, "$" + toDisplayString($options.fmt($options.totales.gran.vendedor)), 1),
+            createBaseVNode("div", _hoisted_116, toDisplayString($options.pctTotal("vendedor")) + "% del valor", 1)
           ]),
-          createBaseVNode("div", _hoisted_132, [
-            _cache[188] || (_cache[188] = createBaseVNode("span", null, "Comprador", -1)),
-            createBaseVNode("div", _hoisted_133, "$" + toDisplayString($options.fmt($options.totales.gran.comprador)), 1),
-            createBaseVNode("div", _hoisted_134, toDisplayString($options.pctTotal("comprador")) + "% del valor", 1)
+          createBaseVNode("div", _hoisted_117, [
+            _cache[187] || (_cache[187] = createBaseVNode("span", null, "Comprador", -1)),
+            createBaseVNode("div", _hoisted_118, "$" + toDisplayString($options.fmt($options.totales.gran.comprador)), 1),
+            createBaseVNode("div", _hoisted_119, toDisplayString($options.pctTotal("comprador")) + "% del valor", 1)
           ]),
-          createBaseVNode("div", _hoisted_135, [
-            _cache[189] || (_cache[189] = createBaseVNode("span", null, "Total operación", -1)),
-            createBaseVNode("div", _hoisted_136, "$" + toDisplayString($options.fmt($options.totales.gran.total)), 1),
-            createBaseVNode("div", _hoisted_137, toDisplayString($options.pctTotal("total")) + "% del valor", 1)
+          createBaseVNode("div", _hoisted_120, [
+            _cache[188] || (_cache[188] = createBaseVNode("span", null, "Total operación", -1)),
+            createBaseVNode("div", _hoisted_121, "$" + toDisplayString($options.fmt($options.totales.gran.total)), 1),
+            createBaseVNode("div", _hoisted_122, toDisplayString($options.pctTotal("total")) + "% del valor", 1)
           ])
         ])) : createCommentVNode("", true)
       ]),
-      createBaseVNode("div", _hoisted_138, [
+      createBaseVNode("div", _hoisted_123, [
+        $options.notaPieHtml ? (openBlock(), createElementBlock("div", {
+          key: 0,
+          class: "sim-nota-pie",
+          innerHTML: $options.notaPieHtml
+        }, null, 8, _hoisted_124)) : createCommentVNode("", true),
         createBaseVNode("button", {
           type: "button",
           class: "btn-imprimir",
           disabled: !$options.canPrint,
-          onClick: _cache[74] || (_cache[74] = (...args) => $options.imprimir && $options.imprimir(...args))
-        }, " Imprimir / PDF ", 8, _hoisted_139)
-      ]),
-      $options.nc.notaPie ? (openBlock(), createElementBlock("p", _hoisted_140, toDisplayString($options.nc.notaPie), 1)) : createCommentVNode("", true)
+          onClick: _cache[73] || (_cache[73] = (...args) => $options.imprimir && $options.imprimir(...args))
+        }, " Imprimir / PDF ", 8, _hoisted_125)
+      ])
     ]);
   }
-  const SimuladorVenta = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["render", _sfc_render$1], ["styles", [_style_0$1]], ["__scopeId", "data-v-ea39da31"]]);
-  const _style_0 = '\n.simulador-arriendo[data-v-16733d46] {\n  color: #111827;\n  font-size: 14px;\n  line-height: 1.5;\n}\n.sim-layout[data-v-16733d46] {\n  display: grid;\n  gap: 18px;\n}\n.card[data-v-16733d46] {\n  background: #ffffff;\n  border: 1px solid #e5e7eb;\n  border-radius: 14px;\n  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);\n}\n.sim-form-strip[data-v-16733d46],\n.sim-results .card[data-v-16733d46] {\n  padding: 18px;\n}\n.strip-grid[data-v-16733d46] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 16px;\n}\n.strip-block[data-v-16733d46] {\n  flex: 1 1 240px;\n  min-width: 0;\n}\n.strip-block-wide[data-v-16733d46] {\n  flex: 2 1 440px;\n  min-width: 0;\n}\n.strip-label[data-v-16733d46] {\n  margin: 0 0 10px;\n  color: #6b7280;\n  font-size: 11px;\n  font-weight: 700;\n  letter-spacing: 0.08em;\n  text-transform: uppercase;\n}\n.grid[data-v-16733d46] {\n  display: grid;\n  gap: 14px;\n}\n.grid-2[data-v-16733d46] {\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n}\n.grid-3[data-v-16733d46] {\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n}\n.field[data-v-16733d46] {\n  min-width: 0;\n}\n.field label[data-v-16733d46] {\n  display: block;\n  margin-bottom: 6px;\n  color: #111827;\n  font-size: 12px;\n  font-weight: 600;\n}\n.field input[data-v-16733d46],\n.field select[data-v-16733d46] {\n  width: 100%;\n  min-width: 0;\n  padding: 10px 12px;\n  border: 1px solid #cbd5e1;\n  border-radius: 10px;\n  background: #ffffff;\n  color: #111827;\n  font-size: 14px;\n  transition: border-color 0.2s ease, box-shadow 0.2s ease;\n  box-sizing: border-box;\n}\n.strip-block[data-v-16733d46] {\n  padding: 14px;\n  background: #f8fafc;\n  border: 1px solid #dbe3ee;\n  border-radius: 12px;\n}\n.strip-block-wide[data-v-16733d46] {\n  background: linear-gradient(180deg, #ffffff, #f8fafc);\n}\n.field input[data-v-16733d46]:focus,\n.field select[data-v-16733d46]:focus {\n  outline: none;\n  border-color: #2563eb;\n  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);\n}\n.checkbox-field label[data-v-16733d46] {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  margin-bottom: 0;\n  font-size: 13px;\n}\n.checkbox-field input[type="checkbox"][data-v-16733d46] {\n  width: 16px;\n  height: 16px;\n  margin: 0;\n  accent-color: #2563eb;\n}\n.label-hint[data-v-16733d46] {\n  margin-left: 4px;\n  color: #6b7280;\n  font-size: 10px;\n}\n.inline-badges[data-v-16733d46] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 6px;\n}\n.badge[data-v-16733d46] {\n  display: inline-block;\n  padding: 3px 9px;\n  border-radius: 9999px;\n  font-size: 10px;\n  font-weight: 700;\n}\n.badge-warning[data-v-16733d46] {\n  background: #fef3c7;\n  color: #92400e;\n}\n.table-wrapper[data-v-16733d46] {\n  width: 100%;\n  overflow-x: auto;\n}\n.results-table[data-v-16733d46] {\n  width: 100%;\n  min-width: 640px;\n  border-collapse: collapse;\n  table-layout: fixed;\n}\n.results-table th[data-v-16733d46],\n.results-table td[data-v-16733d46] {\n  padding: 12px 10px;\n  border-bottom: 1px solid #e5e7eb;\n  text-align: left;\n  vertical-align: top;\n}\n.results-table th[data-v-16733d46] {\n  background: #f8fafc;\n  color: #334155;\n  font-size: 12px;\n  font-weight: 700;\n}\n.results-table td[data-v-16733d46] {\n  font-size: 13px;\n}\n.row-total[data-v-16733d46] {\n  background: #f8fafc;\n}\n.row-grand-total[data-v-16733d46] {\n  background: #1f2937;\n  color: #ffffff;\n}\n.summary-strip[data-v-16733d46] {\n  display: grid;\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n  gap: 12px;\n  margin-top: 16px;\n}\n.summary-item[data-v-16733d46] {\n  padding: 14px;\n  border: 1px solid #e5e7eb;\n  border-radius: 12px;\n  background: linear-gradient(180deg, #ffffff, #f8fafc);\n  text-align: center;\n}\n.summary-item span[data-v-16733d46] {\n  display: block;\n  color: #64748b;\n  font-size: 12px;\n  font-weight: 600;\n}\n.summary-item-highlight[data-v-16733d46] {\n  background: linear-gradient(135deg, #1f2937, #334155);\n  color: #ffffff;\n  border-color: transparent;\n}\n.summary-item-highlight span[data-v-16733d46] {\n  color: rgba(255, 255, 255, 0.78);\n}\n.summary-item-value[data-v-16733d46] {\n  margin-top: 6px;\n  font-size: 20px;\n  font-weight: 700;\n}\n.sim-actions-bottom[data-v-16733d46] {\n  display: flex;\n  justify-content: flex-end;\n}\n.sim-actions-bottom button[data-v-16733d46] {\n  padding: 11px 18px;\n  border: 0;\n  border-radius: 10px;\n  background: linear-gradient(135deg, #0f172a, #334155);\n  color: #ffffff;\n  font-size: 13px;\n  font-weight: 700;\n  cursor: pointer;\n  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);\n}\n.sim-actions-bottom button[data-v-16733d46]:disabled {\n  opacity: 0.55;\n  cursor: not-allowed;\n}\n.sim-nota-pie[data-v-16733d46] {\n  margin: 6px 0 0;\n  color: #6b7280;\n  font-size: 12px;\n}\n@media (max-width: 900px) {\n.grid-3[data-v-16733d46],\n  .grid-2[data-v-16733d46],\n  .summary-strip[data-v-16733d46] {\n    grid-template-columns: 1fr;\n}\n}\n@media (max-width: 640px) {\n.sim-form-strip[data-v-16733d46],\n  .sim-results .card[data-v-16733d46] {\n    padding: 14px;\n}\n.strip-grid[data-v-16733d46] {\n    gap: 12px;\n}\n.sim-actions-bottom[data-v-16733d46] {\n    justify-content: stretch;\n}\n.sim-actions-bottom button[data-v-16733d46] {\n    width: 100%;\n}\n}\n';
+  const SimuladorVenta = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["render", _sfc_render$1], ["styles", [_style_0$1]], ["__scopeId", "data-v-627a44c0"]]);
+  const _style_0 = '\n.simulador-arriendo[data-v-882baeb2] {\n  color: #111827;\n  font-size: 14px;\n  line-height: 1.5;\n}\n.sim-layout[data-v-882baeb2] {\n  display: grid;\n  gap: 18px;\n}\n.card[data-v-882baeb2] {\n  background: #ffffff;\n  border: 1px solid #e5e7eb;\n  border-radius: 14px;\n  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);\n}\n.sim-form-strip[data-v-882baeb2],\n.sim-results .card[data-v-882baeb2] {\n  padding: 18px;\n}\n.strip-grid[data-v-882baeb2] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 16px;\n}\n.strip-block[data-v-882baeb2] {\n  flex: 1 1 240px;\n  min-width: 0;\n}\n.strip-block-wide[data-v-882baeb2] {\n  flex: 2 1 440px;\n  min-width: 0;\n}\n.strip-label[data-v-882baeb2] {\n  margin: 0 0 10px;\n  color: #6b7280;\n  font-size: 11px;\n  font-weight: 700;\n  letter-spacing: 0.08em;\n  text-transform: uppercase;\n}\n.grid[data-v-882baeb2] {\n  display: grid;\n  gap: 14px;\n}\n.grid-2[data-v-882baeb2] {\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n}\n.grid-3[data-v-882baeb2] {\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n}\n.field[data-v-882baeb2] {\n  min-width: 0;\n}\n.field label[data-v-882baeb2] {\n  display: block;\n  margin-bottom: 6px;\n  color: #111827;\n  font-size: 12px;\n  font-weight: 600;\n}\n.field input[data-v-882baeb2],\n.field select[data-v-882baeb2] {\n  width: 100%;\n  min-width: 0;\n  padding: 10px 12px;\n  border: 1px solid #cbd5e1;\n  border-radius: 10px;\n  background: #ffffff;\n  color: #111827;\n  font-size: 14px;\n  transition: border-color 0.2s ease, box-shadow 0.2s ease;\n  box-sizing: border-box;\n}\n.strip-block[data-v-882baeb2] {\n  padding: 14px;\n  background: #f8fafc;\n  border: 1px solid #dbe3ee;\n  border-radius: 12px;\n}\n.strip-block-wide[data-v-882baeb2] {\n  background: linear-gradient(180deg, #ffffff, #f8fafc);\n}\n.field input[data-v-882baeb2]:focus,\n.field select[data-v-882baeb2]:focus {\n  outline: none;\n  border-color: #2563eb;\n  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);\n}\n.checkbox-field label[data-v-882baeb2] {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  margin-bottom: 0;\n  font-size: 13px;\n}\n.checkbox-field input[type="checkbox"][data-v-882baeb2] {\n  width: 16px;\n  height: 16px;\n  margin: 0;\n  accent-color: #2563eb;\n}\n.label-hint[data-v-882baeb2] {\n  margin-left: 4px;\n  color: #6b7280;\n  font-size: 10px;\n}\n.inline-badges[data-v-882baeb2] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 6px;\n}\n.badge[data-v-882baeb2] {\n  display: inline-block;\n  padding: 3px 9px;\n  border-radius: 9999px;\n  font-size: 10px;\n  font-weight: 700;\n}\n.badge-warning[data-v-882baeb2] {\n  background: #fef3c7;\n  color: #92400e;\n}\n.table-wrapper[data-v-882baeb2] {\n  width: 100%;\n  overflow-x: auto;\n}\n.results-table[data-v-882baeb2] {\n  width: 100%;\n  min-width: 640px;\n  border-collapse: collapse;\n  table-layout: fixed;\n}\n.results-table th[data-v-882baeb2],\n.results-table td[data-v-882baeb2] {\n  padding: 12px 10px;\n  border-bottom: 1px solid #e5e7eb;\n  text-align: left;\n  vertical-align: top;\n}\n.results-table th[data-v-882baeb2] {\n  background: #f8fafc;\n  color: #334155;\n  font-size: 12px;\n  font-weight: 700;\n}\n.results-table td[data-v-882baeb2] {\n  font-size: 13px;\n}\n.row-total[data-v-882baeb2] {\n  background: #f8fafc;\n}\n.row-subtotal[data-v-882baeb2] {\n  background: #eef4ff;\n}\n.row-grand-total[data-v-882baeb2] {\n  background: #1f2937;\n  color: #ffffff;\n}\n.summary-strip[data-v-882baeb2] {\n  display: grid;\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n  gap: 12px;\n  margin-top: 16px;\n}\n.summary-item[data-v-882baeb2] {\n  padding: 14px;\n  border: 1px solid #e5e7eb;\n  border-radius: 12px;\n  background: linear-gradient(180deg, #ffffff, #f8fafc);\n  text-align: center;\n}\n.summary-item span[data-v-882baeb2] {\n  display: block;\n  color: #64748b;\n  font-size: 12px;\n  font-weight: 600;\n}\n.summary-item-highlight[data-v-882baeb2] {\n  background: linear-gradient(135deg, #1f2937, #334155);\n  color: #ffffff;\n  border-color: transparent;\n}\n.summary-item-highlight span[data-v-882baeb2] {\n  color: rgba(255, 255, 255, 0.78);\n}\n.summary-item-value[data-v-882baeb2] {\n  margin-top: 6px;\n  font-size: 20px;\n  font-weight: 700;\n}\n.sim-actions-bottom[data-v-882baeb2] {\n  margin-top: 18px;\n  display: flex;\n  align-items: flex-start;\n  justify-content: space-between;\n  gap: 18px;\n}\n.sim-actions-bottom button[data-v-882baeb2] {\n  padding: 11px 18px;\n  border: 0;\n  border-radius: 10px;\n  background: linear-gradient(135deg, #0f172a, #334155);\n  color: #ffffff;\n  font-size: 13px;\n  font-weight: 700;\n  cursor: pointer;\n  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);\n}\n.sim-actions-bottom button[data-v-882baeb2]:disabled {\n  opacity: 0.55;\n  cursor: not-allowed;\n}\n.sim-nota-pie[data-v-882baeb2] {\n  flex: 1 1 auto;\n  margin: 0;\n  color: #6b7280;\n  font-size: 12px;\n}\n.sim-nota-pie[data-v-882baeb2] p,\n.sim-nota-pie[data-v-882baeb2] ul,\n.sim-nota-pie[data-v-882baeb2] ol {\n  margin: 0 0 0.85em;\n}\n.sim-nota-pie[data-v-882baeb2] ul,\n.sim-nota-pie[data-v-882baeb2] ol {\n  padding-left: 18px;\n}\n@media (max-width: 900px) {\n.grid-3[data-v-882baeb2],\n  .grid-2[data-v-882baeb2],\n  .summary-strip[data-v-882baeb2] {\n    grid-template-columns: 1fr;\n}\n}\n@media (max-width: 640px) {\n.sim-form-strip[data-v-882baeb2],\n  .sim-results .card[data-v-882baeb2] {\n    padding: 14px;\n}\n.strip-grid[data-v-882baeb2] {\n    gap: 12px;\n}\n.sim-actions-bottom[data-v-882baeb2] {\n    flex-direction: column;\n    align-items: stretch;\n}\n.sim-actions-bottom button[data-v-882baeb2] {\n    width: 100%;\n}\n}\n';
   const _sfc_main = {
     name: "SimuladorArriendo",
     props: {
@@ -9345,11 +9265,20 @@
       normalizedConfig() {
         return this.normalizarConfiguracion(this.configuracion);
       },
+      isLoggedIn() {
+        return !!this.configuracion?.system?.isLoggedIn;
+      },
+      showRestrictedRentOptions() {
+        return this.isLoggedIn;
+      },
       resolvedLogo() {
         return this.logo || this.normalizedConfig.logo || "";
       },
       notaPie() {
         return (this.configuracion.notaPie || "").trim();
+      },
+      notaPieHtml() {
+        return this.formatNoteHtml(this.notaPie);
       },
       grupoTributarioInmueble() {
         return this.resolverGrupoTributarioInmueble();
@@ -9378,14 +9307,15 @@
         const otrosDescuentos = this.calcularOtrosDescuentos();
         const totalIngresos = safeMoney(this.form.canon + ivaCanon);
         const descuentosSinBancarios = comision + ivaComision + seguro + retencionFuente + retencionIca + retencionIva + otrosDescuentos;
-        const baseGastosBancarios = Math.max(0, totalIngresos - descuentosSinBancarios);
-        const gastosBancarios = this.calcularGastosBancarios(baseGastosBancarios);
+        const subtotalAntesGastosBancarios = Math.max(0, safeMoney(totalIngresos - descuentosSinBancarios));
+        const gastosBancarios = this.calcularGastosBancarios(subtotalAntesGastosBancarios);
         const totalDescuentos = safeMoney(descuentosSinBancarios + gastosBancarios);
         return {
           canon: safeMoney(this.form.canon),
           administracion: this.form.tieneAdministracion ? safeMoney(this.form.valorAdministracion) : 0,
           ivaCanon,
           totalIngresos,
+          subtotalAntesGastosBancarios,
           valorComision: comision,
           ivaComision,
           valorSeguro: seguro,
@@ -9418,13 +9348,6 @@
         if (this.form.aplicarSeguro && this.calc.valorSeguro > 0) {
           rows.push({ label: "Seguro / póliza de arrendamiento", value: this.calc.valorSeguro });
         }
-        if (this.form.aplicarGastosBancarios && this.calc.gastosBancarios > 0) {
-          const m = this.form.gastosBancarios.modalidad;
-          let gastoLabel = "Gastos bancarios";
-          if (m === "cuatro_por_mil") gastoLabel = "Gastos bancarios (4×1.000 s/ valor a girar)";
-          else if (m === "porcentaje") gastoLabel = `Gastos bancarios (${this.form.gastosBancarios.porcentaje}% s/ valor a girar)`;
-          rows.push({ label: gastoLabel, value: this.calc.gastosBancarios });
-        }
         if (this.form.condicionesTributarias.aplicarRetencionFuente && this.calc.retencionFuente > 0) {
           rows.push({ label: `Retención en la fuente (${this.form.retenciones.fuente.porcentaje}%) sobre arrendamiento`, value: this.calc.retencionFuente });
         }
@@ -9433,6 +9356,13 @@
         }
         if (this.form.condicionesTributarias.aplicarRetencionIva && this.ivaCanonActivo && this.calc.retencionIva > 0) {
           rows.push({ label: `Retención de IVA (${pct}%)`, value: this.calc.retencionIva });
+        }
+        if (this.form.aplicarGastosBancarios && this.calc.gastosBancarios > 0) {
+          const m = this.form.gastosBancarios.modalidad;
+          let gastoLabel = "Gastos bancarios";
+          if (m === "cuatro_por_mil") gastoLabel = "Gastos bancarios (4×1.000 s/ subtotal a recibir)";
+          else if (m === "porcentaje") gastoLabel = `Gastos bancarios (${this.form.gastosBancarios.porcentaje}% s/ subtotal a recibir)`;
+          rows.push({ label: gastoLabel, value: this.calc.gastosBancarios });
         }
         return rows;
       },
@@ -9501,6 +9431,17 @@
       normalizarNumero(v, def2 = 0) {
         const n = Number(v);
         return Number.isFinite(n) ? Math.max(0, n) : def2;
+      },
+      escapeHtml(value) {
+        return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      },
+      formatNoteHtml(value) {
+        const text = String(value || "").trim();
+        if (!text) return "";
+        if (/<[a-z][\s\S]*>/i.test(text)) {
+          return text;
+        }
+        return text.split(/\n{2,}/).map((block) => `<p>${this.escapeHtml(block).replace(/\n/g, "<br>")}</p>`).join("");
       },
       safeMoney(v) {
         return safeMoney(v);
@@ -9933,20 +9874,21 @@
   const _hoisted_59 = { class: "table-wrapper results-table-wrapper" };
   const _hoisted_60 = { class: "results-table" };
   const _hoisted_61 = { class: "row-total" };
-  const _hoisted_62 = { class: "row-grand-total" };
-  const _hoisted_63 = { class: "summary-strip" };
-  const _hoisted_64 = { class: "summary-item" };
-  const _hoisted_65 = { class: "summary-item-value" };
-  const _hoisted_66 = { class: "summary-item" };
-  const _hoisted_67 = { class: "summary-item-value" };
-  const _hoisted_68 = { class: "summary-item summary-item-highlight" };
-  const _hoisted_69 = { class: "summary-item-value" };
-  const _hoisted_70 = { class: "sim-actions-bottom" };
-  const _hoisted_71 = ["disabled"];
-  const _hoisted_72 = {
-    key: 1,
-    class: "sim-nota-pie"
+  const _hoisted_62 = {
+    key: 0,
+    class: "row-subtotal"
   };
+  const _hoisted_63 = { class: "row-grand-total" };
+  const _hoisted_64 = { class: "summary-strip" };
+  const _hoisted_65 = { class: "summary-item" };
+  const _hoisted_66 = { class: "summary-item-value" };
+  const _hoisted_67 = { class: "summary-item" };
+  const _hoisted_68 = { class: "summary-item-value" };
+  const _hoisted_69 = { class: "summary-item summary-item-highlight" };
+  const _hoisted_70 = { class: "summary-item-value" };
+  const _hoisted_71 = { class: "sim-actions-bottom" };
+  const _hoisted_72 = ["innerHTML"];
+  const _hoisted_73 = ["disabled"];
   function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     return openBlock(), createElementBlock("div", _hoisted_1, [
       createBaseVNode("div", _hoisted_2, [
@@ -10084,7 +10026,7 @@
             ])) : createCommentVNode("", true)
           ])
         ]),
-        $data.ui.showAdvanced || true ? (openBlock(), createElementBlock("section", _hoisted_25, [
+        $options.showRestrictedRentOptions ? (openBlock(), createElementBlock("section", _hoisted_25, [
           createBaseVNode("div", _hoisted_26, [
             createBaseVNode("div", _hoisted_27, [
               _cache[48] || (_cache[48] = createBaseVNode("h4", { class: "strip-label" }, "Comisión inmobiliaria", -1)),
@@ -10335,7 +10277,7 @@
           createBaseVNode("div", _hoisted_58, [
             createBaseVNode("div", _hoisted_59, [
               createBaseVNode("table", _hoisted_60, [
-                _cache[71] || (_cache[71] = createBaseVNode("thead", null, [
+                _cache[72] || (_cache[72] = createBaseVNode("thead", null, [
                   createBaseVNode("tr", null, [
                     createBaseVNode("th", null, "Ingresos"),
                     createBaseVNode("th", null, "Valor"),
@@ -10366,8 +10308,16 @@
                       createBaseVNode("strong", null, toDisplayString($options.fmtMoney($options.calc.totalDescuentos)), 1)
                     ])
                   ]),
-                  createBaseVNode("tr", _hoisted_62, [
+                  $data.form.aplicarGastosBancarios && $options.calc.gastosBancarios > 0 ? (openBlock(), createElementBlock("tr", _hoisted_62, [
                     _cache[70] || (_cache[70] = createBaseVNode("td", { colspan: "3" }, [
+                      createBaseVNode("strong", null, "SUBTOTAL RENTA A RECIBIR ANTES DE GASTOS BANCARIOS")
+                    ], -1)),
+                    createBaseVNode("td", null, [
+                      createBaseVNode("strong", null, toDisplayString($options.fmtMoney($options.calc.subtotalAntesGastosBancarios)), 1)
+                    ])
+                  ])) : createCommentVNode("", true),
+                  createBaseVNode("tr", _hoisted_63, [
+                    _cache[71] || (_cache[71] = createBaseVNode("td", { colspan: "3" }, [
                       createBaseVNode("strong", null, "VALOR TOTAL RENTA A RECIBIR POR EL PROPIETARIO")
                     ], -1)),
                     createBaseVNode("td", null, [
@@ -10378,33 +10328,56 @@
               ])
             ])
           ]),
-          createBaseVNode("div", _hoisted_63, [
-            createBaseVNode("div", _hoisted_64, [
-              _cache[72] || (_cache[72] = createBaseVNode("span", null, "Canon mensual", -1)),
-              createBaseVNode("div", _hoisted_65, toDisplayString($options.fmtMoney($options.calc.canon)), 1)
+          createBaseVNode("div", _hoisted_64, [
+            createBaseVNode("div", _hoisted_65, [
+              _cache[73] || (_cache[73] = createBaseVNode("span", null, "Canon mensual", -1)),
+              createBaseVNode("div", _hoisted_66, toDisplayString($options.fmtMoney($options.calc.canon)), 1)
             ]),
-            createBaseVNode("div", _hoisted_66, [
-              _cache[73] || (_cache[73] = createBaseVNode("span", null, "Total descuentos", -1)),
-              createBaseVNode("div", _hoisted_67, toDisplayString($options.fmtMoney($options.calc.totalDescuentos)), 1)
+            createBaseVNode("div", _hoisted_67, [
+              _cache[74] || (_cache[74] = createBaseVNode("span", null, "Total descuentos", -1)),
+              createBaseVNode("div", _hoisted_68, toDisplayString($options.fmtMoney($options.calc.totalDescuentos)), 1)
             ]),
-            createBaseVNode("div", _hoisted_68, [
-              _cache[74] || (_cache[74] = createBaseVNode("span", null, "Valor neto a recibir", -1)),
-              createBaseVNode("div", _hoisted_69, toDisplayString($options.fmtMoney($options.calc.valorRentaRecibir)), 1)
+            createBaseVNode("div", _hoisted_69, [
+              _cache[75] || (_cache[75] = createBaseVNode("span", null, "Valor neto a recibir", -1)),
+              createBaseVNode("div", _hoisted_70, toDisplayString($options.fmtMoney($options.calc.valorRentaRecibir)), 1)
             ])
           ])
         ]),
-        createBaseVNode("div", _hoisted_70, [
+        createBaseVNode("div", _hoisted_71, [
+          $options.notaPieHtml ? (openBlock(), createElementBlock("div", {
+            key: 0,
+            class: "sim-nota-pie",
+            innerHTML: $options.notaPieHtml
+          }, null, 8, _hoisted_72)) : createCommentVNode("", true),
           createBaseVNode("button", {
             type: "button",
             disabled: !$options.canPrint,
             onClick: _cache[28] || (_cache[28] = (...args) => $options.imprimir && $options.imprimir(...args))
-          }, "Imprimir / PDF", 8, _hoisted_71)
-        ]),
-        $options.notaPie ? (openBlock(), createElementBlock("p", _hoisted_72, toDisplayString($options.notaPie), 1)) : createCommentVNode("", true)
+          }, "Imprimir / PDF", 8, _hoisted_73)
+        ])
       ])
     ]);
   }
-  const SimuladorArriendo = /* @__PURE__ */ _export_sfc(_sfc_main, [["render", _sfc_render], ["styles", [_style_0]], ["__scopeId", "data-v-16733d46"]]);
+  const SimuladorArriendo = /* @__PURE__ */ _export_sfc(_sfc_main, [["render", _sfc_render], ["styles", [_style_0]], ["__scopeId", "data-v-882baeb2"]]);
+  const shadowBaseStyles = `
+  :host {
+    display: block;
+    width: 100%;
+    color: #111827;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: left;
+    box-sizing: border-box;
+  }
+
+  :host,
+  :host *,
+  :host *::before,
+  :host *::after {
+    box-sizing: border-box;
+  }
+`;
   const SimuladorRoot = /* @__PURE__ */ defineComponent({
     name: "CodweltSimulador",
     props: {
@@ -10433,7 +10406,10 @@
       };
     }
   });
-  const SimuladorElement = /* @__PURE__ */ defineCustomElement(SimuladorRoot);
+  const SimuladorElement = /* @__PURE__ */ defineCustomElement(SimuladorRoot, {
+    shadowRoot: true,
+    styles: [shadowBaseStyles]
+  });
   if (!customElements.get("codwelt-simulador")) {
     customElements.define("codwelt-simulador", SimuladorElement);
   }

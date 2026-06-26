@@ -1,7 +1,7 @@
 /* ── Homlity Consignment Form — styles.css ───────────────────────────────── */
 
 /* Custom properties (defaults overridden via PHP config) */
-#homlity-consignment-form-root {
+:host {
   --hcf-primary:    #2563eb;
   --hcf-secondary:  #1e40af;
   --hcf-background: #ffffff;
@@ -21,9 +21,9 @@
   box-sizing: border-box;
 }
 
-#homlity-consignment-form-root *,
-#homlity-consignment-form-root *::before,
-#homlity-consignment-form-root *::after {
+:host *,
+:host *::before,
+:host *::after {
   box-sizing: inherit;
 }
 

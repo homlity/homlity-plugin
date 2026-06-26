@@ -101,8 +101,7 @@ function clearDraft() {
 
 // ── App ───────────────────────────────────────────────────────────────────
 
-export default function App() {
-  const rootConfig = window.homlityConsignmentConfig || {};
+export default function App({ hostElement = null, rootConfig = {} }) {
 
   const [config, setConfig]             = useState(null);
   const [isLoading, setIsLoading]       = useState(true);
@@ -138,15 +137,15 @@ export default function App() {
   // Apply CSS variables from config styles
   useEffect(() => {
     if (!config?.styles) return;
-    const root = document.getElementById('homlity-consignment-form-root');
+    const root = hostElement;
     if (!root) return;
     const s = config.styles;
-    root.style.setProperty('--hcf-primary',   s.primary_color   || '#2563eb');
+    root.style.setProperty('--hcf-primary',   rootConfig.primaryColor || s.primary_color   || '#2563eb');
     root.style.setProperty('--hcf-secondary',  s.secondary_color || '#1e40af');
     root.style.setProperty('--hcf-background', s.bg_color        || '#ffffff');
-    root.style.setProperty('--hcf-text',       s.text_color      || '#1f2937');
+    root.style.setProperty('--hcf-text',       rootConfig.textColor || s.text_color || '#1f2937');
     root.style.setProperty('--hcf-radius',     (s.border_radius  || '8') + 'px');
-  }, [config]);
+  }, [config, hostElement, rootConfig.primaryColor, rootConfig.textColor]);
 
   // ── Steps visible for current consignant type ─────────────────────────
 

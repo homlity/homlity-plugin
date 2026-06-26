@@ -6,11 +6,13 @@
  * No tokens, HMAC secrets, or CRM credentials are ever exposed.
  */
 
+let runtimeConfig = window.homlityConsignmentConfig || {};
+
 const getBase = () =>
-  window.homlityConsignmentConfig?.restBase ||
+  runtimeConfig.restBase ||
   `${window.location.origin}/wp-json/homlity/v1/consignment`;
 
-const getNonce = () => window.homlityConsignmentConfig?.nonce || '';
+const getNonce = () => runtimeConfig.nonce || '';
 
 const headers = (extra = {}) => ({
   'Content-Type': 'application/json',
@@ -26,7 +28,12 @@ export async function fetchConfig() {
     credentials: 'same-origin',
   });
   if (!res.ok) throw new Error('No se pudo cargar la configuración del formulario.');
-  return res.json();
+  const json = await res.json();
+  runtimeConfig = {
+    ...runtimeConfig,
+    nonce: json.nonce || runtimeConfig.nonce || '',
+  };
+  return json;
 }
 
 /** Validate a single step without submitting. */
