@@ -27,6 +27,7 @@ class Homlity_Consignment_Payload_Builder
         $features = (array) ($form['features']         ?? []);
         $media    = (array) ($form['media']            ?? []);
         $advisor  = (array) ($form['advisor']          ?? []);
+        $review   = (array) ($form['review']           ?? []);
 
         $provider = sanitize_key(
             apply_filters('homlity_consignment_default_provider', $opts['provider'] ?? 'public-consignment')
@@ -81,13 +82,19 @@ class Homlity_Consignment_Payload_Builder
         $state        = trim($loc['state'] ?? '');
         $city         = trim($loc['city'] ?? '');
         $neighborhood = trim($loc['neighborhood'] ?? '');
+        $address      = sanitize_text_field($loc['address'] ?? '');
+        $address_complement = sanitize_text_field($loc['address_complement'] ?? '');
+        $address_dane = trim(implode(', ', array_filter([$address, $address_complement])));
 
         // ── Title auto-fill if empty ───────────────────────────────────────
         $title = trim($details['title'] ?? '');
-        if ($title === '' && !empty($details['property_type'])) {
-            $op_label  = !empty($operations) ? mb_strtolower($operations[0]) : '';
-            $geo_label = $neighborhood ?: $city;
-            $title     = trim(implode(' en ', array_filter([$details['property_type'], $op_label, $geo_label])));
+        if ($title === '') {
+            $title = self::buildAutoTitle(
+                $details['property_type'] ?? '',
+                $operations,
+                $neighborhood,
+                $city
+            );
         }
 
         // ── Parking advanced meta (stored as extra meta, not in base schema) ─
@@ -107,15 +114,30 @@ class Homlity_Consignment_Payload_Builder
                 'updated_at' => gmdate('Y-m-d\TH:i:s\Z'),
                 'raw'        => [
                     'consignant_type' => $consignant_type,
+                    'identification'  => sanitize_text_field($contact['document'] ?? ''),
                     'parking_advanced'=> $parking_advanced,
                     'contact_phone'   => sanitize_text_field($contact['phone'] ?? ''),
                     'contact_whatsapp'=> sanitize_text_field($contact['whatsapp'] ?? ''),
                     'contact_name'    => sanitize_text_field($contact['name'] ?? ''),
                     'contact_email'   => sanitize_email($contact['email'] ?? ''),
+                    'data_consent'    => !empty($contact['data_consent']),
+                    'authorization_consent' => !empty($contact['authorization_consent']),
                     'show_exact_address' => !empty($loc['show_exact_address']),
+                    'address_complement' => $address_complement,
                     'location_reference' => sanitize_text_field($loc['location_reference'] ?? ''),
+                    'maps_url'            => esc_url_raw($loc['maps_url'] ?? ''),
                     'commercial_note'    => sanitize_textarea_field($op['commercial_note'] ?? ''),
+                    'negotiable'         => !empty($op['negotiable']),
+                    'stratum'            => sanitize_text_field($areas['stratum'] ?? ''),
+                    'floor'              => sanitize_text_field($areas['floor'] ?? ''),
+                    'levels'             => sanitize_text_field($areas['levels'] ?? ''),
+                    'elevators'          => sanitize_text_field($areas['elevators'] ?? ''),
                     'photo_note'         => sanitize_textarea_field($media['photo_note'] ?? ''),
+                    'advisor_role'       => sanitize_text_field($advisor_payload['role'] ?? ''),
+                    'advisor_external_id'=> sanitize_text_field($advisor['external_id'] ?? ''),
+                    'advisor_photo'      => esc_url_raw($advisor['photo'] ?? ''),
+                    'truth_declaration'  => !empty($review['truth_declaration']),
+                    'contact_consent'    => !empty($review['contact_consent']),
                 ],
             ],
             'post' => [
@@ -125,9 +147,14 @@ class Homlity_Consignment_Payload_Builder
                 'status'            => 'pending', // always overridden by controller
             ],
             'location' => [
-                'address'   => sanitize_text_field($loc['address'] ?? ''),
+                'address'   => $address,
+                'address_dane' => $address_dane,
                 'latitude'  => (float) ($loc['latitude'] ?? 0),
                 'longitude' => (float) ($loc['longitude'] ?? 0),
+                'show_exact_address' => !empty($loc['show_exact_address']),
+                'address_complement' => $address_complement,
+                'location_reference' => sanitize_text_field($loc['location_reference'] ?? ''),
+                'maps_url'  => esc_url_raw($loc['maps_url'] ?? ''),
             ],
             'pricing' => [
                 'sale_price'    => self::cleanPrice($op['sale_price'] ?? ''),
@@ -137,6 +164,8 @@ class Homlity_Consignment_Payload_Builder
                 'admin_price'   => self::cleanPrice($op['admin_price'] ?? ''),
                 'admin_currency'=> sanitize_key($op['admin_currency'] ?? $opts['default_currency'] ?? 'COP'),
                 'admin_included'=> !empty($op['admin_included']),
+                'negotiable'    => !empty($op['negotiable']),
+                'commercial_note' => sanitize_textarea_field($op['commercial_note'] ?? ''),
             ],
             'metrics' => [
                 'area'         => (string) self::cleanDecimal($areas['area'] ?? ''),
@@ -149,6 +178,10 @@ class Homlity_Consignment_Payload_Builder
                 'condition'    => sanitize_key($details['condition'] ?? ''),
                 'year_built'   => (int) ($details['year_built'] ?? 0),
                 'code'         => sanitize_text_field($details['code'] ?? ''),
+                'stratum'      => (int) ($areas['stratum'] ?? 0),
+                'floor'        => (int) ($areas['floor'] ?? 0),
+                'levels'       => (int) ($areas['levels'] ?? 0),
+                'elevators'    => (int) ($areas['elevators'] ?? 0),
                 'featured'     => false,
             ],
             'taxonomy' => [
@@ -168,6 +201,7 @@ class Homlity_Consignment_Payload_Builder
                 'tour_360'           => $tours,
                 'photos_360'         => [],
                 'brochure'           => $brochure,
+                'photo_note'         => sanitize_textarea_field($media['photo_note'] ?? ''),
             ],
             'advisor' => $advisor_payload,
         ];
@@ -213,5 +247,24 @@ class Homlity_Consignment_Payload_Builder
             'builder'    => 'Constructor',
             'authorized' => 'Persona autorizada',
         ][$type] ?? 'Consignante';
+    }
+
+    private static function buildAutoTitle(string $propertyType, array $operations, string $neighborhood, string $city): string
+    {
+        $propertyType = trim(sanitize_text_field($propertyType));
+        $operation    = trim(sanitize_text_field($operations[0] ?? ''));
+        $geoPrimary   = trim(sanitize_text_field($neighborhood));
+        $geoSecondary = trim(sanitize_text_field($city));
+
+        $parts = array_filter([
+            $propertyType,
+            $operation ? 'en ' . mb_strtolower($operation) : '',
+            $geoPrimary ?: $geoSecondary,
+            $geoPrimary && $geoSecondary ? $geoSecondary : '',
+        ]);
+
+        $title = trim(implode(' ', $parts));
+
+        return $title !== '' ? $title : 'Inmueble consignado';
     }
 }

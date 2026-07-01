@@ -197,9 +197,7 @@ class Homlity_Consignment_Validator
         $errors = [];
 
         $title = trim($d['title'] ?? '');
-        if ($title === '') {
-            $errors['title'] = 'El título del inmueble es obligatorio.';
-        } elseif (mb_strlen($title) > 200) {
+        if ($title !== '' && mb_strlen($title) > 200) {
             $errors['title'] = 'El título no debe superar los 200 caracteres.';
         }
 
@@ -302,6 +300,9 @@ class Homlity_Consignment_Validator
         if (!in_array($parsed['scheme'], ['http', 'https'], true)) {
             return false;
         }
+        if (self::isLocalSiteHost($parsed['host'])) {
+            return true;
+        }
         return !self::isPrivateHost($parsed['host']);
     }
 
@@ -317,7 +318,30 @@ class Homlity_Consignment_Validator
         if (!in_array($parsed['scheme'] ?? '', ['http', 'https'], true)) {
             return false;
         }
+        if (self::isLocalSiteHost($parsed['host'])) {
+            return true;
+        }
         return !self::isPrivateHost($parsed['host']);
+    }
+
+    private static function isLocalSiteHost(string $host): bool
+    {
+        $host = strtolower(trim($host));
+        if ($host === '') {
+            return false;
+        }
+
+        $site_hosts = array_filter(array_unique(array_map(
+            static function ($url) {
+                return strtolower((string) wp_parse_url($url, PHP_URL_HOST));
+            },
+            [
+                home_url('/'),
+                site_url('/'),
+            ]
+        )));
+
+        return in_array($host, $site_hosts, true);
     }
 
     private static function isPrivateHost(string $host): bool

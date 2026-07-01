@@ -1,12 +1,32 @@
 import { SelectField, InputField, CheckboxField, TextareaField } from './Field';
 
-const OPERATIONS = [
-  { value: 'Venta',            label: 'Venta' },
-  { value: 'Arriendo',         label: 'Arriendo' },
-  { value: 'Venta y Arriendo', label: 'Venta y Arriendo' },
-];
-
 const CURRENCIES = ['COP', 'CRC', 'USD', 'EUR'];
+
+function normalizeOperations(config) {
+  const configured = Array.isArray(config?.operations) ? config.operations : [];
+  const base = configured.length > 0 ? configured : ['Venta', 'Arriendo'];
+  const values = base
+    .map((item) => {
+      if (typeof item === 'string') {
+        return item.trim();
+      }
+
+      if (item && typeof item === 'object') {
+        return String(item.name || item.label || item.value || '').trim();
+      }
+
+      return '';
+    })
+    .filter(Boolean);
+
+  const unique = Array.from(new Set(values));
+
+  if (unique.includes('Venta') && unique.includes('Arriendo') && !unique.includes('Venta y Arriendo')) {
+    unique.push('Venta y Arriendo');
+  }
+
+  return unique.map((value) => ({ value, label: value }));
+}
 
 function PriceRow({ label, idAmount, idCurrency, valueAmount, valueCurrency, onChangeAmount, onChangeCurrency, error }) {
   return (
@@ -34,15 +54,20 @@ function PriceRow({ label, idAmount, idCurrency, valueAmount, valueCurrency, onC
   );
 }
 
-export default function StepOperation({ data, updateField, errors }) {
+export default function StepOperation({ data, updateField, errors, config, compact = false }) {
   const op = data.operation || '';
   const showSale  = op.includes('Venta');
   const showRent  = op.includes('Arriendo');
+  const operations = normalizeOperations(config);
 
   return (
     <div className="hcf-step hcf-step--operation">
-      <h2 className="hcf-step__title">Tipo de operación</h2>
-      <p className="hcf-step__desc">Define cómo quieres ofrecer tu inmueble.</p>
+      {!compact && (
+        <>
+          <h2 className="hcf-step__title">Tipo de operación</h2>
+          <p className="hcf-step__desc">Define cómo quieres ofrecer tu inmueble.</p>
+        </>
+      )}
 
       <SelectField
         label="Operación"
@@ -53,7 +78,7 @@ export default function StepOperation({ data, updateField, errors }) {
         required
         placeholder="Selecciona…"
       >
-        {OPERATIONS.map((o) => (
+        {operations.map((o) => (
           <option key={o.value} value={o.value}>{o.label}</option>
         ))}
       </SelectField>

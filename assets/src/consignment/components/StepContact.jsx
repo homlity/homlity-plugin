@@ -8,15 +8,19 @@ const CONSIGNANT_TYPES = [
   { value: 'builder',    label: 'Constructor / Proyecto' },
 ];
 
-export default function StepContact({ data, updateField, errors, config }) {
+export default function StepContact({ data, updateField, errors, config, compact = false }) {
   const texts = config?.texts || {};
 
   return (
     <div className="hcf-step hcf-step--contact">
-      <h2 className="hcf-step__title">Datos de contacto</h2>
-      <p className="hcf-step__desc">
-        Cuéntanos quién eres para que podamos validar y publicar tu inmueble.
-      </p>
+      {!compact && (
+        <>
+          <h2 className="hcf-step__title">Datos de contacto</h2>
+          <p className="hcf-step__desc">
+            Cuéntanos quién eres para que podamos validar y publicar tu inmueble.
+          </p>
+        </>
+      )}
 
       <SelectField
         label="Tipo de consignante"

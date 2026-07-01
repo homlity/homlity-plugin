@@ -230,6 +230,15 @@ class AdminMenuService implements ServiceInterface
          *   });
          */
         do_action('homlity_plugin_register_integration_submenus', 'homlity-real-estate-settings');
+
+        foreach ([
+            'homlity-license',
+            'simi-sync-license',
+            'wasi-sync-license',
+            'softinm-sync-license',
+        ] as $hiddenSubmenuSlug) {
+            remove_submenu_page('homlity-real-estate-settings', $hiddenSubmenuSlug);
+        }
     }
 
     public function addActionLinks(array $links): array

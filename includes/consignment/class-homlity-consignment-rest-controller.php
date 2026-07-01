@@ -196,7 +196,11 @@ class Homlity_Consignment_Rest_Controller
 
         if (!empty($errors)) {
             do_action('homlity_consignment_failed', $errors, $body);
-            return new WP_REST_Response(['ok' => false, 'errors' => $errors], 422);
+            return new WP_REST_Response([
+                'ok'      => false,
+                'message' => 'Hay campos obligatorios pendientes o inválidos. Revisa el formulario e inténtalo de nuevo.',
+                'errors'  => $errors,
+            ], 422);
         }
 
         // Spam filter hook (reCAPTCHA, Akismet, etc.)

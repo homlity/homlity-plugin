@@ -10,7 +10,7 @@ function SummaryRow({ label, value }) {
   );
 }
 
-export default function StepReview({ data, updateField, errors, config, formData }) {
+export default function StepReview({ data, updateField, errors, serverErrors, config, formData, compact = false }) {
   const texts = config?.texts || {};
 
   const contact = formData.contact || {};
@@ -19,6 +19,31 @@ export default function StepReview({ data, updateField, errors, config, formData
   const det     = formData.property_details || {};
   const areas   = formData.areas || {};
   const media   = formData.media || {};
+  const visibleErrors = Object.entries({
+    ...(serverErrors || {}),
+    ...(errors || {}),
+  }).filter(([key, value]) => key !== '_server' && value);
+
+  const generatedTitle = (() => {
+    if (det.title?.trim()) {
+      return det.title.trim();
+    }
+
+    const operation = String(op.operation || '').trim();
+    const propertyType = String(det.property_type || '').trim();
+    const neighborhood = String(loc.neighborhood || '').trim();
+    const city = String(loc.city || '').trim();
+    const locationLabel = neighborhood || city;
+
+    const parts = [
+      propertyType,
+      operation ? `en ${operation.toLowerCase()}` : '',
+      locationLabel,
+      neighborhood && city ? city : '',
+    ].filter(Boolean);
+
+    return parts.join(' ').trim() || 'Inmueble consignado';
+  })();
 
   const typeMap = {
     owner:      'Propietario',
@@ -44,19 +69,36 @@ export default function StepReview({ data, updateField, errors, config, formData
 
   return (
     <div className="hcf-step hcf-step--review">
-      <h2 className="hcf-step__title">Revisión y envío</h2>
-      <p className="hcf-step__desc">
-        Revisa el resumen de la información antes de enviar. Puedes regresar a cualquier paso para corregir datos.
-      </p>
+      {!compact && (
+        <>
+          <h2 className="hcf-step__title">Revisión y envío</h2>
+          <p className="hcf-step__desc">
+            Revisa el resumen de la información antes de enviar. Puedes regresar a cualquier paso para corregir datos.
+          </p>
+        </>
+      )}
 
       {/* Summary */}
+      {(errors._server || visibleErrors.length > 0) && (
+        <div className="hcf-alert hcf-alert--error" role="alert">
+          {errors._server && <p className="hcf-alert__text">{errors._server}</p>}
+          {visibleErrors.length > 0 && (
+            <ul className="hcf-alert__list">
+              {visibleErrors.map(([field, message]) => (
+                <li key={field}>{message}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       <div className="hcf-review-card">
         <h3 className="hcf-review-card__title">Resumen</h3>
         <table className="hcf-review__table">
           <tbody>
             <SummaryRow label="Consignante"    value={`${contact.name || '—'} (${typeMap[contact.consignant_type] || contact.consignant_type || '—'})`} />
             <SummaryRow label="Contacto"       value={[contact.email, contact.phone || contact.whatsapp].filter(Boolean).join(' · ')} />
-            <SummaryRow label="Inmueble"       value={det.title || '—'} />
+            <SummaryRow label="Inmueble"       value={generatedTitle} />
             <SummaryRow label="Tipo"           value={det.property_type || '—'} />
             <SummaryRow label="Operación"      value={op.operation || '—'} />
             <SummaryRow label="Precio"         value={priceStr} />

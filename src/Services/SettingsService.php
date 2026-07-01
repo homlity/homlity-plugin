@@ -11,6 +11,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once HOMLITY_PLUGIN_PATH . 'includes/consignment/class-homlity-consignment-admin.php';
+
 class SettingsService implements ServiceInterface
 {
     private string $optionName = HOMLITY_PLUGIN_SETTINGS_OPTION;
@@ -64,6 +66,15 @@ class SettingsService implements ServiceInterface
             return;
         }
 
+        $activeTab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'general';
+        if (!in_array($activeTab, ['general', 'arriendo', 'venta', 'consignment'], true)) {
+            $activeTab = 'general';
+        }
+
+        ob_start();
+        \Homlity_Consignment_Admin::renderEmbeddedPage();
+        $consignmentHtml = (string) ob_get_clean();
+
         wp_enqueue_style(
             'homlity-real-estate-settings-app',
             HOMLITY_PLUGIN_URL . 'assets/css/settings-app.css',
@@ -89,6 +100,8 @@ class SettingsService implements ServiceInterface
             'galleryModeOptions' => $this->galleryModeOptions(),
             'locationTaxonomies' => $this->locationTaxonomies(),
             'simulatorFields' => SimulatorSettings::fields(),
+            'consignmentHtml' => $consignmentHtml,
+            'activeTab' => $activeTab,
             'logoUrl' => HOMLITY_PLUGIN_URL . 'icono.png',
             'savePath' => '/homlity-real-estate/v1/settings',
             'locationTermsPath' => '/homlity-real-estate/v1/location-terms',
@@ -101,9 +114,14 @@ class SettingsService implements ServiceInterface
 
     public function renderSettingsPage(): void
     {
+        $activeTab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'general';
+        if (!in_array($activeTab, ['general', 'arriendo', 'venta', 'consignment'], true)) {
+            $activeTab = 'general';
+        }
+
         ?>
         <div class="wrap homlity-settings-admin">
-            <div id="homlity-real-estate-settings-app"></div>
+            <div id="homlity-real-estate-settings-app" data-active-tab="<?php echo esc_attr($activeTab); ?>"></div>
         </div>
         <?php
     }

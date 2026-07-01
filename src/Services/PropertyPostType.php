@@ -35,18 +35,44 @@ class PropertyPostType implements ServiceInterface
         'age' => '_property_age',
         'code' => '_property_code',
         'address' => '_property_address',
+        'address_dane' => '_property_address_dane',
+        'address_complement' => '_property_address_complement',
+        'location_reference' => '_property_location_reference',
+        'maps_url' => '_property_maps_url',
         'latitude' => '_property_latitude',
         'longitude' => '_property_longitude',
+        'show_exact_address' => '_property_show_exact_address',
         'admin_included' => '_property_admin_included',
+        'negotiable' => '_property_negotiable',
+        'commercial_note' => '_property_commercial_note',
         'gallery' => '_property_gallery',
         'videos' => '_property_videos',
         'photos_360' => '_property_photos_360',
         'tour_360' => '_property_tour_360',
         'brochure' => '_property_brochure',
+        'photo_note' => '_property_photo_note',
         'featured' => '_property_featured',
+        'stratum' => '_property_stratum',
+        'floor' => '_property_floor',
+        'levels' => '_property_levels',
+        'elevators' => '_property_elevators',
+        'identification' => '_property_identification',
+        'contact_name' => '_property_contact_name',
+        'contact_email' => '_property_contact_email',
+        'contact_phone' => '_property_contact_phone',
+        'contact_whatsapp' => '_property_contact_whatsapp',
+        'consignant_type' => '_property_consignant_type',
         'agent_id' => '_property_agent_id',
+        'agent_name' => '_property_agent_name',
         'agent_phone' => '_property_agent_phone',
         'agent_email' => '_property_agent_email',
+        'agent_external_id' => '_property_agent_external_id',
+        'agent_role' => '_property_agent_role',
+        'agent_photo' => '_property_agent_photo',
+        'consignment_data_consent' => '_consignment_data_consent',
+        'consignment_authorization_consent' => '_consignment_authorization_consent',
+        'consignment_truth_declaration' => '_consignment_truth_declaration',
+        'consignment_contact_consent' => '_consignment_contact_consent',
     ];
 
     private array $locationTaxonomies = [
@@ -176,7 +202,16 @@ class PropertyPostType implements ServiceInterface
         ];
 
         foreach ($this->metaKeys as $metaKey) {
-            $isBoolean  = in_array($metaKey, [$this->metaKeys['featured'], $this->metaKeys['admin_included']], true);
+            $isBoolean  = in_array($metaKey, [
+                $this->metaKeys['featured'],
+                $this->metaKeys['admin_included'],
+                $this->metaKeys['show_exact_address'],
+                $this->metaKeys['negotiable'],
+                $this->metaKeys['consignment_data_consent'],
+                $this->metaKeys['consignment_authorization_consent'],
+                $this->metaKeys['consignment_truth_declaration'],
+                $this->metaKeys['consignment_contact_consent'],
+            ], true);
             $isArrayMeta = in_array($metaKey, $arrayMetaKeys, true);
 
             register_post_meta(self::POST_TYPE, $metaKey, [
@@ -530,7 +565,8 @@ class PropertyPostType implements ServiceInterface
 
         $postId = isset($GLOBALS['post']) && $GLOBALS['post'] instanceof \WP_Post ? $GLOBALS['post']->ID : 0;
         $gallery = $postId ? get_post_meta($postId, $this->metaKeys['gallery'], true) : '';
-        $galleryIds = array_filter(array_map('absint', explode(',', (string) $gallery)));
+        $galleryRaw = is_array($gallery) ? $gallery : explode(',', (string) $gallery);
+        $galleryIds = array_filter(array_map('absint', $galleryRaw));
 
         $galleryItems = [];
         foreach ($galleryIds as $gid) {

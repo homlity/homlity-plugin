@@ -99,9 +99,7 @@ export function validateLocation(data, config) {
 export function validatePropertyDetails(data) {
   const errors = {};
 
-  if (!data.title?.trim()) {
-    errors.title = 'El título del inmueble es obligatorio.';
-  } else if (data.title.length > 200) {
+  if (data.title?.trim() && data.title.length > 200) {
     errors.title = 'El título no debe superar los 200 caracteres.';
   }
 

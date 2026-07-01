@@ -152,7 +152,7 @@ class PropertyMediaTabsWidget extends BasePropertyWidget
             'selectors'  => ['{{WRAPPER}} .property-gallery__slide img, {{WRAPPER}} .property-gallery-tabs__panel .property-gallery--light img' => 'height: {{SIZE}}{{UNIT}}; object-fit: cover;'],
         ]);
         $this->add_responsive_control('iframe_height', [
-            'label'      => __('Alto iframe', 'homlity-real-estate'),
+            'label'      => __('Alto contenedor media', 'homlity-real-estate'),
             'type'       => Controls_Manager::SLIDER,
             'size_units' => ['px', 'vh'],
             'range'      => ['px' => ['min' => 180, 'max' => 900], 'vh' => ['min' => 20, 'max' => 100]],
@@ -295,6 +295,32 @@ class PropertyMediaTabsWidget extends BasePropertyWidget
             'label'     => __('Iframe y video', 'homlity-real-estate'),
             'type'      => Controls_Manager::HEADING,
             'separator' => 'before',
+        ]);
+        $this->add_responsive_control('media_width', [
+            'label'      => __('Ancho iframe/video', 'homlity-real-estate'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['px', '%', 'vw'],
+            'range'      => [
+                'px' => ['min' => 120, 'max' => 1600],
+                '%' => ['min' => 10, 'max' => 100],
+                'vw' => ['min' => 10, 'max' => 100],
+            ],
+            'selectors'  => [
+                '{{WRAPPER}} .property-gallery-tabs__video-wrap, {{WRAPPER}} .property-gallery-tabs__360-item, {{WRAPPER}} .property-gallery-tabs__tour-wrap' => 'width: {{SIZE}}{{UNIT}}; max-width: 100%;',
+                '{{WRAPPER}} .property-gallery-tabs__panel iframe, {{WRAPPER}} .property-gallery-tabs__panel video' => 'width: {{SIZE}}{{UNIT}}; max-width: 100%;',
+            ],
+        ]);
+        $this->add_responsive_control('media_height', [
+            'label'      => __('Alto iframe/video', 'homlity-real-estate'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['px', 'vh'],
+            'range'      => [
+                'px' => ['min' => 120, 'max' => 900],
+                'vh' => ['min' => 20, 'max' => 100],
+            ],
+            'selectors'  => [
+                '{{WRAPPER}} .property-gallery-tabs__panel iframe, {{WRAPPER}} .property-gallery-tabs__panel video' => 'height: {{SIZE}}{{UNIT}};',
+            ],
         ]);
         $this->add_group_control(Group_Control_Border::get_type(), [
             'name'     => 'media_border',

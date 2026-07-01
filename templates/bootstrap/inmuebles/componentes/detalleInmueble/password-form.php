@@ -1,5 +1,5 @@
 <?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
-<section class="visualinmu_password_form d-flex justify-content-center align-items-center min-vh-100">
+<section class="homlity-password-form d-flex justify-content-center align-items-center min-vh-100">
     <div class="text-center p-4 border rounded shadow-sm bg-light">
 
         <p class="post-password-message">Este contenido(<?php echo esc_html( $tag ); ?>) está protegido con contraseña. Por favor, introduce la

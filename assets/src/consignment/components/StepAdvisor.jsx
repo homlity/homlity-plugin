@@ -1,16 +1,20 @@
 import { InputField } from './Field';
 import FileUploader from './FileUploader';
 
-export default function StepAdvisor({ data, updateField, errors, config }) {
+export default function StepAdvisor({ data, updateField, errors, config, compact = false }) {
   const uploadCfg = config?.upload || {};
 
   return (
     <div className="hcf-step hcf-step--advisor">
-      <h2 className="hcf-step__title">Datos del asesor</h2>
-      <p className="hcf-step__desc">
-        Como asesor, inmobiliaria o constructor, puedes registrar los datos del asesor responsable de este inmueble.
-        Este paso es opcional.
-      </p>
+      {!compact && (
+        <>
+          <h2 className="hcf-step__title">Datos del asesor</h2>
+          <p className="hcf-step__desc">
+            Como asesor, inmobiliaria o constructor, puedes registrar los datos del asesor responsable de este inmueble.
+            Este paso es opcional.
+          </p>
+        </>
+      )}
 
       <div className="hcf-row">
         <InputField

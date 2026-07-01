@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 ?>
-<div class="container-fluid visualinmu_allies_list">
+<div class="container-fluid homlity-allies-list">
     <div class="row">
         <?php foreach ($allies as $asesor) { ?>
             <div class="col-md-4">

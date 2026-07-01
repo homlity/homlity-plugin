@@ -959,11 +959,13 @@
   overflow: hidden;
 }
 
-.property-gallery-tabs__video-wrap iframe {
+.property-gallery-tabs__video-wrap iframe,
+.property-gallery-tabs__video-wrap video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  object-fit: cover;
   border: 0;
 }
 

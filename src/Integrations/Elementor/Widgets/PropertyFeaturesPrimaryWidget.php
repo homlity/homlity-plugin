@@ -41,7 +41,6 @@ class PropertyFeaturesPrimaryWidget extends BasePropertyWidget
             'condition'    => ['label' => __('Estado',          'homlity-real-estate'), 'icon' => 'eicon-info-circle-o',  'icon_library' => 'eicons'],
             'age'          => ['label' => __('Edad (años)',     'homlity-real-estate'), 'icon' => 'eicon-calendar',       'icon_library' => 'eicons'],
             'code'         => ['label' => __('Código',          'homlity-real-estate'), 'icon' => 'eicon-barcode',        'icon_library' => 'eicons'],
-            'address'      => ['label' => __('Dirección',       'homlity-real-estate'), 'icon' => 'eicon-map-pin',        'icon_library' => 'eicons'],
         ];
     }
 

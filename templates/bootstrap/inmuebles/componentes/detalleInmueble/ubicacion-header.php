@@ -1,5 +1,5 @@
 <?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
-<div class="row d-flex align-items-stretch visualinmu-ubicacion-header">
+<div class="row d-flex align-items-stretch homlity-ubicacion-header">
     <div class="col-md-4 col-sm-12">
         <div class="location-title">
             <h2 class="h2">Ubicación</h2>

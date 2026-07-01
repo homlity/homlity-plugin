@@ -31,7 +31,6 @@ $features = [
     'condition'    => ['label' => __('Estado',          'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['condition'],    true), 'suffix' => ''],
     'age'          => ['label' => __('Edad (años)',     'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['age'],          true), 'suffix' => ''],
     'code'         => ['label' => __('Código',          'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['code'],         true), 'suffix' => ''],
-    'address'      => ['label' => __('Dirección',       'homlity-real-estate'), 'value' => get_post_meta($post_id, $meta['address'],      true), 'suffix' => ''],
 ];
 ?>
 <ul class="property-features property-features--primary">

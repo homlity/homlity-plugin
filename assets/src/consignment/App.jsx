@@ -15,30 +15,45 @@
 
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import StepProgress from './components/StepProgress';
-import StepContact from './components/StepContact';
-import StepOperation from './components/StepOperation';
-import StepLocation from './components/StepLocation';
-import StepPropertyDetails from './components/StepPropertyDetails';
-import StepFeatures from './components/StepFeatures';
-import StepMedia from './components/StepMedia';
-import StepAreas from './components/StepAreas';
-import StepAdvisor from './components/StepAdvisor';
-import StepReview from './components/StepReview';
 import { fetchConfig, submitForm } from './api';
-import { validateStep, hasErrors } from './validators';
+import {
+  StepContactOperation,
+  StepListingDetails,
+  StepPropertySetup,
+  StepAssetsReview,
+} from './components/CombinedSteps';
+import {
+  validateStep,
+  hasErrors,
+} from './validators';
 
 // ── Step definitions ──────────────────────────────────────────────────────
 
 const ALL_STEPS = [
-  { id: 'contact',          label: 'Contacto',       component: StepContact },
-  { id: 'operation',        label: 'Operación',      component: StepOperation },
-  { id: 'location',         label: 'Ubicación',      component: StepLocation },
-  { id: 'property_details', label: 'Inmueble',       component: StepPropertyDetails },
-  { id: 'areas',            label: 'Áreas',          component: StepAreas },
-  { id: 'features',         label: 'Características',component: StepFeatures },
-  { id: 'media',            label: 'Multimedia',     component: StepMedia },
-  { id: 'advisor',          label: 'Asesor',         component: StepAdvisor, conditional: true },
-  { id: 'review',           label: 'Revisión',       component: StepReview },
+  {
+    id: 'contact_operation',
+    label: 'Contacto y negocio',
+    description: 'Datos del consignante y condiciones comerciales del inmueble.',
+    component: StepContactOperation,
+  },
+  {
+    id: 'listing_details',
+    label: 'Ubicación e inmueble',
+    description: 'Ubicación, tipología y descripción general del inmueble.',
+    component: StepListingDetails,
+  },
+  {
+    id: 'property_setup',
+    label: 'Distribución y extras',
+    description: 'Áreas, distribución, características y datos complementarios.',
+    component: StepPropertySetup,
+  },
+  {
+    id: 'assets_review',
+    label: 'Multimedia y envío',
+    description: 'Archivos, revisión final y confirmación antes del envío.',
+    component: StepAssetsReview,
+  },
 ];
 
 // ── Initial form data ─────────────────────────────────────────────────────
@@ -83,20 +98,192 @@ const buildInitialData = (config = {}) => ({
 
 const STORAGE_KEY = 'homlity_consignment_draft';
 
-function loadDraft(initial) {
+function getStorage() {
   try {
-    const saved = sessionStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return window.localStorage;
+    }
   } catch {}
-  return initial;
+
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      return window.sessionStorage;
+    }
+  } catch {}
+
+  return null;
 }
 
-function saveDraft(data) {
-  try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+function loadDraft(initial) {
+  const storage = getStorage();
+  if (!storage) {
+    return { formData: initial, currentStep: 'contact_operation' };
+  }
+
+  try {
+    const saved = storage.getItem(STORAGE_KEY);
+    if (!saved) {
+      return { formData: initial, currentStep: 'contact_operation' };
+    }
+
+    const parsed = JSON.parse(saved);
+
+    if (parsed && typeof parsed === 'object' && parsed.formData) {
+      return {
+        formData: parsed.formData,
+        currentStep: parsed.currentStep || 'contact_operation',
+      };
+    }
+
+    return {
+      formData: parsed,
+      currentStep: 'contact_operation',
+    };
+  } catch {}
+
+  return { formData: initial, currentStep: 'contact_operation' };
+}
+
+function saveDraft(formData, currentStep) {
+  const storage = getStorage();
+  if (!storage) {
+    return;
+  }
+
+  try {
+    storage.setItem(STORAGE_KEY, JSON.stringify({ formData, currentStep }));
+  } catch {}
 }
 
 function clearDraft() {
-  try { sessionStorage.removeItem(STORAGE_KEY); } catch {}
+  const storage = getStorage();
+  if (!storage) {
+    return;
+  }
+
+  try {
+    storage.removeItem(STORAGE_KEY);
+  } catch {}
+}
+
+function getStepFromErrorKey(key) {
+  if (!key || key === '_server') {
+    return null;
+  }
+
+  const normalized = String(key).trim();
+
+  if (
+    normalized.startsWith('contact.') ||
+    normalized.startsWith('operation.') ||
+    [
+      'consignant_type',
+      'name',
+      'document',
+      'phone',
+      'whatsapp',
+      'email',
+      'data_consent',
+      'authorization_consent',
+      'operation',
+      'sale_price',
+      'sale_currency',
+      'rent_price',
+      'rent_currency',
+      'admin_price',
+      'admin_currency',
+      'admin_included',
+      'negotiable',
+      'commercial_note',
+    ].includes(normalized)
+  ) {
+    return 'contact_operation';
+  }
+
+  if (
+    normalized.startsWith('location.') ||
+    normalized.startsWith('property_details.') ||
+    [
+      'country',
+      'state',
+      'city',
+      'neighborhood',
+      'address',
+      'address_complement',
+      'show_exact_address',
+      'latitude',
+      'longitude',
+      'location_reference',
+      'maps_url',
+      'title',
+      'property_type',
+      'category',
+      'condition',
+      'year_built',
+      'description',
+      'short_description',
+      'code',
+    ].includes(normalized)
+  ) {
+    return 'listing_details';
+  }
+
+  if (
+    normalized.startsWith('areas.') ||
+    normalized.startsWith('features.') ||
+    normalized.startsWith('advisor.') ||
+    [
+      'area',
+      'area_built',
+      'area_private',
+      'area_lot',
+      'bedrooms',
+      'bathrooms',
+      'parking',
+      'communal_parking',
+      'visitor_parking',
+      'motorcycle_parking',
+      'car_parking',
+      'floor',
+      'levels',
+      'stratum',
+      'elevators',
+      'selected',
+      'custom',
+      'advisor_name',
+      'advisor_email',
+      'advisor_phone',
+      'advisor_photo',
+      'advisor_role',
+      'advisor_external_id',
+    ].includes(normalized)
+  ) {
+    return 'property_setup';
+  }
+
+  if (
+    normalized.startsWith('media.') ||
+    normalized.startsWith('review.') ||
+    [
+      'gallery',
+      'featured_image',
+      'videos',
+      'tour_360',
+      'brochure',
+      'photo_note',
+      'truth_declaration',
+      'contact_consent',
+    ].includes(normalized)
+  ) {
+    return 'assets_review';
+  }
+
+  return null;
+}
+
+function getFirstErrorStep(errorBag = {}) {
+  const firstKey = Object.keys(errorBag).find((key) => key !== '_server' && errorBag[key]);
+  return getStepFromErrorKey(firstKey);
 }
 
 // ── App ───────────────────────────────────────────────────────────────────
@@ -107,7 +294,7 @@ export default function App({ hostElement = null, rootConfig = {} }) {
   const [isLoading, setIsLoading]       = useState(true);
   const [loadError, setLoadError]       = useState(null);
   const [formData, setFormData]         = useState(() => buildInitialData());
-  const [currentStep, setCurrentStep]   = useState('contact');
+  const [currentStep, setCurrentStep]   = useState('contact_operation');
   const [errors, setErrors]             = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess]           = useState(false);
@@ -120,7 +307,9 @@ export default function App({ hostElement = null, rootConfig = {} }) {
       .then((cfg) => {
         setConfig(cfg);
         const initial = buildInitialData(cfg);
-        setFormData(loadDraft(initial));
+        const draft = loadDraft(initial);
+        setFormData(draft.formData || initial);
+        setCurrentStep(draft.currentStep || 'contact_operation');
         setIsLoading(false);
       })
       .catch((err) => {
@@ -131,8 +320,10 @@ export default function App({ hostElement = null, rootConfig = {} }) {
 
   // Persist draft on every change
   useEffect(() => {
-    if (!isLoading && formData) saveDraft(formData);
-  }, [formData, isLoading]);
+    if (!isLoading && formData) {
+      saveDraft(formData, currentStep);
+    }
+  }, [formData, currentStep, isLoading]);
 
   // Apply CSS variables from config styles
   useEffect(() => {
@@ -149,18 +340,13 @@ export default function App({ hostElement = null, rootConfig = {} }) {
 
   // ── Steps visible for current consignant type ─────────────────────────
 
-  const visibleSteps = useCallback(() => {
-    const type = formData.contact?.consignant_type || '';
-    const showAdvisor = ['advisor', 'agency', 'builder'].includes(type);
-    return ALL_STEPS.filter((s) => !s.conditional || showAdvisor);
-  }, [formData.contact?.consignant_type]);
+  const visibleSteps = useCallback(() => ALL_STEPS, []);
 
   const stepIndex = () => visibleSteps().findIndex((s) => s.id === currentStep);
-  const totalSteps = () => visibleSteps().length;
 
   // ── Field update ──────────────────────────────────────────────────────
 
-  const updateField = useCallback((step, field, value) => {
+  const updateSectionField = useCallback((step, field, value) => {
     setFormData((prev) => ({
       ...prev,
       [step]: { ...prev[step], [field]: value },
@@ -174,17 +360,50 @@ export default function App({ hostElement = null, rootConfig = {} }) {
     });
   }, []);
 
-  const updateStep = useCallback((step, values) => {
+  const updateSection = useCallback((step, values) => {
     setFormData((prev) => ({
       ...prev,
       [step]: { ...prev[step], ...values },
     }));
   }, []);
 
+  const updateMetaField = useCallback((field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }, []);
+
+  const validateWizardStep = useCallback((stepId) => {
+    switch (stepId) {
+      case 'contact_operation':
+        return {
+          ...validateStep('contact', formData.contact || {}, config),
+          ...validateStep('operation', formData.operation || {}, config),
+        };
+      case 'listing_details':
+        return {
+          ...validateStep('location', formData.location || {}, config),
+          ...validateStep('property_details', formData.property_details || {}, config),
+        };
+      case 'property_setup':
+        return {
+          ...validateStep('areas', formData.areas || {}, config),
+        };
+      case 'assets_review':
+        return {
+          ...validateStep('media', formData.media || {}, config),
+          ...validateStep('review', formData.review || {}, config),
+        };
+      default:
+        return {};
+    }
+  }, [config, formData]);
+
   // ── Navigation ────────────────────────────────────────────────────────
 
   const goNext = useCallback(() => {
-    const stepErrors = validateStep(currentStep, formData[currentStep] || {}, config);
+    const stepErrors = validateWizardStep(currentStep);
 
     // Filter out warnings (keys starting with _)
     const realErrors = Object.fromEntries(
@@ -201,9 +420,8 @@ export default function App({ hostElement = null, rootConfig = {} }) {
     const idx   = steps.findIndex((s) => s.id === currentStep);
     if (idx < steps.length - 1) {
       setCurrentStep(steps[idx + 1].id);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [currentStep, formData, config, visibleSteps]);
+  }, [currentStep, validateWizardStep, visibleSteps]);
 
   const goPrev = useCallback(() => {
     setErrors({});
@@ -211,7 +429,6 @@ export default function App({ hostElement = null, rootConfig = {} }) {
     const idx   = steps.findIndex((s) => s.id === currentStep);
     if (idx > 0) {
       setCurrentStep(steps[idx - 1].id);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentStep, visibleSteps]);
 
@@ -223,16 +440,19 @@ export default function App({ hostElement = null, rootConfig = {} }) {
     if (target < current) {
       setErrors({});
       setCurrentStep(stepId);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentStep, visibleSteps]);
 
   // ── Submit ────────────────────────────────────────────────────────────
 
   const handleSubmit = useCallback(async () => {
-    const reviewErrors = validateStep('review', formData.review || {}, config);
-    if (hasErrors(reviewErrors)) {
-      setErrors(reviewErrors);
+    const finalErrors = validateWizardStep('assets_review');
+    if (hasErrors(finalErrors)) {
+      setErrors(finalErrors);
+      const errorStep = getFirstErrorStep(finalErrors);
+      if (errorStep && errorStep !== currentStep) {
+        setCurrentStep(errorStep);
+      }
       return;
     }
 
@@ -252,15 +472,23 @@ export default function App({ hostElement = null, rootConfig = {} }) {
           setTimeout(() => { window.location.href = rootConfig.redirectUrl; }, 2500);
         }
       } else {
+        const nextErrors = {
+          ...(result.errors || {}),
+          _server: result.message || 'No se pudo enviar el inmueble. Revisa los campos marcados e inténtalo de nuevo.',
+        };
         setServerErrors(result.errors || {});
-        if (result.message) setErrors({ _server: result.message });
+        setErrors(nextErrors);
+        const errorStep = getFirstErrorStep(result.errors || {});
+        if (errorStep && errorStep !== currentStep) {
+          setCurrentStep(errorStep);
+        }
       }
     } catch (err) {
       setErrors({ _server: err.message || config?.texts?.error || 'Error al enviar.' });
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, config, rootConfig]);
+  }, [currentStep, formData, config, rootConfig, validateWizardStep]);
 
   // ── Render ────────────────────────────────────────────────────────────
 
@@ -297,11 +525,14 @@ export default function App({ hostElement = null, rootConfig = {} }) {
   const step    = steps[idx];
   const isFirst = idx === 0;
   const isLast  = idx === steps.length - 1;
+  const progressPercent = steps.length > 0
+    ? Math.round(((idx + 1) / steps.length) * 100)
+    : 0;
+  const completedSteps = Math.max(0, idx);
 
   const stepProps = {
-    data:       formData[currentStep] || {},
-    updateField:(field, val) => updateField(currentStep, field, val),
-    updateStep: (vals) => updateStep(currentStep, vals),
+    updateSectionField,
+    updateSection,
     errors,
     serverErrors,
     config,
@@ -311,7 +542,7 @@ export default function App({ hostElement = null, rootConfig = {} }) {
   const StepComponent = step?.component;
 
   return (
-    <div className="hcf-wrapper">
+    <div id="homlity-consignment-form-root" className="hcf-wrapper">
       {/* Header */}
       {(config?.texts?.form_title || config?.texts?.form_subtitle) && (
         <div className="hcf-header">
@@ -320,11 +551,40 @@ export default function App({ hostElement = null, rootConfig = {} }) {
         </div>
       )}
 
+      <div className="hcf-progress-overview" role="status" aria-live="polite">
+        <div className="hcf-progress-overview__meta">
+          <div className="hcf-progress-overview__lead">
+            <div className="hcf-progress-overview__dots" aria-hidden="true">
+              {steps.map((item, itemIdx) => (
+                <span
+                  key={item.id}
+                  className={[
+                    'hcf-progress-overview__dot',
+                    itemIdx < idx ? 'is-complete' : '',
+                    itemIdx === idx ? 'is-active' : '',
+                  ].join(' ').trim()}
+                />
+              ))}
+            </div>
+            <p className="hcf-progress-overview__eyebrow">Paso {idx + 1} / {steps.length}</p>
+            <p className="hcf-progress-overview__text">{step?.label}</p>
+          </div>
+          <strong className="hcf-progress-overview__percent">{progressPercent}%</strong>
+        </div>
+        <div className="hcf-progress-overview__bar" aria-hidden="true">
+          <span
+            className="hcf-progress-overview__fill"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+      </div>
+
       {/* Progress */}
       <StepProgress
         steps={steps}
         currentStep={currentStep}
         onStepClick={goToStep}
+        completedSteps={completedSteps}
       />
 
       {/* Honeypot — hidden, must stay empty */}
@@ -335,57 +595,57 @@ export default function App({ hostElement = null, rootConfig = {} }) {
           tabIndex={-1}
           autoComplete="off"
           value={formData._hp || ''}
-          onChange={(e) => updateField('_hp', '_hp', e.target.value)}
+          onChange={(e) => updateMetaField('_hp', e.target.value)}
         />
       </div>
 
-      {/* Step card */}
-      <div className="hcf-step-card" role="region" aria-label={step?.label}>
-        {errors._server && (
-          <div className="hcf-alert hcf-alert--error" role="alert">{errors._server}</div>
-        )}
+      <div className="hcf-main">
+        <div className="hcf-step-card" role="region" aria-label={step?.label}>
+          {errors._server && (
+            <div className="hcf-alert hcf-alert--error" role="alert">{errors._server}</div>
+          )}
 
-        {StepComponent ? (
-          <StepComponent {...stepProps} />
-        ) : (
-          <div className="hcf-step-placeholder">
-            <p>Paso no disponible.</p>
-          </div>
-        )}
-      </div>
+          {StepComponent ? (
+            <StepComponent {...stepProps} />
+          ) : (
+            <div className="hcf-step-placeholder">
+              <p>Paso no disponible.</p>
+            </div>
+          )}
+        </div>
 
-      {/* Navigation */}
-      <div className="hcf-navigation">
-        {!isFirst && (
-          <button
-            type="button"
-            className="hcf-btn hcf-btn--secondary"
-            onClick={goPrev}
-            disabled={isSubmitting}
-          >
-            {config?.texts?.btn_prev || 'Anterior'}
-          </button>
-        )}
-        <span className="hcf-nav-spacer" />
-        {!isLast ? (
-          <button
-            type="button"
-            className="hcf-btn hcf-btn--primary"
-            onClick={goNext}
-          >
-            {config?.texts?.btn_next || 'Siguiente'}
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="hcf-btn hcf-btn--submit"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            aria-busy={isSubmitting}
-          >
-            {isSubmitting ? 'Enviando…' : (config?.texts?.btn_submit || 'Enviar inmueble para revisión')}
-          </button>
-        )}
+        <div className="hcf-navigation">
+          {!isFirst && (
+            <button
+              type="button"
+              className="hcf-btn hcf-btn--secondary"
+              onClick={goPrev}
+              disabled={isSubmitting}
+            >
+              {config?.texts?.btn_prev || 'Anterior'}
+            </button>
+          )}
+          <span className="hcf-nav-spacer" />
+          {!isLast ? (
+            <button
+              type="button"
+              className="hcf-btn hcf-btn--primary"
+              onClick={goNext}
+            >
+              {config?.texts?.btn_next || 'Siguiente'}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="hcf-btn hcf-btn--submit"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+            >
+              {isSubmitting ? 'Enviando…' : (config?.texts?.btn_submit || 'Enviar inmueble para revisión')}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

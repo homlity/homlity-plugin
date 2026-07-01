@@ -246,6 +246,35 @@ trait PropertyCardStylesTrait
             ],
         ]);
 
+        $this->add_responsive_control('card_width', [
+            'label'      => __('Ancho de la card', 'homlity-real-estate'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['px', '%', 'vw'],
+            'range'      => [
+                'px' => ['min' => 180, 'max' => 1400],
+                '%'  => ['min' => 10, 'max' => 100],
+                'vw' => ['min' => 10, 'max' => 100],
+            ],
+            'selectors'  => [
+                '{{WRAPPER}} .property-listing:not(.property-listing--bootstrap) .property-card' => 'width: {{SIZE}}{{UNIT}}; max-width: 100%; margin-left: auto; margin-right: auto;',
+                '{{WRAPPER}} .property-listing--bootstrap .property-listing__grid > [class*="col-"]' => 'width: {{SIZE}}{{UNIT}}; max-width: {{SIZE}}{{UNIT}}; flex: 0 0 {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-listing--bootstrap .property-card-bs' => 'width: 100%;',
+            ],
+        ]);
+
+        $this->add_responsive_control('card_height', [
+            'label'      => __('Alto de la card', 'homlity-real-estate'),
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => ['px', 'vh'],
+            'range'      => [
+                'px' => ['min' => 220, 'max' => 1600],
+                'vh' => ['min' => 20, 'max' => 100],
+            ],
+            'selectors'  => [
+                '{{WRAPPER}} .property-card, {{WRAPPER}} .property-card-bs' => 'height: {{SIZE}}{{UNIT}};',
+            ],
+        ]);
+
         $this->end_controls_section();
 
         // ── Imagen ────────────────────────────────────────────────────────────

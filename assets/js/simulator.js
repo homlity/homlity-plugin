@@ -8024,8 +8024,8 @@
     key: 0,
     class: "field-error"
   };
-  const _hoisted_74 = { class: "proteccion-bloque" };
-  const _hoisted_75 = { class: "form-group" };
+  const _hoisted_74$1 = { class: "proteccion-bloque" };
+  const _hoisted_75$1 = { class: "form-group" };
   const _hoisted_76 = { class: "radio-group" };
   const _hoisted_77 = {
     key: 0,
@@ -8778,9 +8778,9 @@
             ])
           ]),
           _cache[176] || (_cache[176] = createBaseVNode("hr", { class: "sep-bloque" }, null, -1)),
-          createBaseVNode("div", _hoisted_74, [
+          createBaseVNode("div", _hoisted_74$1, [
             _cache[174] || (_cache[174] = createBaseVNode("h4", { class: "sim-section-title" }, "Protecciones familiares que solicita el comprador", -1)),
-            createBaseVNode("div", _hoisted_75, [
+            createBaseVNode("div", _hoisted_75$1, [
               _cache[140] || (_cache[140] = createBaseVNode("label", null, [
                 createBaseVNode("strong", null, "¿El comprador adquiere el inmueble para vivienda familiar?")
               ], -1)),
@@ -9237,7 +9237,7 @@
     ]);
   }
   const SimuladorVenta = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["render", _sfc_render$1], ["styles", [_style_0$1]], ["__scopeId", "data-v-627a44c0"]]);
-  const _style_0 = '\n.simulador-arriendo[data-v-882baeb2] {\n  color: #111827;\n  font-size: 14px;\n  line-height: 1.5;\n}\n.sim-layout[data-v-882baeb2] {\n  display: grid;\n  gap: 18px;\n}\n.card[data-v-882baeb2] {\n  background: #ffffff;\n  border: 1px solid #e5e7eb;\n  border-radius: 14px;\n  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);\n}\n.sim-form-strip[data-v-882baeb2],\n.sim-results .card[data-v-882baeb2] {\n  padding: 18px;\n}\n.strip-grid[data-v-882baeb2] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 16px;\n}\n.strip-block[data-v-882baeb2] {\n  flex: 1 1 240px;\n  min-width: 0;\n}\n.strip-block-wide[data-v-882baeb2] {\n  flex: 2 1 440px;\n  min-width: 0;\n}\n.strip-label[data-v-882baeb2] {\n  margin: 0 0 10px;\n  color: #6b7280;\n  font-size: 11px;\n  font-weight: 700;\n  letter-spacing: 0.08em;\n  text-transform: uppercase;\n}\n.grid[data-v-882baeb2] {\n  display: grid;\n  gap: 14px;\n}\n.grid-2[data-v-882baeb2] {\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n}\n.grid-3[data-v-882baeb2] {\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n}\n.field[data-v-882baeb2] {\n  min-width: 0;\n}\n.field label[data-v-882baeb2] {\n  display: block;\n  margin-bottom: 6px;\n  color: #111827;\n  font-size: 12px;\n  font-weight: 600;\n}\n.field input[data-v-882baeb2],\n.field select[data-v-882baeb2] {\n  width: 100%;\n  min-width: 0;\n  padding: 10px 12px;\n  border: 1px solid #cbd5e1;\n  border-radius: 10px;\n  background: #ffffff;\n  color: #111827;\n  font-size: 14px;\n  transition: border-color 0.2s ease, box-shadow 0.2s ease;\n  box-sizing: border-box;\n}\n.strip-block[data-v-882baeb2] {\n  padding: 14px;\n  background: #f8fafc;\n  border: 1px solid #dbe3ee;\n  border-radius: 12px;\n}\n.strip-block-wide[data-v-882baeb2] {\n  background: linear-gradient(180deg, #ffffff, #f8fafc);\n}\n.field input[data-v-882baeb2]:focus,\n.field select[data-v-882baeb2]:focus {\n  outline: none;\n  border-color: #2563eb;\n  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);\n}\n.checkbox-field label[data-v-882baeb2] {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  margin-bottom: 0;\n  font-size: 13px;\n}\n.checkbox-field input[type="checkbox"][data-v-882baeb2] {\n  width: 16px;\n  height: 16px;\n  margin: 0;\n  accent-color: #2563eb;\n}\n.label-hint[data-v-882baeb2] {\n  margin-left: 4px;\n  color: #6b7280;\n  font-size: 10px;\n}\n.inline-badges[data-v-882baeb2] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 6px;\n}\n.badge[data-v-882baeb2] {\n  display: inline-block;\n  padding: 3px 9px;\n  border-radius: 9999px;\n  font-size: 10px;\n  font-weight: 700;\n}\n.badge-warning[data-v-882baeb2] {\n  background: #fef3c7;\n  color: #92400e;\n}\n.table-wrapper[data-v-882baeb2] {\n  width: 100%;\n  overflow-x: auto;\n}\n.results-table[data-v-882baeb2] {\n  width: 100%;\n  min-width: 640px;\n  border-collapse: collapse;\n  table-layout: fixed;\n}\n.results-table th[data-v-882baeb2],\n.results-table td[data-v-882baeb2] {\n  padding: 12px 10px;\n  border-bottom: 1px solid #e5e7eb;\n  text-align: left;\n  vertical-align: top;\n}\n.results-table th[data-v-882baeb2] {\n  background: #f8fafc;\n  color: #334155;\n  font-size: 12px;\n  font-weight: 700;\n}\n.results-table td[data-v-882baeb2] {\n  font-size: 13px;\n}\n.row-total[data-v-882baeb2] {\n  background: #f8fafc;\n}\n.row-subtotal[data-v-882baeb2] {\n  background: #eef4ff;\n}\n.row-grand-total[data-v-882baeb2] {\n  background: #1f2937;\n  color: #ffffff;\n}\n.summary-strip[data-v-882baeb2] {\n  display: grid;\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n  gap: 12px;\n  margin-top: 16px;\n}\n.summary-item[data-v-882baeb2] {\n  padding: 14px;\n  border: 1px solid #e5e7eb;\n  border-radius: 12px;\n  background: linear-gradient(180deg, #ffffff, #f8fafc);\n  text-align: center;\n}\n.summary-item span[data-v-882baeb2] {\n  display: block;\n  color: #64748b;\n  font-size: 12px;\n  font-weight: 600;\n}\n.summary-item-highlight[data-v-882baeb2] {\n  background: linear-gradient(135deg, #1f2937, #334155);\n  color: #ffffff;\n  border-color: transparent;\n}\n.summary-item-highlight span[data-v-882baeb2] {\n  color: rgba(255, 255, 255, 0.78);\n}\n.summary-item-value[data-v-882baeb2] {\n  margin-top: 6px;\n  font-size: 20px;\n  font-weight: 700;\n}\n.sim-actions-bottom[data-v-882baeb2] {\n  margin-top: 18px;\n  display: flex;\n  align-items: flex-start;\n  justify-content: space-between;\n  gap: 18px;\n}\n.sim-actions-bottom button[data-v-882baeb2] {\n  padding: 11px 18px;\n  border: 0;\n  border-radius: 10px;\n  background: linear-gradient(135deg, #0f172a, #334155);\n  color: #ffffff;\n  font-size: 13px;\n  font-weight: 700;\n  cursor: pointer;\n  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);\n}\n.sim-actions-bottom button[data-v-882baeb2]:disabled {\n  opacity: 0.55;\n  cursor: not-allowed;\n}\n.sim-nota-pie[data-v-882baeb2] {\n  flex: 1 1 auto;\n  margin: 0;\n  color: #6b7280;\n  font-size: 12px;\n}\n.sim-nota-pie[data-v-882baeb2] p,\n.sim-nota-pie[data-v-882baeb2] ul,\n.sim-nota-pie[data-v-882baeb2] ol {\n  margin: 0 0 0.85em;\n}\n.sim-nota-pie[data-v-882baeb2] ul,\n.sim-nota-pie[data-v-882baeb2] ol {\n  padding-left: 18px;\n}\n@media (max-width: 900px) {\n.grid-3[data-v-882baeb2],\n  .grid-2[data-v-882baeb2],\n  .summary-strip[data-v-882baeb2] {\n    grid-template-columns: 1fr;\n}\n}\n@media (max-width: 640px) {\n.sim-form-strip[data-v-882baeb2],\n  .sim-results .card[data-v-882baeb2] {\n    padding: 14px;\n}\n.strip-grid[data-v-882baeb2] {\n    gap: 12px;\n}\n.sim-actions-bottom[data-v-882baeb2] {\n    flex-direction: column;\n    align-items: stretch;\n}\n.sim-actions-bottom button[data-v-882baeb2] {\n    width: 100%;\n}\n}\n';
+  const _style_0 = '\n.simulador-arriendo[data-v-7655cfce] {\n  color: #111827;\n  font-size: 14px;\n  line-height: 1.5;\n}\n.sim-layout[data-v-7655cfce] {\n  display: grid;\n  gap: 18px;\n}\n.card[data-v-7655cfce] {\n  background: #ffffff;\n  border: 1px solid #e5e7eb;\n  border-radius: 14px;\n  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);\n}\n.sim-form-strip[data-v-7655cfce],\n.sim-results .card[data-v-7655cfce] {\n  padding: 18px;\n}\n.strip-grid[data-v-7655cfce] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 16px;\n}\n.strip-block[data-v-7655cfce] {\n  flex: 1 1 240px;\n  min-width: 0;\n}\n.strip-block-wide[data-v-7655cfce] {\n  flex: 2 1 440px;\n  min-width: 0;\n}\n.strip-label[data-v-7655cfce] {\n  margin: 0 0 10px;\n  color: #6b7280;\n  font-size: 11px;\n  font-weight: 700;\n  letter-spacing: 0.08em;\n  text-transform: uppercase;\n}\n.grid[data-v-7655cfce] {\n  display: grid;\n  gap: 14px;\n}\n.grid-2[data-v-7655cfce] {\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n}\n.grid-3[data-v-7655cfce] {\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n}\n.field[data-v-7655cfce] {\n  min-width: 0;\n}\n.field label[data-v-7655cfce] {\n  display: block;\n  margin-bottom: 6px;\n  color: #111827;\n  font-size: 12px;\n  font-weight: 600;\n}\n.field input[data-v-7655cfce],\n.field select[data-v-7655cfce] {\n  width: 100%;\n  min-width: 0;\n  padding: 10px 12px;\n  border: 1px solid #cbd5e1;\n  border-radius: 10px;\n  background: #ffffff;\n  color: #111827;\n  font-size: 14px;\n  transition: border-color 0.2s ease, box-shadow 0.2s ease;\n  box-sizing: border-box;\n}\n.strip-block[data-v-7655cfce] {\n  padding: 14px;\n  background: #f8fafc;\n  border: 1px solid #dbe3ee;\n  border-radius: 12px;\n}\n.strip-block-wide[data-v-7655cfce] {\n  background: linear-gradient(180deg, #ffffff, #f8fafc);\n}\n.field input[data-v-7655cfce]:focus,\n.field select[data-v-7655cfce]:focus {\n  outline: none;\n  border-color: #2563eb;\n  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);\n}\n.checkbox-field label[data-v-7655cfce] {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  margin-bottom: 0;\n  font-size: 13px;\n}\n.checkbox-field input[type="checkbox"][data-v-7655cfce] {\n  width: 16px;\n  height: 16px;\n  margin: 0;\n  accent-color: #2563eb;\n}\n.label-hint[data-v-7655cfce] {\n  margin-left: 4px;\n  color: #6b7280;\n  font-size: 10px;\n}\n.inline-badges[data-v-7655cfce] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 6px;\n}\n.badge[data-v-7655cfce] {\n  display: inline-block;\n  padding: 3px 9px;\n  border-radius: 9999px;\n  font-size: 10px;\n  font-weight: 700;\n}\n.badge-warning[data-v-7655cfce] {\n  background: #fef3c7;\n  color: #92400e;\n}\n.table-wrapper[data-v-7655cfce] {\n  width: 100%;\n  overflow-x: auto;\n}\n.results-table[data-v-7655cfce] {\n  width: 100%;\n  min-width: 640px;\n  border-collapse: collapse;\n  table-layout: fixed;\n}\n.results-table th[data-v-7655cfce],\n.results-table td[data-v-7655cfce] {\n  padding: 12px 10px;\n  border-bottom: 1px solid #e5e7eb;\n  text-align: left;\n  vertical-align: top;\n}\n.results-table th[data-v-7655cfce] {\n  background: #f8fafc;\n  color: #334155;\n  font-size: 12px;\n  font-weight: 700;\n}\n.results-table td[data-v-7655cfce] {\n  font-size: 13px;\n}\n.row-total[data-v-7655cfce] {\n  background: #f8fafc;\n}\n.row-subtotal[data-v-7655cfce] {\n  background: #eef4ff;\n}\n.row-grand-total[data-v-7655cfce] {\n  background: #1f2937;\n  color: #ffffff;\n}\n.summary-strip[data-v-7655cfce] {\n  display: grid;\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n  gap: 12px;\n  margin-top: 16px;\n}\n.summary-item[data-v-7655cfce] {\n  padding: 14px;\n  border: 1px solid #e5e7eb;\n  border-radius: 12px;\n  background: linear-gradient(180deg, #ffffff, #f8fafc);\n  text-align: center;\n}\n.summary-item span[data-v-7655cfce] {\n  display: block;\n  color: #64748b;\n  font-size: 12px;\n  font-weight: 600;\n}\n.summary-item-highlight[data-v-7655cfce] {\n  background: linear-gradient(135deg, #1f2937, #334155);\n  color: #ffffff;\n  border-color: transparent;\n}\n.summary-item-highlight span[data-v-7655cfce] {\n  color: rgba(255, 255, 255, 0.78);\n}\n.summary-item-value[data-v-7655cfce] {\n  margin-top: 6px;\n  font-size: 20px;\n  font-weight: 700;\n}\n.sim-actions-bottom[data-v-7655cfce] {\n  margin-top: 18px;\n  display: flex;\n  align-items: flex-start;\n  justify-content: space-between;\n  gap: 18px;\n}\n.sim-actions-bottom button[data-v-7655cfce] {\n  padding: 11px 18px;\n  border: 0;\n  border-radius: 10px;\n  background: linear-gradient(135deg, #0f172a, #334155);\n  color: #ffffff;\n  font-size: 13px;\n  font-weight: 700;\n  cursor: pointer;\n  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);\n}\n.sim-actions-bottom button[data-v-7655cfce]:disabled {\n  opacity: 0.55;\n  cursor: not-allowed;\n}\n.sim-nota-pie[data-v-7655cfce] {\n  flex: 1 1 auto;\n  margin: 0;\n  color: #6b7280;\n  font-size: 12px;\n}\n.sim-nota-pie[data-v-7655cfce] p,\n.sim-nota-pie[data-v-7655cfce] ul,\n.sim-nota-pie[data-v-7655cfce] ol {\n  margin: 0 0 0.85em;\n}\n.sim-nota-pie[data-v-7655cfce] ul,\n.sim-nota-pie[data-v-7655cfce] ol {\n  padding-left: 18px;\n}\n@media (max-width: 900px) {\n.grid-3[data-v-7655cfce],\n  .grid-2[data-v-7655cfce],\n  .summary-strip[data-v-7655cfce] {\n    grid-template-columns: 1fr;\n}\n}\n@media (max-width: 640px) {\n.sim-form-strip[data-v-7655cfce],\n  .sim-results .card[data-v-7655cfce] {\n    padding: 14px;\n}\n.strip-grid[data-v-7655cfce] {\n    gap: 12px;\n}\n.sim-actions-bottom[data-v-7655cfce] {\n    flex-direction: column;\n    align-items: stretch;\n}\n.sim-actions-bottom button[data-v-7655cfce] {\n    width: 100%;\n}\n}\n';
   const _sfc_main = {
     name: "SimuladorArriendo",
     props: {
@@ -9309,7 +9309,16 @@
         const descuentosSinBancarios = comision + ivaComision + seguro + retencionFuente + retencionIca + retencionIva + otrosDescuentos;
         const subtotalAntesGastosBancarios = Math.max(0, safeMoney(totalIngresos - descuentosSinBancarios));
         const gastosBancarios = this.calcularGastosBancarios(subtotalAntesGastosBancarios);
-        const totalDescuentos = safeMoney(descuentosSinBancarios + gastosBancarios);
+        const totalDescuentos = safeMoney(descuentosSinBancarios);
+        let gastosBancariosLabel = "Gastos bancarios";
+        if (this.form.aplicarGastosBancarios && gastosBancarios > 0) {
+          const modalidadGastos = this.form.gastosBancarios.modalidad;
+          if (modalidadGastos === "cuatro_por_mil") {
+            gastosBancariosLabel = "Gastos bancarios (4×1.000 s/ subtotal a recibir)";
+          } else if (modalidadGastos === "porcentaje") {
+            gastosBancariosLabel = `Gastos bancarios (${this.form.gastosBancarios.porcentaje}% s/ subtotal a recibir)`;
+          }
+        }
         return {
           canon: safeMoney(this.form.canon),
           administracion: this.form.tieneAdministracion ? safeMoney(this.form.valorAdministracion) : 0,
@@ -9320,12 +9329,13 @@
           ivaComision,
           valorSeguro: seguro,
           gastosBancarios,
+          gastosBancariosLabel,
           retencionFuente,
           retencionIca,
           retencionIva,
           otrosDescuentos,
           totalDescuentos,
-          valorRentaRecibir: safeMoney(totalIngresos - totalDescuentos)
+          valorRentaRecibir: safeMoney(subtotalAntesGastosBancarios - gastosBancarios)
         };
       },
       ingresosRows() {
@@ -9356,13 +9366,6 @@
         }
         if (this.form.condicionesTributarias.aplicarRetencionIva && this.ivaCanonActivo && this.calc.retencionIva > 0) {
           rows.push({ label: `Retención de IVA (${pct}%)`, value: this.calc.retencionIva });
-        }
-        if (this.form.aplicarGastosBancarios && this.calc.gastosBancarios > 0) {
-          const m = this.form.gastosBancarios.modalidad;
-          let gastoLabel = "Gastos bancarios";
-          if (m === "cuatro_por_mil") gastoLabel = "Gastos bancarios (4×1.000 s/ subtotal a recibir)";
-          else if (m === "porcentaje") gastoLabel = `Gastos bancarios (${this.form.gastosBancarios.porcentaje}% s/ subtotal a recibir)`;
-          rows.push({ label: gastoLabel, value: this.calc.gastosBancarios });
         }
         return rows;
       },
@@ -9665,6 +9668,8 @@
         return {
           canonMensual: this.calc.canon,
           totalDescuentos: this.calc.totalDescuentos,
+          subtotalAntesGastosBancarios: this.calc.subtotalAntesGastosBancarios,
+          gastosBancarios: this.calc.gastosBancarios,
           valorNeto: this.calc.valorRentaRecibir
         };
       },
@@ -9715,6 +9720,16 @@
                 <td><strong>TOTAL DESCUENTOS</strong></td>
                 <td><strong>${this.fmtMoney(this.calc.totalDescuentos)}</strong></td>
               </tr>
+              <tr>
+                <td colspan="3"><strong>SUBTOTAL RENTA A RECIBIR ANTES DE GASTOS BANCARIOS</strong></td>
+                <td><strong>${this.fmtMoney(this.calc.subtotalAntesGastosBancarios)}</strong></td>
+              </tr>
+              ${this.form.aplicarGastosBancarios && this.calc.gastosBancarios > 0 ? `
+              <tr>
+                <td colspan="3"><strong>${this.calc.gastosBancariosLabel}</strong></td>
+                <td><strong>${this.fmtMoney(this.calc.gastosBancarios)}</strong></td>
+              </tr>
+              ` : ""}
               <tr>
                 <td colspan="3"><strong>VALOR TOTAL RENTA A RECIBIR POR EL PROPIETARIO</strong></td>
                 <td><strong>${this.fmtMoney(this.calc.valorRentaRecibir)}</strong></td>
@@ -9874,21 +9889,23 @@
   const _hoisted_59 = { class: "table-wrapper results-table-wrapper" };
   const _hoisted_60 = { class: "results-table" };
   const _hoisted_61 = { class: "row-total" };
-  const _hoisted_62 = {
+  const _hoisted_62 = { class: "row-subtotal" };
+  const _hoisted_63 = {
     key: 0,
     class: "row-subtotal"
   };
-  const _hoisted_63 = { class: "row-grand-total" };
-  const _hoisted_64 = { class: "summary-strip" };
-  const _hoisted_65 = { class: "summary-item" };
-  const _hoisted_66 = { class: "summary-item-value" };
+  const _hoisted_64 = { colspan: "3" };
+  const _hoisted_65 = { class: "row-grand-total" };
+  const _hoisted_66 = { class: "summary-strip" };
   const _hoisted_67 = { class: "summary-item" };
   const _hoisted_68 = { class: "summary-item-value" };
-  const _hoisted_69 = { class: "summary-item summary-item-highlight" };
+  const _hoisted_69 = { class: "summary-item" };
   const _hoisted_70 = { class: "summary-item-value" };
-  const _hoisted_71 = { class: "sim-actions-bottom" };
-  const _hoisted_72 = ["innerHTML"];
-  const _hoisted_73 = ["disabled"];
+  const _hoisted_71 = { class: "summary-item summary-item-highlight" };
+  const _hoisted_72 = { class: "summary-item-value" };
+  const _hoisted_73 = { class: "sim-actions-bottom" };
+  const _hoisted_74 = ["innerHTML"];
+  const _hoisted_75 = ["disabled"];
   function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     return openBlock(), createElementBlock("div", _hoisted_1, [
       createBaseVNode("div", _hoisted_2, [
@@ -10308,15 +10325,23 @@
                       createBaseVNode("strong", null, toDisplayString($options.fmtMoney($options.calc.totalDescuentos)), 1)
                     ])
                   ]),
-                  $data.form.aplicarGastosBancarios && $options.calc.gastosBancarios > 0 ? (openBlock(), createElementBlock("tr", _hoisted_62, [
+                  createBaseVNode("tr", _hoisted_62, [
                     _cache[70] || (_cache[70] = createBaseVNode("td", { colspan: "3" }, [
                       createBaseVNode("strong", null, "SUBTOTAL RENTA A RECIBIR ANTES DE GASTOS BANCARIOS")
                     ], -1)),
                     createBaseVNode("td", null, [
                       createBaseVNode("strong", null, toDisplayString($options.fmtMoney($options.calc.subtotalAntesGastosBancarios)), 1)
                     ])
+                  ]),
+                  $data.form.aplicarGastosBancarios && $options.calc.gastosBancarios > 0 ? (openBlock(), createElementBlock("tr", _hoisted_63, [
+                    createBaseVNode("td", _hoisted_64, [
+                      createBaseVNode("strong", null, toDisplayString($options.calc.gastosBancariosLabel), 1)
+                    ]),
+                    createBaseVNode("td", null, [
+                      createBaseVNode("strong", null, toDisplayString($options.fmtMoney($options.calc.gastosBancarios)), 1)
+                    ])
                   ])) : createCommentVNode("", true),
-                  createBaseVNode("tr", _hoisted_63, [
+                  createBaseVNode("tr", _hoisted_65, [
                     _cache[71] || (_cache[71] = createBaseVNode("td", { colspan: "3" }, [
                       createBaseVNode("strong", null, "VALOR TOTAL RENTA A RECIBIR POR EL PROPIETARIO")
                     ], -1)),
@@ -10328,37 +10353,37 @@
               ])
             ])
           ]),
-          createBaseVNode("div", _hoisted_64, [
-            createBaseVNode("div", _hoisted_65, [
-              _cache[73] || (_cache[73] = createBaseVNode("span", null, "Canon mensual", -1)),
-              createBaseVNode("div", _hoisted_66, toDisplayString($options.fmtMoney($options.calc.canon)), 1)
-            ]),
+          createBaseVNode("div", _hoisted_66, [
             createBaseVNode("div", _hoisted_67, [
-              _cache[74] || (_cache[74] = createBaseVNode("span", null, "Total descuentos", -1)),
-              createBaseVNode("div", _hoisted_68, toDisplayString($options.fmtMoney($options.calc.totalDescuentos)), 1)
+              _cache[73] || (_cache[73] = createBaseVNode("span", null, "Canon mensual", -1)),
+              createBaseVNode("div", _hoisted_68, toDisplayString($options.fmtMoney($options.calc.canon)), 1)
             ]),
             createBaseVNode("div", _hoisted_69, [
+              _cache[74] || (_cache[74] = createBaseVNode("span", null, "Total descuentos", -1)),
+              createBaseVNode("div", _hoisted_70, toDisplayString($options.fmtMoney($options.calc.totalDescuentos)), 1)
+            ]),
+            createBaseVNode("div", _hoisted_71, [
               _cache[75] || (_cache[75] = createBaseVNode("span", null, "Valor neto a recibir", -1)),
-              createBaseVNode("div", _hoisted_70, toDisplayString($options.fmtMoney($options.calc.valorRentaRecibir)), 1)
+              createBaseVNode("div", _hoisted_72, toDisplayString($options.fmtMoney($options.calc.valorRentaRecibir)), 1)
             ])
           ])
         ]),
-        createBaseVNode("div", _hoisted_71, [
+        createBaseVNode("div", _hoisted_73, [
           $options.notaPieHtml ? (openBlock(), createElementBlock("div", {
             key: 0,
             class: "sim-nota-pie",
             innerHTML: $options.notaPieHtml
-          }, null, 8, _hoisted_72)) : createCommentVNode("", true),
+          }, null, 8, _hoisted_74)) : createCommentVNode("", true),
           createBaseVNode("button", {
             type: "button",
             disabled: !$options.canPrint,
             onClick: _cache[28] || (_cache[28] = (...args) => $options.imprimir && $options.imprimir(...args))
-          }, "Imprimir / PDF", 8, _hoisted_73)
+          }, "Imprimir / PDF", 8, _hoisted_75)
         ])
       ])
     ]);
   }
-  const SimuladorArriendo = /* @__PURE__ */ _export_sfc(_sfc_main, [["render", _sfc_render], ["styles", [_style_0]], ["__scopeId", "data-v-882baeb2"]]);
+  const SimuladorArriendo = /* @__PURE__ */ _export_sfc(_sfc_main, [["render", _sfc_render], ["styles", [_style_0]], ["__scopeId", "data-v-7655cfce"]]);
   const shadowBaseStyles = `
   :host {
     display: block;

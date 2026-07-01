@@ -70,9 +70,71 @@ if (!function_exists('homlity_card_extract_urls')) {
     }
 }
 if (!function_exists('homlity_card_feature_icon')) {
+    function homlity_normalize_card_icon_config($iconConfig): array
+    {
+        if (is_array($iconConfig) && !empty($iconConfig['value'])) {
+            $value = trim((string) $iconConfig['value']);
+            if ($value !== '' && strpos($value, 'fa-') !== false) {
+                if (empty($iconConfig['library'])) {
+                    if (strpos($value, 'fab ') === 0) {
+                        $iconConfig['library'] = 'fa-brands';
+                    } elseif (strpos($value, 'far ') === 0) {
+                        $iconConfig['library'] = 'fa-regular';
+                    } else {
+                        $iconConfig['library'] = 'fa-solid';
+                    }
+                }
+                return $iconConfig;
+            }
+
+            $iconConfig = $value;
+        }
+
+        if (!is_string($iconConfig)) {
+            return [];
+        }
+
+        $legacyMap = [
+            'grid'    => 'fas fa-ruler-combined',
+            'bed'     => 'fas fa-bed',
+            'bath'    => 'fas fa-bath',
+            'car'     => 'fas fa-car',
+            'lot'     => 'fas fa-draw-polygon',
+            'home'    => 'fas fa-house',
+            'house'   => 'fas fa-house',
+            'ruler'   => 'fas fa-ruler',
+            'clock'   => 'fas fa-clock',
+            'diamond' => 'fas fa-circle-check',
+            'hash'    => 'fas fa-hashtag',
+        ];
+
+        $value = trim($iconConfig);
+        if ($value === '') {
+            return [];
+        }
+
+        $value = $legacyMap[$value] ?? $value;
+        if (strpos($value, 'fa-') === false) {
+            return [];
+        }
+
+        $library = 'fa-solid';
+        if (strpos($value, 'fab ') === 0) {
+            $library = 'fa-brands';
+        } elseif (strpos($value, 'far ') === 0) {
+            $library = 'fa-regular';
+        }
+
+        return [
+            'value' => $value,
+            'library' => $library,
+        ];
+    }
+
     function homlity_card_feature_icon($iconConfig, string $fallback): string
     {
-        if (is_array($iconConfig) && !empty($iconConfig['value']) && class_exists('\Elementor\Icons_Manager')) {
+        $iconConfig = homlity_normalize_card_icon_config($iconConfig);
+        if (!empty($iconConfig['value']) && class_exists('\Elementor\Icons_Manager')) {
             ob_start();
             \Elementor\Icons_Manager::render_icon($iconConfig, ['aria-hidden' => 'true']);
             $iconHtml = ob_get_clean();
@@ -112,16 +174,16 @@ $cardOptions = array_merge([
     'feature_age' => true,
     'feature_condition' => true,
     'feature_code' => true,
-    'feature_icon_area' => 'grid',
-    'feature_icon_bedrooms' => 'bed',
-    'feature_icon_bathrooms' => 'bath',
-    'feature_icon_parking' => 'car',
-    'feature_icon_area_lot' => 'lot',
-    'feature_icon_area_private' => 'home',
-    'feature_icon_area_built' => 'ruler',
-    'feature_icon_age' => 'clock',
-    'feature_icon_condition' => 'diamond',
-    'feature_icon_code' => 'hash',
+    'feature_icon_area' => ['value' => 'fas fa-ruler-combined', 'library' => 'fa-solid'],
+    'feature_icon_bedrooms' => ['value' => 'fas fa-bed', 'library' => 'fa-solid'],
+    'feature_icon_bathrooms' => ['value' => 'fas fa-bath', 'library' => 'fa-solid'],
+    'feature_icon_parking' => ['value' => 'fas fa-car', 'library' => 'fa-solid'],
+    'feature_icon_area_lot' => ['value' => 'fas fa-draw-polygon', 'library' => 'fa-solid'],
+    'feature_icon_area_private' => ['value' => 'fas fa-house', 'library' => 'fa-solid'],
+    'feature_icon_area_built' => ['value' => 'fas fa-ruler', 'library' => 'fa-solid'],
+    'feature_icon_age' => ['value' => 'fas fa-clock', 'library' => 'fa-solid'],
+    'feature_icon_condition' => ['value' => 'fas fa-circle-check', 'library' => 'fa-solid'],
+    'feature_icon_code' => ['value' => 'fas fa-hashtag', 'library' => 'fa-solid'],
     'link_new_tab' => false,
 ], $cardOptions);
 
@@ -291,9 +353,6 @@ if ($showPrice) {
                     <?php if (!empty($cardOptions['show_operation']) && $operationLabel): ?>
                         <p class="property-card__overlay-operation">
                             <?php echo esc_html($operationLabel); ?>
-                            <?php if ($displayPrice && $showPrice): ?>
-                                <span class="property-card__operation-price"><?php echo esc_html($displayPrice); ?></span>
-                            <?php endif; ?>
                         </p>
                     <?php endif; ?>
 
@@ -336,9 +395,6 @@ if ($showPrice) {
         <?php if (!empty($cardOptions['show_operation']) && $operationLabel): ?>
             <p class="property-card__operation">
                 <?php echo esc_html($operationLabel); ?>
-                <?php if ($displayPrice && $showPrice): ?>
-                    <span class="property-card__operation-price"><?php echo esc_html($displayPrice); ?></span>
-                <?php endif; ?>
             </p>
         <?php endif; ?>
         <?php if (!empty($cardOptions['show_excerpt']) && in_array('excerpt', $listingFields, true)): ?>
@@ -410,7 +466,7 @@ if ($showPrice) {
                 <?php endif; ?>
             </ul>
         <?php endif; ?>
-        <?php if ($displayPrice && $showPrice && empty($cardOptions['show_operation'])): ?>
+        <?php if ($displayPrice && $showPrice): ?>
             <p class="property-card__price">
                 <?php echo esc_html($displayPrice); ?>
                 <?php if ($displayPriceAdmin): ?>

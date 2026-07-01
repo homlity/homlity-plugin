@@ -106,7 +106,12 @@ export function CheckboxField({ label, id, checked, onChange, error, required, h
           aria-describedby={error ? `${id}-error` : undefined}
           required={required}
         />
-        <span>{label}{required && <span className="hcf-required" aria-hidden="true"> *</span>}</span>
+        <span className={`hcf-checkbox-pill${checked ? ' hcf-checkbox-pill--active' : ''}`}>
+          <span className="hcf-checkbox-pill__text">
+            {label}
+            {required && <span className="hcf-required" aria-hidden="true"> *</span>}
+          </span>
+        </span>
       </label>
       {hint && !error && <p className="hcf-hint">{hint}</p>}
       {error && (

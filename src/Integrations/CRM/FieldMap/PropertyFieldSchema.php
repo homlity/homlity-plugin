@@ -30,8 +30,13 @@ class PropertyFieldSchema
             ],
             'location' => [
                 'address'   => 'string|required',
+                'address_dane' => 'string|optional',
                 'latitude'  => 'float|required',
                 'longitude' => 'float|required',
+                'show_exact_address' => 'bool|optional',
+                'address_complement' => 'string|optional',
+                'location_reference' => 'string|optional',
+                'maps_url' => 'string|optional',
             ],
             'pricing' => [
                 'sale_price'     => 'string|optional',
@@ -41,6 +46,8 @@ class PropertyFieldSchema
                 'admin_price'    => 'string|optional',
                 'admin_currency' => 'string|optional',
                 'admin_included' => 'bool|optional',
+                'negotiable'     => 'bool|optional',
+                'commercial_note' => 'string|optional',
             ],
             'metrics' => [
                 'area'        => 'string|optional',
@@ -53,6 +60,10 @@ class PropertyFieldSchema
                 'condition'   => 'string|optional',
                 'year_built'  => 'int|optional',
                 'code'        => 'string|optional',
+                'stratum'     => 'int|optional',
+                'floor'       => 'int|optional',
+                'levels'      => 'int|optional',
+                'elevators'   => 'int|optional',
                 'featured'    => 'bool|optional',
             ],
             'taxonomy' => [
@@ -74,6 +85,7 @@ class PropertyFieldSchema
                 'tour_360'           => 'string[] urls|optional',
                 'photos_360'         => 'string[] urls|optional',
                 'brochure'           => 'string url|optional',
+                'photo_note'         => 'string|optional',
             ],
             'advisor' => [
                 'external_id' => 'string|optional',
@@ -99,8 +111,13 @@ class PropertyFieldSchema
         return [
             // Location
             'location.address'   => '_property_address',
+            'location.address_dane' => '_property_address_dane',
             'location.latitude'  => '_property_latitude',
             'location.longitude' => '_property_longitude',
+            'location.show_exact_address' => '_property_show_exact_address',
+            'location.address_complement' => '_property_address_complement',
+            'location.location_reference' => '_property_location_reference',
+            'location.maps_url' => '_property_maps_url',
 
             // Pricing
             'pricing.sale_price'     => '_property_price_sale',
@@ -110,6 +127,8 @@ class PropertyFieldSchema
             'pricing.admin_price'    => '_property_price_admin',
             'pricing.admin_currency' => '_property_currency_admin',
             'pricing.admin_included' => '_property_admin_included',
+            'pricing.negotiable'     => '_property_negotiable',
+            'pricing.commercial_note' => '_property_commercial_note',
 
             // Metrics
             'metrics.area'        => '_property_area',
@@ -122,16 +141,36 @@ class PropertyFieldSchema
             'metrics.condition'   => '_property_condition',
             'metrics.year_built'  => '_property_age',
             'metrics.code'        => '_property_code',
+            'metrics.stratum'     => '_property_stratum',
+            'metrics.floor'       => '_property_floor',
+            'metrics.levels'      => '_property_levels',
+            'metrics.elevators'   => '_property_elevators',
             'metrics.featured'    => '_property_featured',
 
             // Media (scalar only)
             'media.featured_image_url' => '_property_featured_image_url',
             'media.brochure'           => '_property_brochure',
+            'media.photo_note'         => '_property_photo_note',
 
             // Advisor (fields displayed on the property post for quick access)
+            'advisor.external_id' => '_property_agent_external_id',
             'advisor.name'  => '_property_agent_name',
             'advisor.email' => '_property_agent_email',
             'advisor.phone' => '_property_agent_phone',
+            'advisor.role'  => '_property_agent_role',
+            'advisor.photo' => '_property_agent_photo',
+
+            // Raw consignment contact / audit fields
+            'external.raw.identification' => '_property_identification',
+            'external.raw.contact_name'   => '_property_contact_name',
+            'external.raw.contact_email'  => '_property_contact_email',
+            'external.raw.contact_phone'  => '_property_contact_phone',
+            'external.raw.contact_whatsapp' => '_property_contact_whatsapp',
+            'external.raw.consignant_type' => '_property_consignant_type',
+            'external.raw.data_consent'   => '_consignment_data_consent',
+            'external.raw.authorization_consent' => '_consignment_authorization_consent',
+            'external.raw.truth_declaration' => '_consignment_truth_declaration',
+            'external.raw.contact_consent' => '_consignment_contact_consent',
         ];
     }
 }

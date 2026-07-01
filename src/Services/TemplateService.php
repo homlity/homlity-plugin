@@ -33,6 +33,7 @@ class TemplateService implements ServiceInterface
     public function registerShortcodes(): void
     {
         add_shortcode('homlity_agent_profile', [$this, 'renderAgentProfileShortcode']);
+        add_shortcode('homlity_property_detail', [$this, 'renderPropertyDetailShortcode']);
     }
 
     public function renderAgentProfileShortcode(): string
@@ -40,6 +41,32 @@ class TemplateService implements ServiceInterface
         ob_start();
         self::includeComponent('agent-profile-content.php');
         return (string) ob_get_clean();
+    }
+
+    public function renderPropertyDetailShortcode(array $atts = []): string
+    {
+        $legacyShortcode = 'visualinmu_page_detalle_inmueble_shortcode';
+        if (shortcode_exists($legacyShortcode)) {
+            $attrs = shortcode_atts([
+                'legacy' => 'true',
+            ], $atts, 'homlity_property_detail');
+
+            $parts = [];
+            foreach ($attrs as $key => $value) {
+                $parts[] = sprintf('%s="%s"', sanitize_key((string) $key), esc_attr((string) $value));
+            }
+
+            return do_shortcode(sprintf('[%s %s/]', $legacyShortcode, implode(' ', $parts)));
+        }
+
+        $postId = get_queried_object_id();
+        if ($postId > 0 && get_post_type($postId) === PropertyPostType::POST_TYPE) {
+            ob_start();
+            self::includeComponent('property-content.php', ['post_id' => $postId]);
+            return (string) ob_get_clean();
+        }
+
+        return '';
     }
 
     public function maybeRenderTechnicalSheetPdf(): void

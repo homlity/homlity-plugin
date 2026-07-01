@@ -1,17 +1,21 @@
 import { InputField, TextareaField } from './Field';
 import FileUploader from './FileUploader';
 
-export default function StepMedia({ data, updateField, errors, config }) {
+export default function StepMedia({ data, updateField, errors, config, compact = false }) {
   const uploadCfg = config?.upload || {};
   const maxImages = uploadCfg.max_images  || 20;
   const maxSizeMb = uploadCfg.max_size_mb || 10;
 
   return (
     <div className="hcf-step hcf-step--media">
-      <h2 className="hcf-step__title">Multimedia</h2>
-      <p className="hcf-step__desc">
-        Sube fotos del inmueble. Las imágenes de buena calidad aumentan el interés de los compradores.
-      </p>
+      {!compact && (
+        <>
+          <h2 className="hcf-step__title">Multimedia</h2>
+          <p className="hcf-step__desc">
+            Sube fotos del inmueble. Las imágenes de buena calidad aumentan el interés de los compradores.
+          </p>
+        </>
+      )}
 
       {/* Gallery */}
       <div className="hcf-field">
@@ -33,24 +37,9 @@ export default function StepMedia({ data, updateField, errors, config }) {
         )}
       </div>
 
-      {/* Featured image */}
-      <div className="hcf-field">
-        <label className="hcf-label">Imagen destacada</label>
-        <p className="hcf-hint">Si no la seleccionas, se usará la primera foto de la galería.</p>
-        <FileUploader
-          type="image"
-          multiple={false}
-          value={data.featured_image}
-          onChange={(url) => updateField('featured_image', url)}
-          accept="image/jpeg,image/png,image/webp"
-          maxSizeMb={maxSizeMb}
-          label="Subir imagen destacada"
-        />
-      </div>
-
       {/* Brochure */}
       <div className="hcf-field">
-        <label className="hcf-label">Brochure / Ficha técnica (PDF)</label>
+        <label className="hcf-label">Documentos legales del inmueble</label>
         <FileUploader
           type="brochure"
           multiple={false}

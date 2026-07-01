@@ -36,6 +36,23 @@ export async function fetchConfig() {
   return json;
 }
 
+export async function geoSearch(query) {
+  const url = new URL(`${window.location.origin}/wp-json/homlity/v1/geo/search`);
+  url.searchParams.set('q', query);
+
+  const res = await fetch(url.toString(), {
+    method: 'GET',
+    headers: { 'X-WP-Nonce': getNonce() },
+    credentials: 'same-origin',
+  });
+
+  if (!res.ok) {
+    return [];
+  }
+
+  return res.json();
+}
+
 /** Validate a single step without submitting. */
 export async function validateStep(step, data) {
   const res = await fetch(`${getBase()}/validate-step`, {

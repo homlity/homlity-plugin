@@ -1,5 +1,5 @@
 <?php if ( ! defined( 'ABSPATH' ) ) { exit; } ?>
-<div class="clearfix mb-3 visualinmu-search-header ">
+<div class="clearfix mb-3 homlity-search-header ">
                 <div class="float-start d-flex">
                     <a class="btn btn-primary" id="vi-btn-filtros" data-bs-toggle="offcanvas" href="#offcanvasWithBothOptions" role="button"
                         aria-controls="offcanvasWithBothOptions"><i class="icon-homlity icon-uniE9B7"></i>
@@ -37,7 +37,7 @@
                             <small><?php echo esc_html( number_format($paginador->getTotalItems(), 0, ',', '.') . " inmuebles encontrados " ); ?></small>
                         </div>
                     <?php endif; ?>
-                    <div class="visualinmu-btns-order">
+                    <div class="homlity-btns-order">
                         <a class=" btn btn-primary btn-sm" type="button"
                             href="<?php echo esc_url( visualinmu_url_parameters_append(['direccion_order' => 'asc']) ); ?>"
                             data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="custom-tooltip"

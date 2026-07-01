@@ -131,10 +131,10 @@ $paramToAttr = static function ($value): string {
      data-map-tab-id="<?php echo esc_attr($mapTabId); ?>">
 
     <!-- ── Main container ────────────────────────────────────────────────── -->
-    <div class="container-fluid contenedor-visual-inmueble px-0">
+    <div class="container-fluid contenedor-homlity-inmueble px-0">
 
         <!-- ── Search header (filter btn + tabs + count + sort) ─────────── -->
-        <div class="clearfix mb-3 visualinmu-search-header">
+        <div class="clearfix mb-3 homlity-search-header">
 
             <div class="float-start d-flex align-items-center flex-wrap gap-2">
 
@@ -188,7 +188,7 @@ $paramToAttr = static function ($value): string {
                 <?php endif; ?>
 
                 <?php if ($config->showSort()) : ?>
-                <div class="visualinmu-btns-order">
+                <div class="homlity-btns-order">
                     <select class="form-select form-select-sm property-listing__sort"
                             aria-label="<?php esc_attr_e('Ordenar por', 'homlity-real-estate'); ?>">
                         <?php foreach ($sortOptions as $value => $label) : ?>

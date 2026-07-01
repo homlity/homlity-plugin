@@ -16,19 +16,42 @@ class Homlity_Consignment_Admin
 
     public static function registerMenu(string $parent_slug): void
     {
-        add_submenu_page(
-            $parent_slug,
-            __('Consignación de Inmuebles', 'homlity-real-estate'),
-            __('Consignación', 'homlity-real-estate'),
-            'manage_options',
-            'homlity-consignment',
-            [self::class, 'renderPage']
-        );
+        add_action('admin_init', [self::class, 'maybeRedirectLegacyPage']);
     }
 
     // ── Page render ───────────────────────────────────────────────────────
 
     public static function renderPage(): void
+    {
+        self::renderContent(false);
+    }
+
+    public static function renderEmbeddedPage(): void
+    {
+        self::renderContent(true);
+    }
+
+    public static function redirectToSettingsTab(): void
+    {
+        wp_safe_redirect(self::settingsPageUrl());
+        exit;
+    }
+
+    public static function maybeRedirectLegacyPage(): void
+    {
+        if (!is_admin() || !current_user_can('manage_options')) {
+            return;
+        }
+
+        $page = isset($_GET['page']) ? sanitize_key((string) wp_unslash($_GET['page'])) : '';
+        if ($page !== 'homlity-consignment') {
+            return;
+        }
+
+        self::redirectToSettingsTab();
+    }
+
+    private static function renderContent(bool $embedded = false): void
     {
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('No autorizado.', 'homlity-real-estate'));
@@ -39,10 +62,30 @@ class Homlity_Consignment_Admin
         $page_created = isset($_GET['page_created']) && $_GET['page_created'] === '1';
         $page_deleted = isset($_GET['page_deleted']) && $_GET['page_deleted'] === '1';
         $nonce_action = 'homlity_consignment_save';
+        if (!$embedded) {
+            ?>
+            <div class="wrap" style="max-width:1100px;">
+            <?php
+        }
         ?>
-        <div class="wrap" style="max-width:900px;">
-            <h1><?php esc_html_e('Consignación de Inmuebles', 'homlity-real-estate'); ?></h1>
-            <p><?php esc_html_e('Configura el formulario público de consignación de inmuebles.', 'homlity-real-estate'); ?></p>
+            <div class="homlity-consignment-admin<?php echo $embedded ? ' homlity-consignment-admin--embedded' : ''; ?>">
+            <div class="homlity-consignment-admin__intro">
+                <div>
+                    <h2><?php esc_html_e('Consignación de Inmuebles', 'homlity-real-estate'); ?></h2>
+                    <p><?php esc_html_e('Configura el formulario público de consignación de inmuebles.', 'homlity-real-estate'); ?></p>
+                </div>
+                <div class="homlity-consignment-admin__badges">
+                    <span class="homlity-consignment-admin__badge<?php echo !empty($opts['enabled']) ? ' is-active' : ''; ?>">
+                        <?php echo !empty($opts['enabled']) ? esc_html__('Formulario activo', 'homlity-real-estate') : esc_html__('Formulario inactivo', 'homlity-real-estate'); ?>
+                    </span>
+                    <span class="homlity-consignment-admin__badge">
+                        <?php printf(esc_html__('Máx. %d imágenes', 'homlity-real-estate'), (int) ($opts['max_images'] ?? 0)); ?>
+                    </span>
+                    <span class="homlity-consignment-admin__badge">
+                        <?php echo !empty($opts['enable_logs']) ? esc_html__('Logs activos', 'homlity-real-estate') : esc_html__('Logs desactivados', 'homlity-real-estate'); ?>
+                    </span>
+                </div>
+            </div>
 
             <?php if ($updated): ?>
                 <div class="notice notice-success is-dismissible"><p><?php esc_html_e('Ajustes guardados.', 'homlity-real-estate'); ?></p></div>
@@ -62,157 +105,157 @@ class Homlity_Consignment_Admin
                 <div class="notice notice-success is-dismissible"><p><?php esc_html_e('Página eliminada.', 'homlity-real-estate'); ?></p></div>
             <?php endif; ?>
 
-            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+            <div class="homlity-consignment-admin__layout">
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="homlity-consignment-admin__main">
                 <?php wp_nonce_field($nonce_action); ?>
                 <input type="hidden" name="action" value="homlity_consignment_save">
 
-                <!-- ── General ──────────────────────────────────────────── -->
-                <h2 class="title"><?php esc_html_e('General', 'homlity-real-estate'); ?></h2>
-                <table class="form-table" role="presentation">
-                    <?php
-                    self::checkbox('enabled', $opts, __('Activar formulario público', 'homlity-real-estate'));
-                    self::select('default_status', $opts, __('Estado por defecto del inmueble', 'homlity-real-estate'), [
-                        'pending' => __('Pendiente de revisión (recomendado)', 'homlity-real-estate'),
-                        'draft'   => __('Borrador', 'homlity-real-estate'),
-                    ]);
-                    self::text('provider', $opts, __('Provider / Source', 'homlity-real-estate'), __('Identificador del proveedor. Valor por defecto: public-consignment', 'homlity-real-estate'));
-                    self::text('redirect_url', $opts, __('URL de redirección tras envío', 'homlity-real-estate'), __('Déjalo en blanco para mostrar el mensaje de éxito en el mismo formulario.', 'homlity-real-estate'));
-                    self::text('notification_email', $opts, __('Correo de notificaciones', 'homlity-real-estate'), __('Separar múltiples correos con coma.', 'homlity-real-estate'));
-                    self::text('default_currency', $opts, __('Moneda por defecto', 'homlity-real-estate'), 'COP, USD, EUR…');
-                    self::text('default_country', $opts, __('País por defecto', 'homlity-real-estate'));
-                    self::text('default_city', $opts, __('Ciudad por defecto', 'homlity-real-estate'), __('Opcional.', 'homlity-real-estate'));
-                    ?>
-                </table>
+                <div class="homlity-consignment-admin__card">
+                    <h3 class="title"><?php esc_html_e('General', 'homlity-real-estate'); ?></h3>
+                    <p class="description"><?php esc_html_e('Define el estado inicial del inmueble, origen del formulario y datos base de operación.', 'homlity-real-estate'); ?></p>
+                    <table class="form-table" role="presentation">
+                        <?php
+                        self::checkbox('enabled', $opts, __('Activar formulario público', 'homlity-real-estate'));
+                        self::select('default_status', $opts, __('Estado por defecto del inmueble', 'homlity-real-estate'), [
+                            'pending' => __('Pendiente de revisión (recomendado)', 'homlity-real-estate'),
+                            'draft'   => __('Borrador', 'homlity-real-estate'),
+                        ]);
+                        self::text('provider', $opts, __('Provider / Source', 'homlity-real-estate'), __('Identificador del proveedor. Valor por defecto: public-consignment', 'homlity-real-estate'));
+                        self::text('redirect_url', $opts, __('URL de redirección tras envío', 'homlity-real-estate'), __('Déjalo en blanco para mostrar el mensaje de éxito en el mismo formulario.', 'homlity-real-estate'));
+                        self::text('notification_email', $opts, __('Correo de notificaciones', 'homlity-real-estate'), __('Separar múltiples correos con coma.', 'homlity-real-estate'));
+                        self::text('default_currency', $opts, __('Moneda por defecto', 'homlity-real-estate'), 'COP, USD, EUR…');
+                        self::text('default_country', $opts, __('País por defecto', 'homlity-real-estate'));
+                        self::text('default_city', $opts, __('Ciudad por defecto', 'homlity-real-estate'), __('Opcional.', 'homlity-real-estate'));
+                        ?>
+                    </table>
+                </div>
 
-                <!-- ── Validaciones ─────────────────────────────────────── -->
-                <h2 class="title"><?php esc_html_e('Validaciones', 'homlity-real-estate'); ?></h2>
-                <table class="form-table" role="presentation">
-                    <?php
-                    self::checkbox('require_coordinates', $opts, __('Requerir coordenadas (latitud y longitud)', 'homlity-real-estate'));
-                    self::checkbox('require_image', $opts, __('Requerir al menos una imagen', 'homlity-real-estate'));
-                    self::checkbox('require_gallery', $opts, __('Requerir galería (múltiples imágenes)', 'homlity-real-estate'));
-                    self::checkbox('allow_advisors', $opts, __('Permitir asesores independientes', 'homlity-real-estate'));
-                    self::checkbox('allow_agencies', $opts, __('Permitir inmobiliarias externas', 'homlity-real-estate'));
-                    self::checkbox('allow_owners', $opts, __('Permitir propietarios', 'homlity-real-estate'));
-                    ?>
-                </table>
+                <div class="homlity-consignment-admin__card">
+                    <h3 class="title"><?php esc_html_e('Validaciones y permisos', 'homlity-real-estate'); ?></h3>
+                    <p class="description"><?php esc_html_e('Controla qué datos son obligatorios y quiénes pueden consignar inmuebles.', 'homlity-real-estate'); ?></p>
+                    <table class="form-table" role="presentation">
+                        <?php
+                        self::checkbox('require_coordinates', $opts, __('Requerir coordenadas (latitud y longitud)', 'homlity-real-estate'));
+                        self::checkbox('require_image', $opts, __('Requerir al menos una imagen', 'homlity-real-estate'));
+                        self::checkbox('require_gallery', $opts, __('Requerir galería (múltiples imágenes)', 'homlity-real-estate'));
+                        self::checkbox('allow_advisors', $opts, __('Permitir asesores independientes', 'homlity-real-estate'));
+                        self::checkbox('allow_agencies', $opts, __('Permitir inmobiliarias externas', 'homlity-real-estate'));
+                        self::checkbox('allow_owners', $opts, __('Permitir propietarios', 'homlity-real-estate'));
+                        ?>
+                    </table>
+                </div>
 
-                <!-- ── Archivos ──────────────────────────────────────────── -->
-                <h2 class="title"><?php esc_html_e('Límites de archivos', 'homlity-real-estate'); ?></h2>
-                <table class="form-table" role="presentation">
-                    <?php
-                    self::number('max_images', $opts, __('Máximo de imágenes', 'homlity-real-estate'), 1, 100);
-                    self::number('max_image_size', $opts, __('Tamaño máximo por imagen (MB)', 'homlity-real-estate'), 1, 50);
-                    self::number('max_brochure_size', $opts, __('Tamaño máximo del brochure (MB)', 'homlity-real-estate'), 1, 50);
-                    ?>
-                </table>
+                <div class="homlity-consignment-admin__card">
+                    <h3 class="title"><?php esc_html_e('Archivos y seguridad', 'homlity-real-estate'); ?></h3>
+                    <p class="description"><?php esc_html_e('Configura límites de carga y protecciones básicas para el formulario.', 'homlity-real-estate'); ?></p>
+                    <table class="form-table" role="presentation">
+                        <?php
+                        self::number('max_images', $opts, __('Máximo de imágenes', 'homlity-real-estate'), 1, 100);
+                        self::number('max_image_size', $opts, __('Tamaño máximo por imagen (MB)', 'homlity-real-estate'), 1, 50);
+                        self::number('max_brochure_size', $opts, __('Tamaño máximo del brochure (MB)', 'homlity-real-estate'), 1, 50);
+                        self::checkbox('enable_honeypot', $opts, __('Activar campo honeypot anti-spam', 'homlity-real-estate'));
+                        self::checkbox('enable_rate_limit', $opts, __('Activar rate limiting por IP', 'homlity-real-estate'));
+                        self::number('rate_limit_per_hour', $opts, __('Envíos máximos por IP por hora', 'homlity-real-estate'), 1, 100);
+                        self::checkbox('enable_logs', $opts, __('Activar logs de consignaciones', 'homlity-real-estate'));
+                        ?>
+                    </table>
+                </div>
 
-                <!-- ── Seguridad ─────────────────────────────────────────── -->
-                <h2 class="title"><?php esc_html_e('Seguridad', 'homlity-real-estate'); ?></h2>
-                <table class="form-table" role="presentation">
-                    <?php
-                    self::checkbox('enable_honeypot', $opts, __('Activar campo honeypot anti-spam', 'homlity-real-estate'));
-                    self::checkbox('enable_rate_limit', $opts, __('Activar rate limiting por IP', 'homlity-real-estate'));
-                    self::number('rate_limit_per_hour', $opts, __('Envíos máximos por IP por hora', 'homlity-real-estate'), 1, 100);
-                    self::checkbox('enable_logs', $opts, __('Activar logs de consignaciones', 'homlity-real-estate'));
-                    ?>
-                </table>
+                <div class="homlity-consignment-admin__card">
+                    <h3 class="title"><?php esc_html_e('Notificaciones y textos', 'homlity-real-estate'); ?></h3>
+                    <p class="description"><?php esc_html_e('Ajusta los mensajes visibles y los correos asociados al flujo de consignación.', 'homlity-real-estate'); ?></p>
+                    <table class="form-table" role="presentation">
+                        <?php
+                        self::checkbox('notify_admin', $opts, __('Notificar al administrador al recibir una consignación', 'homlity-real-estate'));
+                        self::checkbox('notify_consignant', $opts, __('Enviar confirmación al consignante', 'homlity-real-estate'));
+                        self::text('form_title', $opts, __('Título del formulario', 'homlity-real-estate'));
+                        self::text('form_subtitle', $opts, __('Subtítulo', 'homlity-real-estate'));
+                        self::textarea('form_welcome_text', $opts, __('Texto de bienvenida', 'homlity-real-estate'), 3);
+                        self::text('btn_next_text', $opts, __('Texto botón Siguiente', 'homlity-real-estate'));
+                        self::text('btn_prev_text', $opts, __('Texto botón Anterior', 'homlity-real-estate'));
+                        self::text('btn_submit_text', $opts, __('Texto botón Enviar', 'homlity-real-estate'));
+                        self::textarea('success_message', $opts, __('Mensaje de éxito', 'homlity-real-estate'), 3);
+                        self::textarea('error_message', $opts, __('Mensaje de error', 'homlity-real-estate'), 2);
+                        self::textarea('data_policy_text', $opts, __('Texto de política de datos', 'homlity-real-estate'), 4);
+                        self::textarea('authorization_text', $opts, __('Texto de autorización', 'homlity-real-estate'), 3);
+                        ?>
+                    </table>
+                </div>
 
-                <!-- ── Notificaciones ────────────────────────────────────── -->
-                <h2 class="title"><?php esc_html_e('Notificaciones', 'homlity-real-estate'); ?></h2>
-                <table class="form-table" role="presentation">
-                    <?php
-                    self::checkbox('notify_admin', $opts, __('Notificar al administrador al recibir una consignación', 'homlity-real-estate'));
-                    self::checkbox('notify_consignant', $opts, __('Enviar confirmación al consignante', 'homlity-real-estate'));
-                    ?>
-                </table>
-
-                <!-- ── Textos UI ─────────────────────────────────────────── -->
-                <h2 class="title"><?php esc_html_e('Textos del formulario', 'homlity-real-estate'); ?></h2>
-                <table class="form-table" role="presentation">
-                    <?php
-                    self::text('form_title', $opts, __('Título del formulario', 'homlity-real-estate'));
-                    self::text('form_subtitle', $opts, __('Subtítulo', 'homlity-real-estate'));
-                    self::textarea('form_welcome_text', $opts, __('Texto de bienvenida', 'homlity-real-estate'), 3);
-                    self::text('btn_next_text', $opts, __('Texto botón Siguiente', 'homlity-real-estate'));
-                    self::text('btn_prev_text', $opts, __('Texto botón Anterior', 'homlity-real-estate'));
-                    self::text('btn_submit_text', $opts, __('Texto botón Enviar', 'homlity-real-estate'));
-                    self::textarea('success_message', $opts, __('Mensaje de éxito', 'homlity-real-estate'), 3);
-                    self::textarea('error_message', $opts, __('Mensaje de error', 'homlity-real-estate'), 2);
-                    self::textarea('data_policy_text', $opts, __('Texto de política de datos', 'homlity-real-estate'), 4);
-                    self::textarea('authorization_text', $opts, __('Texto de autorización', 'homlity-real-estate'), 3);
-                    ?>
-                </table>
-
-                <!-- ── Estilos ───────────────────────────────────────────── -->
-                <h2 class="title"><?php esc_html_e('Estilos básicos', 'homlity-real-estate'); ?></h2>
-                <table class="form-table" role="presentation">
-                    <?php
-                    self::color('primary_color', $opts, __('Color principal', 'homlity-real-estate'));
-                    self::color('secondary_color', $opts, __('Color secundario', 'homlity-real-estate'));
-                    self::color('bg_color', $opts, __('Color de fondo', 'homlity-real-estate'));
-                    self::color('text_color', $opts, __('Color de texto', 'homlity-real-estate'));
-                    self::number('border_radius', $opts, __('Radio de bordes (px)', 'homlity-real-estate'), 0, 32);
-                    ?>
-                </table>
-
-                <!-- ── Shortcode info ────────────────────────────────────── -->
-                <h2 class="title"><?php esc_html_e('Uso manual (Shortcode)', 'homlity-real-estate'); ?></h2>
-                <table class="form-table" role="presentation">
-                    <tr>
-                        <th><?php esc_html_e('Shortcode', 'homlity-real-estate'); ?></th>
-                        <td>
-                            <code>[homlity_consignment_form]</code><br>
-                            <code>[homlity_consignment_form primary_color="#2563eb" text_color="#1f2937"]</code><br>
-                            <small class="description"><?php esc_html_e('Puedes insertar este shortcode en cualquier página o widget de texto.', 'homlity-real-estate'); ?></small>
-                        </td>
-                    </tr>
-                </table>
+                <div class="homlity-consignment-admin__card">
+                    <h3 class="title"><?php esc_html_e('Estilos básicos', 'homlity-real-estate'); ?></h3>
+                    <p class="description"><?php esc_html_e('Define colores y bordes para el render público del formulario.', 'homlity-real-estate'); ?></p>
+                    <table class="form-table" role="presentation">
+                        <?php
+                        self::color('primary_color', $opts, __('Color principal', 'homlity-real-estate'));
+                        self::color('secondary_color', $opts, __('Color secundario', 'homlity-real-estate'));
+                        self::color('bg_color', $opts, __('Color de fondo', 'homlity-real-estate'));
+                        self::color('text_color', $opts, __('Color de texto', 'homlity-real-estate'));
+                        self::number('border_radius', $opts, __('Radio de bordes (px)', 'homlity-real-estate'), 0, 32);
+                        ?>
+                    </table>
+                </div>
 
                 <?php submit_button(__('Guardar cambios', 'homlity-real-estate')); ?>
             </form>
 
-            <!-- ── Página de consignación ──────────────────────────────── -->
-            <?php self::renderPageSection(); ?>
+            <aside class="homlity-consignment-admin__side">
+                <div class="homlity-consignment-admin__card">
+                    <h3 class="title"><?php esc_html_e('Uso manual', 'homlity-real-estate'); ?></h3>
+                    <p class="description"><?php esc_html_e('Usa el shortcode del plugin. Internamente se mantiene conectado a la primera versión del consignador.', 'homlity-real-estate'); ?></p>
+                    <p><code>[homlity_consignment_form]</code></p>
+                </div>
 
-            <!-- ── Logs ─────────────────────────────────────────────────── -->
-            <?php if ($opts['enable_logs']): ?>
-            <h2><?php esc_html_e('Log de consignaciones (últimas 20)', 'homlity-real-estate'); ?></h2>
-            <?php
-            $logs = array_reverse((array) get_option('homlity_consignment_logs', []));
-            $logs = array_slice($logs, 0, 20);
-            if (empty($logs)):
-            ?>
-                <p><?php esc_html_e('No hay registros aún.', 'homlity-real-estate'); ?></p>
-            <?php else: ?>
-                <table class="widefat striped">
-                    <thead><tr>
-                        <th><?php esc_html_e('Fecha', 'homlity-real-estate'); ?></th>
-                        <th><?php esc_html_e('Post ID', 'homlity-real-estate'); ?></th>
-                        <th><?php esc_html_e('Tipo', 'homlity-real-estate'); ?></th>
-                        <th><?php esc_html_e('Correo', 'homlity-real-estate'); ?></th>
-                        <th><?php esc_html_e('Resultado', 'homlity-real-estate'); ?></th>
-                    </tr></thead>
-                    <tbody>
-                    <?php foreach ($logs as $log): ?>
-                        <tr>
-                            <td><?php echo esc_html($log['date'] ?? '—'); ?></td>
-                            <td>
-                                <?php if (!empty($log['post_id'])): ?>
-                                    <a href="<?php echo esc_url(admin_url('post.php?post=' . (int) $log['post_id'] . '&action=edit')); ?>">#<?php echo (int) $log['post_id']; ?></a>
-                                <?php else: ?>—<?php endif; ?>
-                            </td>
-                            <td><?php echo esc_html($log['consignant_type'] ?? '—'); ?></td>
-                            <td><?php echo esc_html($log['email'] ?? '—'); ?></td>
-                            <td><?php echo esc_html($log['result'] ?? '—'); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
-            <?php endif; ?>
-        </div>
+                <div class="homlity-consignment-admin__card">
+                    <?php self::renderPageSection(); ?>
+                </div>
+
+                <?php if ($opts['enable_logs']): ?>
+                <div class="homlity-consignment-admin__card">
+                <h3 class="title"><?php esc_html_e('Log de consignaciones (últimas 20)', 'homlity-real-estate'); ?></h3>
+                <?php
+                $logs = array_reverse((array) get_option('homlity_consignment_logs', []));
+                $logs = array_slice($logs, 0, 20);
+                if (empty($logs)):
+                ?>
+                    <p><?php esc_html_e('No hay registros aún.', 'homlity-real-estate'); ?></p>
+                <?php else: ?>
+                    <div class="homlity-consignment-admin__logs">
+                        <table class="widefat striped">
+                            <thead><tr>
+                                <th><?php esc_html_e('Fecha', 'homlity-real-estate'); ?></th>
+                                <th><?php esc_html_e('Post ID', 'homlity-real-estate'); ?></th>
+                                <th><?php esc_html_e('Tipo', 'homlity-real-estate'); ?></th>
+                                <th><?php esc_html_e('Correo', 'homlity-real-estate'); ?></th>
+                                <th><?php esc_html_e('Resultado', 'homlity-real-estate'); ?></th>
+                            </tr></thead>
+                            <tbody>
+                            <?php foreach ($logs as $log): ?>
+                                <tr>
+                                    <td><?php echo esc_html($log['date'] ?? '—'); ?></td>
+                                    <td>
+                                        <?php if (!empty($log['post_id'])): ?>
+                                            <a href="<?php echo esc_url(admin_url('post.php?post=' . (int) $log['post_id'] . '&action=edit')); ?>">#<?php echo (int) $log['post_id']; ?></a>
+                                        <?php else: ?>—<?php endif; ?>
+                                    </td>
+                                    <td><?php echo esc_html($log['consignant_type'] ?? '—'); ?></td>
+                                    <td><?php echo esc_html($log['email'] ?? '—'); ?></td>
+                                    <td><?php echo esc_html($log['result'] ?? '—'); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+                </div>
+                <?php endif; ?>
+            </aside>
+            </div>
+            </div>
         <?php
+        if (!$embedded) {
+            echo '</div>';
+        }
     }
 
     // ── Save handler ──────────────────────────────────────────────────────
@@ -272,7 +315,8 @@ class Homlity_Consignment_Admin
         Homlity_Consignment_Manager::flushOptionsCache();
 
         wp_safe_redirect(add_query_arg([
-            'page'    => 'homlity-consignment',
+            'page'    => 'homlity-real-estate-settings',
+            'tab'     => 'consignment',
             'updated' => '1',
         ], admin_url('admin.php')));
         exit;
@@ -417,9 +461,18 @@ class Homlity_Consignment_Admin
             : Homlity_Consignment_Manager::createConsignmentPage();
 
         wp_safe_redirect(add_query_arg([
-            'page'         => 'homlity-consignment',
+            'page'         => 'homlity-real-estate-settings',
+            'tab'          => 'consignment',
             'page_created' => $page_id > 0 ? '1' : '0',
         ], admin_url('admin.php')));
         exit;
+    }
+
+    private static function settingsPageUrl(): string
+    {
+        return add_query_arg([
+            'page' => 'homlity-real-estate-settings',
+            'tab' => 'consignment',
+        ], admin_url('admin.php'));
     }
 }

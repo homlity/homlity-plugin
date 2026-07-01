@@ -2,11 +2,15 @@ import { InputField, SelectField, CheckboxField } from './Field';
 
 const STRATA = ['1', '2', '3', '4', '5', '6'];
 
-export default function StepAreas({ data, updateField, errors }) {
+export default function StepAreas({ data, updateField, errors, compact = false }) {
   return (
     <div className="hcf-step hcf-step--areas">
-      <h2 className="hcf-step__title">Áreas y distribución</h2>
-      <p className="hcf-step__desc">Indica las áreas y distribución del inmueble.</p>
+      {!compact && (
+        <>
+          <h2 className="hcf-step__title">Áreas y distribución</h2>
+          <p className="hcf-step__desc">Indica las áreas y distribución del inmueble.</p>
+        </>
+      )}
 
       {/* Areas */}
       <fieldset className="hcf-fieldset">

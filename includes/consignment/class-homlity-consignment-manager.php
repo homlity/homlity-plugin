@@ -14,6 +14,7 @@ if (!defined('ABSPATH')) {
 class Homlity_Consignment_Manager
 {
     private static bool $initialized = false;
+    private static ?array $optionsCache = null;
 
     // ── Bootstrap ──────────────────────────────────────────────────────────
 
@@ -31,9 +32,9 @@ class Homlity_Consignment_Manager
         $dir = __DIR__;
         require_once $dir . '/class-homlity-consignment-validator.php';
         require_once $dir . '/class-homlity-consignment-payload-builder.php';
+        require_once $dir . '/class-homlity-consignment-rest-controller.php';
         require_once $dir . '/class-homlity-consignment-media-handler.php';
         require_once $dir . '/class-homlity-consignment-notifications.php';
-        require_once $dir . '/class-homlity-consignment-rest-controller.php';
         require_once $dir . '/class-homlity-consignment-admin.php';
         require_once $dir . '/class-homlity-consignacion-rest-controller.php';
 
@@ -62,34 +63,22 @@ class Homlity_Consignment_Manager
     public static function renderShortcode($raw_atts): string
     {
         $atts = shortcode_atts([
-            'provider'       => self::option('provider', 'public-consignment'),
-            'redirect_url'   => self::option('redirect_url', ''),
-            'primary_color'  => self::option('primary_color', '#2563eb'),
-            'text_color'     => self::option('text_color', '#1f2937'),
+            'provider'     => (string) self::option('provider', 'public-consignment'),
+            'redirect_url' => (string) self::option('redirect_url', ''),
         ], (array) $raw_atts, 'homlity_consignment_form');
 
         self::enqueueAssets();
 
-        $primary_color = sanitize_hex_color($atts['primary_color']) ?: '#2563eb';
-        $text_color    = sanitize_hex_color($atts['text_color'])    ?: '#1f2937';
-
-        $instance_config = wp_json_encode([
-            'provider'      => sanitize_key($atts['provider']),
-            'redirectUrl'   => esc_url_raw($atts['redirect_url']),
-            'primaryColor'  => $primary_color,
-            'textColor'     => $text_color,
-        ]);
-
-        static $instance = 0;
-        $instance++;
-        $el_id = 'homlity-consignment-form-root-' . $instance;
+        $config = [
+            'provider'     => (string) $atts['provider'],
+            'redirectUrl'  => (string) $atts['redirect_url'],
+            'primaryColor' => (string) self::option('primary_color', '#2563eb'),
+            'textColor'    => (string) self::option('text_color', '#1f2937'),
+        ];
 
         return sprintf(
-            '<div id="%1$s" class="homlity-consignment-wrap" data-homlity-consignment-root data-config="%2$s" style="--hcf-primary:%3$s;--hcf-text:%4$s;"></div>',
-            esc_attr($el_id),
-            esc_attr($instance_config),
-            esc_attr($primary_color),
-            esc_attr($text_color)
+            '<div class="homlity-consignment-form-wrap"><div data-homlity-consignment-root data-config="%s"></div></div>',
+            esc_attr(wp_json_encode($config))
         );
     }
 
@@ -97,26 +86,75 @@ class Homlity_Consignment_Manager
 
     public static function enqueueAssets(): void
     {
-        $dist_path = HOMLITY_PLUGIN_PATH . 'assets/dist/';
-        $dist_url  = HOMLITY_PLUGIN_URL . 'assets/dist/';
-        $asset_file = $dist_path . 'index.asset.php';
-        $asset = file_exists($asset_file)
-            ? include $asset_file
-            : ['dependencies' => ['wp-element'], 'version' => HOMLITY_PLUGIN_VERSION];
+        $asset_file = HOMLITY_PLUGIN_PATH . 'assets/dist/index.asset.php';
+        $asset_meta = file_exists($asset_file) ? require $asset_file : [
+            'dependencies' => ['wp-element'],
+            'version'      => HOMLITY_PLUGIN_VERSION,
+        ];
+
+        $style_handle  = 'homlity-consignment-form';
+        $script_handle = 'homlity-consignment-form';
+        $style_url     = HOMLITY_PLUGIN_URL . 'assets/dist/index.css';
+        $script_url    = HOMLITY_PLUGIN_URL . 'assets/dist/index.js';
+        $version       = $asset_meta['version'] ?? HOMLITY_PLUGIN_VERSION;
+
+        wp_enqueue_style(
+            'homlity-real-estate-leaflet-front',
+            HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.css',
+            [],
+            '1.9.4'
+        );
 
         wp_enqueue_script(
-            'homlity-consignment-form',
-            $dist_url . 'index.js',
-            $asset['dependencies'],
-            $asset['version'],
+            'homlity-real-estate-leaflet-front',
+            HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.js',
+            [],
+            '1.9.4',
             true
         );
 
-        wp_localize_script('homlity-consignment-form', 'homlityConsignmentConfig', [
-            'restBase' => untrailingslashit(rest_url('homlity/v1/consignment')),
-            'nonce'    => wp_create_nonce('wp_rest'),
-            'cssUrl'   => $dist_url . 'index.css',
+        wp_localize_script('homlity-real-estate-leaflet-front', 'homlityLeafletAssets', [
+            'iconUrl' => file_exists(HOMLITY_PLUGIN_PATH . 'assets/vendor/leaflet/images/marker-icon.png')
+                ? HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/images/marker-icon.png'
+                : '',
+            'iconRetinaUrl' => file_exists(HOMLITY_PLUGIN_PATH . 'assets/vendor/leaflet/images/marker-icon-2x.png')
+                ? HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/images/marker-icon-2x.png'
+                : '',
+            'shadowUrl' => file_exists(HOMLITY_PLUGIN_PATH . 'assets/vendor/leaflet/images/marker-shadow.png')
+                ? HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/images/marker-shadow.png'
+                : '',
         ]);
+
+        wp_register_style($style_handle, $style_url, [], $version);
+        wp_enqueue_style($style_handle);
+
+        wp_register_script(
+            $script_handle,
+            $script_url,
+            array_merge(
+                (array) ($asset_meta['dependencies'] ?? ['wp-element']),
+                ['homlity-real-estate-leaflet-front']
+            ),
+            $version,
+            true
+        );
+
+        wp_add_inline_script(
+            $script_handle,
+            'window.homlityConsignmentConfig = Object.assign({}, window.homlityConsignmentConfig || {}, ' . wp_json_encode(self::frontendConfig($style_url)) . ');',
+            'before'
+        );
+
+        wp_enqueue_script($script_handle);
+    }
+
+    private static function frontendConfig(string $styleUrl): array
+    {
+        return [
+            'restBase' => rest_url('homlity/v1/consignment'),
+            'nonce'    => wp_create_nonce('wp_rest'),
+            'cssUrl'   => $styleUrl,
+        ];
     }
 
     // ── Elementor widget ──────────────────────────────────────────────────
@@ -151,25 +189,19 @@ class Homlity_Consignment_Manager
 
     public static function options(): array
     {
-        static $cache = null;
-        if ($cache === null) {
-            $cache = wp_parse_args(
+        if (self::$optionsCache === null) {
+            self::$optionsCache = wp_parse_args(
                 (array) get_option('homlity_consignment_settings', []),
                 self::defaults()
             );
         }
-        return $cache;
+        return self::$optionsCache;
     }
 
     /** Clears the static options cache (call after saving). */
     public static function flushOptionsCache(): void
     {
-        // Use Closure trick to reset the static variable inside options().
-        $fn = \Closure::bind(static function () {
-            $cache = null; // reset
-        }, null, self::class);
-        // Re-assign via option read next call — simplest approach:
-        delete_option('_homlity_consignment_cache_bust');
+        self::$optionsCache = null;
     }
 
     public static function defaults(): array

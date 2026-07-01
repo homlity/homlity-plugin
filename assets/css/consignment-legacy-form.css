@@ -1,0 +1,133 @@
+.homlity-legacy-consignment {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #fff;
+  color: #111827;
+}
+
+.homlity-legacy-consignment__header {
+  margin-bottom: 24px;
+}
+
+.homlity-legacy-consignment__header h2 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+}
+
+.homlity-legacy-consignment__header p {
+  margin: 0;
+  color: #4b5563;
+}
+
+.homlity-legacy-consignment__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.homlity-legacy-consignment__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.homlity-legacy-consignment__field--full {
+  grid-column: 1 / -1;
+}
+
+.homlity-legacy-consignment__field label {
+  font-weight: 600;
+}
+
+.homlity-legacy-consignment__field input,
+.homlity-legacy-consignment__field select,
+.homlity-legacy-consignment__field textarea {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+}
+
+.homlity-legacy-consignment__field textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.homlity-legacy-consignment__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.homlity-legacy-consignment__uploads {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.homlity-legacy-consignment__upload {
+  padding: 16px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.homlity-legacy-consignment__upload small {
+  display: block;
+  margin-top: 8px;
+  color: #6b7280;
+}
+
+.homlity-legacy-consignment__actions {
+  margin-top: 24px;
+}
+
+.homlity-legacy-consignment__submit {
+  border: 0;
+  border-radius: 12px;
+  background: #0f766e;
+  color: #fff;
+  padding: 14px 24px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.homlity-legacy-consignment__submit:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.homlity-legacy-consignment__status {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.homlity-legacy-consignment__status.is-error {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.homlity-legacy-consignment__status.is-success {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+@media (max-width: 767px) {
+  .homlity-legacy-consignment {
+    padding: 18px;
+  }
+
+  .homlity-legacy-consignment__grid,
+  .homlity-legacy-consignment__uploads {
+    grid-template-columns: 1fr;
+  }
+}

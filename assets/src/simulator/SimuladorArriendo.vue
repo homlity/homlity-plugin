@@ -282,9 +282,13 @@
                   <td><strong>TOTAL DESCUENTOS</strong></td>
                   <td><strong>{{ fmtMoney(calc.totalDescuentos) }}</strong></td>
                 </tr>
-                <tr v-if="form.aplicarGastosBancarios && calc.gastosBancarios > 0" class="row-subtotal">
+                <tr class="row-subtotal">
                   <td colspan="3"><strong>SUBTOTAL RENTA A RECIBIR ANTES DE GASTOS BANCARIOS</strong></td>
                   <td><strong>{{ fmtMoney(calc.subtotalAntesGastosBancarios) }}</strong></td>
+                </tr>
+                <tr v-if="form.aplicarGastosBancarios && calc.gastosBancarios > 0" class="row-subtotal">
+                  <td colspan="3"><strong>{{ calc.gastosBancariosLabel }}</strong></td>
+                  <td><strong>{{ fmtMoney(calc.gastosBancarios) }}</strong></td>
                 </tr>
                 <tr class="row-grand-total">
                   <td colspan="3"><strong>VALOR TOTAL RENTA A RECIBIR POR EL PROPIETARIO</strong></td>
@@ -408,7 +412,18 @@ export default {
       const descuentosSinBancarios = comision + ivaComision + seguro + retencionFuente + retencionIca + retencionIva + otrosDescuentos;
       const subtotalAntesGastosBancarios = Math.max(0, safeMoney(totalIngresos - descuentosSinBancarios));
       const gastosBancarios = this.calcularGastosBancarios(subtotalAntesGastosBancarios);
-      const totalDescuentos = safeMoney(descuentosSinBancarios + gastosBancarios);
+      const totalDescuentos = safeMoney(descuentosSinBancarios);
+      let gastosBancariosLabel = 'Gastos bancarios';
+
+      if (this.form.aplicarGastosBancarios && gastosBancarios > 0) {
+        const modalidadGastos = this.form.gastosBancarios.modalidad;
+        if (modalidadGastos === 'cuatro_por_mil') {
+          gastosBancariosLabel = 'Gastos bancarios (4×1.000 s/ subtotal a recibir)';
+        } else if (modalidadGastos === 'porcentaje') {
+          gastosBancariosLabel = `Gastos bancarios (${this.form.gastosBancarios.porcentaje}% s/ subtotal a recibir)`;
+        }
+      }
+
       return {
         canon: safeMoney(this.form.canon),
         administracion: this.form.tieneAdministracion ? safeMoney(this.form.valorAdministracion) : 0,
@@ -419,12 +434,13 @@ export default {
         ivaComision,
         valorSeguro: seguro,
         gastosBancarios,
+        gastosBancariosLabel,
         retencionFuente,
         retencionIca,
         retencionIva,
         otrosDescuentos,
         totalDescuentos,
-        valorRentaRecibir: safeMoney(totalIngresos - totalDescuentos),
+        valorRentaRecibir: safeMoney(subtotalAntesGastosBancarios - gastosBancarios),
       };
     },
 
@@ -457,13 +473,6 @@ export default {
       }
       if (this.form.condicionesTributarias.aplicarRetencionIva && this.ivaCanonActivo && this.calc.retencionIva > 0) {
         rows.push({ label: `Retención de IVA (${pct}%)`, value: this.calc.retencionIva });
-      }
-      if (this.form.aplicarGastosBancarios && this.calc.gastosBancarios > 0) {
-        const m = this.form.gastosBancarios.modalidad;
-        let gastoLabel = 'Gastos bancarios';
-        if (m === 'cuatro_por_mil') gastoLabel = 'Gastos bancarios (4×1.000 s/ subtotal a recibir)';
-        else if (m === 'porcentaje') gastoLabel = `Gastos bancarios (${this.form.gastosBancarios.porcentaje}% s/ subtotal a recibir)`;
-        rows.push({ label: gastoLabel, value: this.calc.gastosBancarios });
       }
       return rows;
     },
@@ -784,6 +793,8 @@ export default {
       return {
         canonMensual: this.calc.canon,
         totalDescuentos: this.calc.totalDescuentos,
+        subtotalAntesGastosBancarios: this.calc.subtotalAntesGastosBancarios,
+        gastosBancarios: this.calc.gastosBancarios,
         valorNeto: this.calc.valorRentaRecibir,
       };
     },
@@ -837,6 +848,16 @@ export default {
                 <td><strong>TOTAL DESCUENTOS</strong></td>
                 <td><strong>${this.fmtMoney(this.calc.totalDescuentos)}</strong></td>
               </tr>
+              <tr>
+                <td colspan="3"><strong>SUBTOTAL RENTA A RECIBIR ANTES DE GASTOS BANCARIOS</strong></td>
+                <td><strong>${this.fmtMoney(this.calc.subtotalAntesGastosBancarios)}</strong></td>
+              </tr>
+              ${this.form.aplicarGastosBancarios && this.calc.gastosBancarios > 0 ? `
+              <tr>
+                <td colspan="3"><strong>${this.calc.gastosBancariosLabel}</strong></td>
+                <td><strong>${this.fmtMoney(this.calc.gastosBancarios)}</strong></td>
+              </tr>
+              ` : ''}
               <tr>
                 <td colspan="3"><strong>VALOR TOTAL RENTA A RECIBIR POR EL PROPIETARIO</strong></td>
                 <td><strong>${this.fmtMoney(this.calc.valorRentaRecibir)}</strong></td>

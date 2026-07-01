@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Homlity Real Estate
  * Description: Homlity Real Estate, gestor de inmuebles, asesores, SEO y GEO listo para WordPress.
- * Version:     1.4.5
+ * Version:     1.5.0
  * Author:      Ecosistema Inmobiliario Homlity
  * Author URI:  https://homlity.com/
  * Plugin URI:  https://homlity.com/plugin-integracion-homlity-real-estate-para-wordpress/
@@ -25,7 +25,7 @@ define('HOMLITY_RE_PLUGIN_URL',  plugin_dir_url(__FILE__));
 if (!defined('HOMLITY_PLUGIN_FILE'))             define('HOMLITY_PLUGIN_FILE', __FILE__);
 if (!defined('HOMLITY_PLUGIN_PATH'))             define('HOMLITY_PLUGIN_PATH', plugin_dir_path(__FILE__));
 if (!defined('HOMLITY_PLUGIN_URL'))              define('HOMLITY_PLUGIN_URL', plugin_dir_url(__FILE__));
-if (!defined('HOMLITY_PLUGIN_VERSION'))          define('HOMLITY_PLUGIN_VERSION', '1.4.5');
+if (!defined('HOMLITY_PLUGIN_VERSION'))          define('HOMLITY_PLUGIN_VERSION', '1.5.0');
 if (!defined('HOMLITY_PLUGIN_SLUG'))             define('HOMLITY_PLUGIN_SLUG', 'homlity-real-estate');
 if (!defined('HOMLITY_PLUGIN_TEXT_DOMAIN'))      define('HOMLITY_PLUGIN_TEXT_DOMAIN', 'homlity-real-estate');
 if (!defined('HOMLITY_PLUGIN_SETTINGS_OPTION'))  define('HOMLITY_PLUGIN_SETTINGS_OPTION', 'homlity_plugin_settings');
@@ -201,11 +201,11 @@ if (!defined('HOMLITY_CONSIGNMENT_BOOTSTRAP_REGISTERED')) {
     define('HOMLITY_CONSIGNMENT_BOOTSTRAP_REGISTERED', true);
     add_action('plugins_loaded', static function () {
         $dir = __DIR__ . '/includes/consignment/';
-        require_once $dir . 'class-homlity-consignment-notifications.php';
         require_once $dir . 'class-homlity-consignment-validator.php';
         require_once $dir . 'class-homlity-consignment-payload-builder.php';
-        require_once $dir . 'class-homlity-consignment-media-handler.php';
         require_once $dir . 'class-homlity-consignment-rest-controller.php';
+        require_once $dir . 'class-homlity-consignment-notifications.php';
+        require_once $dir . 'class-homlity-consignment-media-handler.php';
         require_once $dir . 'class-homlity-consignment-admin.php';
         require_once $dir . 'class-homlity-consignment-manager.php';
         Homlity_Consignment_Manager::init();

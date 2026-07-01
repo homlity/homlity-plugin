@@ -18,6 +18,43 @@ class PropertySearchService implements ServiceInterface
     public function register(): void
     {
         add_filter('posts_clauses', [$this, 'applyPriorityKeywordSearch'], 20, 2);
+        add_action('template_redirect', [$this, 'maybeRedirectExactCodeSearch'], 1);
+    }
+
+    public function maybeRedirectExactCodeSearch(): void
+    {
+        if (is_admin() || wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
+            return;
+        }
+
+        if (is_singular(PropertyPostType::POST_TYPE)) {
+            return;
+        }
+
+        $code = $this->extractRequestedPropertyCode();
+        if ($code === '') {
+            return;
+        }
+
+        $postId = $this->findPropertyByExactCode($code);
+        $syncResult = null;
+
+        if ($postId <= 0 && $this->looksLikePropertyCode($code)) {
+            $syncResult = SyncRegistry::syncByCodeDetailed($code);
+            $postId = (int) ($syncResult['post_id'] ?? 0);
+        }
+
+        if ($postId <= 0) {
+            return;
+        }
+
+        $permalink = get_permalink($postId);
+        if (!$permalink) {
+            return;
+        }
+
+        wp_safe_redirect($permalink, 302);
+        exit;
     }
 
     public function buildQueryArgs(array $params): array
@@ -516,6 +553,62 @@ class PropertySearchService implements ServiceInterface
             'nearby' => PropertyTaxonomies::TAXONOMY_NEARBY,
             default => null,
         };
+    }
+
+    private function extractRequestedPropertyCode(): string
+    {
+        foreach (['codigo', 'property_code', 'code', 'q', 's'] as $param) {
+            if (!isset($_GET[$param])) {
+                continue;
+            }
+
+            $value = sanitize_text_field(wp_unslash((string) $_GET[$param]));
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return '';
+    }
+
+    private function looksLikePropertyCode(string $value): bool
+    {
+        $value = trim($value);
+        if ($value === '' || strpos($value, ' ') !== false) {
+            return false;
+        }
+
+        return (bool) preg_match('/^(?:\d{3,}|(?=.*\d)[A-Za-z0-9-]{4,})$/', $value);
+    }
+
+    private function findPropertyByExactCode(string $code): int
+    {
+        $code = sanitize_text_field($code);
+        if ($code === '') {
+            return 0;
+        }
+
+        $posts = get_posts([
+            'post_type'      => PropertyPostType::POST_TYPE,
+            'post_status'    => 'publish',
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+            'meta_query'     => [
+                'relation' => 'OR',
+                [
+                    'key'     => '_property_code',
+                    'value'   => $code,
+                    'compare' => '=',
+                ],
+                [
+                    'key'     => '_homlity_sync_id',
+                    'value'   => $code,
+                    'compare' => '=',
+                ],
+            ],
+        ]);
+
+        return !empty($posts) ? (int) $posts[0] : 0;
     }
 
     private function extractTermIds($raw): array

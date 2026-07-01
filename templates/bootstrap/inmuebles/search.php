@@ -10,7 +10,7 @@
             <?php visualinmu_load_template("inmuebles/componentes/search/search-form-sidebar.php", get_defined_vars()); ?>
         </div>
     </div>
-    <div class="container-fluid contenedor-visual-inmueble">
+    <div class="container-fluid contenedor-homlity-inmueble">
         <?php if (isset($error)): ?>
             <div class="row">
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">

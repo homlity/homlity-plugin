@@ -26,6 +26,9 @@
     if (!root) {
         return;
     }
+    const initialTab = ['general', 'arriendo', 'venta', 'consignment'].includes(root.dataset.activeTab)
+        ? root.dataset.activeTab
+        : 'general';
 
     function normalizeSettings(values) {
         const defaults = config.defaults || {};
@@ -261,7 +264,7 @@
         const [baseline, setBaseline] = useState(JSON.stringify(initial));
         const [status, setStatus] = useState('idle');
         const [message, setMessage] = useState('');
-        const [activeTab, setActiveTab] = useState('general');
+        const [activeTab, setActiveTab] = useState(initialTab);
         const [locationOptions, setLocationOptions] = useState({
             country: [],
             state: [],
@@ -564,6 +567,12 @@
                             className: classNames('homlity-settings__tab', activeTab === 'venta' && 'is-active'),
                             onClick: () => setActiveTab('venta'),
                         }, __('Simulador venta', 'homlity-real-estate')),
+                        el('button', {
+                            key: 'consignment',
+                            type: 'button',
+                            className: classNames('homlity-settings__tab', activeTab === 'consignment' && 'is-active'),
+                            onClick: () => setActiveTab('consignment'),
+                        }, __('Consignación', 'homlity-real-estate')),
                     ]
                 ),
 
@@ -761,6 +770,20 @@
                                     renderSimulatorField('venta', fieldKey, simulatorFields.venta.fields[fieldKey])
                                 )
                             )
+                        ) : null,
+
+                        activeTab === 'consignment' ? el(
+                            Section,
+                            {
+                                key: 'consignment-settings',
+                                eyebrow: __('Consignación', 'homlity-real-estate'),
+                                title: __('Configuración de consignación', 'homlity-real-estate'),
+                                description: __('Administra el formulario público de consignación de inmuebles desde esta misma pantalla.', 'homlity-real-estate'),
+                            },
+                            el('div', {
+                                className: 'homlity-settings__consignment',
+                                dangerouslySetInnerHTML: { __html: config.consignmentHtml || '' },
+                            })
                         ) : null,
                     ]
                 ),
