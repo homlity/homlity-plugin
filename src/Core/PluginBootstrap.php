@@ -30,6 +30,7 @@ use Homlity\PluginInmobiliario\Services\PropertyAnalyticsService;
 use Homlity\PluginInmobiliario\Services\PropertyAnalyticsCleanupService;
 use Homlity\PluginInmobiliario\Services\PropertyCodeRoutingService;
 use Homlity\PluginInmobiliario\Services\PropertyContactClickTrackingService;
+use Homlity\PluginInmobiliario\Services\PropertySearchService;
 use Homlity\PluginInmobiliario\Services\PropertyTechnicalSheetDownloadTrackingService;
 use Homlity\PluginInmobiliario\Services\PropertyUnavailableService;
 use Homlity\PluginInmobiliario\Services\PropertyVisitTrackingService;
@@ -82,6 +83,7 @@ class PluginBootstrap
             new CrmIntegrationService(),
             new CrmAdminService(),
             new TemplateService(),
+            new PropertySearchService(),
 
             // Homologation: canonical data mapping across all CRM integrations
             new HomologationRestController(),

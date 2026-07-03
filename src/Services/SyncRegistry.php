@@ -79,25 +79,32 @@ class SyncRegistry implements ServiceInterface
             'message' => __('Inmueble no existe o no está disponible.', 'homlity-real-estate'),
         ];
 
-        foreach (self::$providers as $provider) {
-            if (method_exists($provider, 'syncByCodeDetailed')) {
-                $result = $provider->syncByCodeDetailed($code);
-                if (!empty($result['post_id']) && (int) $result['post_id'] > 0) {
-                    return ['post_id' => (int) $result['post_id'], 'status' => 'success', 'message' => ''];
+        foreach (self::orderedProviders() as $provider) {
+            try {
+                if (method_exists($provider, 'syncByCodeDetailed')) {
+                    $result = $provider->syncByCodeDetailed($code);
+                    if (!empty($result['post_id']) && (int) $result['post_id'] > 0) {
+                        return ['post_id' => (int) $result['post_id'], 'status' => 'success', 'message' => ''];
+                    }
+
+                    if (!empty($result['status'])) {
+                        $lastResult = [
+                            'status'  => sanitize_key((string) $result['status']),
+                            'message' => sanitize_text_field((string) ($result['message'] ?? $lastResult['message'])),
+                        ];
+                    }
+                    continue;
                 }
 
-                if (!empty($result['status'])) {
-                    $lastResult = [
-                        'status'  => sanitize_key((string) $result['status']),
-                        'message' => sanitize_text_field((string) ($result['message'] ?? $lastResult['message'])),
-                    ];
+                $postId = $provider->syncByCode($code);
+                if ($postId !== null && $postId > 0) {
+                    return ['post_id' => (int) $postId, 'status' => 'success', 'message' => ''];
                 }
-                continue;
-            }
-
-            $postId = $provider->syncByCode($code);
-            if ($postId !== null && $postId > 0) {
-                return ['post_id' => (int) $postId, 'status' => 'success', 'message' => ''];
+            } catch (\Throwable $e) {
+                $lastResult = [
+                    'status'  => 'sync_error',
+                    'message' => sanitize_text_field($e->getMessage() ?: __('Inmueble no se pudo sincronizar.', 'homlity-real-estate')),
+                ];
             }
         }
 
@@ -108,5 +115,44 @@ class SyncRegistry implements ServiceInterface
     public static function getProviders(): array
     {
         return self::$providers;
+    }
+
+    /**
+     * @return SyncProviderInterface[]
+     */
+    private static function orderedProviders(): array
+    {
+        $providers = array_values(self::$providers);
+
+        usort($providers, static function (SyncProviderInterface $left, SyncProviderInterface $right): int {
+            $leftPriority = self::providerPriority($left);
+            $rightPriority = self::providerPriority($right);
+
+            if ($leftPriority === $rightPriority) {
+                return strcmp($left->getProviderId(), $right->getProviderId());
+            }
+
+            return $leftPriority <=> $rightPriority;
+        });
+
+        return $providers;
+    }
+
+    private static function providerPriority(SyncProviderInterface $provider): int
+    {
+        $defaults = [
+            'simi' => 10,
+            'softinm-sync' => 20,
+            'homlity-sync' => 100,
+        ];
+
+        $defaultPriority = $defaults[$provider->getProviderId()] ?? 50;
+
+        return (int) apply_filters(
+            'homlity_property_lookup_provider_priority',
+            $defaultPriority,
+            $provider->getProviderId(),
+            $provider
+        );
     }
 }

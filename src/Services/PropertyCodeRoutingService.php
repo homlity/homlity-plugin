@@ -59,7 +59,7 @@ class PropertyCodeRoutingService implements ServiceInterface
             $syncResult = SyncRegistry::syncByCodeDetailed($code);
             $post_id    = (int) ($syncResult['post_id'] ?? 0);
 
-            if (!$post_id) {
+            if (!$post_id && $this->shouldNegativeCacheResult($syncResult)) {
                 // Nothing found anywhere — cache the miss to avoid hammering providers.
                 set_transient(self::NEGATIVE_PREFIX . md5($code), 1, self::NEGATIVE_TTL);
             }
@@ -153,5 +153,15 @@ class PropertyCodeRoutingService implements ServiceInterface
         }
         include $template;
         exit;
+    }
+
+    /**
+     * @param array<string,mixed>|null $syncResult
+     */
+    private function shouldNegativeCacheResult(?array $syncResult): bool
+    {
+        $status = sanitize_key((string) ($syncResult['status'] ?? 'not_found'));
+
+        return in_array($status, ['not_found', 'unavailable'], true);
     }
 }
