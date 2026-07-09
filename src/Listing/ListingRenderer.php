@@ -100,6 +100,11 @@ class ListingRenderer
         if (($params['query_mode'] ?? '') === 'current' || $hasRequestFilters) {
             $currentParams = $this->search->currentQueryParams();
             foreach ($currentParams as $key => $value) {
+                if ($key === 'page') {
+                    $params['page'] = $value;
+                    continue;
+                }
+
                 if ($key === 'search') {
                     $params['search'] = $value;
                     continue;
@@ -121,6 +126,19 @@ class ListingRenderer
                 }
             }
             $params['query_mode'] = 'custom';
+        }
+
+        if (empty($params['page'])) {
+            $params['page'] = max(
+                1,
+                (int) (
+                    get_query_var('paged')
+                    ?: get_query_var('page')
+                    ?: ($_GET['paged'] ?? 0)
+                    ?: ($_GET['page'] ?? 0)
+                    ?: 1
+                )
+            );
         }
 
         if (

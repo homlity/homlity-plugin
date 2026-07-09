@@ -383,8 +383,9 @@ class Homlity_Consignacion_Rest_Controller {
 			'number'     => 500,
 			'orderby'    => 'parent',
 		] );
+		$terms = \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::filterVisibleFeatureTerms( $terms );
 
-		if ( is_wp_error( $terms ) || empty( $terms ) ) {
+		if ( empty( $terms ) ) {
 			return new WP_REST_Response( [ 'data' => self::default_features() ], 200 );
 		}
 

@@ -392,6 +392,18 @@ class PropertySearchService implements ServiceInterface
     {
         $params = [];
 
+        $requestedPage = max(
+            1,
+            (int) (
+                get_query_var('paged')
+                ?: get_query_var('page')
+                ?: ($_GET['paged'] ?? 0)
+                ?: ($_GET['page'] ?? 0)
+                ?: 1
+            )
+        );
+        $params['page'] = $requestedPage;
+
         if (is_search()) {
             $params['search'] = get_search_query();
         }

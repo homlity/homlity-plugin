@@ -13,6 +13,8 @@ if (!defined('ABSPATH')) {
 
 class PropertyTaxonomies implements ServiceInterface
 {
+    private const FEATURE_VISIBILITY_META_KEY = '_homlity_feature_visible';
+
     public const TAXONOMY_TYPE = 'property_type';
     public const TAXONOMY_OPERATION = 'property_operation';
     public const TAXONOMY_LOCATION = 'property_location';
@@ -30,7 +32,20 @@ class PropertyTaxonomies implements ServiceInterface
     {
         add_action('init', [$this, 'registerTaxonomies']);
         add_action('init', [$this, 'ensureDefaultTerms'], 20);
+        add_action('init', [$this, 'registerFeatureTermControls'], 12);
         add_filter('pll_get_taxonomies', [$this, 'registerWithPolylang'], 10, 2);
+    }
+
+    public function registerFeatureTermControls(): void
+    {
+        $taxonomy = self::TAXONOMY_FEATURE;
+
+        add_action($taxonomy . '_add_form_fields', [$this, 'renderFeatureVisibilityAddField']);
+        add_action($taxonomy . '_edit_form_fields', [$this, 'renderFeatureVisibilityEditField']);
+        add_action('created_' . $taxonomy, [$this, 'saveFeatureVisibility'], 10, 1);
+        add_action('edited_' . $taxonomy, [$this, 'saveFeatureVisibility'], 10, 1);
+        add_filter('manage_edit-' . $taxonomy . '_columns', [$this, 'registerFeatureColumns']);
+        add_filter('manage_' . $taxonomy . '_custom_column', [$this, 'renderFeatureColumn'], 10, 3);
     }
 
     public function registerTaxonomies(): void
@@ -290,6 +305,112 @@ class PropertyTaxonomies implements ServiceInterface
         wp_insert_term($name, self::TAXONOMY_TAG, [
             'slug' => sanitize_title($name),
         ]);
+    }
+
+    public function renderFeatureVisibilityAddField(): void
+    {
+        wp_nonce_field('homlity_feature_visibility', '_homlity_feature_visibility_nonce');
+        ?>
+        <div class="form-field">
+            <label for="homlity-feature-visible"><?php esc_html_e('Visible en frontend', 'homlity-real-estate'); ?></label>
+            <label>
+                <input type="checkbox" id="homlity-feature-visible" name="homlity_feature_visible" value="1" checked>
+                <?php esc_html_e('Mostrar esta característica en el sitio público', 'homlity-real-estate'); ?>
+            </label>
+        </div>
+        <?php
+    }
+
+    public function renderFeatureVisibilityEditField(\WP_Term $term): void
+    {
+        wp_nonce_field('homlity_feature_visibility', '_homlity_feature_visibility_nonce');
+        ?>
+        <tr class="form-field">
+            <th scope="row">
+                <label for="homlity-feature-visible"><?php esc_html_e('Visible en frontend', 'homlity-real-estate'); ?></label>
+            </th>
+            <td>
+                <label>
+                    <input
+                        type="checkbox"
+                        id="homlity-feature-visible"
+                        name="homlity_feature_visible"
+                        value="1"
+                        <?php checked(self::isFeatureTermVisible($term)); ?>
+                    >
+                    <?php esc_html_e('Mostrar esta característica en el sitio público', 'homlity-real-estate'); ?>
+                </label>
+            </td>
+        </tr>
+        <?php
+    }
+
+    public function saveFeatureVisibility(int $termId): void
+    {
+        if (
+            !isset($_POST['_homlity_feature_visibility_nonce']) ||
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_homlity_feature_visibility_nonce'])), 'homlity_feature_visibility')
+        ) {
+            return;
+        }
+
+        if (!current_user_can('manage_categories')) {
+            return;
+        }
+
+        $visible = isset($_POST['homlity_feature_visible']) ? '1' : '0';
+        update_term_meta($termId, self::FEATURE_VISIBILITY_META_KEY, $visible);
+    }
+
+    public function registerFeatureColumns(array $columns): array
+    {
+        $columns['homlity_feature_visible'] = __('Visible', 'homlity-real-estate');
+        return $columns;
+    }
+
+    public function renderFeatureColumn(string $content, string $columnName, int $termId): string
+    {
+        if ($columnName !== 'homlity_feature_visible') {
+            return $content;
+        }
+
+        return self::isFeatureTermVisible($termId)
+            ? esc_html__('Sí', 'homlity-real-estate')
+            : esc_html__('No', 'homlity-real-estate');
+    }
+
+    public static function isFeatureTermVisible($term): bool
+    {
+        $termId = $term instanceof \WP_Term ? (int) $term->term_id : absint($term);
+        if ($termId <= 0) {
+            return true;
+        }
+
+        $stored = get_term_meta($termId, self::FEATURE_VISIBILITY_META_KEY, true);
+        return $stored === '' || $stored === '1';
+    }
+
+    /**
+     * @param \WP_Term[]|\WP_Error|false $terms
+     * @return \WP_Term[]
+     */
+    public static function filterVisibleFeatureTerms($terms): array
+    {
+        if (is_wp_error($terms) || empty($terms) || !is_array($terms)) {
+            return [];
+        }
+
+        return array_values(array_filter($terms, static function ($term): bool {
+            return $term instanceof \WP_Term && self::isFeatureTermVisible($term);
+        }));
+    }
+
+    /**
+     * @return \WP_Term[]
+     */
+    public static function getVisibleFeatureTermsForPost(int $postId): array
+    {
+        return self::filterVisibleFeatureTerms(get_the_terms($postId, self::TAXONOMY_FEATURE));
     }
 
     /**

@@ -20,6 +20,7 @@ if (!defined('ABSPATH')) {
 /** @var ListingConfig $config */
 $uniqueId = 'hpl-' . substr(md5(uniqid('', true)), 0, 8);
 $params = isset($params) && is_array($params) ? $params : [];
+$currentPage = max(1, (int) ($query->get('paged') ?: ($params['page'] ?? 1)));
 $paramToAttr = static function ($value): string {
     if (is_array($value)) {
         return implode(',', array_map('strval', $value));
@@ -110,6 +111,7 @@ $sortOptions = [
      data-card-feature-icon-age="<?php echo esc_attr(wp_json_encode($cardOptions['feature_icon_age'] ?? [])); ?>"
      data-card-feature-icon-condition="<?php echo esc_attr(wp_json_encode($cardOptions['feature_icon_condition'] ?? [])); ?>"
      data-card-feature-icon-code="<?php echo esc_attr(wp_json_encode($cardOptions['feature_icon_code'] ?? [])); ?>"
+     data-current-page="<?php echo esc_attr($currentPage); ?>"
      data-nonce="<?php echo esc_attr(wp_create_nonce('homlity_listing_nonce')); ?>"
      data-ajax-url="<?php echo esc_url(admin_url('admin-ajax.php')); ?>"
      data-map-data="<?php echo esc_attr(wp_json_encode($mapData)); ?>">
@@ -187,10 +189,10 @@ $sortOptions = [
     </div>
 
     <?php if ($config->showPagination() && $query->max_num_pages > 1) : ?>
-    <div class="property-listing__pagination" data-current="1" data-pages="<?php echo esc_attr($query->max_num_pages); ?>">
+    <div class="property-listing__pagination" data-current="<?php echo esc_attr($currentPage); ?>" data-pages="<?php echo esc_attr($query->max_num_pages); ?>">
         <?php for ($i = 1; $i <= $query->max_num_pages; $i++) : ?>
         <button type="button"
-                class="property-listing__page-btn<?php echo $i === 1 ? ' is-active' : ''; ?>"
+                class="property-listing__page-btn<?php echo $i === $currentPage ? ' is-active' : ''; ?>"
                 data-page="<?php echo esc_attr($i); ?>">
             <?php echo esc_html($i); ?>
         </button>

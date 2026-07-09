@@ -81,7 +81,7 @@
         this.cardFeatureIconCode = el.dataset.cardFeatureIconCode || 'hash';
         this.listTabId        = el.dataset.listTabId || '';
         this.mapTabId         = el.dataset.mapTabId || '';
-        this.currentPage      = 1;
+        this.currentPage      = parseInt(el.dataset.currentPage || '1', 10) || 1;
         this.view             = el.dataset.view || 'grid';
         this.mapInstance      = null;
         this.mapMarkers       = [];
@@ -421,6 +421,8 @@
         }
 
         this.pagination.hidden = false;
+        this.pagination.dataset.current = String(this.currentPage);
+        this.pagination.dataset.pages = String(pages);
         var html = '';
         for (var i = 1; i <= pages; i++) {
             html += '<button type="button" class="property-listing__page-btn' +

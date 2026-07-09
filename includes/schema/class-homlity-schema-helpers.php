@@ -11,6 +11,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
+
 class Homlity_Schema_Helpers
 {
     // ── Post type & taxonomy resolution ──────────────────────────────────────
@@ -308,8 +310,8 @@ class Homlity_Schema_Helpers
             $features[] = ['@type' => 'LocationFeatureSpecification', 'name' => 'Parqueadero', 'value' => true];
         }
 
-        $terms = get_the_terms($post_id, 'property_feature');
-        if (is_array($terms)) {
+        $terms = PropertyTaxonomies::getVisibleFeatureTermsForPost($post_id);
+        if ($terms !== []) {
             foreach ($terms as $term) {
                 $features[] = [
                     '@type' => 'LocationFeatureSpecification',

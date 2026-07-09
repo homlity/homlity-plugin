@@ -694,9 +694,7 @@ class PropertyPostType implements ServiceInterface
         foreach ($this->metaKeys as $key => $metaKey) {
             $meta[$key] = get_post_meta($postId, $metaKey, true);
         }
-        $syncId = trim((string) get_post_meta($postId, '_homlity_sync_id', true));
-        $syncSource = trim((string) get_post_meta($postId, '_homlity_sync_source', true));
-        $isSyncedProperty = ($syncId !== '' || $syncSource !== '');
+        $isSyncedProperty = $this->isSyncedProperty($postId);
         $meta = $this->normalizeMediaMetaForEditor($postId, $meta);
 
         $operationTerms  = wp_get_object_terms($postId, PropertyTaxonomies::TAXONOMY_OPERATION, ['fields' => 'ids']);
@@ -745,7 +743,7 @@ class PropertyPostType implements ServiceInterface
 
         $currencies = (new CurrencyService())->supportedCurrencies();
         $users = get_users([
-            'role__in' => ['administrator', 'editor', 'author'],
+            'role__in' => ['administrator', 'editor', 'author', 'asesor_comercial', 'subscriber'],
             'orderby' => 'display_name',
             'order' => 'ASC',
             'fields' => ['ID', 'display_name', 'user_email'],
@@ -1829,9 +1827,7 @@ class PropertyPostType implements ServiceInterface
     {
         // Never auto-generate the code for CRM/webhook-synced properties.
         // For synced records, the code must come from the integration payload.
-        $syncId = trim((string) get_post_meta($postId, '_homlity_sync_id', true));
-        $syncSource = trim((string) get_post_meta($postId, '_homlity_sync_source', true));
-        if ($syncId !== '' || $syncSource !== '') {
+        if ($this->isSyncedProperty($postId)) {
             return;
         }
 
@@ -2265,8 +2261,22 @@ class PropertyPostType implements ServiceInterface
         if ($postId <= 0) {
             return false;
         }
-        $syncId = trim((string) get_post_meta($postId, '_homlity_sync_id', true));
-        $syncSource = trim((string) get_post_meta($postId, '_homlity_sync_source', true));
-        return ($syncId !== '' || $syncSource !== '');
+
+        $metaPairs = [
+            ['_homlity_sync_id', '_homlity_sync_source'],
+            ['_simi_sync_id', '_simi_sync_source'],
+            ['_wasi_sync_id', '_wasi_sync_source'],
+        ];
+
+        foreach ($metaPairs as [$idKey, $sourceKey]) {
+            $syncId = trim((string) get_post_meta($postId, $idKey, true));
+            $syncSource = trim((string) get_post_meta($postId, $sourceKey, true));
+
+            if ($syncId !== '' || $syncSource !== '') {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

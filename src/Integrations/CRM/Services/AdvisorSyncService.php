@@ -106,7 +106,7 @@ class AdvisorSyncService
             'display_name' => $name ?: $username,
             'first_name'   => $parts[0] ?? '',
             'last_name'    => $parts[1] ?? '',
-            'role'         => 'subscriber',
+            'role'         => $this->advisorRole(),
         ]);
 
         if (is_wp_error($result)) {
@@ -114,6 +114,11 @@ class AdvisorSyncService
         }
 
         return (int) $result;
+    }
+
+    private function advisorRole(): string
+    {
+        return get_role('asesor_comercial') instanceof \WP_Role ? 'asesor_comercial' : 'subscriber';
     }
 
     private function updateUserMeta(

@@ -3,6 +3,7 @@
 namespace Homlity\PluginInmobiliario\Integrations\Elementor\Widgets;
 
 use Homlity\PluginInmobiliario\Services\TemplateService;
+use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Text_Shadow;
 use Elementor\Group_Control_Typography;
@@ -229,6 +230,11 @@ class PropertyFeaturesSecondaryWidget extends BasePropertyWidget
 
     protected function render(): void
     {
+        $postId = $this->current_property_id();
+        if ($postId <= 0 || PropertyTaxonomies::getVisibleFeatureTermsForPost($postId) === []) {
+            return;
+        }
+
         $settings = $this->get_settings_for_display();
         $iconHtml = '';
         if (!empty($settings['item_icon']['value'])) {
@@ -237,7 +243,7 @@ class PropertyFeaturesSecondaryWidget extends BasePropertyWidget
             $iconHtml = trim((string) ob_get_clean());
         }
         TemplateService::includeComponent('property-features-secondary.php', [
-            'post_id'        => $this->current_property_id(),
+            'post_id'        => $postId,
             'item_icon_html' => $iconHtml,
         ]);
     }

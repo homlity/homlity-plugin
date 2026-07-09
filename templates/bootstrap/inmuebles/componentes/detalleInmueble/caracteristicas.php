@@ -3,10 +3,23 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
+
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $columns = 3;
-$totalFeatures = $inmueble->caracteristicas();
-$cars = $inmueble->caracteristicasPorColumnas($columns);
+$totalFeatures = array_values(array_filter((array) $inmueble->caracteristicas(), static function ($caracteristica): bool {
+    if (!is_object($caracteristica) || !method_exists($caracteristica, 'nombre')) {
+        return true;
+    }
+
+    $term = get_term_by('name', (string) $caracteristica->nombre(), PropertyTaxonomies::TAXONOMY_FEATURE);
+    if (!$term instanceof WP_Term) {
+        return true;
+    }
+
+    return PropertyTaxonomies::isFeatureTermVisible($term);
+}));
+$cars = array_chunk($totalFeatures, max(1, (int) ceil(count($totalFeatures) / $columns)));
 $conteo = count($cars);
 if ($conteo > 0) {
     if (count($totalFeatures) > $columns) {

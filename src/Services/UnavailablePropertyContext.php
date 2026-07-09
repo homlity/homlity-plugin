@@ -30,6 +30,9 @@ class UnavailablePropertyContext
     /** @var int  Post ID of the retired/unavailable property (0 when not set). */
     private static int $propertyId = 0;
 
+    /** @var bool Whether the unavailable-property context is active for the request. */
+    private static bool $active = false;
+
     /**
      * Full recovery context produced by RetiredPropertyRecoveryService.
      * Empty array when recovery mode is disabled or context not yet set.
@@ -43,6 +46,12 @@ class UnavailablePropertyContext
     public static function setPropertyId(int $id): void
     {
         self::$propertyId = $id;
+        self::$active = true;
+    }
+
+    public static function activate(): void
+    {
+        self::$active = true;
     }
 
     /**
@@ -73,7 +82,7 @@ class UnavailablePropertyContext
      */
     public static function isActive(): bool
     {
-        return self::$propertyId > 0;
+        return self::$active;
     }
 
     /**
@@ -83,5 +92,6 @@ class UnavailablePropertyContext
     {
         self::$propertyId      = 0;
         self::$recoveryContext = [];
+        self::$active          = false;
     }
 }

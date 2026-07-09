@@ -181,9 +181,9 @@ $financeItems = [
     ['Administración', $fmtMoneyWithDefault((float) get_post_meta($post_id, $meta['price_admin'], true), (string) get_post_meta($post_id, $meta['currency_admin'], true), $baseCurrency)],
 ];
 
-$featureTerms = get_the_terms($post_id, PropertyTaxonomies::TAXONOMY_FEATURE);
+$featureTerms = PropertyTaxonomies::getVisibleFeatureTermsForPost((int) $post_id);
 $features = [];
-if (!is_wp_error($featureTerms) && $featureTerms) {
+if ($featureTerms) {
     foreach ($featureTerms as $featureTerm) {
         $features[] = $featureTerm->name;
     }

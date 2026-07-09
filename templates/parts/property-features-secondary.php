@@ -20,7 +20,7 @@ if (!isset($post_id)) {
 
 $meta       = (new PropertyPostType())->metaKeys();
 $iconHtml   = $item_icon_html ?? '';
-$features   = wp_get_post_terms($post_id, PropertyTaxonomies::TAXONOMY_FEATURE);
+$features   = PropertyTaxonomies::getVisibleFeatureTermsForPost((int) $post_id);
 $nearby     = wp_get_post_terms($post_id, PropertyTaxonomies::TAXONOMY_NEARBY);
 
 $featureGroups = ['interior' => [], 'exterior' => [], 'other' => []];
