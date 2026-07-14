@@ -128,6 +128,20 @@ class ListingRenderer
             $params['query_mode'] = 'custom';
         }
 
+        // Sorting and pagination changed by the AJAX listing are mirrored in
+        // the URL so the browser can rebuild the same result after returning
+        // from a property detail page.
+        if (isset($_GET['orden']) && $_GET['orden'] !== '') {
+            $requestedOrder = sanitize_key(wp_unslash((string) $_GET['orden']));
+            if (in_array($requestedOrder, ['date', 'price_asc', 'price_desc', 'title'], true)) {
+                $params['orderby'] = $requestedOrder;
+            }
+        }
+
+        if (isset($_GET['pagina']) && $_GET['pagina'] !== '') {
+            $params['page'] = max(1, absint($_GET['pagina']));
+        }
+
         if (empty($params['page'])) {
             $params['page'] = max(
                 1,

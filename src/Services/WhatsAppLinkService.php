@@ -14,18 +14,16 @@ class WhatsAppLinkService
 {
     public static function buildPropertyLink(int $postId, string $fallbackPhone = '', string $fallbackMessage = ''): string
     {
-        $propertyUrl = (string) get_permalink($postId);
         $propertyTitle = (string) get_the_title($postId);
-        $code = (string) get_post_meta($postId, (new PropertyPostType())->metaKeys()['code'], true);
+        $code = trim((string) get_post_meta($postId, (new PropertyPostType())->metaKeys()['code'], true));
+        if ($code === '') {
+            $code = (string) $postId;
+        }
 
-        $defaultMessage = $fallbackMessage !== '' ? $fallbackMessage : ($propertyTitle . ' - ' . $propertyUrl);
+        $defaultMessage = self::propertyInterestMessage($propertyTitle, $code);
         $ninja = self::resolveNinjaAccount();
         if (!empty($ninja['phone'])) {
-            $message = self::hydrateTemplate((string) ($ninja['message'] ?? ''), $propertyTitle, $propertyUrl, $code);
-            if ($message === '') {
-                $message = $defaultMessage;
-            }
-            return self::buildApiUrl((string) $ninja['phone'], $message);
+            return self::buildApiUrl((string) $ninja['phone'], $defaultMessage);
         }
 
         $digits = preg_replace('/\D+/', '', (string) $fallbackPhone);
@@ -91,20 +89,6 @@ class WhatsAppLinkService
         ];
     }
 
-    private static function hydrateTemplate(string $template, string $title, string $url, string $code): string
-    {
-        $template = trim(wp_strip_all_tags($template));
-        if ($template === '') {
-            return '';
-        }
-
-        return strtr($template, [
-            '{title}' => $title,
-            '{url}' => $url,
-            '{code}' => $code,
-        ]);
-    }
-
     private static function buildApiUrl(string $phoneDigits, string $message): string
     {
         $message = trim($message);
@@ -114,5 +98,16 @@ class WhatsAppLinkService
 
         return 'https://api.whatsapp.com/send?phone=' . rawurlencode($phoneDigits) . '&text=' . rawurlencode($message);
     }
-}
 
+    private static function propertyInterestMessage(string $title, string $code): string
+    {
+        $title = trim(wp_strip_all_tags($title));
+        $code = trim($code);
+
+        return sprintf(
+            'Hola buen día, estoy interesado en el código de inmueble %s [%s]',
+            $code,
+            $title
+        );
+    }
+}

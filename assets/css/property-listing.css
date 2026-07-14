@@ -221,9 +221,47 @@
 
 /* ─── Grid (only for the default non-Bootstrap template) ─────────────────── */
 .property-listing:not(.property-listing--bootstrap) .property-listing__grid {
+    align-items: stretch;
     display: grid;
     gap: 24px;
     grid-template-columns: repeat(var(--columns, 3), minmax(0, 1fr));
+}
+
+/*
+ * Card height is content-driven. Every card stretches to the tallest card in
+ * its row, while the inner content remains fully visible and the contact
+ * action stays aligned at the bottom.
+ */
+.property-listing:not(.property-listing--bootstrap) .property-card {
+    display: flex;
+    flex-direction: column;
+    height: 100% !important;
+    max-height: none !important;
+}
+
+.property-listing:not(.property-listing--bootstrap) .property-card > a {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+}
+
+.property-listing:not(.property-listing--bootstrap) .property-card__content {
+    align-content: start;
+    flex: 1 1 auto;
+}
+
+.property-listing:not(.property-listing--bootstrap) .property-card__whatsapp {
+    margin-top: auto;
+}
+
+.property-listing--bootstrap .property-listing__grid > [class*="col-"] {
+    display: flex;
+}
+
+.property-listing--bootstrap .property-card-bs {
+    flex: 1 1 auto;
+    height: 100% !important;
+    max-height: none !important;
 }
 
 @media (max-width: 1024px) {
@@ -465,9 +503,8 @@
     color: #1f2937;
     font-size: 0.82rem;
     font-weight: 600;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    white-space: normal;
 }
 
 @media (max-width: 767px) {

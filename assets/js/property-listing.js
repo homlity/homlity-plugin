@@ -395,11 +395,35 @@
                 self.mapData = d.map_data || [];
                 self._updateMap(self.mapData);
                 self._updatePagination(d.pages);
+                self._syncBrowserUrl(orderby);
             })
             .catch(function () {})
             .finally(function () {
                 self._setLoading(false);
             });
+    };
+
+    PropertyListing.prototype._syncBrowserUrl = function (orderby) {
+        if (!window.history || typeof window.history.replaceState !== 'function') {
+            return;
+        }
+
+        var url = new URL(window.location.href);
+        var defaultOrder = this.el.dataset.defaultOrder || 'date';
+
+        if (orderby && orderby !== defaultOrder) {
+            url.searchParams.set('orden', orderby);
+        } else {
+            url.searchParams.delete('orden');
+        }
+
+        if (this.currentPage > 1) {
+            url.searchParams.set('pagina', String(this.currentPage));
+        } else {
+            url.searchParams.delete('pagina');
+        }
+
+        window.history.replaceState(window.history.state, '', url.toString());
     };
 
     PropertyListing.prototype._setLoading = function (loading) {

@@ -93,7 +93,14 @@ $fmtMoney = static function (float $value, string $currency): string {
     if ($value <= 0) {
         return 'Sin dato';
     }
-    $prefix = $currency !== '' ? $currency . ' ' : '$ ';
+    $symbols = [
+        'COP' => '$', 'USD' => '$', 'MXN' => '$', 'CLP' => '$', 'ARS' => '$',
+        'EUR' => '€', 'GBP' => '£', 'BRL' => 'R$', 'PEN' => 'S/', 'CRC' => '¢',
+        'CAD' => 'C$', 'AUD' => 'A$', 'NZD' => 'NZ$', 'CHF' => 'CHF',
+        'JPY' => '¥', 'CNY' => '¥',
+    ];
+    $currency = strtoupper($currency);
+    $prefix = ($symbols[$currency] ?? ($currency !== '' ? $currency : '$')) . ' ';
     return $prefix . number_format_i18n($value, 0);
 };
 $fmtMoneyWithDefault = static function (float $value, string $currency, string $defaultCurrency) use ($fmtMoney): string {

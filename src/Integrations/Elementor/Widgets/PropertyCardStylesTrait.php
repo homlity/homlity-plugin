@@ -262,19 +262,6 @@ trait PropertyCardStylesTrait
             ],
         ]);
 
-        $this->add_responsive_control('card_height', [
-            'label'      => __('Alto de la card', 'homlity-real-estate'),
-            'type'       => Controls_Manager::SLIDER,
-            'size_units' => ['px', 'vh'],
-            'range'      => [
-                'px' => ['min' => 220, 'max' => 1600],
-                'vh' => ['min' => 20, 'max' => 100],
-            ],
-            'selectors'  => [
-                '{{WRAPPER}} .property-card, {{WRAPPER}} .property-card-bs' => 'height: {{SIZE}}{{UNIT}};',
-            ],
-        ]);
-
         $this->end_controls_section();
 
         // ── Imagen ────────────────────────────────────────────────────────────

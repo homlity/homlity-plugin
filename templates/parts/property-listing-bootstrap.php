@@ -44,6 +44,7 @@ $listActive = $config->defaultView() !== 'map';
 $mapActive  = !$listActive;
 $params = isset($params) && is_array($params) ? $params : [];
 $currentPage = max(1, (int) ($query->get('paged') ?: ($params['page'] ?? 1)));
+$currentOrder = sanitize_key((string) ($params['orderby'] ?? $config->orderby()));
 $paramToAttr = static function ($value): string {
     if (is_array($value)) {
         return implode(',', array_map('strval', $value));
@@ -53,6 +54,7 @@ $paramToAttr = static function ($value): string {
 ?>
 <div id="<?php echo esc_attr($uid); ?>"
      class="homlity-real-estate-search property-listing property-listing--bootstrap"
+     data-default-order="<?php echo esc_attr($config->orderby()); ?>"
      data-view="<?php echo esc_attr($config->defaultView()); ?>"
      data-per-page="<?php echo esc_attr($config->postsPerPage()); ?>"
      data-columns="<?php echo esc_attr($config->columns()); ?>"
@@ -195,7 +197,7 @@ $paramToAttr = static function ($value): string {
                             aria-label="<?php esc_attr_e('Ordenar por', 'homlity-real-estate'); ?>">
                         <?php foreach ($sortOptions as $value => $label) : ?>
                             <option value="<?php echo esc_attr($value); ?>"
-                                <?php selected($config->orderby(), $value); ?>>
+                                <?php selected($currentOrder, $value); ?>>
                                 <?php echo esc_html($label); ?>
                             </option>
                         <?php endforeach; ?>

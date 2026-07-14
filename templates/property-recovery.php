@@ -27,6 +27,7 @@ if (!defined('ABSPATH')) {
 
 use Homlity\PluginInmobiliario\Listing\ListingConfig;
 use Homlity\PluginInmobiliario\Listing\ListingRenderer;
+use Homlity\PluginInmobiliario\Services\UnavailablePropertyContext;
 
 $ctx = $GLOBALS['homlity_property_recovery_context'] ?? [];
 
@@ -38,6 +39,7 @@ $internalLinks  = (array) ($ctx['internal_links'] ?? []);
 $hasEnough      = !empty($ctx['has_enough_results']);
 $archivePageId  = (int) get_option('homlity_plugin_archive_page_id', 0);
 $archiveUrl     = $archivePageId ? (string) get_permalink($archivePageId) : home_url('/inmuebles/');
+$propertyId     = UnavailablePropertyContext::getPropertyId();
 
 // Enqueue card/listing assets before get_header() collects scripts.
 ListingRenderer::enqueueAssets();
@@ -285,8 +287,11 @@ get_header();
             $settings     = get_option(HOMLITY_PLUGIN_SETTINGS_OPTION, []);
             $agencyPhone  = sanitize_text_field((string) ($settings['whatsapp_phone'] ?? $settings['agency_phone'] ?? ''));
             if ($agencyPhone !== ''):
-                $waLink = 'https://wa.me/' . preg_replace('/\D/', '', $agencyPhone)
-                    . '?text=' . rawurlencode(__('Hola, estoy buscando un inmueble similar al que vi en su sitio web. ¿Pueden asesorarme?', 'homlity-real-estate'));
+                $waLink = \Homlity\PluginInmobiliario\Services\WhatsAppLinkService::buildPropertyLink(
+                    (int) $propertyId,
+                    $agencyPhone,
+                    __('Hola, estoy buscando un inmueble similar al que vi en su sitio web. ¿Pueden asesorarme?', 'homlity-real-estate')
+                );
             ?>
                 <a href="<?php echo esc_url($waLink); ?>" class="hml-recovery-btn hml-recovery-btn--primary" target="_blank" rel="noopener noreferrer">
                     <?php esc_html_e('Hablar con un asesor', 'homlity-real-estate'); ?>

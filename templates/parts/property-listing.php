@@ -21,6 +21,7 @@ if (!defined('ABSPATH')) {
 $uniqueId = 'hpl-' . substr(md5(uniqid('', true)), 0, 8);
 $params = isset($params) && is_array($params) ? $params : [];
 $currentPage = max(1, (int) ($query->get('paged') ?: ($params['page'] ?? 1)));
+$currentOrder = sanitize_key((string) ($params['orderby'] ?? $config->orderby()));
 $paramToAttr = static function ($value): string {
     if (is_array($value)) {
         return implode(',', array_map('strval', $value));
@@ -39,6 +40,7 @@ $sortOptions = [
 ?>
 <div id="<?php echo esc_attr($uniqueId); ?>"
      class="property-listing"
+     data-default-order="<?php echo esc_attr($config->orderby()); ?>"
      data-view="<?php echo esc_attr($config->defaultView()); ?>"
      data-per-page="<?php echo esc_attr($config->postsPerPage()); ?>"
      data-columns="<?php echo esc_attr($config->columns()); ?>"
@@ -127,7 +129,7 @@ $sortOptions = [
             <?php if ($config->showSort()) : ?>
             <select class="property-listing__sort" aria-label="<?php esc_attr_e('Ordenar por', 'homlity-real-estate'); ?>">
                 <?php foreach ($sortOptions as $value => $label) : ?>
-                    <option value="<?php echo esc_attr($value); ?>" <?php selected($config->orderby(), $value); ?>>
+                    <option value="<?php echo esc_attr($value); ?>" <?php selected($currentOrder, $value); ?>>
                         <?php echo esc_html($label); ?>
                     </option>
                 <?php endforeach; ?>

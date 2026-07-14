@@ -20,6 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Homlity\PluginInmobiliario\Listing\ListingConfig;
 use Homlity\PluginInmobiliario\Listing\ListingRenderer;
 use Homlity\PluginInmobiliario\Services\UnavailablePropertyContext;
+use Homlity\PluginInmobiliario\Services\WhatsAppLinkService;
 
 // ── Enqueue listing assets BEFORE get_header() so they land inside <head>. ──
 // ListingRenderer::enqueueAssets() is also called from PropertyUnavailableService
@@ -36,8 +37,11 @@ $pluginSettings = get_option( HOMLITY_PLUGIN_SETTINGS_OPTION, [] );
 $agencyPhone    = sanitize_text_field( (string) ( $pluginSettings['whatsapp_phone'] ?? $pluginSettings['agency_phone'] ?? '' ) );
 $waLink         = '';
 if ( $agencyPhone !== '' ) {
-    $waLink = 'https://wa.me/' . preg_replace( '/\D/', '', $agencyPhone )
-        . '?text=' . rawurlencode( __( 'Hola, estoy buscando un inmueble similar al que vi en su sitio web. ¿Pueden asesorarme?', 'homlity-real-estate' ) );
+    $waLink = WhatsAppLinkService::buildPropertyLink(
+        $propertyId,
+        $agencyPhone,
+        __( 'Hola, estoy buscando un inmueble similar al que vi en su sitio web. ¿Pueden asesorarme?', 'homlity-real-estate' )
+    );
 }
 
 // ── Build the listing config for similar / recent properties ──────────────────

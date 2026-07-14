@@ -24,6 +24,10 @@ $parking = get_post_meta($post_id, '_property_parking', true);
 $area = get_post_meta($post_id, '_property_area', true);
 $priceSale = get_post_meta($post_id, '_property_price_sale', true);
 $priceRent = get_post_meta($post_id, '_property_price_rent', true);
+$propertyCode = trim((string) get_post_meta($post_id, '_property_code', true));
+if ($propertyCode === '') {
+    $propertyCode = (string) $post_id;
+}
 
 $formatNumber = static function ($value): string {
     if ($value === '' || $value === null) {
@@ -40,11 +44,15 @@ $displayPrice = $formatNumber($priceSale);
 if ($displayPrice === '') {
     $displayPrice = $formatNumber($priceRent);
 }
+if ($displayPrice !== '') {
+    $displayPrice = '$ ' . $displayPrice;
+}
 
 $summaryParts = [];
 if ($title !== '') {
     $summaryParts[] = $title;
 }
+$summaryParts[] = sprintf(__('código: %s', 'homlity-real-estate'), $propertyCode);
 if ($bedrooms !== '') {
     /* translators: %s: number of bedrooms */
     $summaryParts[] = sprintf(__('alcobas: %s', 'homlity-real-estate'), $bedrooms);
@@ -73,15 +81,22 @@ if ($propertySummary === '') {
 
 $shareTextTpl = $s['share_text'] ?? '{summary} {url}';
 $shareText    = str_replace(
-    ['{title}', '{url}', '{summary}', '{bedrooms}', '{bathrooms}', '{parking}', '{area}', '{price}'],
-    [$title, $url, $propertySummary, (string) $bedrooms, (string) $bathrooms, (string) $parking, (string) $area, (string) $displayPrice],
+    ['{title}', '{url}', '{summary}', '{code}', '{bedrooms}', '{bathrooms}', '{parking}', '{area}', '{price}'],
+    [$title, $url, $propertySummary, $propertyCode, (string) $bedrooms, (string) $bathrooms, (string) $parking, (string) $area, (string) $displayPrice],
     $shareTextTpl
 );
 $shareText = trim((string) $shareText);
 if ($shareText === '') {
     $shareText = trim($propertySummary . ' ' . $url);
+} elseif (stripos($shareText, $propertyCode) === false) {
+    $shareText .= ' - ' . sprintf(__('Código del inmueble: %s', 'homlity-real-estate'), $propertyCode);
 }
 $headingText  = trim((string) ($s['heading_text'] ?? __('Compartir en:', 'homlity-real-estate')));
+$whatsAppText = sprintf(
+    'Hola buen día, estoy interesado en el código de inmueble %s [%s]',
+    $propertyCode,
+    $title
+);
 
 $showLabels      = ($s['show_labels']       ?? 'yes') === 'yes';
 $showToggle      = ($s['show_label_toggle'] ?? '')    === 'yes';
@@ -91,7 +106,7 @@ $toggleShowText  = trim((string) ($s['label_toggle_show_text'] ?? __('Mostrar et
 $platforms = [
     'whatsapp'  => [
         'label' => $s['label_whatsapp']  ?? __('WhatsApp',      'homlity-real-estate'),
-        'href'  => 'https://api.whatsapp.com/send?text=' . rawurlencode($shareText . ' ' . $url),
+        'href'  => 'https://api.whatsapp.com/send?text=' . rawurlencode($whatsAppText),
         'copy'  => false,
     ],
     'facebook'  => [
