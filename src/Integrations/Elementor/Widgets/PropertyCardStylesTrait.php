@@ -413,14 +413,14 @@ trait PropertyCardStylesTrait
         $this->add_group_control(Group_Control_Typography::get_type(), [
             'name'     => 'card_price_typography',
             'label'    => __('Tipografía precio', 'homlity-real-estate'),
-            'selector' => '{{WRAPPER}} .property-card__price, {{WRAPPER}} .property-card-bs [itemprop="price"], {{WRAPPER}} .property-card__overlay-price',
+            'selector' => '{{WRAPPER}} .property-card__price, {{WRAPPER}} .property-card__operation-price, {{WRAPPER}} .property-card-bs [itemprop="price"], {{WRAPPER}} .property-card__overlay-price',
         ]);
 
         $this->add_control('card_price_color', [
             'label'     => __('Color precio', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-card__price, {{WRAPPER}} .property-card-bs [itemprop="price"], {{WRAPPER}} .property-card__overlay-price' => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-card__price, {{WRAPPER}} .property-card__operation-price, {{WRAPPER}} .property-card-bs [itemprop="price"], {{WRAPPER}} .property-card__overlay-price' => 'color: {{VALUE}};',
             ],
         ]);
 
@@ -464,7 +464,8 @@ trait PropertyCardStylesTrait
             'label'     => __('Color ícono', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-card__feature-icon' => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-card__feature-icon, {{WRAPPER}} .property-card--preset-cover-overlay .property-card__overlay-chip .property-card__feature-icon' => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-card__feature-icon svg, {{WRAPPER}} .property-card__feature-icon svg path, {{WRAPPER}} .property-card--preset-cover-overlay .property-card__overlay-chip .property-card__feature-icon svg, {{WRAPPER}} .property-card--preset-cover-overlay .property-card__overlay-chip .property-card__feature-icon svg path' => 'fill: {{VALUE}}; color: {{VALUE}};',
             ],
         ]);
 
@@ -722,7 +723,10 @@ trait PropertyCardStylesTrait
         $this->add_control('card_whatsapp_icon_color', [
             'label'     => __('Color ícono', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-card__whatsapp .property-card__whatsapp-icon' => 'color: {{VALUE}};'],
+            'selectors' => [
+                '{{WRAPPER}} .property-card__whatsapp .property-card__whatsapp-icon, {{WRAPPER}} .property-card__whatsapp .property-card__whatsapp-icon i' => 'color: {{VALUE}} !important;',
+                '{{WRAPPER}} .property-card__whatsapp .property-card__whatsapp-icon svg, {{WRAPPER}} .property-card__whatsapp .property-card__whatsapp-icon svg path' => 'color: {{VALUE}} !important; fill: {{VALUE}} !important;',
+            ],
         ]);
 
         $this->start_controls_tabs('card_whatsapp_states');

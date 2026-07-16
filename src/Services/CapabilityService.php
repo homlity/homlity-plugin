@@ -13,7 +13,8 @@ if (!defined('ABSPATH')) {
 
 class CapabilityService implements ServiceInterface
 {
-    public const ROLE_ASSESSOR = 'asesor_comercial';
+    public const ROLE_ASSESSOR = 'asesor';
+    public const LEGACY_ROLE_ASSESSOR = 'asesor_comercial';
 
     public const CAPS = [
         'edit_post' => 'edit_property',
@@ -55,23 +56,24 @@ class CapabilityService implements ServiceInterface
             }
         }
 
-        $assessor = get_role(self::ROLE_ASSESSOR);
-        if (!$assessor) {
-            $assessor = add_role(self::ROLE_ASSESSOR, __('Asesor Comercial', 'homlity-real-estate'));
-        }
-        if ($assessor) {
-            $assessorCaps = [
-                'read',
-                self::CAPS['read_post'],
-                self::CAPS['edit_post'],
-                self::CAPS['edit_posts'],
-                self::CAPS['publish_posts'],
-                self::CAPS['delete_post'],
-                self::CAPS['delete_posts'],
-                self::CAPS['edit_published_posts'],
-                self::CAPS['delete_published_posts'],
-                'upload_files',
-            ];
+        $assessorCaps = [
+            'read',
+            self::CAPS['read_post'],
+            self::CAPS['edit_post'],
+            self::CAPS['edit_posts'],
+            self::CAPS['publish_posts'],
+            self::CAPS['delete_post'],
+            self::CAPS['delete_posts'],
+            self::CAPS['edit_published_posts'],
+            self::CAPS['delete_published_posts'],
+            'upload_files',
+        ];
+
+        foreach ([self::ROLE_ASSESSOR, self::LEGACY_ROLE_ASSESSOR] as $roleName) {
+            $assessor = get_role($roleName);
+            if (!$assessor) {
+                continue;
+            }
             foreach ($assessorCaps as $cap) {
                 if (!$assessor->has_cap($cap)) {
                     $assessor->add_cap($cap);
@@ -83,7 +85,7 @@ class CapabilityService implements ServiceInterface
     private function ensureRole(): void
     {
         if (!get_role(self::ROLE_ASSESSOR)) {
-            add_role(self::ROLE_ASSESSOR, __('Asesor Comercial', 'homlity-real-estate'));
+            add_role(self::ROLE_ASSESSOR, __('Asesor', 'homlity-real-estate'));
         }
     }
 }

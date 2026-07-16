@@ -2,6 +2,8 @@
 // phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 namespace Homlity\PluginInmobiliario\Integrations\CRM\Services;
 
+use Homlity\PluginInmobiliario\Services\CapabilityService;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -118,7 +120,13 @@ class AdvisorSyncService
 
     private function advisorRole(): string
     {
-        return get_role('asesor_comercial') instanceof \WP_Role ? 'asesor_comercial' : 'subscriber';
+        if (get_role(CapabilityService::ROLE_ASSESSOR) instanceof \WP_Role) {
+            return CapabilityService::ROLE_ASSESSOR;
+        }
+
+        return get_role(CapabilityService::LEGACY_ROLE_ASSESSOR) instanceof \WP_Role
+            ? CapabilityService::LEGACY_ROLE_ASSESSOR
+            : 'subscriber';
     }
 
     private function updateUserMeta(

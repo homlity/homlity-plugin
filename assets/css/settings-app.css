@@ -1,3 +1,32 @@
+.homlity-admin-banners {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0 0 22px;
+    width: 100%;
+}
+
+.homlity-admin-banners a {
+    display: block;
+    overflow: hidden;
+    border-radius: 10px;
+    line-height: 0;
+}
+
+.homlity-admin-banners img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 0;
+    border-radius: 10px;
+}
+
+@media (max-width: 782px) {
+    .homlity-admin-banners {
+        grid-template-columns: 1fr;
+    }
+}
+
 body.toplevel_page_homlity-real-estate-settings {
     --homlity-bg: #fff;
     --homlity-surface: rgba(255, 255, 255, 0.94);
@@ -614,6 +643,16 @@ body.toplevel_page_homlity-real-estate-settings #wpbody-content {
 
 .homlity-settings__actions--toolbar {
     justify-content: flex-end;
+}
+
+.homlity-settings__actions--bottom {
+    align-items: center;
+    justify-content: flex-end;
+    padding: 4px 0 0;
+}
+
+.homlity-settings__actions--bottom .homlity-settings__status {
+    margin-right: auto;
 }
 
 .homlity-settings__grid {

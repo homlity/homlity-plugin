@@ -145,6 +145,23 @@
     var placeholder = props.placeholder || 'Buscar...';
     var _a = useState(''), query = _a[0], setQuery = _a[1];
     var _b = useState(false), open = _b[0], setOpen = _b[1];
+    var wrapRef = useRef(null);
+
+    useEffect(function () {
+      function closeWhenOutside(event) {
+        if (wrapRef.current && !wrapRef.current.contains(event.target)) {
+          setOpen(false);
+        }
+      }
+
+      document.addEventListener('pointerdown', closeWhenOutside);
+      document.addEventListener('focusin', closeWhenOutside);
+
+      return function () {
+        document.removeEventListener('pointerdown', closeWhenOutside);
+        document.removeEventListener('focusin', closeWhenOutside);
+      };
+    }, []);
 
     var selectedMap = {};
     selectedValues.forEach(function (id) { selectedMap[String(id)] = true; });
@@ -169,7 +186,7 @@
       onChange(selectedValues.filter(function (v) { return String(v) !== sid; }));
     }
 
-    return h('div', { className: 'hpe-ms-wrap' },
+    return h('div', { className: 'hpe-ms-wrap', ref: wrapRef },
       h('div', {
         className: 'hpe-ms-control',
         onClick: function () { setOpen(true); }
@@ -185,7 +202,13 @@
           value: query,
           placeholder: placeholder,
           onFocus: function () { setOpen(true); },
-          onChange: function (e) { setQuery(e.target.value); setOpen(true); }
+          onChange: function (e) { setQuery(e.target.value); setOpen(true); },
+          onKeyDown: function (e) {
+            if (e.key === 'Escape') {
+              setOpen(false);
+              e.currentTarget.blur();
+            }
+          }
         })
       ),
       open && h('div', { className: 'hpe-ms-menu' },
@@ -250,7 +273,7 @@
     var _af3 = useState((selected.nearby || []).map(function (id) { return String(id); })), selectedNearby = _af3[0], setSelectedNearby = _af3[1];
     var _af4 = useState((selected.tags || []).map(function (id) { return String(id); })), selectedTags = _af4[0], setSelectedTags = _af4[1];
 
-    var defaultAgent = String(meta.agent_id || app.currentUserId || '');
+    var defaultAgent = String(meta.agent_id || '');
     var _ag = useState(String(meta.gallery || '')), gallery = _ag[0], setGallery = _ag[1];
     var _ah = useState(defaultAgent), agentId = _ah[0], setAgentId = _ah[1];
     var _ah2 = useState(normalizeUrlListFromMeta(meta.videos).join('\n')), videosText = _ah2[0], setVideosText = _ah2[1];
@@ -285,6 +308,8 @@
     var _aq = useState((app.validation && app.validation.fields) ? app.validation.fields : []), errorFields = _aq[0], setErrorFields = _aq[1];
     var _ar = useState('main'), activeTab = _ar[0], setActiveTab = _ar[1];
     var _as = useState('photos'), mediaTab = _as[0], setMediaTab = _as[1];
+    var _at = useState(false), mediaCardOpen = _at[0], setMediaCardOpen = _at[1];
+    var _au = useState(false), featuresCardOpen = _au[0], setFeaturesCardOpen = _au[1];
     var visitStats = app.visitStats || { totals: {}, daily: [], recent: [] };
     var syncInfo = app.sync || {};
     var isSyncedProperty = !!syncInfo.isSynced;
@@ -745,6 +770,32 @@
     }
 
     return h('div', { className: 'hpe-wrap' },
+      h('div', { className: 'hpe-banner-grid' },
+        h('a', {
+          className: 'hpe-homlity-banner',
+          href: app.registrationUrl || 'https://homi.homlity.com/registro-inmobiliaria-gratis',
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          'aria-label': 'Registrarse gratis en Homlity'
+        },
+          h('img', {
+            src: app.bannerUrl || '',
+            alt: 'Impulsa tu inmobiliaria con Homlity'
+          })
+        ),
+        h('a', {
+          className: 'hpe-homlity-banner',
+          href: app.directoryRegistrationUrl || 'https://homi.homlity.com/register',
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          'aria-label': 'Registrarse gratis en el Directorio Inmobiliario de Homlity'
+        },
+          h('img', {
+            src: app.directoryBannerUrl || '',
+            alt: 'Únete al Directorio Inmobiliario de Homlity'
+          })
+        )
+      ),
       hidden('homlity_react_editor_nonce', app.reactNonce || ''),
       hidden('post_title', title),
       hidden('excerpt', excerpt),
@@ -760,32 +811,6 @@
           h(Field, { label: 'Descripción corta' }, h('textarea', { rows: 3, value: excerpt, onChange: function (e) { setExcerpt(e.target.value); } })),
           h('p', { className: 'description' }, 'Describe el inmueble con enfoque comercial: ubicación, distribución, beneficios y estado.'),
           h(Field, null, h('textarea', { ref: contentEditorTextareaRef, rows: 8, value: content, onChange: function (e) { setContent(e.target.value); } }))
-        ),
-        h('section', { className: 'hpe-card' },
-          h('h2', null, 'Configuración comercial'),
-          h(Field, { label: 'Tipo de inmueble', required: true, error: hasError('type') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_type', value: type, required: true, onChange: setType, options: opts.types || [] })),
-          h(Field, { label: 'Gestión', required: true, error: hasError('operation') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_operation', value: operation, required: true, onChange: setOperation, options: opts.operations || [] })),
-          h(Field, { label: 'Estado inmueble' }, h(Select, { name: 'property_condition', value: condition, onChange: setCondition, options: opts.condition_options || [], placeholder: 'Sin especificar' })),
-          h(Field, { label: 'Código (auto)' }, h(Input, { name: 'property_code', value: code, readOnly: true })),
-          isSyncedProperty && h('p', { className: 'description' }, 'Código bloqueado por sincronización (webhook/web.homlity.com).'),
-          h(Field, { label: 'Año de construido' }, h(Input, { name: 'property_age', value: yearBuilt, type: 'number', onChange: setYearBuilt }))
-        ),
-        h('section', { className: 'hpe-card' },
-          h('h2', null, 'Ubicación'),
-          h(Field, { label: 'Dirección', required: true, error: hasError('address') ? 'Este campo es obligatorio.' : '' }, h(Input, { name: 'property_address', required: true, value: address, onChange: setAddress })),
-          h(Field, { label: 'País', required: true, error: hasError('country') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_country', value: country, required: true, onChange: setCountry, options: opts.countries || [] })),
-          h(Field, { label: 'Departamento/Provincia', required: true, error: hasError('state') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_state', value: state, required: true, onChange: setState, options: stateOptions })),
-          h(Field, { label: 'Ciudad', required: true, error: hasError('city') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_city', value: city, required: true, onChange: setCity, options: cityOptions })),
-          h(Field, { label: 'Barrio' }, h(Select, { name: 'property_neighborhood', value: neighborhood, onChange: setNeighborhood, options: neighborhoodOptions })),
-          h('div', { className: 'hpe-prices' },
-            h(Field, { label: 'Latitud', required: true, error: hasError('latitude') ? 'Este campo es obligatorio.' : '' }, h(Input, { name: 'property_latitude', required: true, value: latitude, onChange: setLatitude })),
-            h(Field, { label: 'Longitud', required: true, error: hasError('longitude') ? 'Este campo es obligatorio.' : '' }, h(Input, { name: 'property_longitude', required: true, value: longitude, onChange: setLongitude }))
-          ),
-          h('button', { type: 'button', className: 'button button-primary', onClick: geocodeNow }, 'Calcular lat/lng por georreferenciación y dirección'),
-          h('div', { className: 'hpe-map-wrap' },
-            h('div', { ref: mapNodeRef, className: 'hpe-map-canvas' }),
-            h('p', { className: 'description' }, 'Haz clic en el mapa o arrastra el pin para definir la ubicación exacta del inmueble.')
-          )
         ),
         h('section', { className: 'hpe-card hpe-span-2' },
           h('h2', null, 'Precios'),
@@ -809,70 +834,84 @@
           isSale && !hasAdminFee && hidden('property_price_admin', ''),
           hidden('property_admin_included', (isRent && adminIncluded) ? '1' : '0')
         ),
-        h('section', { className: 'hpe-card hpe-span-2' },
-          h('h2', null, 'Características'),
-          h('div', { className: 'hpe-prices' },
-            h(Field, { label: 'Habitaciones' }, h(Input, { type: 'number', name: 'property_bedrooms', value: bedrooms, onChange: setBedrooms })),
-            h(Field, { label: 'Baños' }, h(Input, { type: 'number', name: 'property_bathrooms', value: bathrooms, onChange: setBathrooms })),
-            h(Field, { label: 'Parqueaderos' }, h(Input, { type: 'number', name: 'property_parking', value: parking, onChange: setParking })),
-            h(Field, { label: 'Área total' }, h(Input, { name: 'property_area', value: area, onChange: setArea })),
-            h(Field, { label: 'Área lote' }, h(Input, { name: 'property_area_lot', value: areaLot, onChange: setAreaLot })),
-            h(Field, { label: 'Área privada' }, h(Input, { name: 'property_area_private', value: areaPrivate, onChange: setAreaPrivate })),
-            h(Field, { label: 'Área construida' }, h(Input, { name: 'property_area_built', value: areaBuilt, onChange: setAreaBuilt }))
+        h('div', { className: 'hpe-card-stack' },
+          h('section', { className: 'hpe-card hpe-card--commercial' },
+            h('h2', null, 'Configuración comercial'),
+            h('div', { className: 'hpe-commercial-fields' },
+              h(Field, { label: 'Tipo de inmueble', required: true, error: hasError('type') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_type', value: type, required: true, onChange: setType, options: opts.types || [] })),
+              h(Field, { label: 'Gestión', required: true, error: hasError('operation') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_operation', value: operation, required: true, onChange: setOperation, options: opts.operations || [] })),
+              h(Field, { label: 'Estado inmueble' }, h(Select, { name: 'property_condition', value: condition, onChange: setCondition, options: opts.condition_options || [], placeholder: 'Sin especificar' })),
+              h(Field, { label: 'Código (auto)' }, h(Input, { name: 'property_code', value: code, readOnly: true })),
+              h(Field, { label: 'Año de construido' }, h(Input, { name: 'property_age', value: yearBuilt, type: 'number', onChange: setYearBuilt })),
+              h(Field, { label: 'Usuario asesor' }, h(Select, {
+                name: 'property_agent_id',
+                value: agentId,
+                onChange: setAgentId,
+                options: users,
+                placeholder: 'Seleccionar asesor'
+              }))
+            ),
+            h('p', { className: 'description' }, 'Selecciona un usuario con rol Asesor o Administrador para relacionarlo con este inmueble. Su teléfono y correo se tomarán automáticamente desde el perfil.'),
+            h('label', { className: 'hpe-check' }, h('input', { type: 'checkbox', checked: featured, onChange: function (e) { setFeatured(e.target.checked); } }), 'Inmueble destacado'),
+            hidden('property_featured', featured ? '1' : '0')
           ),
-          h('div', { className: 'hpe-feature-groups' },
-            featureGroups.map(function (group) {
-              return h('div', { key: String(group.id), className: 'hpe-feature-group' },
-                h('h3', null, group.name),
-                h('div', { className: 'hpe-feature-items' },
-                  (group.items || []).map(function (item) {
-                    var id = String(item.id);
-                    var checked = selectedFeatures.indexOf(id) >= 0;
-                    return h('label', { key: id, className: 'hpe-feature-check' },
-                      h('input', { type: 'checkbox', checked: checked, onChange: function () { toggleFeature(id); } }),
-                      h('span', null, item.name)
-                    );
-                  })
-                )
-              );
-            })
+          h('section', { className: 'hpe-card' },
+            h('h2', null, 'Etiquetas'),
+            h('p', { className: 'description' }, 'Selecciona una o varias etiquetas para clasificar el inmueble.'),
+            h(MultiSelectChips, {
+              options: tagOptions,
+              value: selectedTags,
+              onChange: setSelectedTags,
+              placeholder: 'Buscar etiquetas...'
+            }),
+            hidden('property_tags', selectedTags.join(',')),
+            h('p', { className: 'description' },
+              h('a', {
+                href: app.manageTagsUrl || '#',
+                target: '_blank',
+                rel: 'noopener noreferrer'
+              }, 'Administrar etiquetas')
+            )
           ),
-          hidden('property_features', selectedFeatures.join(','))
-        ),
-        h('section', { className: 'hpe-card hpe-span-2' },
-          h('h2', null, 'Etiquetas'),
-          h('p', { className: 'description' }, 'Selecciona una o varias etiquetas para clasificar el inmueble.'),
-          h(MultiSelectChips, {
-            options: tagOptions,
-            value: selectedTags,
-            onChange: setSelectedTags,
-            placeholder: 'Buscar etiquetas...'
-          }),
-          hidden('property_tags', selectedTags.join(',')),
-          h('p', { className: 'description' },
-            h('a', {
-              href: app.manageTagsUrl || '#',
-              target: '_blank',
-              rel: 'noopener noreferrer'
-            }, 'Administrar etiquetas')
+          h('section', { className: 'hpe-card' },
+            h('h2', null, 'Lugares cercanos'),
+            h(MultiSelectChips, {
+              options: nearbyOptions,
+              value: selectedNearby,
+              onChange: setNearbyValues,
+              placeholder: 'Buscar lugares cercanos...'
+            }),
+            hidden('property_nearby', selectedNearby.join(','))
           )
         ),
-        h('section', { className: 'hpe-card hpe-span-2' },
-          h('h2', null, 'Lugares cercanos'),
-          h(MultiSelectChips, {
-            options: nearbyOptions,
-            value: selectedNearby,
-            onChange: setNearbyValues,
-            placeholder: 'Buscar lugares cercanos...'
-          }),
-          hidden('property_nearby', selectedNearby.join(','))
+        h('section', { className: 'hpe-card' },
+          h('h2', null, 'Ubicación'),
+          h(Field, { label: 'Dirección', required: true, error: hasError('address') ? 'Este campo es obligatorio.' : '' }, h(Input, { name: 'property_address', required: true, value: address, onChange: setAddress })),
+          h(Field, { label: 'País', required: true, error: hasError('country') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_country', value: country, required: true, onChange: setCountry, options: opts.countries || [] })),
+          h(Field, { label: 'Departamento/Provincia', required: true, error: hasError('state') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_state', value: state, required: true, onChange: setState, options: stateOptions })),
+          h(Field, { label: 'Ciudad', required: true, error: hasError('city') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_city', value: city, required: true, onChange: setCity, options: cityOptions })),
+          h(Field, { label: 'Barrio' }, h(Select, { name: 'property_neighborhood', value: neighborhood, onChange: setNeighborhood, options: neighborhoodOptions })),
+          h('div', { className: 'hpe-prices' },
+            h(Field, { label: 'Latitud', required: true, error: hasError('latitude') ? 'Este campo es obligatorio.' : '' }, h(Input, { name: 'property_latitude', required: true, value: latitude, onChange: setLatitude })),
+            h(Field, { label: 'Longitud', required: true, error: hasError('longitude') ? 'Este campo es obligatorio.' : '' }, h(Input, { name: 'property_longitude', required: true, value: longitude, onChange: setLongitude }))
+          ),
+          h('button', { type: 'button', className: 'button button-primary', onClick: geocodeNow }, 'Calcular lat/lng por georreferenciación y dirección'),
+          h('div', { className: 'hpe-map-wrap' },
+            h('div', { ref: mapNodeRef, className: 'hpe-map-canvas' }),
+            h('p', { className: 'description' }, 'Haz clic en el mapa o arrastra el pin para definir la ubicación exacta del inmueble.')
+          )
         ),
-        h('section', { className: 'hpe-card hpe-span-3' },
-          h('h2', null, 'Asesor, medios y publicación'),
-          h(Field, { label: 'Asesor' }, h(Select, { name: 'property_agent_id', value: agentId, onChange: setAgentId, options: users, placeholder: 'Sin asignar' })),
-          h('p', { className: 'description' }, 'El teléfono y correo del asesor se toman automáticamente desde su perfil de usuario.'),
-          h('label', { className: 'hpe-check' }, h('input', { type: 'checkbox', checked: featured, onChange: function (e) { setFeatured(e.target.checked); } }), 'Inmueble destacado'),
-          hidden('property_featured', featured ? '1' : '0'),
+        h('section', { className: 'hpe-card hpe-span-3 hpe-card--media-full hpe-card-collapsible' + (mediaCardOpen ? ' is-open' : ' is-collapsed') },
+          h('div', { className: 'hpe-card-collapse-header' },
+            h('h2', null, 'Medios y publicación'),
+            h('button', {
+              type: 'button',
+              className: 'hpe-card-collapse-toggle',
+              onClick: function () { setMediaCardOpen(!mediaCardOpen); },
+              'aria-expanded': mediaCardOpen ? 'true' : 'false',
+              'aria-label': mediaCardOpen ? 'Colapsar Medios y publicación' : 'Expandir Medios y publicación'
+            }, h('span', { 'aria-hidden': 'true' }, mediaCardOpen ? '−' : '+'))
+          ),
           h('div', { className: 'hpe-editor-tabs' },
             h('button', { type: 'button', className: 'button' + (mediaTab === 'photos' ? ' button-primary' : ''), onClick: function () { setMediaTab('photos'); } }, 'Fotos'),
             h('button', { type: 'button', className: 'button' + (mediaTab === 'videos' ? ' button-primary' : ''), onClick: function () { setMediaTab('videos'); } }, 'Videos'),
@@ -894,9 +933,8 @@
                 h('span', null, 'Seleccionar todas')
               ),
               h('span', { className: 'hpe-gallery-selected-count' }, String(selectedGalleryTokens.length) + ' seleccionada(s)'),
-              h('button', { type: 'button', className: 'hpe-trash-btn', onClick: removeSelectedGallery, disabled: !selectedGalleryTokens.length },
-                h('span', { className: 'hpe-trash-icon', 'aria-hidden': 'true' }, '🗑'),
-                h('span', null, 'Quitar')
+              h('button', { type: 'button', className: 'hpe-trash-btn', onClick: removeSelectedGallery, disabled: !selectedGalleryTokens.length, 'aria-label': 'Quitar fotos seleccionadas', title: 'Quitar fotos seleccionadas' },
+                h('span', { className: 'hpe-trash-icon', 'aria-hidden': 'true' }, '🗑')
               )
             ),
             h('div', { className: 'hpe-gallery-grid' },
@@ -923,10 +961,15 @@
                     })
                   ),
                   h('div', { className: 'hpe-gallery-actions' },
-                    h('button', { type: 'button', className: 'hpe-featured-btn' + (isFeatured ? ' is-active' : ''), onClick: function () { setFeaturedGalleryToken(token); } }, isFeatured ? 'Destacada' : 'Destacar'),
-                    h('button', { type: 'button', className: 'hpe-trash-btn is-inline', onClick: function () { removeGalleryItem(token); } },
-                      h('span', { className: 'hpe-trash-icon', 'aria-hidden': 'true' }, '🗑'),
-                      h('span', null, 'Quitar')
+                    h('button', {
+                      type: 'button',
+                      className: 'hpe-featured-btn' + (isFeatured ? ' is-active' : ''),
+                      onClick: function () { setFeaturedGalleryToken(token); },
+                      'aria-label': isFeatured ? 'Imagen destacada' : 'Marcar como imagen destacada',
+                      title: isFeatured ? 'Imagen destacada' : 'Marcar como imagen destacada'
+                    }, h('span', { className: 'hpe-featured-icon', 'aria-hidden': 'true' }, isFeatured ? '★' : '☆')),
+                    h('button', { type: 'button', className: 'hpe-trash-btn is-inline', onClick: function () { removeGalleryItem(token); }, 'aria-label': 'Quitar foto', title: 'Quitar foto' },
+                      h('span', { className: 'hpe-trash-icon', 'aria-hidden': 'true' }, '🗑')
                     )
                   )
                 );
@@ -965,6 +1008,40 @@
           hidden('property_photos_360', JSON.stringify(normalizeUrlListInput(photos360Text))),
           hidden('property_tour_360', JSON.stringify(normalizeUrlListInput(tours360Text))),
           hidden('property_brochure', brochure)
+        ),
+        h('section', { className: 'hpe-card hpe-span-3 hpe-card--features-full hpe-card-collapsible' + (featuresCardOpen ? ' is-open' : ' is-collapsed') },
+          h('div', { className: 'hpe-card-collapse-header' },
+            h('h2', null, 'Características'),
+            h('button', {
+              type: 'button',
+              className: 'hpe-card-collapse-toggle',
+              onClick: function () { setFeaturesCardOpen(!featuresCardOpen); },
+              'aria-expanded': featuresCardOpen ? 'true' : 'false',
+              'aria-label': featuresCardOpen ? 'Colapsar Características' : 'Expandir Características'
+            }, h('span', { 'aria-hidden': 'true' }, featuresCardOpen ? '−' : '+'))
+          ),
+          h('div', { className: 'hpe-prices' },
+            h(Field, { label: 'Habitaciones' }, h(Input, { type: 'number', name: 'property_bedrooms', value: bedrooms, onChange: setBedrooms })),
+            h(Field, { label: 'Baños' }, h(Input, { type: 'number', name: 'property_bathrooms', value: bathrooms, onChange: setBathrooms })),
+            h(Field, { label: 'Parqueaderos' }, h(Input, { type: 'number', name: 'property_parking', value: parking, onChange: setParking })),
+            h(Field, { label: 'Área total' }, h(Input, { name: 'property_area', value: area, onChange: setArea })),
+            h(Field, { label: 'Área lote' }, h(Input, { name: 'property_area_lot', value: areaLot, onChange: setAreaLot })),
+            h(Field, { label: 'Área privada' }, h(Input, { name: 'property_area_private', value: areaPrivate, onChange: setAreaPrivate })),
+            h(Field, { label: 'Área construida' }, h(Input, { name: 'property_area_built', value: areaBuilt, onChange: setAreaBuilt }))
+          ),
+          h('div', { className: 'hpe-feature-items hpe-feature-items--all' },
+            featureGroups.reduce(function (items, group) {
+              return items.concat((group.items || []).map(function (item) {
+                var id = String(item.id);
+                var checked = selectedFeatures.indexOf(id) >= 0;
+                return h('label', { key: id, className: 'hpe-feature-check' + (checked ? ' is-selected' : '') },
+                  h('input', { type: 'checkbox', checked: checked, onChange: function () { toggleFeature(id); } }),
+                  h('span', null, item.name)
+                );
+              }));
+            }, [])
+          ),
+          hidden('property_features', selectedFeatures.join(','))
         ),
         h('section', { className: 'hpe-card hpe-span-3 hpe-card--visits' },
           h('h2', null, 'Informe de visitas del inmueble'),

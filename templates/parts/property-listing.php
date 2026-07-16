@@ -141,7 +141,7 @@ $sortOptions = [
                 <button type="button"
                         class="property-listing__view-btn property-listing__view-btn--grid<?php echo $config->defaultView() === 'grid' ? ' is-active' : ''; ?>"
                         data-view="grid" title="<?php esc_attr_e('Vista grilla', 'homlity-real-estate'); ?>">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                    <svg class="property-listing__view-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                         <rect x="0" y="0" width="7" height="7" rx="1"/>
                         <rect x="9" y="0" width="7" height="7" rx="1"/>
                         <rect x="0" y="9" width="7" height="7" rx="1"/>
@@ -151,8 +151,8 @@ $sortOptions = [
                 <button type="button"
                         class="property-listing__view-btn property-listing__view-btn--map<?php echo $config->defaultView() === 'map' ? ' is-active' : ''; ?>"
                         data-view="map" title="<?php esc_attr_e('Vista mapa', 'homlity-real-estate'); ?>">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                        <path d="M8 1C5.24 1 3 3.24 3 6c0 4 5 9 5 9s5-5 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 8 4a1.5 1.5 0 0 1 0 3.5z"/>
+                    <svg class="property-listing__view-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                        <path fill="currentColor" d="M8 1C5.24 1 3 3.24 3 6c0 4 5 9 5 9s5-5 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 8 4a1.5 1.5 0 0 1 0 3.5z"/>
                     </svg>
                 </button>
             </div>

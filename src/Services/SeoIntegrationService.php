@@ -36,10 +36,26 @@ class SeoIntegrationService implements ServiceInterface
         add_filter('wp_sitemaps_post_types', [$this, 'addWpCoreSitemapPostType']);
 
         // Custom standalone sitemaps
+        add_filter('query_vars', [$this, 'registerSitemapQueryVars']);
         add_action('init', [$this, 'registerSearchSitemapRewrite']);
         add_action('init', [$this, 'registerPropertySitemapRewrite']);
         add_action('template_redirect', [$this, 'maybeRenderSearchSitemap']);
         add_action('template_redirect', [$this, 'maybeRenderPropertySitemap']);
+    }
+
+    public function registerSitemapQueryVars(array $vars): array
+    {
+        foreach ([
+            'homlity_properties_sitemap',
+            'homlity_sitemap_paged',
+            'homlity_search_sitemap',
+        ] as $var) {
+            if (!in_array($var, $vars, true)) {
+                $vars[] = $var;
+            }
+        }
+
+        return $vars;
     }
 
     public function addYoastPostType(array $postTypes): array
@@ -192,24 +208,15 @@ class SeoIntegrationService implements ServiceInterface
             'index.php?homlity_properties_sitemap=1',
             'top'
         );
-
-        add_filter('query_vars', static function (array $vars): array {
-            foreach (['homlity_properties_sitemap', 'homlity_sitemap_paged'] as $var) {
-                if (!in_array($var, $vars, true)) {
-                    $vars[] = $var;
-                }
-            }
-            return $vars;
-        });
     }
 
     public function maybeRenderPropertySitemap(): void
     {
-        if ((string) get_query_var('homlity_properties_sitemap', '') !== '1') {
+        $page = $this->requestedPropertySitemapPage();
+        if ($page === null) {
             return;
         }
 
-        $page    = max(1, (int) (get_query_var('homlity_sitemap_paged', 0) ?: 1));
         $perPage = self::PROPERTY_SITEMAP_PER_PAGE;
 
         $query = new \WP_Query([
@@ -245,17 +252,14 @@ class SeoIntegrationService implements ServiceInterface
     public function registerSearchSitemapRewrite(): void
     {
         add_rewrite_rule('^' . preg_quote(self::SEARCH_SITEMAP_SLUG, '/') . '$', 'index.php?homlity_search_sitemap=1', 'top');
-        add_filter('query_vars', static function (array $vars): array {
-            if (!in_array('homlity_search_sitemap', $vars, true)) {
-                $vars[] = 'homlity_search_sitemap';
-            }
-            return $vars;
-        });
     }
 
     public function maybeRenderSearchSitemap(): void
     {
-        if ((string) get_query_var('homlity_search_sitemap', '') !== '1') {
+        if (
+            (string) get_query_var('homlity_search_sitemap', '') !== '1'
+            && $this->requestedRelativePath() !== self::SEARCH_SITEMAP_SLUG
+        ) {
             return;
         }
 
@@ -269,6 +273,42 @@ class SeoIntegrationService implements ServiceInterface
         }
         echo '</urlset>';
         exit;
+    }
+
+    /**
+     * Resolves the requested property sitemap even when WordPress still has
+     * stale rewrite rules cached after a plugin update.
+     */
+    private function requestedPropertySitemapPage(): ?int
+    {
+        if ((string) get_query_var('homlity_properties_sitemap', '') === '1') {
+            return max(1, (int) (get_query_var('homlity_sitemap_paged', 0) ?: 1));
+        }
+
+        $slug = preg_quote(self::PROPERTY_SITEMAP_SLUG, '/');
+        if (!preg_match('/^' . $slug . '(?:-([0-9]+))?\.xml$/', $this->requestedRelativePath(), $matches)) {
+            return null;
+        }
+
+        return max(1, isset($matches[1]) ? (int) $matches[1] : 1);
+    }
+
+    private function requestedRelativePath(): string
+    {
+        $requestUri = isset($_SERVER['REQUEST_URI'])
+            ? wp_unslash((string) $_SERVER['REQUEST_URI'])
+            : '';
+        $requestPath = (string) wp_parse_url($requestUri, PHP_URL_PATH);
+        $homePath = (string) wp_parse_url(home_url('/'), PHP_URL_PATH);
+
+        $requestPath = trim(rawurldecode($requestPath), '/');
+        $homePath = trim(rawurldecode($homePath), '/');
+
+        if ($homePath !== '' && ($requestPath === $homePath || strpos($requestPath, $homePath . '/') === 0)) {
+            $requestPath = ltrim(substr($requestPath, strlen($homePath)), '/');
+        }
+
+        return $requestPath;
     }
 
     /**

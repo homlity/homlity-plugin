@@ -145,6 +145,31 @@ if (!function_exists('homlity_card_feature_icon')) {
         return esc_html($fallback);
     }
 }
+if (!function_exists('homlity_card_format_area')) {
+    /**
+     * Ensures area values end with one, and only one, square-metre unit.
+     *
+     * CRM integrations may store either a bare number or a value that already
+     * contains "m2", "m²" or "metros cuadrados".
+     *
+     * @param mixed $value
+     */
+    function homlity_card_format_area($value): string
+    {
+        $area = trim(wp_strip_all_tags((string) $value));
+        if ($area === '') {
+            return '';
+        }
+
+        $area = preg_replace(
+            '/(?:\s*(?:m\s*(?:2|²)|mts?\.?\s*(?:2|²)|metros?\s+(?:cuadrados?|2|²)))+\s*$/iu',
+            '',
+            $area
+        );
+
+        return rtrim((string) $area) . ' m²';
+    }
+}
 
 $meta = (new PropertyPostType())->metaKeys();
 $currencyService = new CurrencyService();
@@ -344,16 +369,18 @@ if ($showPrice) {
 
             <?php if ($isCoverOverlayPreset): ?>
                 <div class="property-card__overlay">
-                    <?php if ($displayPrice && $showPrice): ?>
-                        <p class="property-card__overlay-price"><?php echo esc_html($displayPrice); ?></p>
+                    <?php if ((!empty($cardOptions['show_operation']) && $operationLabel) || ($displayPrice && $showPrice)): ?>
+                        <p class="property-card__operation property-card__overlay-operation">
+                            <?php if (!empty($cardOptions['show_operation']) && $operationLabel): ?>
+                                <span class="property-card__operation-label"><?php echo esc_html($operationLabel); ?></span>
+                            <?php endif; ?>
+                            <?php if ($displayPrice && $showPrice): ?>
+                                <span class="property-card__operation-price property-card__overlay-price"><?php echo esc_html($displayPrice); ?></span>
+                            <?php endif; ?>
+                        </p>
                     <?php endif; ?>
                     <?php if (!empty($cardOptions['show_title'])): ?>
                         <p class="property-card__overlay-title"><?php echo esc_html(get_the_title($post_id)); ?></p>
-                    <?php endif; ?>
-                    <?php if (!empty($cardOptions['show_operation']) && $operationLabel): ?>
-                        <p class="property-card__overlay-operation">
-                            <?php echo esc_html($operationLabel); ?>
-                        </p>
                     <?php endif; ?>
 
                     <?php if (!empty($cardOptions['show_features'])): ?>
@@ -361,7 +388,7 @@ if ($showPrice) {
                             <?php if (!empty($cardOptions['feature_area']) && $area): ?>
                                 <span class="property-card__overlay-chip property-card__feature-item">
                                     <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_area'] ?? [], '▦'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                                    <span class="property-card__feature-value"><?php echo esc_html($area); ?> m²</span>
+                                    <span class="property-card__feature-value"><?php echo esc_html(homlity_card_format_area($area)); ?></span>
                                 </span>
                             <?php endif; ?>
                             <?php if (!empty($cardOptions['feature_bedrooms']) && $bedrooms): ?>
@@ -392,9 +419,19 @@ if ($showPrice) {
         <?php if (!empty($cardOptions['show_title'])): ?>
             <p class="property-card__title"><?php echo esc_html(get_the_title($post_id)); ?></p>
         <?php endif; ?>
-        <?php if (!empty($cardOptions['show_operation']) && $operationLabel): ?>
+        <?php if ((!empty($cardOptions['show_operation']) && $operationLabel) || ($displayPrice && $showPrice)): ?>
             <p class="property-card__operation">
-                <?php echo esc_html($operationLabel); ?>
+                <?php if (!empty($cardOptions['show_operation']) && $operationLabel): ?>
+                    <span class="property-card__operation-label"><?php echo esc_html($operationLabel); ?></span>
+                <?php endif; ?>
+                <?php if ($displayPrice && $showPrice): ?>
+                    <span class="property-card__operation-price property-card__price">
+                        <?php echo esc_html($displayPrice); ?>
+                        <?php if ($displayPriceAdmin): ?>
+                            <small> + <?php echo esc_html($displayPriceAdmin); ?> <?php esc_html_e('adm.', 'homlity-real-estate'); ?></small>
+                        <?php endif; ?>
+                    </span>
+                <?php endif; ?>
             </p>
         <?php endif; ?>
         <?php if (!empty($cardOptions['show_excerpt']) && in_array('excerpt', $listingFields, true)): ?>
@@ -407,7 +444,7 @@ if ($showPrice) {
                 <?php if (!empty($cardOptions['feature_area']) && $area): ?>
                     <li class="property-card__feature-item" title="<?php esc_attr_e('Área', 'homlity-real-estate'); ?>">
                         <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_area'] ?? [], '▦'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                        <span class="property-card__feature-value"><?php echo esc_html($area); ?> m²</span>
+                        <span class="property-card__feature-value"><?php echo esc_html(homlity_card_format_area($area)); ?></span>
                     </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_bedrooms']) && $bedrooms): ?>
@@ -431,19 +468,19 @@ if ($showPrice) {
                 <?php if (!empty($cardOptions['feature_area_lot']) && $areaLot): ?>
                     <li class="property-card__feature-item" title="<?php esc_attr_e('Área lote', 'homlity-real-estate'); ?>">
                         <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_area_lot'] ?? [], '▣'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                        <span class="property-card__feature-value"><?php echo esc_html($areaLot); ?> m²</span>
+                        <span class="property-card__feature-value"><?php echo esc_html(homlity_card_format_area($areaLot)); ?></span>
                     </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_area_private']) && $areaPrivate): ?>
                     <li class="property-card__feature-item" title="<?php esc_attr_e('Área privada', 'homlity-real-estate'); ?>">
                         <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_area_private'] ?? [], '◫'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                        <span class="property-card__feature-value"><?php echo esc_html($areaPrivate); ?> m²</span>
+                        <span class="property-card__feature-value"><?php echo esc_html(homlity_card_format_area($areaPrivate)); ?></span>
                     </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_area_built']) && $areaBuilt): ?>
                     <li class="property-card__feature-item" title="<?php esc_attr_e('Área construida', 'homlity-real-estate'); ?>">
                         <span class="property-card__feature-icon" aria-hidden="true"><?php echo homlity_card_feature_icon($cardOptions['feature_icon_area_built'] ?? [], '◧'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                        <span class="property-card__feature-value"><?php echo esc_html($areaBuilt); ?> m²</span>
+                        <span class="property-card__feature-value"><?php echo esc_html(homlity_card_format_area($areaBuilt)); ?></span>
                     </li>
                 <?php endif; ?>
                 <?php if (!empty($cardOptions['feature_age']) && $age): ?>
@@ -465,14 +502,6 @@ if ($showPrice) {
                     </li>
                 <?php endif; ?>
             </ul>
-        <?php endif; ?>
-        <?php if ($displayPrice && $showPrice): ?>
-            <p class="property-card__price">
-                <?php echo esc_html($displayPrice); ?>
-                <?php if ($displayPriceAdmin): ?>
-                    <small> + <?php echo esc_html($displayPriceAdmin); ?> <?php esc_html_e('adm.', 'homlity-real-estate'); ?></small>
-                <?php endif; ?>
-            </p>
         <?php endif; ?>
         </div>
         <?php endif; ?>

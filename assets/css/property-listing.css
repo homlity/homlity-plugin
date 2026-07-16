@@ -209,6 +209,19 @@
     transition: background 0.18s, color 0.18s;
 }
 
+.property-listing__view-icon {
+    display: inline-block;
+    flex: 0 0 auto;
+    color: inherit;
+    fill: currentColor !important;
+    overflow: visible;
+}
+
+.property-listing__view-icon path,
+.property-listing__view-icon rect {
+    fill: currentColor !important;
+}
+
 .property-listing__view-btn:hover {
     background: #f7f8fa;
     color: var(--homlity-text);
@@ -725,6 +738,9 @@
     display: inline-flex;
     align-items: center;
     margin-left: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
     font-weight: 700;
     color: #111827;
 }

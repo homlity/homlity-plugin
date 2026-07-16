@@ -467,76 +467,6 @@
                 },
             },
             [
-                el(
-                    'div',
-                    { key: 'toolbar', className: 'homlity-settings__toolbar' },
-                    [
-                        el(
-                            'div',
-                            { key: 'copy', className: 'homlity-settings__toolbar-copy' },
-                            [
-                                el('h1', { key: 'title', className: 'homlity-settings__toolbar-title' }, config.pageTitle),
-                                el(
-                                    'div',
-                                    { key: 'meta', className: 'homlity-settings__toolbar-meta' },
-                                    [
-                                        el('span', {
-                                            key: 'badge',
-                                            className: classNames(
-                                                'homlity-settings__status',
-                                                status === 'saved' && 'is-saved',
-                                                status === 'error' && 'is-error',
-                                                status === 'saving' && 'is-saving',
-                                                isDirty && status !== 'saving' && status !== 'error' && 'is-dirty'
-                                            ),
-                                        }, status === 'saving'
-                                            ? __('Guardando…', 'homlity-real-estate')
-                                            : status === 'saved'
-                                                ? __('Sincronizado', 'homlity-real-estate')
-                                                : status === 'error'
-                                                    ? __('Error', 'homlity-real-estate')
-                                                    : isDirty
-                                                        ? __('Cambios pendientes', 'homlity-real-estate')
-                                                        : __('Estable', 'homlity-real-estate')),
-                                        el('div', { key: 'swatch', className: 'homlity-settings__preview-swatch homlity-settings__preview-swatch--inline' }, [
-                                            el('span', { key: 'label' }, __('Color activo', 'homlity-real-estate')),
-                                            el('strong', { key: 'value' }, normalized.primary_color),
-                                        ]),
-                                    ]
-                                ),
-                            ]
-                        ),
-                        el(
-                            'div',
-                            { key: 'actions', className: 'homlity-settings__actions homlity-settings__actions--toolbar' },
-                            [
-                                el(
-                                    'button',
-                                    {
-                                        key: 'save',
-                                        type: 'button',
-                                        className: 'homlity-settings__button homlity-settings__button--primary',
-                                        onClick: saveSettings,
-                                        disabled: status === 'saving',
-                                    },
-                                    status === 'saving' ? __('Guardando…', 'homlity-real-estate') : config.saveLabel
-                                ),
-                                el(
-                                    'button',
-                                    {
-                                        key: 'reset',
-                                        type: 'button',
-                                        className: 'homlity-settings__button homlity-settings__button--ghost',
-                                        onClick: resetToDefaults,
-                                        disabled: status === 'saving',
-                                    },
-                                    config.resetLabel
-                                ),
-                            ]
-                        ),
-                    ]
-                ),
-
                 message
                     ? el(
                         'div',
@@ -785,6 +715,52 @@
                                 dangerouslySetInnerHTML: { __html: config.consignmentHtml || '' },
                             })
                         ) : null,
+                    ]
+                ),
+                el(
+                    'div',
+                    { key: 'bottom-actions', className: 'homlity-settings__actions homlity-settings__actions--bottom' },
+                    [
+                        el('span', {
+                            key: 'status',
+                            className: classNames(
+                                'homlity-settings__status',
+                                status === 'saved' && 'is-saved',
+                                status === 'error' && 'is-error',
+                                status === 'saving' && 'is-saving',
+                                isDirty && status !== 'saving' && status !== 'error' && 'is-dirty'
+                            ),
+                        }, status === 'saving'
+                            ? __('Guardando…', 'homlity-real-estate')
+                            : status === 'saved'
+                                ? __('Sincronizado', 'homlity-real-estate')
+                                : status === 'error'
+                                    ? __('Error', 'homlity-real-estate')
+                                    : isDirty
+                                        ? __('Cambios pendientes', 'homlity-real-estate')
+                                        : __('Estable', 'homlity-real-estate')),
+                        el(
+                            'button',
+                            {
+                                key: 'save',
+                                type: 'button',
+                                className: 'homlity-settings__button homlity-settings__button--primary',
+                                onClick: saveSettings,
+                                disabled: status === 'saving',
+                            },
+                            status === 'saving' ? __('Guardando…', 'homlity-real-estate') : config.saveLabel
+                        ),
+                        el(
+                            'button',
+                            {
+                                key: 'reset',
+                                type: 'button',
+                                className: 'homlity-settings__button homlity-settings__button--ghost',
+                                onClick: resetToDefaults,
+                                disabled: status === 'saving',
+                            },
+                            config.resetLabel
+                        ),
                     ]
                 ),
             ]

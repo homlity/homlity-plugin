@@ -71,7 +71,26 @@ class PropertyAnalyticsService implements ServiceInterface
 
     public function renderPage(): void
     {
-        echo '<div class="wrap"><div id="homlity-real-estate-analytics-app"></div></div>';
+        ?>
+        <div class="wrap">
+            <?php $this->renderBanners(); ?>
+            <div id="homlity-real-estate-analytics-app"></div>
+        </div>
+        <?php
+    }
+
+    private function renderBanners(): void
+    {
+        ?>
+        <div class="homlity-admin-banners">
+            <a href="https://homi.homlity.com/registro-inmobiliaria-gratis" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e('Registrarse gratis en Homlity', 'homlity-real-estate'); ?>">
+                <img src="<?php echo esc_url(HOMLITY_PLUGIN_URL . 'assets/img/homlity.png'); ?>" alt="<?php esc_attr_e('Impulsa tu inmobiliaria con Homlity', 'homlity-real-estate'); ?>">
+            </a>
+            <a href="https://homi.homlity.com/register" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e('Registrarse gratis en el Directorio Inmobiliario de Homlity', 'homlity-real-estate'); ?>">
+                <img src="<?php echo esc_url(HOMLITY_PLUGIN_URL . 'assets/img/directorio-inmobiliario.png'); ?>" alt="<?php esc_attr_e('Únete al Directorio Inmobiliario de Homlity', 'homlity-real-estate'); ?>">
+            </a>
+        </div>
+        <?php
     }
 
     public function registerRestRoutes(): void

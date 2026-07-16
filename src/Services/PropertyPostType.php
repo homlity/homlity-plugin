@@ -743,7 +743,11 @@ class PropertyPostType implements ServiceInterface
 
         $currencies = (new CurrencyService())->supportedCurrencies();
         $users = get_users([
-            'role__in' => ['administrator', 'editor', 'author', 'asesor_comercial', 'subscriber'],
+            'role__in' => [
+                CapabilityService::ROLE_ASSESSOR,
+                CapabilityService::LEGACY_ROLE_ASSESSOR,
+                'administrator',
+            ],
             'orderby' => 'display_name',
             'order' => 'ASC',
             'fields' => ['ID', 'display_name', 'user_email'],
@@ -757,6 +761,10 @@ class PropertyPostType implements ServiceInterface
             'permalink' => $postId > 0 ? get_permalink($postId) : '',
             'previewLink' => $postId > 0 ? get_preview_post_link($postId) : '',
             'deleteLink' => $postId > 0 ? get_delete_post_link($postId, '', true) : '',
+            'bannerUrl' => HOMLITY_PLUGIN_URL . 'assets/img/homlity.png',
+            'registrationUrl' => 'https://homi.homlity.com/registro-inmobiliaria-gratis',
+            'directoryBannerUrl' => HOMLITY_PLUGIN_URL . 'assets/img/directorio-inmobiliario.png',
+            'directoryRegistrationUrl' => 'https://homi.homlity.com/register',
             'meta' => $meta,
             'title' => get_the_title($postId),
             'excerpt' => get_post_field('post_excerpt', $postId),
@@ -1232,7 +1240,11 @@ class PropertyPostType implements ServiceInterface
         $currentAgent = (int) get_post_meta($post->ID, $this->metaKeys['agent_id'], true);
 
         $users = get_users([
-            'role__in' => ['administrator', 'editor', 'author'],
+            'role__in' => [
+                CapabilityService::ROLE_ASSESSOR,
+                CapabilityService::LEGACY_ROLE_ASSESSOR,
+                'administrator',
+            ],
             'orderby' => 'display_name',
             'order' => 'ASC',
             'fields' => ['ID', 'display_name', 'user_email'],
@@ -1412,11 +1424,23 @@ class PropertyPostType implements ServiceInterface
         }
 
         $agentId = absint($_POST['property_agent_id'] ?? 0);
-        if ($agentId <= 0) {
-            $agentId = get_current_user_id();
-            if ($agentId > 0) {
-                update_post_meta($postId, $this->metaKeys['agent_id'], $agentId);
-            }
+        $agent = $agentId > 0 ? get_user_by('id', $agentId) : false;
+        $allowedAgentRoles = [
+            CapabilityService::ROLE_ASSESSOR,
+            CapabilityService::LEGACY_ROLE_ASSESSOR,
+            'administrator',
+        ];
+        if (
+            !$agent instanceof \WP_User
+            || !array_intersect($allowedAgentRoles, $agent->roles)
+        ) {
+            $agentId = 0;
+        }
+
+        if ($agentId > 0) {
+            update_post_meta($postId, $this->metaKeys['agent_id'], $agentId);
+        } else {
+            delete_post_meta($postId, $this->metaKeys['agent_id']);
         }
         $this->syncAgentContactMeta($postId, $agentId);
 

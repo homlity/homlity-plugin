@@ -55,6 +55,9 @@ class HomlityPlansService implements ServiceInterface
 
         echo '<div class="wrap">';
         echo '<style>
+            .homlity-admin-banners { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:12px 0 16px; width:100%; }
+            .homlity-admin-banners a { display:block; overflow:hidden; border-radius:10px; line-height:0; }
+            .homlity-admin-banners img { display:block; width:100%; height:auto; border:0; border-radius:10px; }
             .homlity-plans-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:24px; }
             .homlity-plan-card { background:#fff; border:1px solid #dcdcde; border-radius:8px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.07); transition:box-shadow .15s; }
             .homlity-plan-card:hover { box-shadow:0 4px 12px rgba(0,0,0,.12); }
@@ -70,7 +73,10 @@ class HomlityPlansService implements ServiceInterface
             .homlity-plan-price__annual { font-size:12px; color:#646970; margin-top:2px; }
             .homlity-plan-actions { display:flex; gap:8px; }
             .homlity-plan-actions .button { flex:1; text-align:center; justify-content:center; }
+            @media (max-width:782px) { .homlity-admin-banners { grid-template-columns:1fr; } }
         </style>';
+
+        $this->renderBanners();
 
         echo '<h1 style="margin-bottom:6px;">' . esc_html__('Planes de integración', 'homlity-real-estate') . '</h1>';
 
@@ -119,6 +125,20 @@ class HomlityPlansService implements ServiceInterface
         echo '</div>';
 
         echo '</div>';
+    }
+
+    private function renderBanners(): void
+    {
+        ?>
+        <div class="homlity-admin-banners">
+            <a href="https://homi.homlity.com/registro-inmobiliaria-gratis" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e('Registrarse gratis en Homlity', 'homlity-real-estate'); ?>">
+                <img src="<?php echo esc_url(HOMLITY_PLUGIN_URL . 'assets/img/homlity.png'); ?>" alt="<?php esc_attr_e('Impulsa tu inmobiliaria con Homlity', 'homlity-real-estate'); ?>">
+            </a>
+            <a href="https://homi.homlity.com/register" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e('Registrarse gratis en el Directorio Inmobiliario de Homlity', 'homlity-real-estate'); ?>">
+                <img src="<?php echo esc_url(HOMLITY_PLUGIN_URL . 'assets/img/directorio-inmobiliario.png'); ?>" alt="<?php esc_attr_e('Únete al Directorio Inmobiliario de Homlity', 'homlity-real-estate'); ?>">
+            </a>
+        </div>
+        <?php
     }
 
     private function renderPlanCard(array $plan, array $plugin = []): void

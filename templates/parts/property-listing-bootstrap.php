@@ -155,7 +155,7 @@ $paramToAttr = static function ($value): string {
                                 type="button" role="tab"
                                 aria-controls="<?php echo esc_attr($listTabId); ?>"
                                 aria-selected="<?php echo $listActive ? 'true' : 'false'; ?>">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true" class="me-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true" class="me-1 property-listing__view-icon">
                                 <rect x="0" y="0" width="5" height="5" rx="1"/><rect x="7" y="0" width="5" height="5" rx="1"/><rect x="0" y="7" width="5" height="5" rx="1"/>
                                 <rect x="7" y="7" width="5" height="5" rx="1"/><rect x="0" y="0" width="5" height="5" rx="1" transform="translate(0,0)"/>
                             </svg>
@@ -171,8 +171,8 @@ $paramToAttr = static function ($value): string {
                                 type="button" role="tab"
                                 aria-controls="<?php echo esc_attr($mapTabId); ?>"
                                 aria-selected="<?php echo $mapActive ? 'true' : 'false'; ?>">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true" class="me-1">
-                                <path d="M8 1C5.24 1 3 3.24 3 6c0 4 5 9 5 9s5-5 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 8 4a1.5 1.5 0 0 1 0 3.5z"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true" class="me-1 property-listing__view-icon">
+                                <path fill="currentColor" d="M8 1C5.24 1 3 3.24 3 6c0 4 5 9 5 9s5-5 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 8 4a1.5 1.5 0 0 1 0 3.5z"/>
                             </svg>
                             <?php esc_html_e('Mapa', 'homlity-real-estate'); ?>
                         </button>
