@@ -349,6 +349,11 @@ class PropertyUnavailableService implements ServiceInterface
             return;
         }
 
+        if ($templateId > 0 && get_post_status($templateId) && get_post_meta($templateId, '_homlity_seeded_builder', true) !== '') {
+            $this->renderBuilderPage($templateId);
+            return;
+        }
+
         // New rich recovery template.
         include $this->locateTemplate('property-recovery.php');
     }
@@ -379,6 +384,27 @@ class PropertyUnavailableService implements ServiceInterface
             return;
         }
 
+        if ($templateId > 0 && get_post_status($templateId) && get_post_meta($templateId, '_homlity_seeded_builder', true) !== '') {
+            $this->renderBuilderPage($templateId);
+            return;
+        }
+
         include $this->locateTemplate('property-unavailable.php');
+    }
+
+    private function renderBuilderPage(int $pageId): void
+    {
+        global $post;
+        $previousPost = $post ?? null;
+        $post = get_post($pageId);
+        if (!$post instanceof \WP_Post) {
+            return;
+        }
+        setup_postdata($post);
+        get_header();
+        echo apply_filters('the_content', $post->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        get_footer();
+        wp_reset_postdata();
+        $post = $previousPost;
     }
 }

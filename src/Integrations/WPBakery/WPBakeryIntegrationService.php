@@ -37,6 +37,7 @@ use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyTechnicalS
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyTitleWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyVideoWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\SimulatorWidget;
+use Homlity\PluginInmobiliario\Services\DataSeederService;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -70,6 +71,8 @@ class WPBakeryIntegrationService implements ServiceInterface
             $this->mapListing();
             $this->listingMapped = true;
         }
+
+        (new DataSeederService())->seedBuilderTemplates();
 
         // Elementor supplies the canonical control schema and renderer. Keeping
         // this conditional lets the standalone listing continue working when

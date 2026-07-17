@@ -274,6 +274,7 @@ class Homlity_Consignment_Manager
         if ($existing_id > 0) {
             $status = get_post_status($existing_id);
             if ($status !== false && $status !== 'trash') {
+                self::configureConsignmentBuilder($existing_id);
                 return $existing_id;
             }
         }
@@ -292,7 +293,78 @@ class Homlity_Consignment_Manager
         }
 
         update_option(self::PAGE_ID_OPTION, $page_id, false);
+        self::configureConsignmentBuilder((int) $page_id);
         return $page_id;
+    }
+
+    private static function configureConsignmentBuilder(int $page_id): void
+    {
+        $existing = trim((string) get_post_field('post_content', $page_id));
+        $seeded = (string) get_post_meta($page_id, '_homlity_consignment_builder', true);
+        if ($seeded === '' && $existing !== '' && $existing !== '[homlity_consignment_form]') {
+            return;
+        }
+
+        $builder = self::preferredPageBuilder();
+        $shortcode = '[homlity_consignment_form]';
+        if ($builder === 'divi') {
+            $content = '[et_pb_section][et_pb_row][et_pb_column type="4_4"][et_pb_text]'
+                . $shortcode . '[/et_pb_text][/et_pb_column][/et_pb_row][/et_pb_section]';
+            update_post_meta($page_id, '_et_pb_use_builder', 'on');
+            update_post_meta($page_id, '_et_pb_page_layout', 'et_full_width_page');
+            update_post_meta($page_id, '_et_pb_built_for_post_type', 'page');
+        } elseif ($builder === 'wpbakery') {
+            $content = '[vc_row][vc_column][vc_column_text]' . $shortcode . '[/vc_column_text][/vc_column][/vc_row]';
+            update_post_meta($page_id, '_wpb_vc_js_status', 'true');
+        } elseif ($builder === 'elementor') {
+            $content = '';
+            $id = static fn(): string => substr(md5(uniqid('', true)), 0, 7);
+            $data = [[
+                'id' => $id(), 'elType' => 'section', 'settings' => [], 'isInner' => false,
+                'elements' => [[
+                    'id' => $id(), 'elType' => 'column', 'settings' => ['_column_size' => 100], 'isInner' => false,
+                    'elements' => [[
+                        'id' => $id(), 'elType' => 'widget', 'widgetType' => 'shortcode',
+                        'settings' => ['shortcode' => $shortcode], 'elements' => [],
+                    ]],
+                ]],
+            ]];
+            update_post_meta($page_id, '_elementor_edit_mode', 'builder');
+            update_post_meta($page_id, '_elementor_template_type', 'wp-page');
+            update_post_meta($page_id, '_elementor_data', wp_slash(wp_json_encode($data)));
+        } else {
+            $content = $shortcode;
+        }
+
+        wp_update_post(['ID' => $page_id, 'post_content' => wp_slash($content)]);
+        update_post_meta($page_id, '_homlity_consignment_builder', $builder);
+    }
+
+    private static function preferredPageBuilder(): string
+    {
+        $template = strtolower((string) get_template());
+        $stylesheet = strtolower((string) get_stylesheet());
+        if (in_array($template, ['divi', 'extra'], true) || in_array($stylesheet, ['divi', 'extra'], true) || self::pluginIsActive('divi-builder/divi-builder.php')) {
+            return 'divi';
+        }
+        if (defined('ELEMENTOR_VERSION') || class_exists('Elementor\\Plugin') || self::pluginIsActive('elementor/elementor.php')) {
+            return 'elementor';
+        }
+        if (defined('WPB_VC_VERSION') || class_exists('Vc_Manager') || self::pluginIsActive('js_composer/js_composer.php')) {
+            return 'wpbakery';
+        }
+        return 'native';
+    }
+
+    private static function pluginIsActive(string $plugin): bool
+    {
+        if (!function_exists('is_plugin_active')) {
+            $file = ABSPATH . 'wp-admin/includes/plugin.php';
+            if (file_exists($file)) {
+                require_once $file;
+            }
+        }
+        return function_exists('is_plugin_active') && is_plugin_active($plugin);
     }
 
     /**

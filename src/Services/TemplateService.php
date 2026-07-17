@@ -483,6 +483,9 @@ class TemplateService implements ServiceInterface
             || $this->isArchivePage
             || $isSeoArchiveRequest
         ) {
+            if ($archivePageId > 0 && $this->isArchivePage && get_post_meta($archivePageId, '_homlity_seeded_builder', true) !== '') {
+                return $template;
+            }
             // If the admin chose a custom page template in the editor, respect it.
             if ($archivePageId > 0 && $this->isArchivePage) {
                 $customSlug = get_page_template_slug($archivePageId);

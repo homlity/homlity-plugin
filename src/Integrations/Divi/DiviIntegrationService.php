@@ -9,6 +9,7 @@
 namespace Homlity\PluginInmobiliario\Integrations\Divi;
 
 use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
+use Homlity\PluginInmobiliario\Services\DataSeederService;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -29,5 +30,39 @@ class DiviIntegrationService implements ServiceInterface
         }
 
         require_once __DIR__ . '/Modules/PropertyListingModule.php';
+
+        // Load the small Homlity-owned widget contract only when Elementor is
+        // absent. It does not bootstrap or depend on the Elementor plugin.
+        if (!class_exists('\\Elementor\\Widget_Base')) {
+            require_once __DIR__ . '/Compatibility/ElementorShim.php';
+        }
+        require_once __DIR__ . '/Modules/ElementorWidgetModule.php';
+
+        foreach ($this->widgetClasses() as $widgetClass) {
+            if (class_exists($widgetClass)) {
+                new \Homlity_Divi_Widget_Module($widgetClass);
+            }
+        }
+
+        (new DataSeederService())->seedBuilderTemplates();
+    }
+
+    /** @return list<class-string> */
+    private function widgetClasses(): array
+    {
+        $namespace = 'Homlity\\PluginInmobiliario\\Integrations\\Elementor\\Widgets\\';
+        return array_map(static fn(string $name): string => $namespace . $name, [
+            'PropertyAgentWidget', 'PropertyAgentsAvailableWidget',
+            'PropertyBreadcrumbWidget', 'PropertyCardWidget', 'PropertyContentWidget',
+            'PropertyDynamicCodeButtonWidget', 'PropertyFeaturedCitiesWidget',
+            'PropertyFeaturedNeighborhoodsWidget', 'PropertyFeaturedOperationsWidget',
+            'PropertyFeaturedTermsWidget', 'PropertyFeaturedTypesWidget',
+            'PropertyFeaturesPrimaryWidget', 'PropertyFeaturesSecondaryWidget',
+            'PropertyFilterWidget', 'PropertyGalleryWidget', 'PropertyListingWidget',
+            'PropertyMapWidget', 'PropertyMediaTabsWidget', 'PropertyOperationPriceWidget',
+            'PropertyRelatedWidget', 'PropertyResultsTitleWidget', 'PropertyShareWidget',
+            'PropertySummaryWidget', 'PropertyTechnicalSheetButtonWidget',
+            'PropertyTitleWidget', 'PropertyVideoWidget', 'SimulatorWidget',
+        ]);
     }
 }

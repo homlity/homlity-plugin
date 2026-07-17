@@ -39,6 +39,20 @@ if (
     return;
 }
 
+$homlityBuilderTemplate = $homlityElementorTemplateId > 0 ? get_post($homlityElementorTemplateId) : null;
+if (
+    $homlityBuilderTemplate instanceof \WP_Post
+    && get_post_meta($homlityBuilderTemplate->ID, '_homlity_seeded_builder', true) !== ''
+) {
+    // Keep the queried property as the global post so dynamic modules and
+    // shortcodes resolve its data, while rendering the template page content.
+    echo apply_filters('the_content', $homlityBuilderTemplate->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+    if (!$isCanvasLayout) {
+        get_footer();
+    }
+    return;
+}
+
 $metaKeys = (new PropertyPostType())->metaKeys();
 $currencyService = new CurrencyService();
 
