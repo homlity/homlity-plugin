@@ -17,6 +17,7 @@ if (!class_exists(Controls_Manager::class)) {
         public const TEXTAREA = 'textarea';
         public const NUMBER = 'number';
         public const SELECT = 'select';
+        public const SELECT2 = 'select2';
         public const SWITCHER = 'switcher';
         public const COLOR = 'color';
         public const SLIDER = 'slider';

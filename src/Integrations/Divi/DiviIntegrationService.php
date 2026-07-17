@@ -39,8 +39,24 @@ class DiviIntegrationService implements ServiceInterface
         require_once __DIR__ . '/Modules/ElementorWidgetModule.php';
 
         foreach ($this->widgetClasses() as $widgetClass) {
-            if (class_exists($widgetClass)) {
-                new \Homlity_Divi_Widget_Module($widgetClass);
+            try {
+                if (class_exists($widgetClass)) {
+                    new \Homlity_Divi_Elementor_Widget_Module($widgetClass);
+                }
+            } catch (\Throwable $exception) {
+                /**
+                 * Allow integrations to report a widget that could not be
+                 * adapted without preventing Divi or the site from loading.
+                 */
+                do_action('homlity_divi_widget_registration_error', $widgetClass, $exception);
+
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log(sprintf(
+                        'Homlity Divi: no se pudo registrar %s: %s',
+                        $widgetClass,
+                        $exception->getMessage()
+                    ));
+                }
             }
         }
 

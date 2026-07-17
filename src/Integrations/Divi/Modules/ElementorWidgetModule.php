@@ -13,9 +13,17 @@ if (!defined('ABSPATH')) {
  * Elementor itself is not required; ElementorShim supplies only the small
  * declarative/runtime contract used by Homlity widgets.
  */
-class Homlity_Divi_Widget_Module extends ET_Builder_Module
+#[\AllowDynamicProperties]
+class Homlity_Divi_Elementor_Widget_Module extends ET_Builder_Module
 {
     public $vb_support = 'partial';
+
+    // ET_Builder_Element assigns these legacy extension points during its
+    // constructor. Declaring them prevents PHP 8.2 dynamic-property notices.
+    public $text_shadow = null;
+    public $margin_padding = null;
+    public $_additional_fields_options = [];
+
     private string $widgetClass;
     private ?\Elementor\Widget_Base $prototype = null;
 
@@ -117,7 +125,14 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
             $field['type'] = 'yes_no_button';
             $field['options'] = ['on' => esc_html__('Sí', 'homlity-real-estate'), 'off' => esc_html__('No', 'homlity-real-estate')];
             $field['default'] = ($control['default'] ?? '') === 'yes' ? 'on' : 'off';
-        } elseif (in_array($type, [Controls_Manager::SELECT, Controls_Manager::CHOOSE], true)) {
+        } elseif (in_array($type, [Controls_Manager::SELECT, Controls_Manager::SELECT2, Controls_Manager::CHOOSE], true)) {
+            // Divi does not expose a native multi-select field. Preserve those
+            // values as JSON so the canonical widget still receives an array.
+            if ($type === Controls_Manager::SELECT2 && !empty($control['multiple'])) {
+                $field['type'] = 'textarea';
+                $field['description'] = trim($field['description'] . ' ' . esc_html__('Ingrese los valores seleccionados como un arreglo JSON.', 'homlity-real-estate'));
+                return $field;
+            }
             $field['type'] = 'select';
             $field['options'] = array_map('esc_html', (array) ($control['options'] ?? []));
         } elseif ($type === Controls_Manager::TEXTAREA) {
