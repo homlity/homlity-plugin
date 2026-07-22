@@ -9,6 +9,7 @@ use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 use Homlity\PluginInmobiliario\Homologation\HomologationAdminPage;
 use Homlity\PluginInmobiliario\Homologation\HomologationRestController;
 use Homlity\PluginInmobiliario\Integrations\CF7\CF7IntegrationService;
+use Homlity\PluginInmobiliario\Integrations\Elementor\ElementorProFormsIntegrationService;
 use Homlity\PluginInmobiliario\Integrations\Divi\DiviIntegrationService;
 use Homlity\PluginInmobiliario\Integrations\Shortcode\ShortcodeIntegrationService;
 use Homlity\PluginInmobiliario\Integrations\WPBakery\WPBakeryIntegrationService;
@@ -22,6 +23,7 @@ use Homlity\PluginInmobiliario\Services\CrmAdminService;
 use Homlity\PluginInmobiliario\Services\CurrencyService;
 use Homlity\PluginInmobiliario\Services\ElementorIntegrationService;
 use Homlity\PluginInmobiliario\Services\CrmInfrastructureService;
+use Homlity\PluginInmobiliario\Services\DashboardNewsService;
 use Homlity\PluginInmobiliario\Services\I18nService;
 use Homlity\PluginInmobiliario\Services\LocationMetaService;
 use Homlity\PluginInmobiliario\Services\NinjaWhatsAppPropertyOverrideService;
@@ -71,6 +73,7 @@ class PluginBootstrap
             new PropertyTaxonomies(),
             new AdminMenuService(),
             new AdminBarService(),
+            new DashboardNewsService(),
             new CapabilityService(),
             new LocationMetaService(),
             new UserMetaService(),
@@ -95,6 +98,7 @@ class PluginBootstrap
 
             // Page-builder integrations (each is a no-op when its builder is absent)
             new ElementorIntegrationService(),
+            new ElementorProFormsIntegrationService(),
             new WPBakeryIntegrationService(),
             new DiviIntegrationService(),
 

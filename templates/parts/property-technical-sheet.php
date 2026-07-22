@@ -76,8 +76,6 @@ $pluginSettings = get_option(HOMLITY_PLUGIN_SETTINGS_OPTION, []);
 $pluginSettings = is_array($pluginSettings) ? $pluginSettings : [];
 
 $companyName = (string) ($pluginSettings['company_name'] ?? get_bloginfo('name'));
-$companyUrl = (string) ($pluginSettings['company_url'] ?? home_url('/'));
-$companyEmail = (string) ($pluginSettings['support_email'] ?? get_option('admin_email'));
 $primaryColor = sanitize_hex_color((string) ($pluginSettings['primary_color'] ?? '')) ?: '#ff6752';
 $baseCurrency = strtoupper((string) ($pluginSettings['base_currency'] ?? 'USD'));
 $companyLogo = get_site_icon_url(192) ?: '';
@@ -131,13 +129,27 @@ if ($agentId > 0) {
     $user = get_user_by('id', $agentId);
     if ($user) {
         $agentName = (string) $user->display_name;
-        $agentPhone = (string) (get_user_meta($agentId, 'phone', true) ?: get_user_meta($agentId, 'billing_phone', true));
+        $agentPhone = (string) (
+            get_user_meta($agentId, 'homlity_plugin_phone', true)
+            ?: get_user_meta($agentId, '_homlity_advisor_phone', true)
+            ?: get_user_meta($agentId, 'phone', true)
+            ?: get_user_meta($agentId, 'telefono', true)
+            ?: get_user_meta($agentId, 'mobile_phone', true)
+            ?: get_user_meta($agentId, 'celular', true)
+            ?: get_user_meta($agentId, 'billing_phone', true)
+        );
         $agentEmail = (string) $user->user_email;
-        $agentAvatar = get_avatar_url($agentId, ['size' => 120]) ?: '';
+        $agentAvatar = (string) (
+            get_user_meta($agentId, '_homlity_advisor_photo', true)
+            ?: get_avatar_url($agentId, ['size' => 120])
+            ?: ''
+        );
     }
 }
+$agentName = $agentName !== '' ? $agentName : (string) get_post_meta($post_id, $meta['agent_name'], true);
 $agentPhone = $agentPhone !== '' ? $agentPhone : (string) get_post_meta($post_id, $meta['agent_phone'], true);
 $agentEmail = $agentEmail !== '' ? $agentEmail : (string) get_post_meta($post_id, $meta['agent_email'], true);
+$agentAvatar = $agentAvatar !== '' ? $agentAvatar : (string) get_post_meta($post_id, $meta['agent_photo'], true);
 $whatsAppUrl = WhatsAppLinkService::buildPropertyLink((int) $post_id, (string) $agentPhone, 'Buen día, estoy interesado en ' . $title);
 
 $gallery = get_post_meta($post_id, $meta['gallery'], true);
@@ -219,16 +231,6 @@ $_b = (int) hexdec( substr( ltrim( $primaryColor, '#' ), 4, 2 ) );
             <button type="button" class="homlity-tech-sheet__print" onclick="window.print()"><?php esc_html_e('Imprimir ficha', 'homlity-real-estate'); ?></button>
         </div>
     </div>
-
-    <section class="homlity-tech-sheet__card">
-        <h2><?php esc_html_e('Información de la inmobiliaria', 'homlity-real-estate'); ?></h2>
-        <div class="homlity-tech-sheet__grid">
-            <div><strong><?php esc_html_e('Nombre', 'homlity-real-estate'); ?>:</strong> <?php echo esc_html($asText($companyName)); ?></div>
-            <div><strong><?php esc_html_e('Web', 'homlity-real-estate'); ?>:</strong> <a href="<?php echo esc_url($companyUrl); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($asText($companyUrl)); ?></a></div>
-            <div><strong><?php esc_html_e('Correo', 'homlity-real-estate'); ?>:</strong> <?php echo esc_html($asText($companyEmail)); ?></div>
-            <div><strong><?php esc_html_e('URL inmueble', 'homlity-real-estate'); ?>:</strong> <a href="<?php echo esc_url($permalink); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($permalink); ?></a></div>
-        </div>
-    </section>
 
     <section class="homlity-tech-sheet__card homlity-tech-sheet__advisor">
         <h2><?php esc_html_e('Información del asesor', 'homlity-real-estate'); ?></h2>

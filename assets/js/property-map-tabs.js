@@ -57,16 +57,16 @@
     }).addTo(map);
 
     var iconUrl    = node.dataset.markerIcon || '';
-    var markerBg   = node.dataset.markerBgColor || '';
-    var bgStyle    = markerBg ? 'background-color:' + markerBg + ';' : '';
+    var markerBg   = node.dataset.markerBgColor || '#ffffff';
+    var bgStyle    = 'background-color:' + markerBg + ';';
     var customIcon = iconUrl
       ? window.L.divIcon({
-          html: '<span class="homlity-map-marker__wrap" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.3);' + bgStyle + '">'
+          html: '<span class="homlity-map-marker__wrap" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid rgba(15,23,42,.16);border-radius:50%;box-shadow:0 2px 7px rgba(15,23,42,.28);' + bgStyle + '">'
               + '<img src="' + iconUrl + '" width="22" height="22" style="object-fit:contain;" alt=""/>'
               + '</span>',
-          iconSize: [32, 32],
-          iconAnchor: [16, 32],
-          popupAnchor: [0, -34],
+          iconSize: [36, 36],
+          iconAnchor: [18, 36],
+          popupAnchor: [0, -38],
           className: ''
         })
       : null;

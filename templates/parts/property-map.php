@@ -224,7 +224,7 @@ wp_enqueue_script(
                     data-title="<?php echo esc_attr(get_the_title($post_id)); ?>"
                     data-marker-icon="<?php echo esc_attr($markerIconUrl); ?>"
                     data-marker-icon-fallback="<?php echo esc_attr($fallbackIconUrl); ?>"
-                    data-marker-bg-color="<?php echo esc_attr(sanitize_hex_color((string) ($widgetSettings['marker_bg_color'] ?? '#ffffff'))); ?>"
+                    data-marker-bg-color="<?php echo esc_attr(sanitize_hex_color((string) ($widgetSettings['marker_bg_color'] ?? '')) ?: '#ffffff'); ?>"
                     data-related-markers="<?php echo esc_attr(wp_json_encode($relatedMarkers)); ?>"
                 ></div>
             <?php endif; ?>

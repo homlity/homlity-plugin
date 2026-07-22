@@ -19,11 +19,12 @@
     }
 
     function makeCustomIcon(url) {
-        return window.L.icon({
-            iconUrl:      url,
-            iconSize:     [32, 32],
-            iconAnchor:   [16, 32],
-            popupAnchor:  [0, -34],
+        return window.L.divIcon({
+            className: 'homlity-map-marker',
+            html: '<span class="homlity-map-marker__wrap"><img src="' + url + '" width="22" height="22" alt=""></span>',
+            iconSize:     [36, 36],
+            iconAnchor:   [18, 36],
+            popupAnchor:  [0, -38],
         });
     }
 
