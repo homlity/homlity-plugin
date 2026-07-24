@@ -1,12 +1,12 @@
 <?php
 
-namespace Homlity\PluginInmobiliario\Integrations\Elementor\Widgets;
+namespace Homlity\PluginInmobiliario\Integrations\Divi\Widgets;
 
 use Homlity\PluginInmobiliario\Services\TemplateService;
-use Elementor\Controls_Manager;
-use Elementor\Group_Control_Border;
-use Elementor\Group_Control_Box_Shadow;
-use Elementor\Group_Control_Typography;
+use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Controls_Manager;
+use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Group_Control_Border;
+use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Group_Control_Box_Shadow;
+use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Group_Control_Typography;
 
 if (!defined('ABSPATH')) {
     exit;

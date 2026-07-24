@@ -37,9 +37,21 @@ if (
     }
 }
 
+if (
+    !$rendered
+    && $elementorPageId > 0
+    && get_post_status($elementorPageId)
+    && get_post_meta($elementorPageId, '_homlity_seeded_builder', true) !== ''
+) {
+    $builderPage = get_post($elementorPageId);
+    if ($builderPage instanceof \WP_Post) {
+        echo apply_filters('the_content', $builderPage->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        $rendered = true;
+    }
+}
+
 if (!$rendered) {
     TemplateService::includeComponent('agent-profile-content.php');
 }
 
 get_footer();
-

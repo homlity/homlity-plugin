@@ -805,56 +805,60 @@
         h('button', { type: 'button', className: 'button' + (activeTab === 'visits' ? ' button-primary' : ''), onClick: function () { setActiveTab('visits'); } }, 'Informe de visitas')
       ),
       h('div', { className: 'hpe-grid hpe-grid--tab-' + activeTab },
-        h('section', { className: 'hpe-card hpe-span-2' },
-          h('h2', null, 'Información básica'),
-          h(Field, { label: 'Título', required: true, error: hasError('title') ? 'Este campo es obligatorio.' : '' }, h('input', { type: 'text', value: title, required: true, onChange: function (e) { setTitle(e.target.value); } })),
-          h(Field, { label: 'Descripción corta' }, h('textarea', { rows: 3, value: excerpt, onChange: function (e) { setExcerpt(e.target.value); } })),
-          h('p', { className: 'description' }, 'Describe el inmueble con enfoque comercial: ubicación, distribución, beneficios y estado.'),
-          h(Field, null, h('textarea', { ref: contentEditorTextareaRef, rows: 8, value: content, onChange: function (e) { setContent(e.target.value); } }))
-        ),
-        h('section', { className: 'hpe-card hpe-span-2' },
-          h('h2', null, 'Precios'),
-          (!isRent && !isSale) && h('p', null, 'Selecciona la gestión para configurar precios.'),
-          isRent && h('div', { className: 'hpe-prices' },
-            h(Field, { label: 'Precio arriendo', required: true, error: hasError('price_rent') ? 'Este campo es obligatorio.' : '' }, h(Input, { type: 'number', name: 'property_price_rent', required: true, value: priceRent, onChange: setPriceRent })),
-            h(Field, { label: 'Moneda arriendo' }, h(Select, { name: 'property_currency_rent', value: currencyRent, onChange: setCurrencyRent, options: currencyOptions })),
-            h(Field, { label: 'Precio administración' }, h(Input, { type: 'number', name: 'property_price_admin', value: priceAdmin, onChange: setPriceAdmin })),
-            h(Field, { label: 'Moneda administración' }, h(Select, { name: 'property_currency_admin', value: currencyAdmin, onChange: setCurrencyAdmin, options: currencyOptions }))
-          ),
-          isRent && h('label', { className: 'hpe-check' }, h('input', { type: 'checkbox', checked: adminIncluded, onChange: function (e) { setAdminIncluded(e.target.checked); } }), 'Administración incluida en arriendo'),
-          isSale && h('div', { className: 'hpe-prices' },
-            h(Field, { label: 'Precio venta', required: true, error: hasError('price_sale') ? 'Este campo es obligatorio.' : '' }, h(Input, { type: 'number', name: 'property_price_sale', required: true, value: priceSale, onChange: setPriceSale })),
-            h(Field, { label: 'Moneda venta' }, h(Select, { name: 'property_currency_sale', value: currencySale, onChange: setCurrencySale, options: currencyOptions }))
-          ),
-          isSale && h('label', { className: 'hpe-check' }, h('input', { type: 'checkbox', checked: hasAdminFee, onChange: function (e) { setHasAdminFee(e.target.checked); } }), 'Tiene administración'),
-          (isSale && hasAdminFee) && h('div', { className: 'hpe-prices' },
-            h(Field, { label: 'Precio administración' }, h(Input, { type: 'number', name: 'property_price_admin', value: priceAdmin, onChange: setPriceAdmin })),
-            h(Field, { label: 'Moneda administración' }, h(Select, { name: 'property_currency_admin', value: currencyAdmin, onChange: setCurrencyAdmin, options: currencyOptions }))
-          ),
-          isSale && !hasAdminFee && hidden('property_price_admin', ''),
-          hidden('property_admin_included', (isRent && adminIncluded) ? '1' : '0')
+        h('section', { className: 'hpe-card hpe-card--overview hpe-span-3' },
+          h('div', { className: 'hpe-overview-grid' },
+            h('div', { className: 'hpe-overview-section hpe-overview-section--basic' },
+              h('h2', null, 'Información básica'),
+              h(Field, { label: 'Título', required: true, error: hasError('title') ? 'Este campo es obligatorio.' : '' }, h('input', { type: 'text', value: title, required: true, onChange: function (e) { setTitle(e.target.value); } })),
+              h(Field, { label: 'Descripción corta' }, h('textarea', { rows: 3, value: excerpt, onChange: function (e) { setExcerpt(e.target.value); } })),
+              h('p', { className: 'description' }, 'Describe el inmueble con enfoque comercial: ubicación, distribución, beneficios y estado.'),
+              h(Field, null, h('textarea', { ref: contentEditorTextareaRef, rows: 8, value: content, onChange: function (e) { setContent(e.target.value); } }))
+            ),
+            h('div', { className: 'hpe-overview-section hpe-overview-section--commercial' },
+              h('h2', null, 'Configuración comercial'),
+              h('div', { className: 'hpe-commercial-fields' },
+                h(Field, { label: 'Tipo de inmueble', required: true, error: hasError('type') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_type', value: type, required: true, onChange: setType, options: opts.types || [] })),
+                h(Field, { label: 'Gestión', required: true, error: hasError('operation') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_operation', value: operation, required: true, onChange: setOperation, options: opts.operations || [] })),
+                h(Field, { label: 'Estado inmueble' }, h(Select, { name: 'property_condition', value: condition, onChange: setCondition, options: opts.condition_options || [], placeholder: 'Sin especificar' })),
+                h(Field, { label: 'Código (auto)' }, h(Input, { name: 'property_code', value: code, readOnly: true })),
+                h(Field, { label: 'Año de construido' }, h(Input, { name: 'property_age', value: yearBuilt, type: 'number', onChange: setYearBuilt })),
+                h(Field, { label: 'Usuario asesor' }, h(Select, {
+                  name: 'property_agent_id',
+                  value: agentId,
+                  onChange: setAgentId,
+                  options: users,
+                  placeholder: 'Seleccionar asesor'
+                }))
+              ),
+              h('p', { className: 'description' }, 'Relaciona un usuario Asesor o Administrador. Sus datos de contacto se toman automáticamente del perfil.'),
+              h('label', { className: 'hpe-check' }, h('input', { type: 'checkbox', checked: featured, onChange: function (e) { setFeatured(e.target.checked); } }), 'Inmueble destacado'),
+              hidden('property_featured', featured ? '1' : '0')
+            ),
+            h('div', { className: 'hpe-overview-section hpe-overview-section--prices' },
+              h('h2', null, 'Precios'),
+              (!isRent && !isSale) && h('p', null, 'Selecciona la gestión para configurar precios.'),
+              isRent && h('div', { className: 'hpe-prices' },
+                h(Field, { label: 'Precio arriendo', required: true, error: hasError('price_rent') ? 'Este campo es obligatorio.' : '' }, h(Input, { type: 'number', name: 'property_price_rent', required: true, value: priceRent, onChange: setPriceRent })),
+                h(Field, { label: 'Moneda arriendo' }, h(Select, { name: 'property_currency_rent', value: currencyRent, onChange: setCurrencyRent, options: currencyOptions })),
+                h(Field, { label: 'Precio administración' }, h(Input, { type: 'number', name: 'property_price_admin', value: priceAdmin, onChange: setPriceAdmin })),
+                h(Field, { label: 'Moneda administración' }, h(Select, { name: 'property_currency_admin', value: currencyAdmin, onChange: setCurrencyAdmin, options: currencyOptions }))
+              ),
+              isRent && h('label', { className: 'hpe-check' }, h('input', { type: 'checkbox', checked: adminIncluded, onChange: function (e) { setAdminIncluded(e.target.checked); } }), 'Administración incluida en arriendo'),
+              isSale && h('div', { className: 'hpe-prices' },
+                h(Field, { label: 'Precio venta', required: true, error: hasError('price_sale') ? 'Este campo es obligatorio.' : '' }, h(Input, { type: 'number', name: 'property_price_sale', required: true, value: priceSale, onChange: setPriceSale })),
+                h(Field, { label: 'Moneda venta' }, h(Select, { name: 'property_currency_sale', value: currencySale, onChange: setCurrencySale, options: currencyOptions }))
+              ),
+              isSale && h('label', { className: 'hpe-check' }, h('input', { type: 'checkbox', checked: hasAdminFee, onChange: function (e) { setHasAdminFee(e.target.checked); } }), 'Tiene administración'),
+              (isSale && hasAdminFee) && h('div', { className: 'hpe-prices' },
+                h(Field, { label: 'Precio administración' }, h(Input, { type: 'number', name: 'property_price_admin', value: priceAdmin, onChange: setPriceAdmin })),
+                h(Field, { label: 'Moneda administración' }, h(Select, { name: 'property_currency_admin', value: currencyAdmin, onChange: setCurrencyAdmin, options: currencyOptions }))
+              ),
+              isSale && !hasAdminFee && hidden('property_price_admin', ''),
+              hidden('property_admin_included', (isRent && adminIncluded) ? '1' : '0')
+            )
+          )
         ),
         h('div', { className: 'hpe-card-stack' },
-          h('section', { className: 'hpe-card hpe-card--commercial' },
-            h('h2', null, 'Configuración comercial'),
-            h('div', { className: 'hpe-commercial-fields' },
-              h(Field, { label: 'Tipo de inmueble', required: true, error: hasError('type') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_type', value: type, required: true, onChange: setType, options: opts.types || [] })),
-              h(Field, { label: 'Gestión', required: true, error: hasError('operation') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_operation', value: operation, required: true, onChange: setOperation, options: opts.operations || [] })),
-              h(Field, { label: 'Estado inmueble' }, h(Select, { name: 'property_condition', value: condition, onChange: setCondition, options: opts.condition_options || [], placeholder: 'Sin especificar' })),
-              h(Field, { label: 'Código (auto)' }, h(Input, { name: 'property_code', value: code, readOnly: true })),
-              h(Field, { label: 'Año de construido' }, h(Input, { name: 'property_age', value: yearBuilt, type: 'number', onChange: setYearBuilt })),
-              h(Field, { label: 'Usuario asesor' }, h(Select, {
-                name: 'property_agent_id',
-                value: agentId,
-                onChange: setAgentId,
-                options: users,
-                placeholder: 'Seleccionar asesor'
-              }))
-            ),
-            h('p', { className: 'description' }, 'Selecciona un usuario con rol Asesor o Administrador para relacionarlo con este inmueble. Su teléfono y correo se tomarán automáticamente desde el perfil.'),
-            h('label', { className: 'hpe-check' }, h('input', { type: 'checkbox', checked: featured, onChange: function (e) { setFeatured(e.target.checked); } }), 'Inmueble destacado'),
-            hidden('property_featured', featured ? '1' : '0')
-          ),
           h('section', { className: 'hpe-card' },
             h('h2', null, 'Etiquetas'),
             h('p', { className: 'description' }, 'Selecciona una o varias etiquetas para clasificar el inmueble.'),

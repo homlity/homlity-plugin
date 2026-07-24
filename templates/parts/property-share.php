@@ -195,9 +195,9 @@ if (!$showLabels) {
                     title="<?php echo esc_attr($platform['label']); ?>"
                     aria-label="<?php echo esc_attr($platform['label']); ?>"
                 >
-                    <?php if (!empty($icon['value']) && class_exists('\Elementor\Icons_Manager')): ?>
+                    <?php if (!empty($icon['value']) && class_exists('\Homlity\PluginInmobiliario\Services\IconRenderer')): ?>
                         <span class="property-share__icon">
-                            <?php \Elementor\Icons_Manager::render_icon($icon, ['aria-hidden' => 'true']); ?>
+                            <?php \Homlity\PluginInmobiliario\Services\IconRenderer::render($icon, ['aria-hidden' => 'true']); ?>
                         </span>
                     <?php else: ?>
                         <span class="property-share__icon" aria-hidden="true">•</span>

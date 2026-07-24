@@ -17,10 +17,13 @@ if (!defined('ABSPATH')) {
 
 class DiviIntegrationService implements ServiceInterface
 {
+    private bool $modulesLoaded = false;
+
     public function register(): void
     {
         // ET_Builder_Module is defined by the Divi theme / Divi Builder plugin.
         add_action('et_builder_ready', [$this, 'loadModule']);
+        add_action('wp_enqueue_scripts', [$this, 'enqueueAssets'], 20);
     }
 
     public function loadModule(): void
@@ -28,20 +31,17 @@ class DiviIntegrationService implements ServiceInterface
         if (!class_exists('ET_Builder_Module')) {
             return;
         }
+        $this->modulesLoaded = true;
 
         require_once __DIR__ . '/Modules/PropertyListingModule.php';
 
-        // Load the small Homlity-owned widget contract only when Elementor is
-        // absent. It does not bootstrap or depend on the Elementor plugin.
-        if (!class_exists('\\Elementor\\Widget_Base')) {
-            require_once __DIR__ . '/Compatibility/ElementorShim.php';
-        }
-        require_once __DIR__ . '/Modules/ElementorWidgetModule.php';
+        require_once __DIR__ . '/Compatibility/DiviWidgetApi.php';
+        require_once __DIR__ . '/Modules/WidgetModule.php';
 
         foreach ($this->widgetClasses() as $widgetClass) {
             try {
                 if (class_exists($widgetClass)) {
-                    new \Homlity_Divi_Elementor_Widget_Module($widgetClass);
+                    new \Homlity_Divi_Widget_Module($widgetClass);
                 }
             } catch (\Throwable $exception) {
                 /**
@@ -63,10 +63,33 @@ class DiviIntegrationService implements ServiceInterface
         (new DataSeederService())->seedBuilderTemplates();
     }
 
+    public function enqueueAssets(): void
+    {
+        if (!$this->modulesLoaded) {
+            return;
+        }
+
+        // Divi modules can be placed on ordinary pages and in Theme Builder
+        // templates, not only on property archives/details. Their structural
+        // CSS therefore has to be available before the modules render.
+        wp_enqueue_style(
+            'homlity-real-estate-front-components',
+            HOMLITY_PLUGIN_URL . 'assets/css/front-components.css',
+            [],
+            HOMLITY_PLUGIN_VERSION
+        );
+        wp_enqueue_style(
+            'homlity-real-estate-listing',
+            HOMLITY_PLUGIN_URL . 'assets/css/property-listing.css',
+            ['homlity-real-estate-front-components'],
+            HOMLITY_PLUGIN_VERSION
+        );
+    }
+
     /** @return list<class-string> */
     private function widgetClasses(): array
     {
-        $namespace = 'Homlity\\PluginInmobiliario\\Integrations\\Elementor\\Widgets\\';
+        $namespace = 'Homlity\\PluginInmobiliario\\Integrations\\Divi\\Widgets\\';
         return array_map(static fn(string $name): string => $namespace . $name, [
             'PropertyAgentWidget', 'PropertyAgentsAvailableWidget',
             'PropertyBreadcrumbWidget', 'PropertyCardWidget', 'PropertyContentWidget',

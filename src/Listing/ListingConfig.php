@@ -116,6 +116,15 @@ class ListingConfig
      */
     public static function fromElementor(array $settings): self
     {
+        return self::fromBuilderSettings($settings);
+    }
+
+    /**
+     * Build from normalized visual-builder settings without coupling the
+     * domain configuration to Elementor or Divi.
+     */
+    public static function fromBuilderSettings(array $settings): self
+    {
         return self::fromArray([
             'default_view'          => sanitize_key($settings['default_view'] ?? 'grid'),
             'show_view_toggle'      => !empty($settings['show_view_toggle']),

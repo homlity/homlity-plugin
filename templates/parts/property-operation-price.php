@@ -96,9 +96,9 @@ $items = [
         $icon = $s['icon_' . $key] ?? [];
         ?>
         <li class="property-operation-price__item">
-            <?php if (!empty($icon['value']) && class_exists('\Elementor\Icons_Manager')): ?>
+            <?php if (!empty($icon['value']) && class_exists('\Homlity\PluginInmobiliario\Services\IconRenderer')): ?>
                 <span class="property-operation-price__icon">
-                    <?php \Elementor\Icons_Manager::render_icon($icon, ['aria-hidden' => 'true']); ?>
+                    <?php \Homlity\PluginInmobiliario\Services\IconRenderer::render($icon, ['aria-hidden' => 'true']); ?>
                 </span>
             <?php endif; ?>
             <span class="property-operation-price__label"><?php echo esc_html($item['label']); ?></span>

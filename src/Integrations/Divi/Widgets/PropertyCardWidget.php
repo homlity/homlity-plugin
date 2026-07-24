@@ -1,10 +1,10 @@
 <?php
 
-namespace Homlity\PluginInmobiliario\Integrations\Elementor\Widgets;
+namespace Homlity\PluginInmobiliario\Integrations\Divi\Widgets;
 
 use Homlity\PluginInmobiliario\Services\TemplateService;
 use Homlity\PluginInmobiliario\Listing\ListingConfig;
-use Elementor\Controls_Manager;
+use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Controls_Manager;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -41,7 +41,7 @@ class PropertyCardWidget extends BasePropertyWidget
 
     protected function render(): void
     {
-        $config = ListingConfig::fromElementor($this->get_settings_for_display());
+        $config = ListingConfig::fromBuilderSettings($this->get_settings_for_display());
         TemplateService::includeComponent('property-card.php', [
             'post_id' => $this->current_property_id(),
             'card_options' => $config->cardOptions(),

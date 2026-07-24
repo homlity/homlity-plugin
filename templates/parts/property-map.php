@@ -179,8 +179,8 @@ wp_enqueue_script(
     <div class="property-map__tabs" role="tablist" aria-label="<?php esc_attr_e('Mapa del inmueble', 'homlity-real-estate'); ?>">
         <button type="button" class="property-map__tab is-active" data-map-tab="map" id="<?php echo esc_attr($mapId . '-tab-map'); ?>" role="tab" aria-selected="true" aria-controls="<?php echo esc_attr($mapId . '-panel-map'); ?>">
             <span class="property-map__tab-icon" aria-hidden="true">
-                <?php if (class_exists('\Elementor\Icons_Manager') && !empty($tabMapIcon['value'])) : ?>
-                    <?php \Elementor\Icons_Manager::render_icon($tabMapIcon, ['aria-hidden' => 'true']); ?>
+                <?php if (class_exists('\Homlity\PluginInmobiliario\Services\IconRenderer') && !empty($tabMapIcon['value'])) : ?>
+                    <?php \Homlity\PluginInmobiliario\Services\IconRenderer::render($tabMapIcon, ['aria-hidden' => 'true']); ?>
                 <?php else : ?>
                     <?php echo homlity_property_map_icon_svg('map'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 <?php endif; ?>
@@ -199,8 +199,8 @@ wp_enqueue_script(
             aria-disabled="false"
         >
             <span class="property-map__tab-icon" aria-hidden="true">
-                <?php if (class_exists('\Elementor\Icons_Manager') && !empty($tabStreetIcon['value'])) : ?>
-                    <?php \Elementor\Icons_Manager::render_icon($tabStreetIcon, ['aria-hidden' => 'true']); ?>
+                <?php if (class_exists('\Homlity\PluginInmobiliario\Services\IconRenderer') && !empty($tabStreetIcon['value'])) : ?>
+                    <?php \Homlity\PluginInmobiliario\Services\IconRenderer::render($tabStreetIcon, ['aria-hidden' => 'true']); ?>
                 <?php else : ?>
                     <?php echo homlity_property_map_icon_svg('street'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 <?php endif; ?>

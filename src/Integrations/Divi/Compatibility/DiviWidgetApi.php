@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Elementor;
+namespace Homlity\PluginInmobiliario\Integrations\Divi\Compatibility;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -37,6 +37,7 @@ if (!class_exists(Widget_Base::class)) {
         private array $homlityControls = [];
         private array $homlitySettings = [];
         private string $homlitySection = '';
+        private array $homlitySectionArgs = [];
 
         public function __construct(array $data = [], array $args = [])
         {
@@ -51,11 +52,13 @@ if (!class_exists(Widget_Base::class)) {
         protected function start_controls_section(string $id, array $args = []): void
         {
             $this->homlitySection = $id;
+            $this->homlitySectionArgs = $args;
         }
 
         protected function end_controls_section(): void
         {
             $this->homlitySection = '';
+            $this->homlitySectionArgs = [];
         }
 
         protected function start_controls_tabs(string $id): void {}
@@ -66,6 +69,9 @@ if (!class_exists(Widget_Base::class)) {
         protected function add_control(string $id, array $args = []): void
         {
             $args['section'] = $this->homlitySection;
+            if (!isset($args['tab']) && isset($this->homlitySectionArgs['tab'])) {
+                $args['tab'] = $this->homlitySectionArgs['tab'];
+            }
             $this->homlityControls[$id] = $args;
         }
 
@@ -142,18 +148,39 @@ if (!class_exists(Icons_Manager::class)) {
 }
 
 if (!class_exists(GroupControlShim::class)) {
-    class GroupControlShim
+    abstract class GroupControlShim
     {
-        public static function get_type(): string
-        {
-            return static::class;
-        }
+        abstract public static function get_type(): string;
     }
 }
 
-foreach (['Typography', 'Border', 'Box_Shadow', 'Text_Shadow', 'Background'] as $group) {
-    $class = __NAMESPACE__ . '\\Group_Control_' . $group;
-    if (!class_exists($class)) {
-        class_alias(GroupControlShim::class, $class);
+if (!class_exists(Group_Control_Typography::class)) {
+    final class Group_Control_Typography extends GroupControlShim
+    {
+        public static function get_type(): string { return 'typography'; }
+    }
+}
+if (!class_exists(Group_Control_Border::class)) {
+    final class Group_Control_Border extends GroupControlShim
+    {
+        public static function get_type(): string { return 'border'; }
+    }
+}
+if (!class_exists(Group_Control_Box_Shadow::class)) {
+    final class Group_Control_Box_Shadow extends GroupControlShim
+    {
+        public static function get_type(): string { return 'box_shadow'; }
+    }
+}
+if (!class_exists(Group_Control_Text_Shadow::class)) {
+    final class Group_Control_Text_Shadow extends GroupControlShim
+    {
+        public static function get_type(): string { return 'text_shadow'; }
+    }
+}
+if (!class_exists(Group_Control_Background::class)) {
+    final class Group_Control_Background extends GroupControlShim
+    {
+        public static function get_type(): string { return 'background'; }
     }
 }

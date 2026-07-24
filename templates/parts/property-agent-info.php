@@ -173,7 +173,7 @@ if (!$name && !$avatarHtml) {
                         $iconPhone = $s['icon_phone'] ?? [];
                         if (!empty($iconPhone['value'])): ?>
                             <span class="property-agent-block__icon property-agent-block__icon--phone" aria-hidden="true">
-                                <?php \Elementor\Icons_Manager::render_icon($iconPhone, ['aria-hidden' => 'true']); ?>
+                                <?php \Homlity\PluginInmobiliario\Services\IconRenderer::render($iconPhone, ['aria-hidden' => 'true']); ?>
                             </span>
                         <?php else: ?>
                             <span class="property-agent-block__icon property-agent-block__icon--phone" aria-hidden="true">
@@ -192,7 +192,7 @@ if (!$name && !$avatarHtml) {
                         $iconEmail = $s['icon_email'] ?? [];
                         if (!empty($iconEmail['value'])): ?>
                             <span class="property-agent-block__icon property-agent-block__icon--email" aria-hidden="true">
-                                <?php \Elementor\Icons_Manager::render_icon($iconEmail, ['aria-hidden' => 'true']); ?>
+                                <?php \Homlity\PluginInmobiliario\Services\IconRenderer::render($iconEmail, ['aria-hidden' => 'true']); ?>
                             </span>
                         <?php else: ?>
                             <span class="property-agent-block__icon property-agent-block__icon--email" aria-hidden="true">

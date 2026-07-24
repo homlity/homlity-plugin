@@ -2179,6 +2179,7 @@ class PropertyPostType implements ServiceInterface
         return [
             'cb' => $columns['cb'] ?? '<input type="checkbox" />',
             'title' => __('Nombre', 'homlity-real-estate'),
+            'property_code' => __('Código', 'homlity-real-estate'),
             'property_operation' => __('Gestión', 'homlity-real-estate'),
             'property_type' => __('Tipo de inmueble', 'homlity-real-estate'),
             'property_location' => __('Ubicación', 'homlity-real-estate'),
@@ -2190,6 +2191,12 @@ class PropertyPostType implements ServiceInterface
 
     public function renderAdminColumn(string $column, int $postId): void
     {
+        if ($column === 'property_code') {
+            $code = trim((string) get_post_meta($postId, $this->metaKeys['code'], true));
+            echo $code !== '' ? esc_html($code) : '—';
+            return;
+        }
+
         if ($column === 'property_operation') {
             $terms = wp_get_post_terms($postId, PropertyTaxonomies::TAXONOMY_OPERATION);
             echo !is_wp_error($terms) && !empty($terms) ? esc_html($terms[0]->name) : '—';

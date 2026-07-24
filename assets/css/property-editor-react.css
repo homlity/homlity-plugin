@@ -98,6 +98,30 @@ body.homlity-react-editor-active .postbox[class*="rank-math"] {
   min-width: 0;
 }
 
+.hpe-card--overview {
+  padding: 0;
+  overflow: hidden;
+}
+
+.hpe-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(0, 1fr));
+}
+
+.hpe-overview-section {
+  min-width: 0;
+  padding: 18px;
+}
+
+.hpe-overview-section + .hpe-overview-section {
+  border-left: 1px solid #e4e7ec;
+}
+
+.hpe-overview-section h2 {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eef1f5;
+}
+
 .hpe-commercial-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -188,6 +212,10 @@ body.homlity-react-editor-active .postbox[class*="rank-math"] {
   gap: 10px;
 }
 
+.hpe-overview-section--prices .hpe-prices {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .hpe-check {
   display: flex;
   align-items: center;
@@ -199,6 +227,12 @@ body.homlity-react-editor-active .postbox[class*="rank-math"] {
 @media (max-width: 1200px) {
   .hpe-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .hpe-prices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hpe-overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hpe-overview-section--basic { grid-column: 1 / -1; }
+  .hpe-overview-section--commercial { border-left: 0 !important; }
+  .hpe-overview-section--prices { border-left: 1px solid #e4e7ec; }
+  .hpe-overview-section--commercial,
+  .hpe-overview-section--prices { border-top: 1px solid #e4e7ec; }
 }
 
 @media (max-width: 782px) {
@@ -208,6 +242,12 @@ body.homlity-react-editor-active .postbox[class*="rank-math"] {
   .hpe-span-3 { grid-column: auto; }
   .hpe-prices { grid-template-columns: 1fr; }
   .hpe-commercial-fields { grid-template-columns: 1fr; }
+  .hpe-overview-grid { grid-template-columns: 1fr; }
+  .hpe-overview-section--basic { grid-column: auto; }
+  .hpe-overview-section + .hpe-overview-section {
+    border-top: 1px solid #e4e7ec;
+    border-left: 0;
+  }
 }
 
 .hpe-map-wrap {
@@ -566,6 +606,7 @@ body.homlity-react-editor-active #wpbody-content {
   grid-column: 1 / -1;
 }
 
+.hpe-grid > section.hpe-card--overview,
 .hpe-grid > section.hpe-card--features-full,
 .hpe-grid > section.hpe-card--media-full {
   grid-column: 1 / -1;

@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) {
 
 class DataSeederService
 {
+    private const BUILDER_OPTION = 'homlity_plugin_visual_builder';
+
     public function seed(): void
     {
         $this->seedPages();
@@ -178,6 +180,8 @@ class DataSeederService
     public function seedBuilderTemplates(): void
     {
         $builder = $this->preferredBuilder();
+        update_option(self::BUILDER_OPTION, $builder);
+
         if ($builder === 'elementor') {
             $this->seedElementorTemplates();
             return;
@@ -187,7 +191,7 @@ class DataSeederService
             (int) get_option('homlity_plugin_archive_page_id', 0),
             'archive',
             $builder,
-            $this->archiveBuilderContent($builder)
+            $this->archiveBuilderContent($builder, (int) get_option('homlity_plugin_archive_page_id', 0))
         );
         $agentPageId = $this->ensurePage('homlity_plugin_agent_profile_page_id', 'perfil-asesor', __('Perfil del asesor', 'homlity-real-estate'));
         $unavailablePageId = $this->ensurePage('homlity_plugin_unavailable_template_id', 'inmueble-no-disponible', __('Inmueble no disponible', 'homlity-real-estate'));
@@ -214,6 +218,15 @@ class DataSeederService
     {
         $archiveId = (int) get_option('homlity_plugin_archive_page_id', 0);
         if ($archiveId > 0) {
+            $seededBuilder = sanitize_key((string) get_post_meta($archiveId, '_homlity_seeded_builder', true));
+            $hasVisualBuilder = $this->elementorActive() || $this->diviActive() || $this->wpBakeryActive();
+            if (
+                $seededBuilder !== ''
+                && $this->builderActive($seededBuilder)
+                && ($seededBuilder !== 'native' || !$hasVisualBuilder)
+            ) {
+                return $seededBuilder;
+            }
             if (get_post_meta($archiveId, '_elementor_edit_mode', true) === 'builder' && $this->elementorActive()) {
                 return 'elementor';
             }
@@ -225,16 +238,78 @@ class DataSeederService
             }
         }
 
-        if ($this->diviActive()) {
+        $stored = sanitize_key((string) get_option(self::BUILDER_OPTION, ''));
+        $visualBuilderAvailable = $this->elementorActive() || $this->diviActive() || $this->wpBakeryActive();
+        if (
+            $stored !== ''
+            && $this->builderActive($stored)
+            && ($stored !== 'native' || !$visualBuilderAvailable)
+        ) {
+            return $stored;
+        }
+
+        $scores = [
+            'elementor' => $this->builderUsageCount('_elementor_edit_mode', 'builder'),
+            'divi' => $this->builderUsageCount('_et_pb_use_builder', 'on'),
+            'wpbakery' => $this->builderUsageCount('_wpb_vc_js_status', 'true'),
+        ];
+        foreach ($scores as $builder => $score) {
+            if (!$this->builderActive($builder)) {
+                $scores[$builder] = -1;
+            }
+        }
+
+        $highest = max($scores);
+        if ($highest > 0) {
+            $candidates = array_keys($scores, $highest, true);
+            if (count($candidates) === 1) {
+                return $candidates[0];
+            }
+        }
+
+        // An active Divi/Extra theme is a stronger signal than the standalone
+        // plugin list because it controls the current page renderer.
+        if ($this->diviThemeActive()) {
             return 'divi';
         }
         if ($this->elementorActive()) {
             return 'elementor';
         }
+        if ($this->diviActive()) {
+            return 'divi';
+        }
         if ($this->wpBakeryActive()) {
             return 'wpbakery';
         }
         return 'native';
+    }
+
+    private function builderActive(string $builder): bool
+    {
+        return match ($builder) {
+            'elementor' => $this->elementorActive(),
+            'divi' => $this->diviActive(),
+            'wpbakery' => $this->wpBakeryActive(),
+            'native' => true,
+            default => false,
+        };
+    }
+
+    private function builderUsageCount(string $metaKey, string $metaValue): int
+    {
+        global $wpdb;
+
+        return (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(DISTINCT pm.post_id)
+             FROM {$wpdb->postmeta} pm
+             INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+             WHERE pm.meta_key = %s
+               AND pm.meta_value = %s
+               AND p.post_status NOT IN ('trash', 'auto-draft')
+               AND p.post_type IN ('page', 'post', 'property', 'elementor_library')",
+            $metaKey,
+            $metaValue
+        ));
     }
 
     private function pluginActive(string $plugin): bool
@@ -250,11 +325,16 @@ class DataSeederService
 
     private function diviActive(): bool
     {
+        return $this->diviThemeActive()
+            || $this->pluginActive('divi-builder/divi-builder.php');
+    }
+
+    private function diviThemeActive(): bool
+    {
         $template = strtolower((string) get_template());
         $stylesheet = strtolower((string) get_stylesheet());
         return in_array($template, ['divi', 'extra'], true)
-            || in_array($stylesheet, ['divi', 'extra'], true)
-            || $this->pluginActive('divi-builder/divi-builder.php');
+            || in_array($stylesheet, ['divi', 'extra'], true);
     }
 
     private function elementorActive(): bool
@@ -340,9 +420,10 @@ class DataSeederService
 
         $data = [
             $this->elementorSection([
-                $this->elementorWidget('heading', [
-                    'title' => __('Resultados de inmuebles', 'homlity-real-estate'),
-                    'header_size' => 'h1',
+                $this->elementorWidget('property_results_title', [
+                    'base_text' => __('Resultados de inmuebles', 'homlity-real-estate'),
+                    'title_tag' => 'h1',
+                    'show_total' => 'yes',
                 ]),
                 $this->elementorWidget('property_filter', [
                     'target_page_id' => (string) $pageId,
@@ -370,7 +451,7 @@ class DataSeederService
             ]),
         ];
 
-        $this->saveElementorData($pageId, $data, 'wp-page');
+        $this->saveElementorData($pageId, $data, 'wp-page', 'archive');
         update_option('homlity_plugin_archive_elementor_page_id', $pageId);
     }
 
@@ -380,7 +461,12 @@ class DataSeederService
         $templateId = (int) get_option($optionKey, 0);
 
         // Fast path: option exists and post is live.
-        if ($templateId > 0 && in_array(get_post_status($templateId), ['publish', 'draft', 'pending'], true)) {
+        if (
+            $templateId > 0
+            && in_array(get_post_status($templateId), ['publish', 'draft', 'pending'], true)
+            && get_post_type($templateId) === 'elementor_library'
+            && get_post_meta($templateId, '_elementor_edit_mode', true) === 'builder'
+        ) {
             return;
         }
 
@@ -418,17 +504,21 @@ class DataSeederService
 
         $data = [
             $this->elementorSection([
-                $this->elementorWidget('property_summary'),
-                $this->elementorWidget('property_gallery'),
+                $this->elementorWidget('property_breadcrumb'),
+                $this->elementorWidget('property_title'),
+                $this->elementorWidget('property_media_tabs'),
+                $this->elementorWidget('property_operation_price'),
+                $this->elementorWidget('property_content'),
                 $this->elementorWidget('property_features_primary'),
                 $this->elementorWidget('property_features_secondary'),
+                $this->elementorWidget('property_share'),
                 $this->elementorWidget('property_map'),
                 $this->elementorWidget('property_agent'),
                 $this->elementorWidget('property_related'),
             ]),
         ];
 
-        $this->saveElementorData((int) $templateId, $data, 'single');
+        $this->saveElementorData((int) $templateId, $data, 'single', 'single_property');
 
         if (taxonomy_exists('elementor_library_type')) {
             wp_set_object_terms((int) $templateId, 'single', 'elementor_library_type');
@@ -515,7 +605,7 @@ class DataSeederService
             ]),
         ];
 
-        $this->saveElementorData((int) $pageId, $data, 'wp-page');
+        $this->saveElementorData((int) $pageId, $data, 'wp-page', 'agent_profile');
         update_option('homlity_plugin_agent_profile_elementor_page_id', (int) $pageId);
     }
 
@@ -600,7 +690,7 @@ class DataSeederService
             ]),
         ];
 
-        $this->saveElementorData((int) $pageId, $data, 'wp-page');
+        $this->saveElementorData((int) $pageId, $data, 'wp-page', 'unavailable');
         update_option('homlity_plugin_unavailable_elementor_page_id', (int) $pageId);
     }
 
@@ -623,6 +713,9 @@ class DataSeederService
         update_post_meta($pageId, '_homlity_seeded_purpose', $purpose);
 
         if ($builder === 'divi') {
+            delete_post_meta($pageId, '_elementor_edit_mode');
+            delete_post_meta($pageId, '_elementor_data');
+            delete_post_meta($pageId, '_elementor_template_type');
             update_post_meta($pageId, '_et_pb_use_builder', 'on');
             update_post_meta($pageId, '_et_pb_page_layout', 'et_full_width_page');
             update_post_meta($pageId, '_et_pb_built_for_post_type', 'page');
@@ -632,14 +725,16 @@ class DataSeederService
         }
     }
 
-    private function archiveBuilderContent(string $builder): string
+    private function archiveBuilderContent(string $builder, int $archivePageId = 0): string
     {
         $title = esc_html__('Resultados de inmuebles', 'homlity-real-estate');
         $listing = '[homlity_listing view="grid" columns="3" per_page="12" filters="true" sort="true"]';
         if ($builder === 'divi') {
+            $filterTarget = $archivePageId > 0 ? ' target_page_id="' . $archivePageId . '"' : '';
             return '[et_pb_section][et_pb_row][et_pb_column type="4_4"]'
-                . '[et_pb_text]<h1>' . $title . '</h1>[/et_pb_text]'
-                . '[homlity_listing_divi view="grid" columns="3" per_page="12" filters="on" sort="on"][/homlity_listing_divi]'
+                . '[homlity_divi_property_results_title base_text="' . esc_attr($title) . '"][/homlity_divi_property_results_title]'
+                . '[homlity_divi_property_filter' . $filterTarget . '][/homlity_divi_property_filter]'
+                . '[homlity_divi_property_listing query_mode="current" default_view="grid" columns="3" posts_per_page="12" show_sort="on"][/homlity_divi_property_listing]'
                 . '[/et_pb_column][/et_pb_row][/et_pb_section]';
         }
         if ($builder === 'wpbakery') {
@@ -659,8 +754,10 @@ class DataSeederService
     {
         if ($builder === 'divi') {
             $modules = [
-                'property_summary', 'property_gallery', 'property_features_primary',
-                'property_features_secondary', 'property_map', 'property_agent', 'property_related',
+                'property_breadcrumb', 'property_title', 'property_media_tabs',
+                'property_operation_price', 'property_content', 'property_features_primary',
+                'property_features_secondary', 'property_share', 'property_map',
+                'property_agent', 'property_related',
             ];
             $content = '';
             foreach ($modules as $module) {
@@ -684,12 +781,23 @@ class DataSeederService
         return $content;
     }
 
-    private function saveElementorData(int $postId, array $data, string $templateType): void
+    private function saveElementorData(int $postId, array $data, string $templateType, string $purpose): void
     {
+        $previousBuilder = (string) get_post_meta($postId, '_homlity_seeded_builder', true);
+        if ($previousBuilder !== '' && $previousBuilder !== 'elementor') {
+            wp_update_post(['ID' => $postId, 'post_content' => '']);
+        }
+        delete_post_meta($postId, '_et_pb_use_builder');
+        delete_post_meta($postId, '_et_pb_page_layout');
+        delete_post_meta($postId, '_et_pb_built_for_post_type');
+        delete_post_meta($postId, '_wpb_vc_js_status');
+        delete_post_meta($postId, '_vc_post_settings');
         update_post_meta($postId, '_elementor_edit_mode', 'builder');
         update_post_meta($postId, '_elementor_template_type', $templateType);
         update_post_meta($postId, '_elementor_version', defined('ELEMENTOR_VERSION') ? ELEMENTOR_VERSION : '3.0.0');
         update_post_meta($postId, '_elementor_data', wp_slash(wp_json_encode($data)));
+        update_post_meta($postId, '_homlity_seeded_builder', 'elementor');
+        update_post_meta($postId, '_homlity_seeded_purpose', $purpose);
     }
 
     private function elementorSection(array $widgets): array

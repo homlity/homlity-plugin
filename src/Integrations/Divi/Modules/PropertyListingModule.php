@@ -23,6 +23,7 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
     public $name       = 'Listado de inmuebles';
     public $slug       = 'homlity_listing_divi';
     public $vb_support = 'on';
+    public $show_in_visual_builder = false;
 
     public function init(): void
     {

@@ -1,13 +1,13 @@
 <?php
 /**
- * Elementor widget: related properties for the current property.
+ * Divi widget: related properties for the current property.
  */
 
-namespace Homlity\PluginInmobiliario\Integrations\Elementor\Widgets;
+namespace Homlity\PluginInmobiliario\Integrations\Divi\Widgets;
 
 use Homlity\PluginInmobiliario\Services\TemplateService;
 use Homlity\PluginInmobiliario\Listing\ListingConfig;
-use Elementor\Controls_Manager;
+use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Controls_Manager;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -73,7 +73,7 @@ class PropertyRelatedWidget extends BasePropertyWidget
     protected function render(): void
     {
         $settings = $this->get_settings_for_display();
-        $config = ListingConfig::fromElementor($settings);
+        $config = ListingConfig::fromBuilderSettings($settings);
 
         TemplateService::includeComponent('property-related.php', [
             'post_id'       => $this->current_property_id(),

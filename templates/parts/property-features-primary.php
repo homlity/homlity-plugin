@@ -45,9 +45,9 @@ $features = [
         $icon = $s['icon_' . $key] ?? [];
         ?>
         <li class="property-features__item">
-            <?php if (!empty($icon['value']) && class_exists('\Elementor\Icons_Manager')): ?>
+            <?php if (!empty($icon['value']) && class_exists('\Homlity\PluginInmobiliario\Services\IconRenderer')): ?>
                 <span class="property-features__icon">
-                    <?php \Elementor\Icons_Manager::render_icon($icon, ['aria-hidden' => 'true']); ?>
+                    <?php \Homlity\PluginInmobiliario\Services\IconRenderer::render($icon, ['aria-hidden' => 'true']); ?>
                 </span>
             <?php endif; ?>
             <span class="property-features__name"><?php echo esc_html($feature['label']); ?></span>
