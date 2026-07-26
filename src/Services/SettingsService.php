@@ -67,7 +67,7 @@ class SettingsService implements ServiceInterface
         }
 
         $activeTab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'general';
-        if (!in_array($activeTab, ['general', 'arriendo', 'venta', 'consignment'], true)) {
+        if (!in_array($activeTab, ['general', 'social', 'arriendo', 'venta', 'consignment'], true)) {
             $activeTab = 'general';
         }
 
@@ -98,6 +98,7 @@ class SettingsService implements ServiceInterface
             'archiveOrderOptions' => $this->archiveOrderOptions(),
             'mapProviderOptions' => $this->mapProviderOptions(),
             'galleryModeOptions' => $this->galleryModeOptions(),
+            'shareMessageFields' => SocialShareMessageService::fieldDefinitions(),
             'locationTaxonomies' => $this->locationTaxonomies(),
             'simulatorFields' => SimulatorSettings::fields(),
             'consignmentHtml' => $consignmentHtml,
@@ -115,7 +116,7 @@ class SettingsService implements ServiceInterface
     public function renderSettingsPage(): void
     {
         $activeTab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'general';
-        if (!in_array($activeTab, ['general', 'arriendo', 'venta', 'consignment'], true)) {
+        if (!in_array($activeTab, ['general', 'social', 'arriendo', 'venta', 'consignment'], true)) {
             $activeTab = 'general';
         }
 
@@ -151,6 +152,7 @@ class SettingsService implements ServiceInterface
             'archiveOrderOptions' => $this->archiveOrderOptions(),
             'mapProviderOptions' => $this->mapProviderOptions(),
             'galleryModeOptions' => $this->galleryModeOptions(),
+            'shareMessageFields' => SocialShareMessageService::fieldDefinitions(),
             'locationTaxonomies' => $this->locationTaxonomies(),
             'simulatorFields' => SimulatorSettings::fields(),
         ]);
@@ -265,6 +267,17 @@ class SettingsService implements ServiceInterface
         }
 
         $values['simulators'] = SimulatorSettings::sanitize($values['simulators'] ?? []);
+
+        $shareDefaults = SocialShareMessageService::defaults();
+        $incomingShareMessages = is_array($values['share_messages'] ?? null)
+            ? $values['share_messages']
+            : [];
+        $values['share_messages'] = [];
+        foreach ($shareDefaults as $platform => $defaultMessage) {
+            $values['share_messages'][$platform] = array_key_exists($platform, $incomingShareMessages)
+                ? sanitize_textarea_field((string) $incomingShareMessages[$platform])
+                : $defaultMessage;
+        }
 
         return $values;
     }
@@ -410,6 +423,7 @@ class SettingsService implements ServiceInterface
             'default_map_provider' => 'leaflet_map',
             'detail_gallery_mode' => 'light_gallery',
             'enable_analytics' => false,
+            'share_messages' => SocialShareMessageService::defaults(),
             'simulators' => SimulatorSettings::defaults(),
         ];
     }

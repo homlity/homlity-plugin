@@ -17,6 +17,7 @@
     const optionOrder = (config.listingFieldOptions || []).map((option) => option.value);
     const locationTaxonomies = config.locationTaxonomies || {};
     const simulatorFields = config.simulatorFields || {};
+    const shareMessageFields = config.shareMessageFields || {};
 
     if (config.nonce && typeof apiFetch.createNonceMiddleware === 'function') {
         apiFetch.use(apiFetch.createNonceMiddleware(config.nonce));
@@ -26,7 +27,7 @@
     if (!root) {
         return;
     }
-    const initialTab = ['general', 'arriendo', 'venta', 'consignment'].includes(root.dataset.activeTab)
+    const initialTab = ['general', 'social', 'arriendo', 'venta', 'consignment'].includes(root.dataset.activeTab)
         ? root.dataset.activeTab
         : 'general';
 
@@ -37,6 +38,11 @@
         merged.listing_fields = Array.isArray(merged.listing_fields) ? merged.listing_fields.slice() : [];
         merged.listing_fields = optionOrder.filter((value) => merged.listing_fields.includes(value));
         merged.enable_analytics = !!merged.enable_analytics;
+        merged.share_messages = Object.assign(
+            {},
+            defaults.share_messages || {},
+            merged.share_messages && typeof merged.share_messages === 'object' ? merged.share_messages : {}
+        );
 
         ['default_country', 'default_state', 'default_city', 'default_neighborhood', 'archive_per_page'].forEach((key) => {
             if (merged[key] === '' || merged[key] === null || typeof merged[key] === 'undefined') {
@@ -343,6 +349,14 @@
             }));
         }
 
+        function updateShareMessage(platform, value) {
+            setSettings((current) => Object.assign({}, current, {
+                share_messages: Object.assign({}, current.share_messages || {}, {
+                    [platform]: value,
+                }),
+            }));
+        }
+
         function updateLocationField(level, value) {
             const numericValue = value === '' ? 0 : parseInt(value, 10) || 0;
 
@@ -485,6 +499,12 @@
                             className: classNames('homlity-settings__tab', activeTab === 'general' && 'is-active'),
                             onClick: () => setActiveTab('general'),
                         }, __('General', 'homlity-real-estate')),
+                        el('button', {
+                            key: 'social',
+                            type: 'button',
+                            className: classNames('homlity-settings__tab', activeTab === 'social' && 'is-active'),
+                            onClick: () => setActiveTab('social'),
+                        }, __('Mensajes sociales', 'homlity-real-estate')),
                         el('button', {
                             key: 'arriendo',
                             type: 'button',
@@ -664,6 +684,31 @@
                                     hint: __('Registra visitas, clics de contacto y descargas de fichas técnicas. Los datos se guardan en la base de datos local y nunca se envían a servidores externos.', 'homlity-real-estate'),
                                     checked: normalized.enable_analytics,
                                     onChange: (event) => updateField('enable_analytics', event.target.checked),
+                                })
+                            )
+                        ) : null,
+
+                        activeTab === 'social' ? el(
+                            Section,
+                            {
+                                key: 'social-messages',
+                                eyebrow: __('Compartir inmuebles', 'homlity-real-estate'),
+                                title: __('Mensajes predeterminados por red social', 'homlity-real-estate'),
+                                description: __('Personaliza el mensaje utilizado al compartir un inmueble. Variables disponibles: {title}, {code}, {url}, {summary}, {bedrooms}, {bathrooms}, {parking}, {area}, {price}. La URL se enviará una sola vez.', 'homlity-real-estate'),
+                            },
+                            el(
+                                'div',
+                                { className: 'homlity-settings__field-grid homlity-settings__field-grid--two' },
+                                Object.keys(shareMessageFields).map((platform) => {
+                                    const field = shareMessageFields[platform] || {};
+                                    return el(TextArea, {
+                                        key: platform,
+                                        label: field.label || platform,
+                                        hint: field.description || '',
+                                        rows: platform === 'email' || platform === 'whatsapp' ? 5 : 3,
+                                        value: (normalized.share_messages && normalized.share_messages[platform]) || '',
+                                        onChange: (event) => updateShareMessage(platform, event.target.value),
+                                    });
                                 })
                             )
                         ) : null,

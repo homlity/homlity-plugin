@@ -146,15 +146,26 @@ class Homlity_Consignacion_Rest_Controller {
 
 		$result = [];
 		foreach ( $terms as $term ) {
-			$flags  = self::operation_flags( $term->name );
+			$base_id = \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::baseOperationIdForTerm( $term );
+			$flags   = self::operation_flags_for_base_id( $base_id, $term->name );
 			$result[] = [
-				'codigo'          => (int) $term->term_id,
+				'id'              => (int) $term->term_id,
+				'codigo'          => $base_id > 0 ? $base_id : (int) $term->term_id,
 				'nombre'          => $term->name,
 				'esArriendo'      => $flags['esArriendo'],
 				'esVenta'         => $flags['esVenta'],
 				'esArriendoVenta' => $flags['esArriendoVenta'],
+				'esPermuta'       => $base_id === 4,
 			];
 		}
+
+		usort( $result, static function ( array $left, array $right ): int {
+			$left_base  = (int) ( $left['codigo'] ?? 0 );
+			$right_base = (int) ( $right['codigo'] ?? 0 );
+			$left_rank  = $left_base >= 1 && $left_base <= 4 ? $left_base : 1000 + $left_base;
+			$right_rank = $right_base >= 1 && $right_base <= 4 ? $right_base : 1000 + $right_base;
+			return $left_rank <=> $right_rank;
+		} );
 
 		return new WP_REST_Response( $result, 200 );
 	}
@@ -608,7 +619,8 @@ class Homlity_Consignacion_Rest_Controller {
 
 		// Resolve term names from IDs
 		$tipo_inmueble  = self::term_name( (int) ( $d['id_tipoinmueble'] ?? 0 ), 'property_type' );
-		$tipo_gestion   = self::term_name( (int) ( $d['id_gestion'] ?? 0 ), 'property_operation' );
+		$gestion_id     = (int) ( $d['id_gestion'] ?? 0 );
+		$tipo_gestion   = self::term_name( $gestion_id, 'property_operation' );
 		$departamento   = self::term_name( (int) ( $d['id_departamento'] ?? 0 ), 'property_state' );
 		$ciudad         = self::term_name( (int) ( $d['id_ciudad'] ?? 0 ), 'property_city' );
 
@@ -618,7 +630,7 @@ class Homlity_Consignacion_Rest_Controller {
 			: sanitize_text_field( $d['barrio_nombre'] ?? '' );
 
 		// Determine operations from gestion type
-		$gestion_flags = self::operation_flags( $tipo_gestion );
+		$gestion_flags = self::operation_flags_for_id( $gestion_id, $tipo_gestion );
 		$operations    = [];
 		if ( $gestion_flags['esVenta'] || $gestion_flags['esArriendoVenta'] ) {
 			$operations[] = 'Venta';
@@ -928,6 +940,12 @@ class Homlity_Consignacion_Rest_Controller {
 		if ( $term_id <= 0 ) {
 			return '';
 		}
+		if ( $taxonomy === 'property_operation' ) {
+			$base_term = \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::baseOperationTermById( $term_id );
+			if ( $base_term instanceof WP_Term ) {
+				return $base_term->name;
+			}
+		}
 		$term = get_term( $term_id, $taxonomy );
 		if ( is_wp_error( $term ) || empty( $term ) ) {
 			return '';
@@ -951,6 +969,33 @@ class Homlity_Consignacion_Rest_Controller {
 			'esVenta'         => $esVenta,
 			'esArriendoVenta' => $esArriendoVenta,
 		];
+	}
+
+	private static function operation_flags_for_id( int $operation_id, string $nombre ): array {
+		$base_term = \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::baseOperationTermById( $operation_id );
+		if ( ! $base_term instanceof WP_Term ) {
+			$operation_term = get_term( $operation_id, 'property_operation' );
+			$base_term = $operation_term instanceof WP_Term ? $operation_term : null;
+		}
+		$base_id = $base_term instanceof WP_Term
+			? \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::baseOperationIdForTerm( $base_term )
+			: 0;
+
+		return self::operation_flags_for_base_id( $base_id, $nombre );
+	}
+
+	private static function operation_flags_for_base_id( int $base_id, string $nombre ): array {
+		if ( $base_id === 1 ) {
+			return [ 'esArriendo' => true, 'esVenta' => false, 'esArriendoVenta' => false ];
+		}
+		if ( $base_id === 2 ) {
+			return [ 'esArriendo' => false, 'esVenta' => true, 'esArriendoVenta' => false ];
+		}
+		if ( $base_id === 3 ) {
+			return [ 'esArriendo' => false, 'esVenta' => false, 'esArriendoVenta' => true ];
+		}
+
+		return self::operation_flags( $nombre );
 	}
 
 	private static function set_terms_by_name( int $post_id, string $taxonomy, array $names, bool $append ): void {
@@ -1012,21 +1057,25 @@ class Homlity_Consignacion_Rest_Controller {
 
 	private static function default_tipos_inmueble(): array {
 		return [
-			[ 'id' => 1, 'nombre' => 'Apartamento', 'codigo' => 1 ],
-			[ 'id' => 2, 'nombre' => 'Casa',         'codigo' => 2 ],
-			[ 'id' => 3, 'nombre' => 'Local',        'codigo' => 3 ],
-			[ 'id' => 4, 'nombre' => 'Oficina',      'codigo' => 4 ],
-			[ 'id' => 5, 'nombre' => 'Bodega',       'codigo' => 5 ],
-			[ 'id' => 6, 'nombre' => 'Lote',         'codigo' => 6 ],
-			[ 'id' => 7, 'nombre' => 'Finca',        'codigo' => 7 ],
+			[ 'id' => 1,  'nombre' => 'Apartamento',    'codigo' => 1 ],
+			[ 'id' => 2,  'nombre' => 'Casa',           'codigo' => 2 ],
+			[ 'id' => 3,  'nombre' => 'Lote',           'codigo' => 3 ],
+			[ 'id' => 4,  'nombre' => 'Finca',          'codigo' => 4 ],
+			[ 'id' => 5,  'nombre' => 'Apartaestudio',  'codigo' => 5 ],
+			[ 'id' => 6,  'nombre' => 'Penthouse',      'codigo' => 6 ],
+			[ 'id' => 7,  'nombre' => 'Local',          'codigo' => 7 ],
+			[ 'id' => 8,  'nombre' => 'Casa Comercial', 'codigo' => 8 ],
+			[ 'id' => 9,  'nombre' => 'Parqueadero',    'codigo' => 9 ],
+			[ 'id' => 10, 'nombre' => 'Edificio',       'codigo' => 10 ],
 		];
 	}
 
 	private static function default_tipos_gestion(): array {
 		return [
-			[ 'codigo' => 1, 'nombre' => 'Arriendo',      'esArriendo' => true,  'esVenta' => false, 'esArriendoVenta' => false ],
-			[ 'codigo' => 2, 'nombre' => 'Venta',         'esArriendo' => false, 'esVenta' => true,  'esArriendoVenta' => false ],
-			[ 'codigo' => 3, 'nombre' => 'Arriendo/Venta','esArriendo' => false, 'esVenta' => false, 'esArriendoVenta' => true  ],
+			[ 'id' => 1, 'codigo' => 1, 'nombre' => 'Arriendo',       'esArriendo' => true,  'esVenta' => false, 'esArriendoVenta' => false, 'esPermuta' => false ],
+			[ 'id' => 2, 'codigo' => 2, 'nombre' => 'Venta',          'esArriendo' => false, 'esVenta' => true,  'esArriendoVenta' => false, 'esPermuta' => false ],
+			[ 'id' => 3, 'codigo' => 3, 'nombre' => 'Arriendo/Venta', 'esArriendo' => false, 'esVenta' => false, 'esArriendoVenta' => true,  'esPermuta' => false ],
+			[ 'id' => 4, 'codigo' => 4, 'nombre' => 'Permuta',        'esArriendo' => false, 'esVenta' => false, 'esArriendoVenta' => false, 'esPermuta' => true  ],
 		];
 	}
 

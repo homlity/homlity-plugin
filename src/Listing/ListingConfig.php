@@ -20,6 +20,8 @@ class ListingConfig
 
     private array $data = [
         'default_view'           => 'grid',   // 'grid' | 'map'
+        'show_grid_view'         => true,
+        'show_map_view'          => true,
         'show_view_toggle'       => true,
         'columns'                => 3,
         'posts_per_page'         => 12,
@@ -127,6 +129,8 @@ class ListingConfig
     {
         return self::fromArray([
             'default_view'          => sanitize_key($settings['default_view'] ?? 'grid'),
+            'show_grid_view'        => !array_key_exists('show_grid_view', $settings) || !empty($settings['show_grid_view']),
+            'show_map_view'         => !array_key_exists('show_map_view', $settings) || !empty($settings['show_map_view']),
             'show_view_toggle'      => !empty($settings['show_view_toggle']),
             'columns'               => max(1, (int) ($settings['columns'] ?? 3)),
             'posts_per_page'        => max(1, (int) ($settings['posts_per_page'] ?? 12)),
@@ -216,9 +220,22 @@ class ListingConfig
             }
             return filter_var($value, FILTER_VALIDATE_BOOLEAN);
         };
+        $icon = static function ($value): array {
+            if (is_array($value)) {
+                return self::normalizeElementorIcon($value);
+            }
+
+            $value = sanitize_text_field((string) $value);
+            return self::normalizeElementorIcon([
+                'value'   => $value,
+                'library' => $value !== '' ? 'divi' : '',
+            ]);
+        };
 
         return self::fromArray([
             'default_view'          => sanitize_key($atts['view'] ?? 'grid'),
+            'show_grid_view'        => $bool($atts['show_grid_view'] ?? $atts['cards'] ?? null, true),
+            'show_map_view'         => $bool($atts['show_map_view'] ?? $atts['map'] ?? null, true),
             'show_view_toggle'      => $bool($atts['view_toggle'] ?? null, true),
             'columns'               => max(1, (int) ($atts['columns'] ?? 3)),
             'posts_per_page'        => max(1, (int) ($atts['per_page'] ?? 12)),
@@ -257,11 +274,14 @@ class ListingConfig
             'card_show_features'    => $bool($atts['card_features'] ?? null, true),
             'card_show_whatsapp'    => $bool($atts['card_whatsapp'] ?? null, true),
             'card_whatsapp_label'   => sanitize_text_field($atts['card_whatsapp_label'] ?? ''),
-            'card_whatsapp_show_icon' => $bool($atts['card_whatsapp_icon'] ?? null, true),
+            'card_whatsapp_show_icon' => $bool(
+                $atts['card_whatsapp_show_icon'] ?? $atts['card_whatsapp_icon'] ?? null,
+                true
+            ),
             'card_whatsapp_icon_position' => in_array(($atts['card_whatsapp_icon_position'] ?? 'left'), ['left', 'right'], true)
                 ? ($atts['card_whatsapp_icon_position'] ?? 'left')
                 : 'left',
-            'card_whatsapp_icon' => self::normalizeElementorIcon([]),
+            'card_whatsapp_icon' => $icon($atts['card_whatsapp_icon_value'] ?? []),
             'card_feature_area'      => $bool($atts['card_area'] ?? null, true),
             'card_feature_bedrooms'  => $bool($atts['card_bedrooms'] ?? null, true),
             'card_feature_bathrooms' => $bool($atts['card_bathrooms'] ?? null, true),
@@ -272,24 +292,47 @@ class ListingConfig
             'card_feature_age'       => $bool($atts['card_age'] ?? null, true),
             'card_feature_condition' => $bool($atts['card_condition'] ?? null, true),
             'card_feature_code'      => $bool($atts['card_code'] ?? null, true),
-            'card_feature_icon_area' => self::normalizeElementorIcon([]),
-            'card_feature_icon_bedrooms' => self::normalizeElementorIcon([]),
-            'card_feature_icon_bathrooms' => self::normalizeElementorIcon([]),
-            'card_feature_icon_parking' => self::normalizeElementorIcon([]),
-            'card_feature_icon_area_lot' => self::normalizeElementorIcon([]),
-            'card_feature_icon_area_private' => self::normalizeElementorIcon([]),
-            'card_feature_icon_area_built' => self::normalizeElementorIcon([]),
-            'card_feature_icon_age' => self::normalizeElementorIcon([]),
-            'card_feature_icon_condition' => self::normalizeElementorIcon([]),
-            'card_feature_icon_code' => self::normalizeElementorIcon([]),
+            'card_feature_icon_area' => $icon($atts['card_feature_icon_area_value'] ?? $atts['card_feature_icon_area'] ?? []),
+            'card_feature_icon_bedrooms' => $icon($atts['card_feature_icon_bedrooms_value'] ?? $atts['card_feature_icon_bedrooms'] ?? []),
+            'card_feature_icon_bathrooms' => $icon($atts['card_feature_icon_bathrooms_value'] ?? $atts['card_feature_icon_bathrooms'] ?? []),
+            'card_feature_icon_parking' => $icon($atts['card_feature_icon_parking_value'] ?? $atts['card_feature_icon_parking'] ?? []),
+            'card_feature_icon_area_lot' => $icon($atts['card_feature_icon_area_lot_value'] ?? $atts['card_feature_icon_area_lot'] ?? []),
+            'card_feature_icon_area_private' => $icon($atts['card_feature_icon_area_private_value'] ?? $atts['card_feature_icon_area_private'] ?? []),
+            'card_feature_icon_area_built' => $icon($atts['card_feature_icon_area_built_value'] ?? $atts['card_feature_icon_area_built'] ?? []),
+            'card_feature_icon_age' => $icon($atts['card_feature_icon_age_value'] ?? $atts['card_feature_icon_age'] ?? []),
+            'card_feature_icon_condition' => $icon($atts['card_feature_icon_condition_value'] ?? $atts['card_feature_icon_condition'] ?? []),
+            'card_feature_icon_code' => $icon($atts['card_feature_icon_code_value'] ?? $atts['card_feature_icon_code'] ?? []),
             'card_link_new_tab'      => $bool($atts['card_link_new_tab'] ?? null, false),
         ]);
     }
 
     // ── Getters ───────────────────────────────────────────────────────────────
 
-    public function defaultView(): string  { return (string) $this->data['default_view']; }
-    public function showViewToggle(): bool { return (bool)   $this->data['show_view_toggle']; }
+    public function defaultView(): string
+    {
+        $requested = (string) $this->data['default_view'];
+        if ($requested === 'map' && $this->showMapView()) {
+            return 'map';
+        }
+        if ($requested === 'grid' && $this->showGridView()) {
+            return 'grid';
+        }
+        if ($this->showGridView()) {
+            return 'grid';
+        }
+        if ($this->showMapView()) {
+            return 'map';
+        }
+        return 'grid';
+    }
+    public function showGridView(): bool   { return (bool) $this->data['show_grid_view']; }
+    public function showMapView(): bool    { return (bool) $this->data['show_map_view']; }
+    public function showViewToggle(): bool
+    {
+        return (bool) $this->data['show_view_toggle']
+            && $this->showGridView()
+            && $this->showMapView();
+    }
     public function columns(): int         { return (int)    $this->data['columns']; }
     public function postsPerPage(): int    { return (int)    $this->data['posts_per_page']; }
     public function orderby(): string      { return (string) $this->data['orderby']; }

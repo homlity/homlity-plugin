@@ -14,13 +14,7 @@ class WhatsAppLinkService
 {
     public static function buildPropertyLink(int $postId, string $fallbackPhone = '', string $fallbackMessage = ''): string
     {
-        $propertyTitle = (string) get_the_title($postId);
-        $code = trim((string) get_post_meta($postId, (new PropertyPostType())->metaKeys()['code'], true));
-        if ($code === '') {
-            $code = (string) $postId;
-        }
-
-        $defaultMessage = self::propertyInterestMessage($propertyTitle, $code);
+        $defaultMessage = SocialShareMessageService::messageFor('whatsapp', $postId);
         $ninja = self::resolveNinjaAccount();
         if (!empty($ninja['phone'])) {
             return self::buildApiUrl((string) $ninja['phone'], $defaultMessage);
@@ -99,15 +93,4 @@ class WhatsAppLinkService
         return 'https://api.whatsapp.com/send?phone=' . rawurlencode($phoneDigits) . '&text=' . rawurlencode($message);
     }
 
-    private static function propertyInterestMessage(string $title, string $code): string
-    {
-        $title = trim(wp_strip_all_tags($title));
-        $code = trim($code);
-
-        return sprintf(
-            'Hola buen día, estoy interesado en el código de inmueble %s [%s]',
-            $code,
-            $title
-        );
-    }
 }

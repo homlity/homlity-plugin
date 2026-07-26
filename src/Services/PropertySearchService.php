@@ -427,7 +427,13 @@ class PropertySearchService implements ServiceInterface
             if (!isset($collected[$paramKey])) {
                 $collected[$paramKey] = [];
             }
-            $collected[$paramKey][] = sanitize_text_field((string) $qvValue);
+            $queryVarValues = is_array($qvValue) ? $qvValue : explode(',', (string) $qvValue);
+            foreach ($queryVarValues as $queryVarValue) {
+                $queryVarValue = sanitize_text_field(trim((string) $queryVarValue));
+                if ($queryVarValue !== '') {
+                    $collected[$paramKey][] = $queryVarValue;
+                }
+            }
         }
 
         $queried = get_queried_object();

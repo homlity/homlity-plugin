@@ -60,7 +60,6 @@ trait PropertyCardStylesTrait
             'card_show_operation' => __('Mostrar gestión (venta/arriendo)', 'homlity-real-estate'),
             'card_show_price'     => __('Mostrar valor de gestión', 'homlity-real-estate'),
             'card_show_features'  => __('Mostrar características', 'homlity-real-estate'),
-            'card_show_whatsapp'  => __('Mostrar botón WhatsApp asesor', 'homlity-real-estate'),
         ] as $key => $label) {
             $this->add_control($key, [
                 'label'   => $label,
@@ -73,41 +72,6 @@ trait PropertyCardStylesTrait
             'label'   => __('Abrir inmueble en nueva pestaña', 'homlity-real-estate'),
             'type'    => Controls_Manager::SWITCHER,
             'default' => '',
-        ]);
-
-        $this->add_control('card_whatsapp_label', [
-            'label'     => __('Texto botón WhatsApp', 'homlity-real-estate'),
-            'type'      => Controls_Manager::TEXT,
-            'default'   => __('Hablar por WhatsApp', 'homlity-real-estate'),
-            'condition' => ['card_show_whatsapp' => 'yes'],
-        ]);
-        $this->add_control('card_whatsapp_show_icon', [
-            'label'     => __('Mostrar ícono WhatsApp', 'homlity-real-estate'),
-            'type'      => Controls_Manager::SWITCHER,
-            'default'   => 'yes',
-            'condition' => ['card_show_whatsapp' => 'yes'],
-        ]);
-        $this->add_control('card_whatsapp_icon_position', [
-            'label'     => __('Posición del ícono', 'homlity-real-estate'),
-            'type'      => Controls_Manager::SELECT,
-            'default'   => 'left',
-            'options'   => [
-                'left'  => __('Izquierda', 'homlity-real-estate'),
-                'right' => __('Derecha', 'homlity-real-estate'),
-            ],
-            'condition' => [
-                'card_show_whatsapp'      => 'yes',
-                'card_whatsapp_show_icon' => 'yes',
-            ],
-        ]);
-        $this->add_control('card_whatsapp_icon', [
-            'label'     => __('Ícono', 'homlity-real-estate'),
-            'type'      => Controls_Manager::ICONS,
-            'default'   => ['value' => 'fab fa-whatsapp', 'library' => 'fa-brands'],
-            'condition' => [
-                'card_show_whatsapp'      => 'yes',
-                'card_whatsapp_show_icon' => 'yes',
-            ],
         ]);
 
         foreach ([
@@ -195,6 +159,64 @@ trait PropertyCardStylesTrait
             'type' => Controls_Manager::ICONS,
             'default' => ['value' => 'fas fa-hashtag', 'library' => 'fa-solid'],
             'condition' => ['card_show_features' => 'yes', 'card_feature_code' => 'yes'],
+        ]);
+
+        $this->end_controls_section();
+
+        $this->registerCardWhatsappContentControls();
+    }
+
+    private function registerCardWhatsappContentControls(): void
+    {
+        $this->start_controls_section('card_whatsapp_content', [
+            'label' => __('Botón WhatsApp', 'homlity-real-estate'),
+        ]);
+
+        $this->add_control('card_show_whatsapp', [
+            'label'        => __('Mostrar botón de WhatsApp', 'homlity-real-estate'),
+            'type'         => Controls_Manager::SWITCHER,
+            'label_on'     => __('Sí', 'homlity-real-estate'),
+            'label_off'    => __('No', 'homlity-real-estate'),
+            'return_value' => 'yes',
+            'default'      => 'yes',
+        ]);
+
+        $this->add_control('card_whatsapp_label', [
+            'label'     => __('Texto del botón', 'homlity-real-estate'),
+            'type'      => Controls_Manager::TEXT,
+            'default'   => __('Hablar por WhatsApp', 'homlity-real-estate'),
+            'condition' => ['card_show_whatsapp' => 'yes'],
+        ]);
+        $this->add_control('card_whatsapp_show_icon', [
+            'label'        => __('Mostrar ícono de WhatsApp', 'homlity-real-estate'),
+            'type'         => Controls_Manager::SWITCHER,
+            'label_on'     => __('Sí', 'homlity-real-estate'),
+            'label_off'    => __('No', 'homlity-real-estate'),
+            'return_value' => 'yes',
+            'default'      => 'yes',
+            'condition'    => ['card_show_whatsapp' => 'yes'],
+        ]);
+        $this->add_control('card_whatsapp_icon_position', [
+            'label'     => __('Posición del ícono', 'homlity-real-estate'),
+            'type'      => Controls_Manager::SELECT,
+            'default'   => 'left',
+            'options'   => [
+                'left'  => __('Izquierda', 'homlity-real-estate'),
+                'right' => __('Derecha', 'homlity-real-estate'),
+            ],
+            'condition' => [
+                'card_show_whatsapp'      => 'yes',
+                'card_whatsapp_show_icon' => 'yes',
+            ],
+        ]);
+        $this->add_control('card_whatsapp_icon', [
+            'label'     => __('Ícono', 'homlity-real-estate'),
+            'type'      => Controls_Manager::ICONS,
+            'default'   => ['value' => 'fab fa-whatsapp', 'library' => 'fa-brands'],
+            'condition' => [
+                'card_show_whatsapp'      => 'yes',
+                'card_whatsapp_show_icon' => 'yes',
+            ],
         ]);
 
         $this->end_controls_section();
@@ -718,6 +740,7 @@ trait PropertyCardStylesTrait
             'selectors'  => [
                 '{{WRAPPER}} .property-card__whatsapp .property-card__whatsapp-icon svg' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
                 '{{WRAPPER}} .property-card__whatsapp .property-card__whatsapp-icon i' => 'font-size: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-card__whatsapp .property-card__whatsapp-icon .homlity-divi-icon' => 'font-size: {{SIZE}}{{UNIT}};',
             ],
         ]);
         $this->add_control('card_whatsapp_icon_color', [

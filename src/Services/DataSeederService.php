@@ -13,16 +13,22 @@ if (!defined('ABSPATH')) {
 class DataSeederService
 {
     private const BUILDER_OPTION = 'homlity_plugin_visual_builder';
+    private const SINGLE_TEMPLATE_VERSION = '2';
 
     public function seed(): void
     {
         $this->seedPages();
         $this->seedTaxonomy(PropertyTaxonomies::TAXONOMY_TYPE, [
-            'Casa',
             'Apartamento',
+            'Casa',
+            'Lote',
+            'Finca',
             'Apartaestudio',
-            'Local Comercial',
-            'Oficina',
+            'Penthouse',
+            'Local',
+            'Casa Comercial',
+            'Parqueadero',
+            'Edificio',
         ]);
 
         $this->seedTaxonomy(PropertyTaxonomies::TAXONOMY_CATEGORY, [
@@ -32,9 +38,9 @@ class DataSeederService
         ]);
 
         $this->seedTaxonomy(PropertyTaxonomies::TAXONOMY_OPERATION, [
-            'Venta',
             'Arriendo',
-            'Administración',
+            'Venta',
+            'Arriendo/Venta',
             'Permuta',
         ]);
 
@@ -504,16 +510,30 @@ class DataSeederService
 
         $data = [
             $this->elementorSection([
+                $this->elementorWidget('property_title', [
+                    'title_align' => 'center',
+                ]),
                 $this->elementorWidget('property_breadcrumb'),
-                $this->elementorWidget('property_title'),
                 $this->elementorWidget('property_media_tabs'),
                 $this->elementorWidget('property_operation_price'),
                 $this->elementorWidget('property_content'),
-                $this->elementorWidget('property_features_primary'),
-                $this->elementorWidget('property_features_secondary'),
+                $this->elementorWidget('property_features_primary', [
+                    'list_columns' => '4',
+                    'list_columns_tablet' => '2',
+                    'list_columns_mobile' => '1',
+                ]),
+                $this->elementorWidget('property_features_secondary', [
+                    'list_columns' => '4',
+                    'list_columns_tablet' => '2',
+                    'list_columns_mobile' => '1',
+                ]),
                 $this->elementorWidget('property_share'),
                 $this->elementorWidget('property_map'),
                 $this->elementorWidget('property_agent'),
+                $this->elementorWidget('homlity_property_faq', [
+                    'enable_auto_faqs' => 'yes',
+                    'include_global_faqs' => 'yes',
+                ]),
                 $this->elementorWidget('property_related'),
             ]),
         ];
@@ -704,13 +724,27 @@ class DataSeederService
         if ($existingContent !== '' && $seededBy === '') {
             return; // Never overwrite user-authored builder content.
         }
-        if ($seededBy === $builder && (string) get_post_meta($pageId, '_homlity_seeded_purpose', true) === $purpose) {
-            return;
+        $sameSeed = $seededBy === $builder
+            && (string) get_post_meta($pageId, '_homlity_seeded_purpose', true) === $purpose;
+        if ($sameSeed) {
+            $templateVersion = (string) get_post_meta($pageId, '_homlity_seeded_template_version', true);
+            if ($purpose !== 'single_property' || $templateVersion === self::SINGLE_TEMPLATE_VERSION) {
+                return;
+            }
+
+            // Upgrade only the untouched default detail layout. A page edited
+            // by the site owner must never be replaced during a plugin update.
+            if ($existingContent !== trim($this->legacySingleBuilderContent($builder))) {
+                return;
+            }
         }
 
         wp_update_post(['ID' => $pageId, 'post_content' => wp_slash($content)]);
         update_post_meta($pageId, '_homlity_seeded_builder', $builder);
         update_post_meta($pageId, '_homlity_seeded_purpose', $purpose);
+        if ($purpose === 'single_property') {
+            update_post_meta($pageId, '_homlity_seeded_template_version', self::SINGLE_TEMPLATE_VERSION);
+        }
 
         if ($builder === 'divi') {
             delete_post_meta($pageId, '_elementor_edit_mode');
@@ -754,6 +788,33 @@ class DataSeederService
     {
         if ($builder === 'divi') {
             $modules = [
+                'property_title' => ' title_align="center"',
+                'property_breadcrumb' => '',
+                'property_media_tabs' => '',
+                'property_operation_price' => '',
+                'property_content' => '',
+                'property_features_primary' => ' list_columns="4"',
+                'property_features_secondary' => ' list_columns="4"',
+                'property_share' => '',
+                'property_map' => '',
+                'property_agent' => '',
+                'property_faq' => ' enable_auto_faqs="on" include_global_faqs="on"',
+                'property_related' => '',
+            ];
+            $content = '';
+            foreach ($modules as $module => $attributes) {
+                $content .= '[homlity_divi_' . $module . $attributes . '][/homlity_divi_' . $module . ']';
+            }
+            return '[et_pb_section][et_pb_row][et_pb_column type="4_4"]' . $content
+                . '[/et_pb_column][/et_pb_row][/et_pb_section]';
+        }
+        return $this->wrapBuilderContent($builder, '[homlity_property_detail]');
+    }
+
+    private function legacySingleBuilderContent(string $builder): string
+    {
+        if ($builder === 'divi') {
+            $modules = [
                 'property_breadcrumb', 'property_title', 'property_media_tabs',
                 'property_operation_price', 'property_content', 'property_features_primary',
                 'property_features_secondary', 'property_share', 'property_map',
@@ -766,6 +827,7 @@ class DataSeederService
             return '[et_pb_section][et_pb_row][et_pb_column type="4_4"]' . $content
                 . '[/et_pb_column][/et_pb_row][/et_pb_section]';
         }
+
         return $this->wrapBuilderContent($builder, '[homlity_property_detail]');
     }
 

@@ -40,8 +40,8 @@ $sortOptions = [
 ];
 
 // Default view: map tab starts active if configured
-$listActive = $config->defaultView() !== 'map';
-$mapActive  = !$listActive;
+$listActive = $config->showGridView() && $config->defaultView() === 'grid';
+$mapActive  = $config->showMapView() && $config->defaultView() === 'map';
 $params = isset($params) && is_array($params) ? $params : [];
 $currentPage = max(1, (int) ($query->get('paged') ?: ($params['page'] ?? 1)));
 $currentOrder = sanitize_key((string) ($params['orderby'] ?? $config->orderby()));
@@ -211,6 +211,7 @@ $paramToAttr = static function ($value): string {
         <!-- ── Tab content ──────────────────────────────────────────────── -->
         <div class="tab-content" id="<?php echo esc_attr($uid); ?>-tab-content">
 
+            <?php if ($config->showGridView()) : ?>
             <!-- Listado tab -->
             <div class="tab-pane<?php echo $listActive ? ' show active' : ''; ?>"
                  id="<?php echo esc_attr($listTabId); ?>"
@@ -246,7 +247,9 @@ $paramToAttr = static function ($value): string {
                     </div>
                 </div>
             </div><!-- /listtab -->
+            <?php endif; ?>
 
+            <?php if ($config->showMapView()) : ?>
             <!-- Mapa tab -->
             <div class="tab-pane<?php echo $mapActive ? ' show active' : ''; ?>"
                  id="<?php echo esc_attr($mapTabId); ?>"
@@ -258,6 +261,7 @@ $paramToAttr = static function ($value): string {
                          style="height:<?php echo esc_attr($config->mapHeight()); ?>px;"></div>
                 </div>
             </div><!-- /maptab -->
+            <?php endif; ?>
 
         </div><!-- /tab-content -->
 

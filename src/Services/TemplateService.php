@@ -192,7 +192,10 @@ class TemplateService implements ServiceInterface
                 continue;
             }
 
-            $value = sanitize_title(rawurldecode($rawValue));
+            $value = implode(',', array_values(array_filter(array_map(
+                static fn (string $item): string => sanitize_title(trim($item)),
+                explode(',', rawurldecode($rawValue))
+            ))));
             if ($value === '') {
                 continue;
             }

@@ -50,10 +50,10 @@ class PropertyShareWidget extends BasePropertyWidget
         $this->register_property_control();
 
         $this->add_control('share_text', [
-            'label'       => __('Texto a compartir', 'homlity-real-estate'),
+            'label'       => __('Sobrescribir mensajes globales', 'homlity-real-estate'),
             'type'        => Controls_Manager::TEXTAREA,
-            'default'     => '{summary} {url}',
-            'description' => __('Placeholders: {summary}, {title}, {url}, {bedrooms}, {bathrooms}, {parking}, {area}, {price}', 'homlity-real-estate'),
+            'default'     => '',
+            'description' => __('Déjalo vacío para usar Homlity → Configuración → Mensajes sociales. Variables: {summary}, {title}, {code}, {url}, {bedrooms}, {bathrooms}, {parking}, {area}, {price}.', 'homlity-real-estate'),
             'separator'   => 'before',
         ]);
         $this->add_control('heading_text', [

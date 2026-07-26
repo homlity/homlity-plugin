@@ -56,37 +56,46 @@ if ($source === 'static') {
     $agentId    = (int) get_post_meta($post_id, $meta['agent_id'], true);
     $agentUser  = $agentId ? get_user_by('id', $agentId) : null;
 
-    if (!$agentUser) {
+    $name  = $agentUser
+        ? $agentUser->display_name
+        : (string) get_post_meta($post_id, $meta['agent_name'], true);
+    $role  = (string) get_post_meta($post_id, $meta['agent_role'], true);
+    $phone = $agentUser
+        ? (get_user_meta($agentUser->ID, 'phone', true)
+            ?: get_user_meta($agentUser->ID, 'billing_phone', true)
+            ?: get_post_meta($post_id, $meta['agent_phone'], true))
+        : get_post_meta($post_id, $meta['agent_phone'], true);
+    $email = $agentUser
+        ? ($agentUser->user_email ?: get_post_meta($post_id, $meta['agent_email'], true))
+        : get_post_meta($post_id, $meta['agent_email'], true);
+
+    $profileUrl = $agentUser ? home_url('/property-agent/' . $agentUser->user_nicename) : '';
+    $photoUrl   = (string) get_post_meta($post_id, $meta['agent_photo'], true);
+
+    if (!$agentUser && $name === '' && $role === '' && !$phone && !$email && $photoUrl === '') {
         return;
     }
-
-    $name  = $agentUser->display_name;
-    $role  = '';
-    $phone = get_user_meta($agentUser->ID, 'phone', true)
-          ?: get_user_meta($agentUser->ID, 'billing_phone', true)
-          ?: get_post_meta($post_id, $meta['agent_phone'], true);
-    $email = $agentUser->user_email
-          ?: get_post_meta($post_id, $meta['agent_email'], true);
-
-    $profileUrl = home_url('/property-agent/' . $agentUser->user_nicename);
-    $photoUrl   = '';
 
     // Resolve avatar: CRM photo → WP User Avatar plugin → Simple Local Avatars → company logo
     $avatarHtml = '';
 
-    $crmPhotoUrl = (string) get_user_meta($agentUser->ID, '_homlity_advisor_photo', true);
+    $crmPhotoUrl = $agentUser
+        ? (string) get_user_meta($agentUser->ID, '_homlity_advisor_photo', true)
+        : $photoUrl;
     if ($crmPhotoUrl) {
-        $avatarHtml = '<img src="' . esc_url($crmPhotoUrl) . '" alt="' . esc_attr($name) . '">';
+        $avatarHtml = is_numeric($crmPhotoUrl)
+            ? wp_get_attachment_image((int) $crmPhotoUrl, [96, 96], false, ['alt' => esc_attr($name)])
+            : '<img src="' . esc_url($crmPhotoUrl) . '" alt="' . esc_attr($name) . '">';
     }
 
-    if (!$avatarHtml) {
+    if (!$avatarHtml && $agentUser) {
         $wpUaId = (int) get_user_meta($agentUser->ID, 'wp_user_avatar', true);
         if ($wpUaId > 0) {
             $avatarHtml = wp_get_attachment_image($wpUaId, [96, 96], false, ['alt' => esc_attr($name)]);
         }
     }
 
-    if (!$avatarHtml) {
+    if (!$avatarHtml && $agentUser) {
         $slaData = get_user_meta($agentUser->ID, 'simple_local_avatar', true);
         if (!empty($slaData['full'])) {
             $avatarHtml = '<img src="' . esc_url($slaData['full']) . '" alt="' . esc_attr($name) . '">';

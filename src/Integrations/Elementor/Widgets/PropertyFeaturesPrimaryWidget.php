@@ -80,8 +80,8 @@ class PropertyFeaturesPrimaryWidget extends BasePropertyWidget
         $this->add_responsive_control('list_columns', [
             'label'          => __('Columnas', 'homlity-real-estate'),
             'type'           => Controls_Manager::SELECT,
-            'default'        => '1',
-            'tablet_default' => '1',
+            'default'        => '4',
+            'tablet_default' => '2',
             'mobile_default' => '1',
             'options'        => ['1' => '1', '2' => '2', '3' => '3', '4' => '4', '5' => '5', '6' => '6'],
             'selectors'      => [

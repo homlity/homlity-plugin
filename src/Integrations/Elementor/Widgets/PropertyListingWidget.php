@@ -59,10 +59,26 @@ class PropertyListingWidget extends Widget_Base
             'default' => 'grid',
         ]);
 
+        $this->add_control('show_grid_view', [
+            'label'   => __('Mostrar vista Cards', 'homlity-real-estate'),
+            'type'    => Controls_Manager::SWITCHER,
+            'default' => 'yes',
+        ]);
+
+        $this->add_control('show_map_view', [
+            'label'   => __('Mostrar vista Mapa', 'homlity-real-estate'),
+            'type'    => Controls_Manager::SWITCHER,
+            'default' => 'yes',
+        ]);
+
         $this->add_control('show_view_toggle', [
             'label'   => __('Botón para cambiar de vista', 'homlity-real-estate'),
             'type'    => Controls_Manager::SWITCHER,
             'default' => 'yes',
+            'condition' => [
+                'show_grid_view' => 'yes',
+                'show_map_view'  => 'yes',
+            ],
         ]);
 
         $this->add_control('columns', [
@@ -357,7 +373,11 @@ class PropertyListingWidget extends Widget_Base
         $this->start_controls_section('style_view_toggle', [
             'label'     => __('Botones grilla/mapa', 'homlity-real-estate'),
             'tab'       => Controls_Manager::TAB_STYLE,
-            'condition' => ['show_view_toggle' => 'yes'],
+            'condition' => [
+                'show_grid_view'   => 'yes',
+                'show_map_view'    => 'yes',
+                'show_view_toggle' => 'yes',
+            ],
         ]);
 
         $this->add_responsive_control('view_toggle_icon_size', [

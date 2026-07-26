@@ -8,7 +8,7 @@
         var wrapper = document.createElement('div');
         wrapper.className = 'hpf-multi';
 
-        var menuId = (select.id ? select.id : ('hpf-multi-' + Math.random().toString(36).slice(2))) + '-menu';
+        var menuId = (select.id ? select.id + '-' : 'hpf-multi-') + Math.random().toString(36).slice(2) + '-menu';
         var trigger = document.createElement('button');
         trigger.type = 'button';
         trigger.className = 'hpf-multi__trigger';
@@ -36,10 +36,6 @@
             return opt.value !== '';
         });
 
-        function selectedValues() {
-            return options.filter(function (opt) { return opt.selected; }).map(function (opt) { return opt.value; });
-        }
-
         function renderChips() {
             chips.innerHTML = '';
             var selected = options.filter(function (opt) { return opt.selected; });
@@ -52,14 +48,39 @@
                 return;
             }
 
-            var summary = document.createElement('span');
-            summary.className = 'hpf-multi__summary';
-            if (selected.length === 1) {
-                summary.textContent = selected[0].text;
-            } else {
-                summary.textContent = selected.length + ' seleccionados';
-            }
-            chips.appendChild(summary);
+            selected.forEach(function (opt) {
+                var chip = document.createElement('span');
+                chip.className = 'hpf-multi__chip';
+
+                var label = document.createElement('span');
+                label.className = 'hpf-multi__chip-label';
+                label.textContent = opt.text;
+
+                var remove = document.createElement('span');
+                remove.className = 'hpf-multi__chip-remove';
+                remove.innerHTML = '&times;';
+                remove.setAttribute('role', 'button');
+                remove.setAttribute('tabindex', '0');
+                remove.setAttribute('aria-label', 'Quitar ' + opt.text);
+
+                function removeOption(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    opt.selected = false;
+                    notifyChange();
+                }
+
+                remove.addEventListener('click', removeOption);
+                remove.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        removeOption(e);
+                    }
+                });
+
+                chip.appendChild(label);
+                chip.appendChild(remove);
+                chips.appendChild(chip);
+            });
         }
 
         function renderMenu() {
@@ -74,8 +95,7 @@
                 item.addEventListener('click', function (e) {
                     e.preventDefault();
                     opt.selected = !opt.selected;
-                    renderChips();
-                    renderMenu();
+                    notifyChange();
                 });
                 menu.appendChild(item);
             });
@@ -110,14 +130,16 @@
                 closeMenu();
                 trigger.focus();
             }
-            if ((e.key === 'Enter' || e.key === ' ') && document.activeElement === trigger) {
-                e.preventDefault();
-                if (wrapper.classList.contains('is-open')) {
-                    closeMenu();
-                } else {
-                    openMenu();
-                }
-            }
+        });
+
+        function notifyChange() {
+            select.dispatchEvent(new Event('input', { bubbles: true }));
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        select.addEventListener('change', function () {
+            renderChips();
+            renderMenu();
         });
 
         select.style.display = 'none';

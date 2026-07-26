@@ -493,7 +493,12 @@ class PropertyPostType implements ServiceInterface
             <select id="property_operation" name="property_operation" class="widefat">
                 <option value=""><?php esc_html_e('Elige una gestión', 'homlity-real-estate'); ?></option>
                 <?php foreach ($terms as $term): ?>
-                    <option value="<?php echo esc_attr($term->term_id); ?>" data-slug="<?php echo esc_attr($term->slug); ?>" <?php selected($current, $term->term_id); ?>>
+                    <option
+                        value="<?php echo esc_attr($term->term_id); ?>"
+                        data-slug="<?php echo esc_attr($term->slug); ?>"
+                        data-base-id="<?php echo esc_attr((string) PropertyTaxonomies::baseOperationIdForTerm($term)); ?>"
+                        <?php selected($current, $term->term_id); ?>
+                    >
                         <?php echo esc_html($term->name); ?>
                     </option>
                 <?php endforeach; ?>
@@ -1218,6 +1223,9 @@ class PropertyPostType implements ServiceInterface
                 'id' => (int) $term->term_id,
                 'name' => $term->name,
                 'slug' => $term->slug,
+                'base_id' => $term->taxonomy === PropertyTaxonomies::TAXONOMY_OPERATION
+                    ? PropertyTaxonomies::baseOperationIdForTerm($term)
+                    : 0,
             ];
         }, $terms);
     }
@@ -1537,8 +1545,16 @@ class PropertyPostType implements ServiceInterface
             }
         }
 
-        $isRent = strpos($operationSlug, 'arr') !== false || strpos($operationSlug, 'alquil') !== false || strpos($operationSlug, 'rent') !== false;
-        $isSale = strpos($operationSlug, 'vent') !== false || strpos($operationSlug, 'sale') !== false;
+        $baseOperationId = isset($operationTerm) && $operationTerm instanceof \WP_Term
+            ? PropertyTaxonomies::baseOperationIdForTerm($operationTerm)
+            : 0;
+        $isRent = in_array($baseOperationId, [1, 3], true)
+            || strpos($operationSlug, 'arr') !== false
+            || strpos($operationSlug, 'alquil') !== false
+            || strpos($operationSlug, 'rent') !== false;
+        $isSale = in_array($baseOperationId, [2, 3], true)
+            || strpos($operationSlug, 'vent') !== false
+            || strpos($operationSlug, 'sale') !== false;
 
         if ($isRent && trim((string) ($_POST['property_price_rent'] ?? '')) === '') {
             $missing['price_rent'] = __('Precio arriendo', 'homlity-real-estate');

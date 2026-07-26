@@ -69,6 +69,24 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
                 'tab_slug'        => 'general',
                 'toggle_slug'     => 'main_content',
             ],
+            'show_grid_view' => [
+                'label'           => esc_html__('Mostrar vista Cards', 'homlity-real-estate'),
+                'type'            => 'yes_no_button',
+                'option_category' => 'configuration',
+                'options'         => ['on' => esc_html__('Sí', 'homlity-real-estate'), 'off' => esc_html__('No', 'homlity-real-estate')],
+                'default'         => 'on',
+                'tab_slug'        => 'general',
+                'toggle_slug'     => 'main_content',
+            ],
+            'show_map_view' => [
+                'label'           => esc_html__('Mostrar vista Mapa', 'homlity-real-estate'),
+                'type'            => 'yes_no_button',
+                'option_category' => 'configuration',
+                'options'         => ['on' => esc_html__('Sí', 'homlity-real-estate'), 'off' => esc_html__('No', 'homlity-real-estate')],
+                'default'         => 'on',
+                'tab_slug'        => 'general',
+                'toggle_slug'     => 'main_content',
+            ],
             'columns' => [
                 'label'           => esc_html__('Columnas en grilla', 'homlity-real-estate'),
                 'type'            => 'select',
@@ -78,6 +96,45 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
                 'tab_slug'        => 'general',
                 'toggle_slug'     => 'main_content',
             ],
+
+            // ── Contenido de la tarjeta ─────────────────────────────────────
+            'card_media' => [
+                'label'       => esc_html__('Galería de fotos', 'homlity-real-estate'),
+                'type'        => 'select',
+                'options'     => [
+                    'single' => esc_html__('Imagen principal', 'homlity-real-estate'),
+                    'slider' => esc_html__('Slider de fotos', 'homlity-real-estate'),
+                ],
+                'default'     => 'single',
+                'tab_slug'    => 'general',
+                'toggle_slug' => 'card_content',
+            ],
+            'card_preset' => [
+                'label'       => esc_html__('Preset visual de la tarjeta', 'homlity-real-estate'),
+                'type'        => 'select',
+                'options'     => [
+                    'default'       => esc_html__('Clásico', 'homlity-real-estate'),
+                    'cover_overlay' => esc_html__('Portada con overlay', 'homlity-real-estate'),
+                    'minimal_light' => esc_html__('Minimal claro', 'homlity-real-estate'),
+                ],
+                'default'     => 'default',
+                'tab_slug'    => 'general',
+                'toggle_slug' => 'card_content',
+            ],
+            'card_hover_effect' => [
+                'label'       => esc_html__('Efecto hover', 'homlity-real-estate'),
+                'type'        => 'select',
+                'options'     => [
+                    'none' => esc_html__('Sin efecto', 'homlity-real-estate'),
+                    'lift' => esc_html__('Elevar', 'homlity-real-estate'),
+                    'zoom' => esc_html__('Zoom imagen', 'homlity-real-estate'),
+                    'glow' => esc_html__('Brillo / sombra', 'homlity-real-estate'),
+                ],
+                'default'     => 'lift',
+                'tab_slug'    => 'general',
+                'toggle_slug' => 'card_content',
+            ],
+        ] + $this->cardVisibilityFields() + $this->cardWhatsappFields() + $this->cardFeatureIconFields() + [
 
             // ── Consulta ──────────────────────────────────────────────────────
             'per_page' => [
@@ -168,11 +225,150 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
         ];
     }
 
+    /**
+     * Keep old Divi layouts editable: pages saved with homlity_listing_divi
+     * must expose the same card visibility switches as the current module.
+     */
+    private function cardVisibilityFields(): array
+    {
+        $labels = [
+            'card_title'        => __('Mostrar título', 'homlity-real-estate'),
+            'card_excerpt'      => __('Mostrar descripción corta', 'homlity-real-estate'),
+            'card_operation'    => __('Mostrar gestión (venta/arriendo)', 'homlity-real-estate'),
+            'card_price'        => __('Mostrar valor de gestión', 'homlity-real-estate'),
+            'card_features'     => __('Mostrar características', 'homlity-real-estate'),
+            'card_whatsapp'     => __('Mostrar botón WhatsApp asesor', 'homlity-real-estate'),
+            'card_area'         => __('Mostrar área', 'homlity-real-estate'),
+            'card_bedrooms'     => __('Mostrar alcobas', 'homlity-real-estate'),
+            'card_bathrooms'    => __('Mostrar baños', 'homlity-real-estate'),
+            'card_parking'      => __('Mostrar garajes', 'homlity-real-estate'),
+            'card_area_lot'     => __('Mostrar área de lote', 'homlity-real-estate'),
+            'card_area_private' => __('Mostrar área privada', 'homlity-real-estate'),
+            'card_area_built'   => __('Mostrar área construida', 'homlity-real-estate'),
+            'card_age'          => __('Mostrar edad del inmueble', 'homlity-real-estate'),
+            'card_condition'    => __('Mostrar estado del inmueble', 'homlity-real-estate'),
+            'card_code'         => __('Mostrar código del inmueble', 'homlity-real-estate'),
+            'card_link_new_tab' => __('Abrir inmueble en nueva pestaña', 'homlity-real-estate'),
+        ];
+
+        $fields = [];
+        foreach ($labels as $name => $label) {
+            $fields[$name] = [
+                'label'       => esc_html($label),
+                'type'        => 'yes_no_button',
+                'options'     => [
+                    'on'  => esc_html__('Sí', 'homlity-real-estate'),
+                    'off' => esc_html__('No', 'homlity-real-estate'),
+                ],
+                'default'     => $name === 'card_link_new_tab' ? 'off' : 'on',
+                'tab_slug'    => 'general',
+                'toggle_slug' => 'card_content',
+            ];
+        }
+
+        return $fields;
+    }
+
+    /**
+     * WhatsApp controls for layouts created with the legacy Divi module.
+     */
+    private function cardWhatsappFields(): array
+    {
+        return [
+            'card_whatsapp_label' => [
+                'label'       => esc_html__('Texto del botón', 'homlity-real-estate'),
+                'type'        => 'text',
+                'default'     => esc_html__('Hablar por WhatsApp', 'homlity-real-estate'),
+                'tab_slug'    => 'general',
+                'toggle_slug' => 'card_content',
+                'show_if'     => ['card_whatsapp' => 'on'],
+            ],
+            'card_whatsapp_show_icon' => [
+                'label'       => esc_html__('Mostrar ícono de WhatsApp', 'homlity-real-estate'),
+                'type'        => 'yes_no_button',
+                'options'     => [
+                    'on'  => esc_html__('Sí', 'homlity-real-estate'),
+                    'off' => esc_html__('No', 'homlity-real-estate'),
+                ],
+                'default'     => 'on',
+                'tab_slug'    => 'general',
+                'toggle_slug' => 'card_content',
+                'show_if'     => ['card_whatsapp' => 'on'],
+            ],
+            'card_whatsapp_icon_position' => [
+                'label'       => esc_html__('Posición del ícono', 'homlity-real-estate'),
+                'type'        => 'select',
+                'options'     => [
+                    'left'  => esc_html__('Izquierda', 'homlity-real-estate'),
+                    'right' => esc_html__('Derecha', 'homlity-real-estate'),
+                ],
+                'default'     => 'left',
+                'tab_slug'    => 'general',
+                'toggle_slug' => 'card_content',
+                'show_if'     => [
+                    'card_whatsapp'           => 'on',
+                    'card_whatsapp_show_icon' => 'on',
+                ],
+            ],
+            'card_whatsapp_icon_value' => [
+                'label'       => esc_html__('Ícono de WhatsApp', 'homlity-real-estate'),
+                'type'        => 'select_icon',
+                'class'       => ['et-pb-font-icon'],
+                'default'     => '&#xf232;||fa||400',
+                'tab_slug'    => 'general',
+                'toggle_slug' => 'card_content',
+                'show_if'     => [
+                    'card_whatsapp'           => 'on',
+                    'card_whatsapp_show_icon' => 'on',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Native Divi icon selectors for every feature rendered by a property card.
+     */
+    private function cardFeatureIconFields(): array
+    {
+        $icons = [
+            'area'         => [__('Ícono Área', 'homlity-real-estate'), '&#xf546;||fa||900'],
+            'bedrooms'     => [__('Ícono Alcobas', 'homlity-real-estate'), '&#xf236;||fa||900'],
+            'bathrooms'    => [__('Ícono Baños', 'homlity-real-estate'), '&#xf2cd;||fa||900'],
+            'parking'      => [__('Ícono Garajes', 'homlity-real-estate'), '&#xf1b9;||fa||900'],
+            'area_lot'     => [__('Ícono Área lote', 'homlity-real-estate'), '&#xf5ee;||fa||900'],
+            'area_private' => [__('Ícono Área privada', 'homlity-real-estate'), '&#xf015;||fa||900'],
+            'area_built'   => [__('Ícono Área construida', 'homlity-real-estate'), '&#xf545;||fa||900'],
+            'age'          => [__('Ícono Edad', 'homlity-real-estate'), '&#xf017;||fa||900'],
+            'condition'    => [__('Ícono Estado', 'homlity-real-estate'), '&#xf058;||fa||900'],
+            'code'         => [__('Ícono Código', 'homlity-real-estate'), '&#xf292;||fa||900'],
+        ];
+
+        $fields = [];
+        foreach ($icons as $name => [$label, $default]) {
+            $fields['card_feature_icon_' . $name . '_value'] = [
+                'label'       => esc_html($label),
+                'type'        => 'select_icon',
+                'class'       => ['et-pb-font-icon'],
+                'default'     => $default,
+                'tab_slug'    => 'general',
+                'toggle_slug' => 'card_content',
+                'show_if'     => [
+                    'card_features'          => 'on',
+                    'card_' . $name          => 'on',
+                ],
+            ];
+        }
+
+        return $fields;
+    }
+
     // Divi uses yes_no_button with 'on'/'off' – normalise to true/false booleans.
     private function diviAtts(array $props): array
     {
         $map = [
             'view_toggle'      => 'view_toggle',
+            'show_grid_view'   => 'show_grid_view',
+            'show_map_view'    => 'show_map_view',
             'featured'         => 'featured',
             'filters'          => 'filters',
             'filter_operation' => 'filter_operation',
@@ -181,6 +377,24 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
             'filter_price'     => 'filter_price',
             'filter_bedrooms'  => 'filter_bedrooms',
             'sort'             => 'sort',
+            'card_title'       => 'card_title',
+            'card_excerpt'     => 'card_excerpt',
+            'card_operation'   => 'card_operation',
+            'card_price'       => 'card_price',
+            'card_features'    => 'card_features',
+            'card_whatsapp'    => 'card_whatsapp',
+            'card_whatsapp_show_icon' => 'card_whatsapp_show_icon',
+            'card_area'        => 'card_area',
+            'card_bedrooms'    => 'card_bedrooms',
+            'card_bathrooms'   => 'card_bathrooms',
+            'card_parking'     => 'card_parking',
+            'card_area_lot'    => 'card_area_lot',
+            'card_area_private' => 'card_area_private',
+            'card_area_built'  => 'card_area_built',
+            'card_age'         => 'card_age',
+            'card_condition'   => 'card_condition',
+            'card_code'        => 'card_code',
+            'card_link_new_tab' => 'card_link_new_tab',
         ];
 
         foreach ($map as $key => $propKey) {

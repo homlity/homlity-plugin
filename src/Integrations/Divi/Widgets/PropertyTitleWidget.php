@@ -50,6 +50,7 @@ class PropertyTitleWidget extends BasePropertyWidget
         $this->add_responsive_control('title_align', [
             'label' => __('Alineación', 'homlity-real-estate'),
             'type' => Controls_Manager::CHOOSE,
+            'default' => 'center',
             'options' => [
                 'left' => ['title' => __('Izquierda', 'homlity-real-estate'), 'icon' => 'eicon-text-align-left'],
                 'center' => ['title' => __('Centro', 'homlity-real-estate'), 'icon' => 'eicon-text-align-center'],

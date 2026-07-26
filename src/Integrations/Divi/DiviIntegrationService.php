@@ -10,6 +10,7 @@ namespace Homlity\PluginInmobiliario\Integrations\Divi;
 
 use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 use Homlity\PluginInmobiliario\Services\DataSeederService;
+use Homlity\PluginInmobiliario\Services\PropertyPostType;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -24,6 +25,10 @@ class DiviIntegrationService implements ServiceInterface
         // ET_Builder_Module is defined by the Divi theme / Divi Builder plugin.
         add_action('et_builder_ready', [$this, 'loadModule']);
         add_action('wp_enqueue_scripts', [$this, 'enqueueAssets'], 20);
+        add_action('admin_menu', [$this, 'registerTemplateEditorMenu'], 30);
+        add_action('admin_bar_menu', [$this, 'addTemplateAdminBarLink'], 1001);
+        add_filter('page_row_actions', [$this, 'addTemplateRowAction'], 10, 2);
+        add_filter('display_post_states', [$this, 'addTemplatePostState'], 10, 2);
     }
 
     public function loadModule(): void
@@ -84,6 +89,45 @@ class DiviIntegrationService implements ServiceInterface
             ['homlity-real-estate-front-components'],
             HOMLITY_PLUGIN_VERSION
         );
+        wp_enqueue_style(
+            'homlity-property-faq',
+            HOMLITY_PLUGIN_URL . 'assets/css/property-faq.css',
+            ['homlity-real-estate-front-components'],
+            HOMLITY_PLUGIN_VERSION
+        );
+        wp_enqueue_script(
+            'homlity-property-faq',
+            HOMLITY_PLUGIN_URL . 'assets/js/property-faq.js',
+            [],
+            HOMLITY_PLUGIN_VERSION,
+            true
+        );
+
+        $this->enqueueIconFontFaces();
+    }
+
+    /**
+     * Make Divi's complete icon fonts available under isolated family names.
+     *
+     * Divi's dynamic scanner does not detect icons rendered by third-party
+     * modules reliably. Direct URLs also let us separate Font Awesome regular
+     * and brands, which Divi exposes with the same weight (400).
+     */
+    private function enqueueIconFontFaces(): void
+    {
+        if (!defined('ET_CORE_URL')) {
+            return;
+        }
+
+        $fontsUrl = trailingslashit((string) ET_CORE_URL) . 'admin/fonts/';
+        $css = sprintf(
+            '@font-face{font-family:HomlityDiviIcons;font-display:block;font-style:normal;font-weight:400;src:url("%1$smodules/all/modules.woff") format("woff"),url("%1$smodules/all/modules.ttf") format("truetype");}'
+            . '@font-face{font-family:HomlityDiviFontAwesomeRegular;font-display:block;font-style:normal;font-weight:400;src:url("%1$sfontawesome/fa-regular-400.woff2") format("woff2"),url("%1$sfontawesome/fa-regular-400.woff") format("woff");}'
+            . '@font-face{font-family:HomlityDiviFontAwesomeSolid;font-display:block;font-style:normal;font-weight:900;src:url("%1$sfontawesome/fa-solid-900.woff2") format("woff2"),url("%1$sfontawesome/fa-solid-900.woff") format("woff");}'
+            . '@font-face{font-family:HomlityDiviFontAwesomeBrands;font-display:block;font-style:normal;font-weight:400;src:url("%1$sfontawesome/fa-brands-400.woff2") format("woff2"),url("%1$sfontawesome/fa-brands-400.woff") format("woff");}',
+            esc_url($fontsUrl)
+        );
+        wp_add_inline_style('homlity-real-estate-front-components', $css);
     }
 
     /** @return list<class-string> */
@@ -96,6 +140,7 @@ class DiviIntegrationService implements ServiceInterface
             'PropertyDynamicCodeButtonWidget', 'PropertyFeaturedCitiesWidget',
             'PropertyFeaturedNeighborhoodsWidget', 'PropertyFeaturedOperationsWidget',
             'PropertyFeaturedTermsWidget', 'PropertyFeaturedTypesWidget',
+            'PropertyFaqWidget',
             'PropertyFeaturesPrimaryWidget', 'PropertyFeaturesSecondaryWidget',
             'PropertyFilterWidget', 'PropertyGalleryWidget', 'PropertyListingWidget',
             'PropertyMapWidget', 'PropertyMediaTabsWidget', 'PropertyOperationPriceWidget',
@@ -103,5 +148,200 @@ class DiviIntegrationService implements ServiceInterface
             'PropertySummaryWidget', 'PropertyTechnicalSheetButtonWidget',
             'PropertyTitleWidget', 'PropertyVideoWidget', 'SimulatorWidget',
         ]);
+    }
+
+    public function registerTemplateEditorMenu(): void
+    {
+        $templateId = $this->detailTemplateId();
+        if ($templateId <= 0 || !current_user_can('edit_post', $templateId)) {
+            return;
+        }
+
+        add_submenu_page(
+            'homlity-real-estate-settings',
+            __('Diseñar detalle con Divi', 'homlity-real-estate'),
+            __('Diseñar detalle con Divi', 'homlity-real-estate'),
+            'edit_pages',
+            'homlity-divi-property-template',
+            [$this, 'renderTemplateEditorPage']
+        );
+    }
+
+    public function renderTemplateEditorPage(): void
+    {
+        $templateId = $this->detailTemplateId();
+        if ($templateId <= 0 || !current_user_can('edit_post', $templateId)) {
+            wp_die(esc_html__('No tienes permisos para editar esta plantilla.', 'homlity-real-estate'));
+        }
+
+        $previewId = isset($_GET['property_preview'])
+            ? absint(wp_unslash($_GET['property_preview']))
+            : $this->defaultPreviewPropertyId();
+        if (get_post_type($previewId) !== PropertyPostType::POST_TYPE) {
+            $previewId = $this->defaultPreviewPropertyId();
+        }
+
+        $properties = get_posts([
+            'post_type' => PropertyPostType::POST_TYPE,
+            'post_status' => ['publish', 'private', 'draft'],
+            'posts_per_page' => 100,
+            'orderby' => 'modified',
+            'order' => 'DESC',
+            'no_found_rows' => true,
+        ]);
+        $visualUrl = $this->visualBuilderUrl($templateId, $previewId);
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('Diseñar detalle de inmueble con Divi', 'homlity-real-estate'); ?></h1>
+            <p class="description" style="max-width:760px;">
+                <?php esc_html_e(
+                    'Edita la plantilla global que usan todos los inmuebles. El inmueble seleccionado se utiliza solamente como vista previa para mostrar datos reales dentro de los módulos de Divi.',
+                    'homlity-real-estate'
+                ); ?>
+            </p>
+
+            <form method="get" action="<?php echo esc_url(admin_url('admin.php')); ?>" style="margin:24px 0;">
+                <input type="hidden" name="page" value="homlity-divi-property-template">
+                <label for="homlity-property-preview"><strong><?php esc_html_e('Inmueble para vista previa', 'homlity-real-estate'); ?></strong></label>
+                <select id="homlity-property-preview" name="property_preview" style="min-width:360px;max-width:100%;margin:0 8px;">
+                    <?php foreach ($properties as $property): ?>
+                        <option value="<?php echo esc_attr((string) $property->ID); ?>" <?php selected($previewId, (int) $property->ID); ?>>
+                            <?php echo esc_html($property->post_title . ' (#' . $property->ID . ')'); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php submit_button(__('Cambiar vista previa', 'homlity-real-estate'), 'secondary', 'submit', false); ?>
+            </form>
+
+            <?php if ($previewId <= 0): ?>
+                <div class="notice notice-warning inline"><p>
+                    <?php esc_html_e('Crea o publica al menos un inmueble para poder mostrar datos dinámicos en la vista previa.', 'homlity-real-estate'); ?>
+                </p></div>
+            <?php endif; ?>
+
+            <p style="margin-top:24px;">
+                <a class="button button-primary button-hero" href="<?php echo esc_url($visualUrl); ?>">
+                    <?php esc_html_e('Editar con el constructor visual de Divi', 'homlity-real-estate'); ?>
+                </a>
+                <a class="button button-hero" href="<?php echo esc_url(get_edit_post_link($templateId, '')); ?>">
+                    <?php esc_html_e('Editar en el administrador', 'homlity-real-estate'); ?>
+                </a>
+            </p>
+            <p class="description">
+                <?php esc_html_e('Los cambios se guardan en la plantilla global, no en el inmueble usado para la vista previa.', 'homlity-real-estate'); ?>
+            </p>
+        </div>
+        <?php
+    }
+
+    public function addTemplateAdminBarLink(\WP_Admin_Bar $adminBar): void
+    {
+        if (!is_admin_bar_showing()) {
+            return;
+        }
+
+        $templateId = $this->detailTemplateId();
+        if ($templateId <= 0 || !current_user_can('edit_post', $templateId)) {
+            return;
+        }
+
+        $previewId = is_singular(PropertyPostType::POST_TYPE)
+            ? (int) get_queried_object_id()
+            : $this->previewPropertyIdFromRequest();
+        if ($previewId <= 0) {
+            $previewId = $this->defaultPreviewPropertyId();
+        }
+        $visualUrl = $this->visualBuilderUrl($templateId, $previewId);
+
+        $adminBar->add_node([
+            'id' => 'homlity-edit-divi-property-template',
+            'parent' => 'homlity-real-estate-links',
+            'title' => __('Editar detalle con Divi', 'homlity-real-estate'),
+            'href' => $visualUrl,
+            'meta' => [
+                'title' => __('Editar la plantilla global de detalle usando este inmueble como vista previa', 'homlity-real-estate'),
+            ],
+        ]);
+
+        // On a property page Divi's native button would edit that individual
+        // property. Point it to Homlity's global detail template instead.
+        if (is_singular(PropertyPostType::POST_TYPE)) {
+            $adminBar->remove_node('et-use-visual-builder');
+            $adminBar->add_node([
+                'id' => 'et-use-visual-builder',
+                'title' => __('Editar plantilla de detalle con Divi', 'homlity-real-estate'),
+                'href' => $visualUrl,
+            ]);
+        }
+    }
+
+    public function addTemplateRowAction(array $actions, \WP_Post $post): array
+    {
+        $templateId = $this->detailTemplateId();
+        if ($post->ID !== $templateId || !current_user_can('edit_post', $templateId)) {
+            return $actions;
+        }
+
+        $previewId = $this->defaultPreviewPropertyId();
+        $actions['homlity_divi_visual_builder'] = sprintf(
+            '<a href="%1$s">%2$s</a>',
+            esc_url($this->visualBuilderUrl($templateId, $previewId)),
+            esc_html__('Editar detalle con Divi', 'homlity-real-estate')
+        );
+        return $actions;
+    }
+
+    public function addTemplatePostState(array $states, \WP_Post $post): array
+    {
+        if ($post->ID === $this->detailTemplateId()) {
+            $states['homlity_property_detail'] = __('Plantilla de detalle Homlity (Divi)', 'homlity-real-estate');
+        }
+        return $states;
+    }
+
+    private function detailTemplateId(): int
+    {
+        $templateId = (int) get_option('homlity_plugin_single_template_id', 0);
+        if ($templateId <= 0 || !get_post_status($templateId)) {
+            return 0;
+        }
+        if (get_post_meta($templateId, '_et_pb_use_builder', true) !== 'on') {
+            return 0;
+        }
+        return $templateId;
+    }
+
+    private function visualBuilderUrl(int $templateId, int $previewId): string
+    {
+        $permalink = (string) get_permalink($templateId);
+        $url = function_exists('et_fb_get_builder_url')
+            ? (string) et_fb_get_builder_url($permalink)
+            : (string) add_query_arg(['et_fb' => '1', 'PageSpeed' => 'off'], $permalink);
+
+        if ($previewId > 0) {
+            $url = (string) add_query_arg('homlity_property_preview', $previewId, $url);
+        }
+        return $url;
+    }
+
+    private function previewPropertyIdFromRequest(): int
+    {
+        return isset($_GET['homlity_property_preview'])
+            ? absint(wp_unslash($_GET['homlity_property_preview']))
+            : 0;
+    }
+
+    private function defaultPreviewPropertyId(): int
+    {
+        $ids = get_posts([
+            'post_type' => PropertyPostType::POST_TYPE,
+            'post_status' => ['publish', 'private', 'draft'],
+            'posts_per_page' => 1,
+            'orderby' => 'modified',
+            'order' => 'DESC',
+            'fields' => 'ids',
+            'no_found_rows' => true,
+        ]);
+        return $ids ? (int) $ids[0] : 0;
     }
 }

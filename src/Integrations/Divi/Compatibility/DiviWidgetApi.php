@@ -69,6 +69,7 @@ if (!class_exists(Widget_Base::class)) {
         protected function add_control(string $id, array $args = []): void
         {
             $args['section'] = $this->homlitySection;
+            $args['section_label'] = (string) ($this->homlitySectionArgs['label'] ?? '');
             if (!isset($args['tab']) && isset($this->homlitySectionArgs['tab'])) {
                 $args['tab'] = $this->homlitySectionArgs['tab'];
             }
@@ -134,6 +135,11 @@ if (!class_exists(Icons_Manager::class)) {
 
         public static function render_icon(array $icon, array $attributes = []): void
         {
+            if (class_exists('\\Homlity\\PluginInmobiliario\\Services\\IconRenderer')) {
+                \Homlity\PluginInmobiliario\Services\IconRenderer::render($icon, $attributes);
+                return;
+            }
+
             $value = sanitize_html_class((string) ($icon['value'] ?? ''));
             if ($value === '') {
                 return;

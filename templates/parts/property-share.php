@@ -10,93 +10,34 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use Homlity\PluginInmobiliario\Services\SocialShareMessageService;
+
 if (!isset($post_id)) {
     $post_id = get_the_ID();
 }
 
 $s     = $settings ?? [];
 $url   = get_permalink($post_id) ?: '';
-$title = get_the_title($post_id) ?: '';
-
-$bedrooms = get_post_meta($post_id, '_property_bedrooms', true);
-$bathrooms = get_post_meta($post_id, '_property_bathrooms', true);
-$parking = get_post_meta($post_id, '_property_parking', true);
-$area = get_post_meta($post_id, '_property_area', true);
-$priceSale = get_post_meta($post_id, '_property_price_sale', true);
-$priceRent = get_post_meta($post_id, '_property_price_rent', true);
-$propertyCode = trim((string) get_post_meta($post_id, '_property_code', true));
-if ($propertyCode === '') {
-    $propertyCode = (string) $post_id;
-}
-
-$formatNumber = static function ($value): string {
-    if ($value === '' || $value === null) {
-        return '';
-    }
-    $number = (float) preg_replace('/[^0-9\.\-]/', '', (string) $value);
-    if ($number <= 0) {
-        return '';
-    }
-    return number_format_i18n($number, 0);
-};
-
-$displayPrice = $formatNumber($priceSale);
-if ($displayPrice === '') {
-    $displayPrice = $formatNumber($priceRent);
-}
-if ($displayPrice !== '') {
-    $displayPrice = '$ ' . $displayPrice;
-}
-
-$summaryParts = [];
-if ($title !== '') {
-    $summaryParts[] = $title;
-}
-$summaryParts[] = sprintf(__('código: %s', 'homlity-real-estate'), $propertyCode);
-if ($bedrooms !== '') {
-    /* translators: %s: number of bedrooms */
-    $summaryParts[] = sprintf(__('alcobas: %s', 'homlity-real-estate'), $bedrooms);
-}
-if ($bathrooms !== '') {
-    /* translators: %s: number of bathrooms */
-    $summaryParts[] = sprintf(__('baños: %s', 'homlity-real-estate'), $bathrooms);
-}
-if ($parking !== '') {
-    /* translators: %s: number of parking spaces */
-    $summaryParts[] = sprintf(__('parqueaderos: %s', 'homlity-real-estate'), $parking);
-}
-if ($area !== '') {
-    /* translators: %s: property area in square meters */
-    $summaryParts[] = sprintf(__('área: %sm2', 'homlity-real-estate'), $area);
-}
-if ($displayPrice !== '') {
-    /* translators: %s: formatted property price */
-    $summaryParts[] = sprintf(__('valor: %s', 'homlity-real-estate'), $displayPrice);
-}
-
-$propertySummary = trim(implode(' | ', $summaryParts));
-if ($propertySummary === '') {
-    $propertySummary = $title;
-}
-
-$shareTextTpl = $s['share_text'] ?? '{summary} {url}';
-$shareText    = str_replace(
-    ['{title}', '{url}', '{summary}', '{code}', '{bedrooms}', '{bathrooms}', '{parking}', '{area}', '{price}'],
-    [$title, $url, $propertySummary, $propertyCode, (string) $bedrooms, (string) $bathrooms, (string) $parking, (string) $area, (string) $displayPrice],
-    $shareTextTpl
+$title = html_entity_decode(
+    wp_strip_all_tags((string) (get_the_title($post_id) ?: '')),
+    ENT_QUOTES | ENT_HTML5,
+    'UTF-8'
 );
-$shareText = trim((string) $shareText);
-if ($shareText === '') {
-    $shareText = trim($propertySummary . ' ' . $url);
-} elseif (stripos($shareText, $propertyCode) === false) {
-    $shareText .= ' - ' . sprintf(__('Código del inmueble: %s', 'homlity-real-estate'), $propertyCode);
+
+$legacyShareText = trim((string) ($s['share_text'] ?? ''));
+if ($legacyShareText === '{summary} {url}') {
+    $legacyShareText = '';
 }
-$headingText  = trim((string) ($s['heading_text'] ?? __('Compartir en:', 'homlity-real-estate')));
-$whatsAppText = sprintf(
-    'Hola buen día, estoy interesado en el código de inmueble %s [%s]',
-    $propertyCode,
-    $title
-);
+$messages = [];
+foreach (array_keys(SocialShareMessageService::defaults()) as $platformKey) {
+    $messages[$platformKey] = SocialShareMessageService::messageFor(
+        $platformKey,
+        (int) $post_id,
+        $legacyShareText
+    );
+}
+$withoutUrl = static fn(string $message): string => SocialShareMessageService::messageWithoutUrl($message, $url);
+$headingText = trim((string) ($s['heading_text'] ?? __('Compartir en:', 'homlity-real-estate')));
 
 $showLabels      = ($s['show_labels']       ?? 'yes') === 'yes';
 $showToggle      = ($s['show_label_toggle'] ?? '')    === 'yes';
@@ -106,42 +47,42 @@ $toggleShowText  = trim((string) ($s['label_toggle_show_text'] ?? __('Mostrar et
 $platforms = [
     'whatsapp'  => [
         'label' => $s['label_whatsapp']  ?? __('WhatsApp',      'homlity-real-estate'),
-        'href'  => 'https://api.whatsapp.com/send?text=' . rawurlencode($whatsAppText),
+        'href'  => 'https://api.whatsapp.com/send?text=' . rawurlencode($messages['whatsapp']),
         'copy'  => false,
     ],
     'facebook'  => [
         'label' => $s['label_facebook']  ?? __('Facebook',      'homlity-real-estate'),
-        'href'  => 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode($url),
+        'href'  => 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode($url) . '&quote=' . rawurlencode($withoutUrl($messages['facebook'])),
         'copy'  => false,
     ],
     'x'         => [
         'label' => $s['label_x']         ?? __('X',             'homlity-real-estate'),
-        'href'  => 'https://twitter.com/intent/tweet?text=' . rawurlencode($shareText) . '&url=' . rawurlencode($url),
+        'href'  => 'https://twitter.com/intent/tweet?text=' . rawurlencode($withoutUrl($messages['x'])) . '&url=' . rawurlencode($url),
         'copy'  => false,
     ],
     'linkedin'  => [
         'label' => $s['label_linkedin']  ?? __('LinkedIn',      'homlity-real-estate'),
-        'href'  => 'https://www.linkedin.com/sharing/share-offsite/?url=' . rawurlencode($url),
+        'href'  => 'https://www.linkedin.com/sharing/share-offsite/?url=' . rawurlencode($url) . '&summary=' . rawurlencode($withoutUrl($messages['linkedin'])),
         'copy'  => false,
     ],
     'telegram'  => [
         'label' => $s['label_telegram']  ?? __('Telegram',      'homlity-real-estate'),
-        'href'  => 'https://t.me/share/url?url=' . rawurlencode($url) . '&text=' . rawurlencode($shareText),
+        'href'  => 'https://t.me/share/url?url=' . rawurlencode($url) . '&text=' . rawurlencode($withoutUrl($messages['telegram'])),
         'copy'  => false,
     ],
     'pinterest' => [
         'label' => $s['label_pinterest'] ?? __('Pinterest',     'homlity-real-estate'),
-        'href'  => 'https://pinterest.com/pin/create/button/?url=' . rawurlencode($url) . '&description=' . rawurlencode($shareText),
+        'href'  => 'https://pinterest.com/pin/create/button/?url=' . rawurlencode($url) . '&description=' . rawurlencode($withoutUrl($messages['pinterest'])),
         'copy'  => false,
     ],
     'reddit'    => [
         'label' => $s['label_reddit']    ?? __('Reddit',        'homlity-real-estate'),
-        'href'  => 'https://www.reddit.com/submit?url=' . rawurlencode($url) . '&title=' . rawurlencode($title),
+        'href'  => 'https://www.reddit.com/submit?url=' . rawurlencode($url) . '&title=' . rawurlencode($withoutUrl($messages['reddit'])),
         'copy'  => false,
     ],
     'email'     => [
         'label' => $s['label_email']     ?? __('Correo',        'homlity-real-estate'),
-        'href'  => 'mailto:?subject=' . rawurlencode($title) . '&body=' . rawurlencode($shareText . ' ' . $url),
+        'href'  => 'mailto:?subject=' . rawurlencode($title) . '&body=' . rawurlencode($messages['email']),
         'copy'  => false,
     ],
     'copy'      => [
@@ -185,7 +126,7 @@ if (!$showLabels) {
             <li class="property-share__item">
                 <a
                     class="property-share__link<?php echo $platform['copy'] ? ' property-share__copy' : ''; ?>"
-                    href="<?php echo esc_url($platform['href']); ?>"
+                    href="<?php echo esc_attr($platform['href']); ?>"
                     <?php if (!$platform['copy']): ?>
                         target="_blank"
                         rel="noopener noreferrer"

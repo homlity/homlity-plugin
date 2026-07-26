@@ -63,7 +63,10 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
         foreach ($this->widget()->get_controls() as $control) {
             $tab = (($control['tab'] ?? '') === Controls_Manager::TAB_STYLE) ? 'advanced' : 'general';
             $section = sanitize_key((string) ($control['section'] ?? 'main_content')) ?: 'main_content';
-            $toggles[$tab]['toggles'][$section] = ucwords(str_replace('_', ' ', $section));
+            $label = trim((string) ($control['section_label'] ?? ''));
+            $toggles[$tab]['toggles'][$section] = $label !== ''
+                ? esc_html($label)
+                : ucwords(str_replace('_', ' ', $section));
         }
         return $toggles;
     }
@@ -149,12 +152,9 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
                 . esc_html__('Use una medida CSS (ej. 16px) o cuatro valores (ej. 16px 20px 16px 20px).', 'homlity-real-estate')
             );
         } elseif ($type === Controls_Manager::ICONS) {
-            $field['type'] = 'text';
+            $field['type'] = 'select_icon';
             $field['default'] = $this->iconDefault($control['default'] ?? '');
-            $field['description'] = trim(
-                $field['description'] . ' '
-                . esc_html__('Use una clase de Font Awesome, por ejemplo: fas fa-home.', 'homlity-real-estate')
-            );
+            $field['class'] = ['et-pb-font-icon'];
         } elseif ($type === Controls_Manager::URL) {
             $field['type'] = 'text';
             $field['default'] = is_array($control['default'] ?? null)
@@ -340,6 +340,12 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
             }
             return $settings[$key];
         }
+
+        $defaultKey = $device === 'phone' ? 'mobile_default' : 'tablet_default';
+        if (array_key_exists($defaultKey, $control)) {
+            return $control[$defaultKey];
+        }
+
         return null;
     }
 
@@ -462,7 +468,12 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
 
     private function iconDefault(mixed $value): string
     {
-        return is_array($value) ? (string) ($value['value'] ?? '') : (string) $value;
+        $raw = trim(is_array($value) ? (string) ($value['value'] ?? '') : (string) $value);
+        if ($raw === '' || str_contains($raw, '||') || preg_match('/^%%\d+%%$/', $raw) === 1) {
+            return $raw;
+        }
+
+        return $this->fontAwesomeClassToDiviIcon($raw);
     }
 
     private function normalizeIconValue(mixed $value): array
@@ -480,8 +491,54 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
                 return $this->normalizeIconValue($decoded);
             }
         }
+        if (str_contains($raw, '||') || preg_match('/^%%\d+%%$/', $raw) === 1) {
+            return ['value' => sanitize_text_field($raw), 'library' => 'divi'];
+        }
         $library = str_contains($raw, 'fab ') ? 'fa-brands' : 'fa-solid';
         return ['value' => sanitize_text_field($raw), 'library' => $library];
+    }
+
+    /**
+     * Converts an Elementor/Font Awesome class into Divi's select_icon value.
+     */
+    private function fontAwesomeClassToDiviIcon(string $classes): string
+    {
+        if (preg_match('/(?:^|\s)fa-([a-z0-9-]+)(?:\s|$)/i', $classes, $matches) !== 1) {
+            return '';
+        }
+
+        $name = strtolower($matches[1]);
+        $name = [
+            'house'        => 'home',
+            'circle-check' => 'check-circle',
+            // Divi 4.x ships the former Twitter icon but predates X/Twitter.
+            'x-twitter'    => 'twitter',
+        ][$name] ?? $name;
+        $preferredWeight = str_contains($classes, 'fas ') ? 900 : 400;
+
+        if (function_exists('et_pb_get_extended_font_icon_symbols')) {
+            foreach ((array) et_pb_get_extended_font_icon_symbols() as $icon) {
+                if (!is_array($icon)
+                    || !empty($icon['is_divi_icon'])
+                    || strtolower((string) ($icon['name'] ?? '')) !== $name
+                    || (int) ($icon['font_weight'] ?? 400) !== $preferredWeight) {
+                    continue;
+                }
+
+                $unicode = (string) ($icon['unicode'] ?? '');
+                if ($unicode !== '') {
+                    return $unicode . '||fa||' . $preferredWeight;
+                }
+            }
+        }
+
+        // Keep the WhatsApp default usable even if Divi's icon list has not
+        // been initialized yet when the module fields are requested.
+        if ($name === 'whatsapp') {
+            return '&#xf232;||fa||400';
+        }
+
+        return '';
     }
 
     private function normalizeUrlValue(mixed $value): array

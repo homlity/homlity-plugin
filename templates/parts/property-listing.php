@@ -161,6 +161,7 @@ $sortOptions = [
     </div>
 
     <div class="property-listing__content">
+        <?php if ($config->showGridView()) : ?>
         <div class="property-listing__grid"
              style="--columns:<?php echo esc_attr($config->columns()); ?>;"
              <?php echo $config->defaultView() === 'map' ? 'hidden' : ''; ?>>
@@ -182,12 +183,15 @@ $sortOptions = [
             }
             ?>
         </div>
+        <?php endif; ?>
 
+        <?php if ($config->showMapView()) : ?>
         <div class="property-listing__map-container" <?php echo $config->defaultView() === 'grid' ? 'hidden' : ''; ?>>
             <div id="<?php echo esc_attr($uniqueId); ?>-map"
                  class="property-listing__map"
                  style="height:<?php echo esc_attr($config->mapHeight()); ?>px;"></div>
         </div>
+        <?php endif; ?>
     </div>
 
     <?php if ($config->showPagination() && $query->max_num_pages > 1) : ?>

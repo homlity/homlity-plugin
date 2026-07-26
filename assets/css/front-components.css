@@ -9,6 +9,25 @@
     --homlity-secondary-color: #37384a;
 }
 
+/* Divi font icons used by the adapted Homlity widgets. Their size must come
+   from the widget context or its design control, never from Divi's 96px icon
+   module default. */
+.homlity-divi-icon {
+    align-items: center;
+    box-sizing: border-box;
+    display: inline-flex;
+    flex: 0 0 auto;
+    height: 1em;
+    justify-content: center;
+    max-height: 1em;
+    max-width: 1em;
+    speak: none;
+    vertical-align: -0.125em;
+    width: 1em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
 .property-card {
     background: #fff;
     border: 1px solid rgba(55, 56, 74, 0.08);
@@ -406,7 +425,7 @@
     align-items: center;
     color: #5fa66a;
     display: inline-flex;
-    font-size: 40px;
+    font-size: 16px;
     justify-content: center;
     min-height: 40px;
     min-width: 40px;
@@ -435,11 +454,16 @@
 
 .property-share__icon,
 .property-share__icon i,
+.property-share__icon .homlity-divi-icon,
 .property-share__icon svg {
     display: block;
     height: 1em;
     line-height: 1;
     width: 1em;
+}
+
+.property-share__icon {
+    font-size: 20px;
 }
 
 .property-share__copy.is-copied {
@@ -749,7 +773,7 @@
     }
 
     .property-share__link {
-        font-size: 34px;
+        font-size: 16px;
     }
 }
 
@@ -1125,6 +1149,10 @@
   width: 16px;
   height: 16px;
   fill: currentColor;
+}
+
+.property-agent-block__icon .homlity-divi-icon {
+  font-size: 16px;
 }
 
 .property-agent-block__actions {

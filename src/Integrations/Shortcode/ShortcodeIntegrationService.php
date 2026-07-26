@@ -50,6 +50,8 @@ class ShortcodeIntegrationService implements ServiceInterface
             // Presentation
             'template'         => 'default',  // 'default' | 'bootstrap'
             'view'             => 'grid',      // 'grid' | 'map'
+            'cards'            => 'true',
+            'map'              => 'true',
             'view_toggle'      => 'true',
             'columns'          => '3',
 

@@ -52,6 +52,11 @@ abstract class BasePropertyWidget extends Widget_Base
             }
         }
 
+        $previewId = $this->diviPreviewPropertyId();
+        if ($previewId > 0) {
+            return $previewId;
+        }
+
         $queriedId = (int) get_queried_object_id();
         if ($queriedId > 0) {
             return $queriedId;
@@ -65,6 +70,45 @@ abstract class BasePropertyWidget extends Widget_Base
         global $post;
         if ($post instanceof \WP_Post) {
             return (int) $post->ID;
+        }
+
+        return 0;
+    }
+
+    private function diviPreviewPropertyId(): int
+    {
+        if (!is_user_logged_in()) {
+            return 0;
+        }
+
+        $templateId = (int) get_option('homlity_plugin_single_template_id', 0);
+        if ($templateId <= 0 || !current_user_can('edit_post', $templateId)) {
+            return 0;
+        }
+
+        $previewId = isset($_REQUEST['homlity_property_preview'])
+            ? absint(wp_unslash($_REQUEST['homlity_property_preview']))
+            : 0;
+        $queriedId = (int) get_queried_object_id();
+        $action = isset($_REQUEST['action'])
+            ? sanitize_key(wp_unslash((string) $_REQUEST['action']))
+            : '';
+        $isDiviAjax = wp_doing_ajax()
+            && (str_starts_with($action, 'et_fb_') || str_starts_with($action, 'et_builder_'));
+
+        if ($previewId > 0 && ($queriedId === $templateId || $isDiviAjax)) {
+            if (get_post_type($previewId) !== 'property') {
+                return 0;
+            }
+            set_transient('homlity_divi_property_preview_' . get_current_user_id(), $previewId, HOUR_IN_SECONDS);
+            return $previewId;
+        }
+
+        if ($isDiviAjax) {
+            $storedId = (int) get_transient('homlity_divi_property_preview_' . get_current_user_id());
+            if ($storedId > 0 && get_post_type($storedId) === 'property') {
+                return $storedId;
+            }
         }
 
         return 0;

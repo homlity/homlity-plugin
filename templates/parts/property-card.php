@@ -74,6 +74,14 @@ if (!function_exists('homlity_card_feature_icon')) {
     {
         if (is_array($iconConfig) && !empty($iconConfig['value'])) {
             $value = trim((string) $iconConfig['value']);
+            if (($iconConfig['library'] ?? '') === 'divi'
+                || strpos($value, '||') !== false
+                || preg_match('/^%%\d+%%$/', $value) === 1) {
+                return [
+                    'value'   => $value,
+                    'library' => 'divi',
+                ];
+            }
             if ($value !== '' && strpos($value, 'fa-') !== false) {
                 if (empty($iconConfig['library'])) {
                     if (strpos($value, 'fab ') === 0) {
@@ -111,6 +119,12 @@ if (!function_exists('homlity_card_feature_icon')) {
         $value = trim($iconConfig);
         if ($value === '') {
             return [];
+        }
+        if (strpos($value, '||') !== false || preg_match('/^%%\d+%%$/', $value) === 1) {
+            return [
+                'value'   => $value,
+                'library' => 'divi',
+            ];
         }
 
         $value = $legacyMap[$value] ?? $value;

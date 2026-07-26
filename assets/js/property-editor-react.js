@@ -325,8 +325,13 @@
     var tagOptions = opts.tag_options || [];
     var selectedOperation = (opts.operations || []).find(function (o) { return String(o.id) === String(operation); });
     var operationSlug = String((selectedOperation && (selectedOperation.slug || selectedOperation.name)) || '').toLowerCase();
-    var isRent = operationSlug.indexOf('arr') !== -1 || operationSlug.indexOf('alquil') !== -1 || operationSlug.indexOf('rent') !== -1;
-    var isSale = operationSlug.indexOf('vent') !== -1 || operationSlug.indexOf('sale') !== -1;
+    var operationBaseId = Number((selectedOperation && selectedOperation.base_id) || 0);
+    var isSwap = operationBaseId === 4 || operationSlug.indexOf('permuta') !== -1 || operationSlug.indexOf('swap') !== -1;
+    var isRent = operationBaseId === 1 || operationBaseId === 3 || operationSlug.indexOf('arr') !== -1 || operationSlug.indexOf('alquil') !== -1 || operationSlug.indexOf('rent') !== -1;
+    var isSale = operationBaseId === 2 || operationBaseId === 3 || operationSlug.indexOf('vent') !== -1 || operationSlug.indexOf('sale') !== -1;
+    var showRentPrice = isRent || isSwap;
+    var showSalePrice = isSale || isSwap;
+    var canHaveAdminFee = showRentPrice || showSalePrice;
 
     // Capture initial media state so the closure below ([] deps, runs once) can reference them.
     // We only want to fill fields that PHP couldn't populate from primary meta — specifically those
@@ -836,25 +841,23 @@
             ),
             h('div', { className: 'hpe-overview-section hpe-overview-section--prices' },
               h('h2', null, 'Precios'),
-              (!isRent && !isSale) && h('p', null, 'Selecciona la gestión para configurar precios.'),
-              isRent && h('div', { className: 'hpe-prices' },
-                h(Field, { label: 'Precio arriendo', required: true, error: hasError('price_rent') ? 'Este campo es obligatorio.' : '' }, h(Input, { type: 'number', name: 'property_price_rent', required: true, value: priceRent, onChange: setPriceRent })),
-                h(Field, { label: 'Moneda arriendo' }, h(Select, { name: 'property_currency_rent', value: currencyRent, onChange: setCurrencyRent, options: currencyOptions })),
-                h(Field, { label: 'Precio administración' }, h(Input, { type: 'number', name: 'property_price_admin', value: priceAdmin, onChange: setPriceAdmin })),
-                h(Field, { label: 'Moneda administración' }, h(Select, { name: 'property_currency_admin', value: currencyAdmin, onChange: setCurrencyAdmin, options: currencyOptions }))
+              (!showRentPrice && !showSalePrice) && h('p', null, 'Selecciona la gestión para configurar precios.'),
+              showRentPrice && h('div', { className: 'hpe-prices' },
+                h(Field, { label: 'Precio arriendo', required: isRent, error: hasError('price_rent') ? 'Este campo es obligatorio.' : '' }, h(Input, { type: 'number', name: 'property_price_rent', required: isRent, value: priceRent, onChange: setPriceRent })),
+                h(Field, { label: 'Moneda arriendo' }, h(Select, { name: 'property_currency_rent', value: currencyRent, onChange: setCurrencyRent, options: currencyOptions }))
               ),
-              isRent && h('label', { className: 'hpe-check' }, h('input', { type: 'checkbox', checked: adminIncluded, onChange: function (e) { setAdminIncluded(e.target.checked); } }), 'Administración incluida en arriendo'),
-              isSale && h('div', { className: 'hpe-prices' },
-                h(Field, { label: 'Precio venta', required: true, error: hasError('price_sale') ? 'Este campo es obligatorio.' : '' }, h(Input, { type: 'number', name: 'property_price_sale', required: true, value: priceSale, onChange: setPriceSale })),
+              showSalePrice && h('div', { className: 'hpe-prices' },
+                h(Field, { label: 'Precio venta', required: isSale, error: hasError('price_sale') ? 'Este campo es obligatorio.' : '' }, h(Input, { type: 'number', name: 'property_price_sale', required: isSale, value: priceSale, onChange: setPriceSale })),
                 h(Field, { label: 'Moneda venta' }, h(Select, { name: 'property_currency_sale', value: currencySale, onChange: setCurrencySale, options: currencyOptions }))
               ),
-              isSale && h('label', { className: 'hpe-check' }, h('input', { type: 'checkbox', checked: hasAdminFee, onChange: function (e) { setHasAdminFee(e.target.checked); } }), 'Tiene administración'),
-              (isSale && hasAdminFee) && h('div', { className: 'hpe-prices' },
+              canHaveAdminFee && h('label', { className: 'hpe-check' }, h('input', { type: 'checkbox', checked: hasAdminFee, onChange: function (e) { setHasAdminFee(e.target.checked); } }), 'Tiene administración'),
+              (canHaveAdminFee && hasAdminFee) && h('div', { className: 'hpe-prices' },
                 h(Field, { label: 'Precio administración' }, h(Input, { type: 'number', name: 'property_price_admin', value: priceAdmin, onChange: setPriceAdmin })),
                 h(Field, { label: 'Moneda administración' }, h(Select, { name: 'property_currency_admin', value: currencyAdmin, onChange: setCurrencyAdmin, options: currencyOptions }))
               ),
-              isSale && !hasAdminFee && hidden('property_price_admin', ''),
-              hidden('property_admin_included', (isRent && adminIncluded) ? '1' : '0')
+              (showRentPrice && hasAdminFee) && h('label', { className: 'hpe-check' }, h('input', { type: 'checkbox', checked: adminIncluded, onChange: function (e) { setAdminIncluded(e.target.checked); } }), 'Administración incluida en arriendo'),
+              canHaveAdminFee && !hasAdminFee && hidden('property_price_admin', ''),
+              hidden('property_admin_included', (showRentPrice && hasAdminFee && adminIncluded) ? '1' : '0')
             )
           )
         ),

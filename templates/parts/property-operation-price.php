@@ -24,11 +24,17 @@ $currencyService = new CurrencyService();
 $s               = $settings ?? [];
 
 $operations    = wp_get_post_terms($post_id, PropertyTaxonomies::TAXONOMY_OPERATION);
-$operationName = (!is_wp_error($operations) && !empty($operations)) ? $operations[0]->name : '';
+$operationTerm = (!is_wp_error($operations) && !empty($operations)) ? $operations[0] : null;
+$operationName = $operationTerm instanceof \WP_Term ? $operationTerm->name : '';
 
-$opSlug     = mb_strtolower($operationName);
-$isVenta    = strpos($opSlug, 'venta') !== false;
-$isArriendo = strpos($opSlug, 'arriendo') !== false;
+$baseOperationId = $operationTerm instanceof \WP_Term
+    ? PropertyTaxonomies::baseOperationIdForTerm($operationTerm)
+    : 0;
+$opSlug     = $operationTerm instanceof \WP_Term
+    ? mb_strtolower($operationTerm->slug . ' ' . $operationTerm->name)
+    : '';
+$isVenta    = in_array($baseOperationId, [2, 3], true) || strpos($opSlug, 'venta') !== false;
+$isArriendo = in_array($baseOperationId, [1, 3], true) || strpos($opSlug, 'arriendo') !== false;
 $hideZero   = ($s['hide_zero_values'] ?? 'no') === 'yes';
 
 // Price keys visible for this operation type; if unknown, show all

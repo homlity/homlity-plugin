@@ -46,24 +46,42 @@ class PropertyCodeRoutingService implements ServiceInterface
             return;
         }
 
-        $code = $this->extractCodeFromRequest();
-        if ($code === '') {
+        $requestedCode = $this->extractCodeFromRequest();
+        if ($requestedCode === '') {
             return;
         }
 
-        // 1. Fast path: check local database.
-        $post_id = $this->findPropertyByCode($code);
+        $codes   = $this->propertyCodeCandidates($requestedCode);
+        $post_id = 0;
+
+        // 1. Fast path: check every compatible representation locally.
+        foreach ($codes as $code) {
+            $post_id = $this->findPropertyByCode($code);
+            if ($post_id) {
+                break;
+            }
+        }
 
         $syncResult = null;
 
-        // 2. Slow path: ask registered CRM sync providers.
-        if (!$post_id && !get_transient(self::NEGATIVE_PREFIX . md5($code))) {
-            $syncResult = SyncRegistry::syncByCodeDetailed($code);
-            $post_id    = (int) ($syncResult['post_id'] ?? 0);
+        // 2. Slow path: ask registered CRM sync providers for each candidate.
+        if (!$post_id) {
+            foreach ($codes as $code) {
+                if (get_transient(self::NEGATIVE_PREFIX . md5($code))) {
+                    continue;
+                }
 
-            if (!$post_id && $this->shouldNegativeCacheResult($syncResult)) {
-                // Nothing found anywhere — cache the miss to avoid hammering providers.
-                set_transient(self::NEGATIVE_PREFIX . md5($code), 1, self::NEGATIVE_TTL);
+                $syncResult = SyncRegistry::syncByCodeDetailed($code);
+                $post_id    = (int) ($syncResult['post_id'] ?? 0);
+
+                if ($post_id) {
+                    break;
+                }
+
+                if ($this->shouldNegativeCacheResult($syncResult)) {
+                    // Nothing found anywhere — cache the miss to avoid hammering providers.
+                    set_transient(self::NEGATIVE_PREFIX . md5($code), 1, self::NEGATIVE_TTL);
+                }
             }
         }
 
@@ -103,6 +121,27 @@ class PropertyCodeRoutingService implements ServiceInterface
         }
 
         return sanitize_text_field($parts[1]);
+    }
+
+    /**
+     * Returns compatible code representations for legacy URLs.
+     *
+     * Some integrations publish numeric codes prefixed with the agency or
+     * branch identifier (for example, 503-6708), while the local property is
+     * stored under the final code (6708). The complete value always has
+     * priority so legitimate codes containing a hyphen keep working.
+     *
+     * @return string[]
+     */
+    private function propertyCodeCandidates(string $code): array
+    {
+        $candidates = [$code];
+
+        if (preg_match('/^\d+-(\d+)$/', $code, $matches) === 1) {
+            $candidates[] = $matches[1];
+        }
+
+        return array_values(array_unique($candidates));
     }
 
     /**
