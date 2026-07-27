@@ -30,6 +30,26 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
         $this->name = esc_html__('Listado de inmuebles', 'homlity-real-estate');
     }
 
+    public function get_settings_modal_toggles(): array
+    {
+        return [
+            'general' => [
+                'toggles' => [
+                    'main_content' => esc_html__('Presentación', 'homlity-real-estate'),
+                    'card_content' => esc_html__('Contenido de la tarjeta', 'homlity-real-estate'),
+                    'query' => esc_html__('Consulta', 'homlity-real-estate'),
+                    'filters' => esc_html__('Filtros', 'homlity-real-estate'),
+                    'map' => esc_html__('Mapa', 'homlity-real-estate'),
+                ],
+            ],
+            'advanced' => [
+                'toggles' => [
+                    'pagination_style' => esc_html__('Paginador', 'homlity-real-estate'),
+                ],
+            ],
+        ];
+    }
+
     public function get_fields(): array
     {
         $defaults = ShortcodeIntegrationService::defaults();
@@ -204,6 +224,15 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
                 'tab_slug'        => 'general',
                 'toggle_slug'     => 'filters',
             ],
+            'pagination' => [
+                'label'           => esc_html__('Mostrar paginación', 'homlity-real-estate'),
+                'type'            => 'yes_no_button',
+                'option_category' => 'configuration',
+                'options'         => ['on' => esc_html__('Sí', 'homlity-real-estate'), 'off' => esc_html__('No', 'homlity-real-estate')],
+                'default'         => 'on',
+                'tab_slug'        => 'general',
+                'toggle_slug'     => 'filters',
+            ],
 
             // ── Mapa ──────────────────────────────────────────────────────────
             'map_height' => [
@@ -222,6 +251,29 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
                 'tab_slug'        => 'general',
                 'toggle_slug'     => 'map',
             ],
+
+            // ── Paginador ──────────────────────────────────────────────────
+            'pagination_btn_text_color' => $this->paginationColorField(__('Texto normal', 'homlity-real-estate')),
+            'pagination_btn_bg_color' => $this->paginationColorField(__('Fondo normal', 'homlity-real-estate')),
+            'pagination_btn_border_color' => $this->paginationColorField(__('Borde normal', 'homlity-real-estate')),
+            'pagination_btn_text_color_hover' => $this->paginationColorField(__('Texto al pasar el cursor', 'homlity-real-estate')),
+            'pagination_btn_bg_color_hover' => $this->paginationColorField(__('Fondo al pasar el cursor', 'homlity-real-estate')),
+            'pagination_btn_border_color_hover' => $this->paginationColorField(__('Borde al pasar el cursor', 'homlity-real-estate')),
+            'pagination_btn_text_color_active' => $this->paginationColorField(__('Texto página activa', 'homlity-real-estate')),
+            'pagination_btn_bg_color_active' => $this->paginationColorField(__('Fondo página activa', 'homlity-real-estate')),
+            'pagination_btn_border_color_active' => $this->paginationColorField(__('Borde página activa', 'homlity-real-estate')),
+        ];
+    }
+
+    private function paginationColorField(string $label): array
+    {
+        return [
+            'label'       => esc_html($label),
+            'type'        => 'color-alpha',
+            'default'     => '',
+            'tab_slug'    => 'advanced',
+            'toggle_slug' => 'pagination_style',
+            'show_if'     => ['pagination' => 'on'],
         ];
     }
 
@@ -377,6 +429,7 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
             'filter_price'     => 'filter_price',
             'filter_bedrooms'  => 'filter_bedrooms',
             'sort'             => 'sort',
+            'pagination'       => 'pagination',
             'card_title'       => 'card_title',
             'card_excerpt'     => 'card_excerpt',
             'card_operation'   => 'card_operation',
@@ -409,10 +462,73 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
     public function render($attrs, $content = null, $function_name = ''): string
     {
         $config = ListingConfig::fromAtts($this->diviAtts($this->props));
+        $instanceClass = 'homlity-legacy-listing-' . substr(md5($this->slug . wp_json_encode($this->props)), 0, 10);
+        $paginationCss = $this->paginationCss('.' . $instanceClass);
 
         ob_start();
         (new ListingRenderer())->render($config);
-        return ob_get_clean() ?: '';
+        $markup = ob_get_clean() ?: '';
+
+        return ($paginationCss !== '' ? '<style>' . wp_strip_all_tags($paginationCss) . '</style>' : '')
+            . '<div class="' . esc_attr($instanceClass) . '">' . $markup . '</div>';
+    }
+
+    private function paginationCss(string $wrapper): string
+    {
+        $normal = $wrapper . ' .property-listing__page-btn';
+        $hover = $normal . ':hover,' . $normal . ':focus';
+        $active = $normal . '.is-active,'
+            . $wrapper . ' .property-listing__pagination .page-item.active .property-listing__page-btn';
+        $rules = [
+            $normal => [
+                'color' => 'pagination_btn_text_color',
+                'background-color' => 'pagination_btn_bg_color',
+                'border-color' => 'pagination_btn_border_color',
+            ],
+            $hover => [
+                'color' => 'pagination_btn_text_color_hover',
+                'background-color' => 'pagination_btn_bg_color_hover',
+                'border-color' => 'pagination_btn_border_color_hover',
+            ],
+            $active => [
+                'color' => 'pagination_btn_text_color_active',
+                'background-color' => 'pagination_btn_bg_color_active',
+                'border-color' => 'pagination_btn_border_color_active',
+            ],
+        ];
+
+        $css = '';
+        foreach ($rules as $selector => $properties) {
+            $declarations = '';
+            foreach ($properties as $property => $setting) {
+                $color = $this->sanitizeCssColor((string) ($this->props[$setting] ?? ''));
+                if ($color !== '') {
+                    // Bootstrap and some Divi presets use highly specific page-link
+                    // rules, so the module value must remain authoritative.
+                    $declarations .= $property . ':' . $color . '!important;';
+                }
+            }
+            if ($declarations !== '') {
+                $css .= $selector . '{' . $declarations . '}';
+            }
+        }
+
+        return $css;
+    }
+
+    private function sanitizeCssColor(string $color): string
+    {
+        $color = trim($color);
+        $hex = sanitize_hex_color($color);
+        if ($hex !== null && $hex !== '') {
+            return $hex;
+        }
+
+        if (preg_match('/^rgba?\(\s*(?:\d{1,3}\s*,\s*){2}\d{1,3}(?:\s*,\s*(?:0|1|0?\.\d+))?\s*\)$/i', $color)) {
+            return $color;
+        }
+
+        return strtolower($color) === 'transparent' ? 'transparent' : '';
     }
 }
 

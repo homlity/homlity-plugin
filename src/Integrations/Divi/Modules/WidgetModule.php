@@ -81,10 +81,78 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
         $widget->homlitySetSettings($settings);
         $markup = $widget->homlityRender();
 
-        return ($css !== '' ? '<style>' . wp_strip_all_tags($css) . '</style>' : '')
+        // Dynamic widgets can legitimately return no markup when the selected
+        // preview property has no matching data. Keep the module visible and
+        // selectable in Divi without leaking editor-only content to visitors.
+        if (trim($markup) === '' && $this->isVisualBuilderPreview()) {
+            $markup = $this->emptyPreviewMarkup($widget);
+            $css .= $this->emptyPreviewCss('.homlity-divi-' . $instance);
+        }
+
+        $output = ($css !== '' ? '<style>' . wp_strip_all_tags($css) . '</style>' : '')
             . '<div class="homlity-divi-widget homlity-divi-' . esc_attr($instance) . '">'
             . $markup
             . '</div>';
+
+        // Divi only adds its native module wrapper automatically when
+        // vb_support is "on". These widgets intentionally use "partial" so
+        // their PHP preview remains available, therefore the wrapper has to be
+        // rendered here. Its order class is the target used by all native
+        // Design controls (spacing, background, border, sizing, animation...).
+        $renderSlug = is_string($function_name) && $function_name !== ''
+            ? $function_name
+            : $this->slug;
+
+        return $this->_render_module_wrapper($output, $renderSlug);
+    }
+
+    private function isVisualBuilderPreview(): bool
+    {
+        if (function_exists('et_core_is_fb_enabled') && et_core_is_fb_enabled()) {
+            return true;
+        }
+
+        if (function_exists('et_fb_is_enabled') && et_fb_is_enabled()) {
+            return true;
+        }
+
+        if (!function_exists('wp_doing_ajax') || !wp_doing_ajax()) {
+            return false;
+        }
+
+        // Divi's server-side partial preview is rendered through admin-ajax,
+        // where et_core_is_fb_enabled() intentionally returns false.
+        $action = isset($_REQUEST['action']) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only Divi preview detection.
+            ? sanitize_key(wp_unslash((string) $_REQUEST['action']))
+            : '';
+
+        return str_starts_with($action, 'et_fb_') || str_starts_with($action, 'et_builder_');
+    }
+
+    private function emptyPreviewMarkup(
+        \Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Widget_Base $widget
+    ): string {
+        return '<div class="homlity-divi-empty-preview" data-homlity-divi-empty-preview="true">'
+            . '<strong class="homlity-divi-empty-preview__title">'
+            . esc_html($widget->get_title())
+            . '</strong>'
+            . '<span class="homlity-divi-empty-preview__message">'
+            . esc_html__(
+                'No hay datos disponibles para este inmueble de vista previa. El widget está activo y se mostrará cuando exista contenido.',
+                'homlity-real-estate'
+            )
+            . '</span>'
+            . '</div>';
+    }
+
+    private function emptyPreviewCss(string $wrapper): string
+    {
+        return $wrapper . ' .homlity-divi-empty-preview{'
+            . 'box-sizing:border-box;display:flex;flex-direction:column;gap:5px;justify-content:center;'
+            . 'min-height:88px;padding:16px;border:1px dashed #8d96a0;border-radius:6px;'
+            . 'background:rgba(255,255,255,.92);color:#3c434a;text-align:center;}'
+            . $wrapper . ' .homlity-divi-empty-preview__title{font-size:14px;line-height:1.4;}'
+            . $wrapper . ' .homlity-divi-empty-preview__message{font-size:12px;line-height:1.5;}';
     }
 
     private function widget(): \Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Widget_Base
@@ -268,7 +336,7 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
                 && $this->conditionsMatch((array) ($control['condition'] ?? []), $settings)) {
                 $value = '1';
             }
-            if ($value === null || $value === '') {
+            if (!$this->hasCssValue($value, $control)) {
                 continue;
             }
             foreach ((array) ($control['selectors'] ?? []) as $selector => $declaration) {
@@ -284,7 +352,7 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
             }
             foreach (['tablet', 'phone'] as $device) {
                 $responsiveValue = $this->responsiveValue($settings, (string) $name, $device, $control);
-                if ($responsiveValue === null || $responsiveValue === '') {
+                if (!$this->hasCssValue($responsiveValue, $control)) {
                     continue;
                 }
                 foreach ((array) ($control['selectors'] ?? []) as $selector => $declaration) {
@@ -328,10 +396,15 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
     private function responsiveValue(array $settings, string $name, string $device, array $control): mixed
     {
         foreach ([$name . '_' . $device, $name . '__' . $device] as $key) {
-            if (!array_key_exists($key, $settings) || $settings[$key] === '') {
+            if (!array_key_exists($key, $settings)) {
                 continue;
             }
             $type = (string) ($control['type'] ?? '');
+            if ($type === Controls_Manager::SWITCHER) {
+                return in_array($settings[$key], ['on', 'yes', 'true', true, 1, '1'], true)
+                    ? 'yes'
+                    : '';
+            }
             if ($type === Controls_Manager::SLIDER) {
                 return $this->normalizeSliderValue($settings[$key], $control);
             }
@@ -347,6 +420,28 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
         }
 
         return null;
+    }
+
+    private function hasCssValue(mixed $value, array $control): bool
+    {
+        if ($value === null) {
+            return false;
+        }
+
+        if (is_array($value)) {
+            foreach (['value', 'size', 'top', 'right', 'bottom', 'left'] as $key) {
+                if (array_key_exists($key, $value) && trim((string) $value[$key]) !== '') {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        if (trim((string) $value) !== '') {
+            return true;
+        }
+
+        return array_key_exists('', (array) ($control['selectors_dictionary'] ?? []));
     }
 
     private function appendGroupCss(array &$rules, string $name, array $control, array $settings, string $wrapper): void

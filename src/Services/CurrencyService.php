@@ -13,6 +13,8 @@ if (!defined('ABSPATH')) {
 
 class CurrencyService implements ServiceInterface
 {
+    public const DEFAULT_CURRENCY = 'COP';
+
     private string $settingsOption = HOMLITY_PLUGIN_SETTINGS_OPTION;
 
     public function register(): void
@@ -26,10 +28,10 @@ class CurrencyService implements ServiceInterface
     {
         if (!is_array($currencies) || empty($currencies)) {
             $currencies = [
+                'COP',
                 'USD',
                 'EUR',
                 'GBP',
-                'COP',
                 'CRC',
                 'MXN',
                 'CLP',
@@ -49,11 +51,11 @@ class CurrencyService implements ServiceInterface
 
     public function baseCurrency(): string
     {
-        $settings = get_option($this->settingsOption, ['base_currency' => 'USD']);
-        $base = strtoupper(sanitize_text_field($settings['base_currency'] ?? 'USD'));
+        $settings = get_option($this->settingsOption, ['base_currency' => self::DEFAULT_CURRENCY]);
+        $base = strtoupper(sanitize_text_field($settings['base_currency'] ?? self::DEFAULT_CURRENCY));
         $allowed = \homlity_plugin_apply_filters('homlity_plugin_supported_currencies', null, []);
         $looksLikeCurrency = (bool) preg_match('/^[A-Z]{3,5}$/', $base);
-        return (in_array($base, $allowed, true) || $looksLikeCurrency) ? $base : 'USD';
+        return (in_array($base, $allowed, true) || $looksLikeCurrency) ? $base : self::DEFAULT_CURRENCY;
     }
 
     public function formatPrice($price, ?string $currency = null, ?string $locale = null): string

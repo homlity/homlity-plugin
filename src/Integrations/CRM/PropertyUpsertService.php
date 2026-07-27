@@ -9,6 +9,7 @@ use Homlity\PluginInmobiliario\Integrations\CRM\Repository\SyncIndexRepository;
 use Homlity\PluginInmobiliario\Integrations\CRM\Services\AdvisorSyncService;
 use Homlity\PluginInmobiliario\Integrations\CRM\Support\ArrayPath;
 use Homlity\PluginInmobiliario\Integrations\CRM\Support\TaxonomyTermResolver;
+use Homlity\PluginInmobiliario\Services\CurrencyService;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 
@@ -168,8 +169,16 @@ class PropertyUpsertService
      */
     private function saveMeta(int $postId, array $normalized, string $source, string $externalId): void
     {
+        $currencyPaths = ['pricing.sale_currency', 'pricing.rent_currency', 'pricing.admin_currency'];
+
         foreach (PropertyFieldSchema::metaMap() as $path => $metaKey) {
             $value = ArrayPath::get($normalized, $path);
+
+            if (in_array($path, $currencyPaths, true)) {
+                $currency = strtoupper(trim((string) $value));
+                $value = $currency !== '' ? $currency : CurrencyService::DEFAULT_CURRENCY;
+            }
+
             if ($value === null || $value === '') {
                 continue;
             }

@@ -301,11 +301,11 @@ class SettingsService implements ServiceInterface
         $currencies = \homlity_plugin_apply_filters(
             'homlity_plugin_supported_currencies',
             null,
-            ['USD', 'EUR', 'GBP', 'COP', 'MXN', 'CLP', 'ARS', 'BRL', 'PEN', 'CAD', 'AUD', 'NZD', 'CHF', 'JPY', 'CNY']
+            ['COP', 'USD', 'EUR', 'GBP', 'MXN', 'CLP', 'ARS', 'BRL', 'PEN', 'CAD', 'AUD', 'NZD', 'CHF', 'JPY', 'CNY']
         );
 
         if (!is_array($currencies)) {
-            $currencies = ['USD'];
+            $currencies = ['COP'];
         }
 
         return array_values(array_unique(array_filter(array_map('strtoupper', $currencies))));
@@ -408,7 +408,7 @@ class SettingsService implements ServiceInterface
     private function defaults(): array
     {
         return [
-            'base_currency' => 'USD',
+            'base_currency' => 'COP',
             'listing_fields' => ['price', 'excerpt', 'features', 'whatsapp'],
             'company_name' => 'Ecosistema Inmobiliario Homlity',
             'company_url' => 'https://github.com/homlity/homlity-real-estate',

@@ -327,7 +327,7 @@ class SeoIntegrationService implements ServiceInterface
 
         $meta = (new PropertyPostType())->metaKeys();
         $price = (string) (get_post_meta($post->ID, $meta['price_sale'], true) ?: get_post_meta($post->ID, $meta['price_rent'], true));
-        $currency = (string) (get_post_meta($post->ID, $meta['currency_sale'], true) ?: get_post_meta($post->ID, $meta['currency_rent'], true) ?: get_option('woocommerce_currency', 'USD'));
+        $currency = (string) (get_post_meta($post->ID, $meta['currency_sale'], true) ?: get_post_meta($post->ID, $meta['currency_rent'], true) ?: (new CurrencyService())->baseCurrency());
         $address = (string) get_post_meta($post->ID, $meta['address'], true);
         $lat = (string) get_post_meta($post->ID, $meta['latitude'], true);
         $lng = (string) get_post_meta($post->ID, $meta['longitude'], true);

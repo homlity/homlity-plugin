@@ -380,12 +380,33 @@ class PropertyListingWidget extends Widget_Base
             ],
         ]);
 
+        $this->add_control('view_toggle_grid_icon', [
+            'label'   => __('Icono de grilla', 'homlity-real-estate'),
+            'type'    => Controls_Manager::ICONS,
+            'default' => [
+                'value'   => 'fas fa-th-large',
+                'library' => 'fa-solid',
+            ],
+        ]);
+
+        $this->add_control('view_toggle_map_icon', [
+            'label'   => __('Icono de mapa', 'homlity-real-estate'),
+            'type'    => Controls_Manager::ICONS,
+            'default' => [
+                'value'   => 'fas fa-map-marker-alt',
+                'library' => 'fa-solid',
+            ],
+        ]);
+
         $this->add_responsive_control('view_toggle_icon_size', [
             'label'      => __('Tamaño icono', 'homlity-real-estate'),
             'type'       => Controls_Manager::SLIDER,
             'size_units' => ['px'],
             'range'      => ['px' => ['min' => 10, 'max' => 36]],
-            'selectors'  => ['{{WRAPPER}} .property-listing__view-btn svg' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};'],
+            'selectors'  => [
+                '{{WRAPPER}} .property-listing__view-icon' => 'font-size: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-listing__view-icon svg' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
+            ],
         ]);
 
         $this->add_responsive_control('view_toggle_padding', [
@@ -412,40 +433,64 @@ class PropertyListingWidget extends Widget_Base
 
         $this->start_controls_tab('view_toggle_normal', ['label' => __('Normal', 'homlity-real-estate')]);
         $this->add_control('view_toggle_text_color', [
-            'label'     => __('Color icono/texto', 'homlity-real-estate'),
+            'label'     => __('Color del texto (normal)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-listing__view-btn' => 'color: {{VALUE}};'],
+            'selectors' => ['{{WRAPPER}} .property-listing__view-btn' => 'color: {{VALUE}} !important;'],
+        ]);
+        $this->add_control('view_toggle_icon_color', [
+            'label'     => __('Color del icono (normal)', 'homlity-real-estate'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-listing__view-btn .property-listing__view-icon' => 'color: {{VALUE}} !important;',
+                '{{WRAPPER}} .property-listing__view-btn .property-listing__view-icon svg, {{WRAPPER}} .property-listing__view-btn .property-listing__view-icon path, {{WRAPPER}} .property-listing__view-btn .property-listing__view-icon rect' => 'fill: {{VALUE}} !important;',
+            ],
         ]);
         $this->add_control('view_toggle_bg_color', [
-            'label'     => __('Fondo', 'homlity-real-estate'),
+            'label'     => __('Fondo (normal)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-listing__view-btn' => 'background-color: {{VALUE}};'],
+            'selectors' => ['{{WRAPPER}} .property-listing__view-btn' => 'background-color: {{VALUE}} !important;'],
         ]);
         $this->end_controls_tab();
 
         $this->start_controls_tab('view_toggle_hover', ['label' => __('Hover', 'homlity-real-estate')]);
         $this->add_control('view_toggle_text_color_hover', [
-            'label'     => __('Color icono/texto', 'homlity-real-estate'),
+            'label'     => __('Color del texto (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-listing__view-btn:hover' => 'color: {{VALUE}};'],
+            'selectors' => ['{{WRAPPER}} .property-listing__view-btn:hover' => 'color: {{VALUE}} !important;'],
+        ]);
+        $this->add_control('view_toggle_icon_color_hover', [
+            'label'     => __('Color del icono (hover)', 'homlity-real-estate'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-listing__view-btn:hover .property-listing__view-icon' => 'color: {{VALUE}} !important;',
+                '{{WRAPPER}} .property-listing__view-btn:hover .property-listing__view-icon svg, {{WRAPPER}} .property-listing__view-btn:hover .property-listing__view-icon path, {{WRAPPER}} .property-listing__view-btn:hover .property-listing__view-icon rect' => 'fill: {{VALUE}} !important;',
+            ],
         ]);
         $this->add_control('view_toggle_bg_color_hover', [
-            'label'     => __('Fondo', 'homlity-real-estate'),
+            'label'     => __('Fondo (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-listing__view-btn:hover' => 'background-color: {{VALUE}};'],
+            'selectors' => ['{{WRAPPER}} .property-listing__view-btn:hover' => 'background-color: {{VALUE}} !important;'],
         ]);
         $this->end_controls_tab();
 
         $this->start_controls_tab('view_toggle_active', ['label' => __('Activo', 'homlity-real-estate')]);
         $this->add_control('view_toggle_text_color_active', [
-            'label'     => __('Color icono/texto', 'homlity-real-estate'),
+            'label'     => __('Color del texto (activo)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-listing__view-btn.is-active, {{WRAPPER}} .property-listing__view-btn.active' => 'color: {{VALUE}};'],
+            'selectors' => ['{{WRAPPER}} .property-listing__view-btn.is-active, {{WRAPPER}} .property-listing__view-btn.active' => 'color: {{VALUE}} !important;'],
+        ]);
+        $this->add_control('view_toggle_icon_color_active', [
+            'label'     => __('Color del icono (activo)', 'homlity-real-estate'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .property-listing__view-btn.is-active .property-listing__view-icon, {{WRAPPER}} .property-listing__view-btn.active .property-listing__view-icon' => 'color: {{VALUE}} !important;',
+                '{{WRAPPER}} .property-listing__view-btn.is-active .property-listing__view-icon svg, {{WRAPPER}} .property-listing__view-btn.is-active .property-listing__view-icon path, {{WRAPPER}} .property-listing__view-btn.is-active .property-listing__view-icon rect, {{WRAPPER}} .property-listing__view-btn.active .property-listing__view-icon svg, {{WRAPPER}} .property-listing__view-btn.active .property-listing__view-icon path, {{WRAPPER}} .property-listing__view-btn.active .property-listing__view-icon rect' => 'fill: {{VALUE}} !important;',
+            ],
         ]);
         $this->add_control('view_toggle_bg_color_active', [
-            'label'     => __('Fondo', 'homlity-real-estate'),
+            'label'     => __('Fondo (activo)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-listing__view-btn.is-active, {{WRAPPER}} .property-listing__view-btn.active' => 'background-color: {{VALUE}};'],
+            'selectors' => ['{{WRAPPER}} .property-listing__view-btn.is-active, {{WRAPPER}} .property-listing__view-btn.active' => 'background-color: {{VALUE}} !important;'],
         ]);
         $this->end_controls_tab();
 
@@ -539,6 +584,11 @@ class PropertyListingWidget extends Widget_Base
             'label'     => __('Fondo', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-listing__page-btn' => 'background-color: {{VALUE}};'],
+        ]);
+        $this->add_control('pagination_btn_border_color', [
+            'label'     => __('Color borde', 'homlity-real-estate'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .property-listing__page-btn' => 'border-color: {{VALUE}};'],
         ]);
         $this->end_controls_tab();
 

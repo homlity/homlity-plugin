@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 use Homlity\PluginInmobiliario\Services\CurrencyService;
+use Homlity\PluginInmobiliario\Services\PropertyCodeResolver;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 use Homlity\PluginInmobiliario\Services\WhatsAppLinkService;
@@ -228,7 +229,7 @@ $bathrooms = get_post_meta($post_id, $meta['bathrooms'], true);
 $parking   = get_post_meta($post_id, $meta['parking'], true);
 $condition = get_post_meta($post_id, $meta['condition'], true);
 $age       = get_post_meta($post_id, $meta['age'], true);
-$code      = get_post_meta($post_id, $meta['code'], true);
+$code      = PropertyCodeResolver::forDisplay((int) $post_id);
 
 // Agent / contact
 $agentId       = (int) get_post_meta($post_id, $meta['agent_id'], true);

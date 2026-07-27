@@ -77,7 +77,7 @@ $pluginSettings = is_array($pluginSettings) ? $pluginSettings : [];
 
 $companyName = (string) ($pluginSettings['company_name'] ?? get_bloginfo('name'));
 $primaryColor = sanitize_hex_color((string) ($pluginSettings['primary_color'] ?? '')) ?: '#ff6752';
-$baseCurrency = strtoupper((string) ($pluginSettings['base_currency'] ?? 'USD'));
+$baseCurrency = strtoupper((string) ($pluginSettings['base_currency'] ?? 'COP'));
 $companyLogo = get_site_icon_url(192) ?: '';
 
 $title = get_the_title($post_id);

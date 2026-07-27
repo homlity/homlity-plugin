@@ -210,11 +210,21 @@
 }
 
 .property-listing__view-icon {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex: 0 0 auto;
     color: inherit;
     fill: currentColor !important;
+    line-height: 1;
     overflow: visible;
+}
+
+.property-listing__view-icon > i,
+.property-listing__view-icon > span {
+    color: inherit;
+    font-size: inherit;
+    line-height: inherit;
 }
 
 .property-listing__view-icon path,

@@ -29,6 +29,8 @@ class DiviIntegrationService implements ServiceInterface
         add_action('admin_bar_menu', [$this, 'addTemplateAdminBarLink'], 1001);
         add_filter('page_row_actions', [$this, 'addTemplateRowAction'], 10, 2);
         add_filter('display_post_states', [$this, 'addTemplatePostState'], 10, 2);
+        add_action('save_post', [$this, 'clearDetailTemplateCaches'], 100, 3);
+        add_action('et_save_post', [$this, 'clearDetailTemplateCachesAfterDiviSave'], 100, 1);
     }
 
     public function loadModule(): void
@@ -297,6 +299,56 @@ class DiviIntegrationService implements ServiceInterface
             $states['homlity_property_detail'] = __('Plantilla de detalle Homlity (Divi)', 'homlity-real-estate');
         }
         return $states;
+    }
+
+    /**
+     * A Divi detail page is reused by every property. Divi normally clears only
+     * the CSS resource associated with the edited page, while the front-end
+     * resources may have been generated under each property's post ID. Clear
+     * those shared resources after saving the global Homlity template so its
+     * latest modules and styles are visible immediately on every property.
+     */
+    public function clearDetailTemplateCaches(int $postId, \WP_Post $post, bool $update): void
+    {
+        unset($post, $update);
+
+        if ($postId !== $this->detailTemplateId() || wp_is_post_revision($postId) || wp_is_post_autosave($postId)) {
+            return;
+        }
+
+        $this->purgeDiviTemplateCaches();
+    }
+
+    public function clearDetailTemplateCachesAfterDiviSave(int $postId): void
+    {
+        if ($postId !== $this->detailTemplateId()) {
+            return;
+        }
+
+        $this->purgeDiviTemplateCaches();
+    }
+
+    private function purgeDiviTemplateCaches(): void
+    {
+        static $purged = false;
+        if ($purged) {
+            return;
+        }
+        $purged = true;
+
+        if (class_exists('ET_Core_PageResource')) {
+            \ET_Core_PageResource::remove_static_resources('all', 'all');
+        } else {
+            do_action('et_core_page_resource_auto_clear');
+        }
+
+        // Divi's helper covers supported full-page cache integrations. A global
+        // purge is intentional because this one layout affects every property.
+        if (function_exists('et_core_clear_wp_cache')) {
+            et_core_clear_wp_cache();
+        }
+
+        clean_post_cache($this->detailTemplateId());
     }
 
     private function detailTemplateId(): int

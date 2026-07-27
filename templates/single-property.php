@@ -15,38 +15,67 @@ use Homlity\PluginInmobiliario\Services\TemplateService;
 
 $singleLayout = (string) get_option('homlity_plugin_single_page_layout', 'default');
 $isCanvasLayout = ($singleLayout === 'elementor_canvas');
+$homlityBuilderTemplateId = (int) get_option('homlity_plugin_single_template_id', 0);
+$homlityBuilderTemplate = $homlityBuilderTemplateId > 0 ? get_post($homlityBuilderTemplateId) : null;
+$homlityTemplateBuilder = '';
+
+if ($homlityBuilderTemplate instanceof \WP_Post) {
+    // Detect the renderer from the template itself. Elementor can be active on
+    // a Divi site, so class_exists('Elementor\\Plugin') alone is not enough and
+    // previously caused valid Divi layouts to be rendered as empty Elementor
+    // documents on property detail pages.
+    if (
+        get_post_meta($homlityBuilderTemplateId, '_et_pb_use_builder', true) === 'on'
+        || get_post_meta($homlityBuilderTemplateId, '_homlity_seeded_builder', true) === 'divi'
+    ) {
+        $homlityTemplateBuilder = 'divi';
+    } elseif (
+        get_post_meta($homlityBuilderTemplateId, '_elementor_edit_mode', true) === 'builder'
+        || get_post_meta($homlityBuilderTemplateId, '_homlity_seeded_builder', true) === 'elementor'
+    ) {
+        $homlityTemplateBuilder = 'elementor';
+    } elseif (
+        get_post_meta($homlityBuilderTemplateId, '_wpb_vc_js_status', true) === 'true'
+        || get_post_meta($homlityBuilderTemplateId, '_homlity_seeded_builder', true) === 'wpbakery'
+    ) {
+        $homlityTemplateBuilder = 'wpbakery';
+    } else {
+        $homlityTemplateBuilder = 'native';
+    }
+}
 
 if (!$isCanvasLayout) {
     get_header();
 }
 
-if (function_exists('elementor_theme_do_location') && elementor_theme_do_location('single')) {
-    get_footer();
-    return;
-}
-
-$homlityElementorTemplateId = (int) get_option('homlity_plugin_single_template_id', 0);
 if (
-    $homlityElementorTemplateId > 0 &&
-    get_post_status($homlityElementorTemplateId) &&
+    $homlityTemplateBuilder === 'elementor' &&
     class_exists('\Elementor\Plugin')
 ) {
     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Elementor sanitises its own widget output internally
-    echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($homlityElementorTemplateId);
+    echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($homlityBuilderTemplateId, true);
     if (!$isCanvasLayout) {
         get_footer();
     }
     return;
 }
 
-$homlityBuilderTemplate = $homlityElementorTemplateId > 0 ? get_post($homlityElementorTemplateId) : null;
 if (
     $homlityBuilderTemplate instanceof \WP_Post
-    && get_post_meta($homlityBuilderTemplate->ID, '_homlity_seeded_builder', true) !== ''
+    && $homlityTemplateBuilder !== 'elementor'
 ) {
     // Keep the queried property as the global post so dynamic modules and
     // shortcodes resolve its data, while rendering the template page content.
     echo apply_filters('the_content', $homlityBuilderTemplate->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+    if (!$isCanvasLayout) {
+        get_footer();
+    }
+    return;
+}
+
+// Elementor Theme Builder remains available as a fallback when no explicit
+// Homlity detail template can be rendered.
+if (function_exists('elementor_theme_do_location') && elementor_theme_do_location('single')) {
     if (!$isCanvasLayout) {
         get_footer();
     }

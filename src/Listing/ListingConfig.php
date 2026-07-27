@@ -23,6 +23,8 @@ class ListingConfig
         'show_grid_view'         => true,
         'show_map_view'          => true,
         'show_view_toggle'       => true,
+        'view_toggle_grid_icon'  => [],
+        'view_toggle_map_icon'   => [],
         'columns'                => 3,
         'posts_per_page'         => 12,
         'orderby'                => 'date',   // 'date'|'price_asc'|'price_desc'|'title'
@@ -132,6 +134,8 @@ class ListingConfig
             'show_grid_view'        => !array_key_exists('show_grid_view', $settings) || !empty($settings['show_grid_view']),
             'show_map_view'         => !array_key_exists('show_map_view', $settings) || !empty($settings['show_map_view']),
             'show_view_toggle'      => !empty($settings['show_view_toggle']),
+            'view_toggle_grid_icon' => self::normalizeElementorIcon($settings['view_toggle_grid_icon'] ?? []),
+            'view_toggle_map_icon'  => self::normalizeElementorIcon($settings['view_toggle_map_icon'] ?? []),
             'columns'               => max(1, (int) ($settings['columns'] ?? 3)),
             'posts_per_page'        => max(1, (int) ($settings['posts_per_page'] ?? 12)),
             'orderby'               => sanitize_key($settings['default_orderby'] ?? 'date'),
@@ -327,6 +331,14 @@ class ListingConfig
     }
     public function showGridView(): bool   { return (bool) $this->data['show_grid_view']; }
     public function showMapView(): bool    { return (bool) $this->data['show_map_view']; }
+    public function viewToggleGridIcon(): array
+    {
+        return is_array($this->data['view_toggle_grid_icon']) ? $this->data['view_toggle_grid_icon'] : [];
+    }
+    public function viewToggleMapIcon(): array
+    {
+        return is_array($this->data['view_toggle_map_icon']) ? $this->data['view_toggle_map_icon'] : [];
+    }
     public function showViewToggle(): bool
     {
         return (bool) $this->data['show_view_toggle']
