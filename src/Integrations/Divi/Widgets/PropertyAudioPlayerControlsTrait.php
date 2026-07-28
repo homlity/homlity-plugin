@@ -2,51 +2,22 @@
 
 namespace Homlity\PluginInmobiliario\Integrations\Divi\Widgets;
 
-use Homlity\PluginInmobiliario\Services\TemplateService;
 use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Controls_Manager;
 use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Group_Control_Border;
 use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Group_Control_Box_Shadow;
-use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Group_Control_Text_Shadow;
 use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Group_Control_Typography;
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class PropertyContentWidget extends BasePropertyWidget
+/**
+ * Complete Divi controls shared by widgets that narrate property text.
+ */
+trait PropertyAudioPlayerControlsTrait
 {
-    use PropertyAudioPlayerControlsTrait;
-
-    public function get_name(): string
+    protected function registerAudioPlayerContentControls(): void
     {
-        return 'property_content';
-    }
-
-    public function get_title(): string
-    {
-        return __('Descripción completa', 'homlity-real-estate');
-    }
-
-    public function get_icon(): string
-    {
-        return 'eicon-text';
-    }
-
-    protected function register_controls(): void
-    {
-        $contentSelector = '{{WRAPPER}} .property-content-widget';
-        $contentTextSelector = '{{WRAPPER}} .property-content-widget, {{WRAPPER}} .property-content-widget p, {{WRAPPER}} .property-content-widget li, {{WRAPPER}} .property-content-widget span, {{WRAPPER}} .property-content-widget a, {{WRAPPER}} .property-content-widget strong, {{WRAPPER}} .property-content-widget em, {{WRAPPER}} .property-content-widget h1, {{WRAPPER}} .property-content-widget h2, {{WRAPPER}} .property-content-widget h3, {{WRAPPER}} .property-content-widget h4, {{WRAPPER}} .property-content-widget h5, {{WRAPPER}} .property-content-widget h6, {{WRAPPER}} .property-content-widget blockquote';
-
-        $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-real-estate')]);
-        $this->register_property_control();
-        $this->add_control('content_tag', [
-            'label' => __('Etiqueta HTML contenedor', 'homlity-real-estate'),
-            'type' => Controls_Manager::SELECT,
-            'default' => 'div',
-            'options' => [
-                'div' => 'DIV', 'section' => 'SECTION', 'article' => 'ARTICLE', 'p' => 'P',
-            ],
-        ]);
         $this->add_control('show_audio_player', [
             'label' => __('Mostrar reproductor de audio', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,
@@ -92,66 +63,10 @@ class PropertyContentWidget extends BasePropertyWidget
             ],
             'condition' => ['show_audio_player' => 'yes'],
         ]);
-        $this->end_controls_section();
+    }
 
-        $this->start_controls_section('style_content', [
-            'label' => __('Estilos', 'homlity-real-estate'),
-            'tab' => Controls_Manager::TAB_STYLE,
-        ]);
-        $this->add_responsive_control('content_align', [
-            'label' => __('Alineación', 'homlity-real-estate'),
-            'type' => Controls_Manager::CHOOSE,
-            'options' => [
-                'left' => ['title' => __('Izquierda', 'homlity-real-estate'), 'icon' => 'eicon-text-align-left'],
-                'center' => ['title' => __('Centro', 'homlity-real-estate'), 'icon' => 'eicon-text-align-center'],
-                'right' => ['title' => __('Derecha', 'homlity-real-estate'), 'icon' => 'eicon-text-align-right'],
-                'justify' => ['title' => __('Justificado', 'homlity-real-estate'), 'icon' => 'eicon-text-align-justify'],
-            ],
-            'selectors' => [$contentSelector => 'text-align: {{VALUE}};'],
-        ]);
-        $this->add_group_control(Group_Control_Typography::get_type(), [
-            'name' => 'content_typography',
-            'selector' => $contentTextSelector,
-        ]);
-        $this->add_group_control(Group_Control_Text_Shadow::get_type(), [
-            'name' => 'content_text_shadow',
-            'selector' => $contentTextSelector,
-        ]);
-        $this->add_control('content_stroke_width', [
-            'label' => __('Trazo ancho (px)', 'homlity-real-estate'),
-            'type' => Controls_Manager::SLIDER,
-            'size_units' => ['px'],
-            'range' => ['px' => ['min' => 0, 'max' => 4]],
-            'selectors' => [$contentTextSelector => '-webkit-text-stroke-width: {{SIZE}}{{UNIT}};'],
-        ]);
-        $this->add_control('content_stroke_color', [
-            'label' => __('Trazo color', 'homlity-real-estate'),
-            'type' => Controls_Manager::COLOR,
-            'selectors' => [$contentTextSelector => '-webkit-text-stroke-color: {{VALUE}};'],
-        ]);
-        $this->start_controls_tabs('content_states');
-        $this->start_controls_tab('content_normal', ['label' => __('Normal', 'homlity-real-estate')]);
-        $this->add_control('content_color', [
-            'label' => __('Color texto', 'homlity-real-estate'),
-            'type' => Controls_Manager::COLOR,
-            'selectors' => [$contentTextSelector => 'color: {{VALUE}};'],
-        ]);
-        $this->end_controls_tab();
-        $this->start_controls_tab('content_hover', ['label' => __('Hover', 'homlity-real-estate')]);
-        $this->add_control('content_color_hover', [
-            'label' => __('Color texto (hover)', 'homlity-real-estate'),
-            'type' => Controls_Manager::COLOR,
-            'selectors' => [$contentSelector . ':hover, ' . $contentSelector . ':hover p, ' . $contentSelector . ':hover li, ' . $contentSelector . ':hover span, ' . $contentSelector . ':hover a, ' . $contentSelector . ':hover strong, ' . $contentSelector . ':hover em, ' . $contentSelector . ':hover h1, ' . $contentSelector . ':hover h2, ' . $contentSelector . ':hover h3, ' . $contentSelector . ':hover h4, ' . $contentSelector . ':hover h5, ' . $contentSelector . ':hover h6, ' . $contentSelector . ':hover blockquote' => 'color: {{VALUE}};'],
-        ]);
-        $this->add_control('content_stroke_color_hover', [
-            'label' => __('Trazo color (hover)', 'homlity-real-estate'),
-            'type' => Controls_Manager::COLOR,
-            'selectors' => [$contentSelector . ':hover, ' . $contentSelector . ':hover p, ' . $contentSelector . ':hover li, ' . $contentSelector . ':hover span, ' . $contentSelector . ':hover a, ' . $contentSelector . ':hover strong, ' . $contentSelector . ':hover em, ' . $contentSelector . ':hover h1, ' . $contentSelector . ':hover h2, ' . $contentSelector . ':hover h3, ' . $contentSelector . ':hover h4, ' . $contentSelector . ':hover h5, ' . $contentSelector . ':hover h6, ' . $contentSelector . ':hover blockquote' => '-webkit-text-stroke-color: {{VALUE}};'],
-        ]);
-        $this->end_controls_tab();
-        $this->end_controls_tabs();
-        $this->end_controls_section();
-
+    protected function registerAudioPlayerStyleControls(): void
+    {
         $this->start_controls_section('style_audio_player', [
             'label' => __('Estilos reproductor', 'homlity-real-estate'),
             'tab' => Controls_Manager::TAB_STYLE,
@@ -320,15 +235,36 @@ class PropertyContentWidget extends BasePropertyWidget
         $this->end_controls_section();
     }
 
-    protected function render(): void
+    /** @return array<string, mixed> */
+    protected function audioPlayerTemplateArgs(array $settings): array
     {
-        $settings = $this->get_settings_for_display();
-        $audioArgs = $this->audioPlayerTemplateArgs($settings);
-        $this->enqueueAudioPlayerAssets((bool) $audioArgs['show_audio_player']);
+        return [
+            'show_audio_player' => ($settings['show_audio_player'] ?? 'no') === 'yes',
+            'audio_player_heading' => (string) ($settings['audio_player_heading'] ?? __('Escucha', 'homlity-real-estate')),
+            'audio_player_label' => (string) ($settings['audio_player_label'] ?? __('este inmueble', 'homlity-real-estate')),
+            'audio_default_rate' => (float) ($settings['audio_default_rate'] ?? 1),
+            'audio_voice' => (string) ($settings['audio_voice'] ?? 'auto'),
+        ];
+    }
 
-        TemplateService::includeComponent('property-content.php', array_merge([
-            'post_id' => $this->current_property_id(),
-            'content_tag' => $settings['content_tag'] ?? 'div',
-        ], $audioArgs));
+    protected function enqueueAudioPlayerAssets(bool $enabled): void
+    {
+        if (!$enabled) {
+            return;
+        }
+
+        wp_enqueue_script(
+            'homlity-real-estate-property-content-audio',
+            HOMLITY_PLUGIN_URL . 'assets/js/property-content-audio.js',
+            [],
+            HOMLITY_PLUGIN_VERSION,
+            true
+        );
+        wp_enqueue_style(
+            'homlity-real-estate-property-content-audio',
+            HOMLITY_PLUGIN_URL . 'assets/css/property-content-audio.css',
+            [],
+            HOMLITY_PLUGIN_VERSION
+        );
     }
 }

@@ -44,16 +44,20 @@
 }
 
 .property-card__gallery {
-    display: grid;
-    gap: 6px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: block;
+    gap: 0;
+    grid-template-columns: 1fr;
     min-height: 200px;
-    padding: 10px;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
 }
 
 .property-card__gallery img {
-    border-radius: 16px;
+    border-radius: 0;
+    display: block;
     height: 200px;
+    margin: 0;
     object-fit: cover;
     width: 100%;
 }

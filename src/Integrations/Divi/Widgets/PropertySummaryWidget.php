@@ -14,6 +14,8 @@ if (!defined('ABSPATH')) {
 
 class PropertySummaryWidget extends BasePropertyWidget
 {
+    use PropertyAudioPlayerControlsTrait;
+
     public function get_name(): string
     {
         return 'property_summary';
@@ -33,6 +35,7 @@ class PropertySummaryWidget extends BasePropertyWidget
     {
         $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-real-estate')]);
         $this->register_property_control();
+        $this->registerAudioPlayerContentControls();
         $this->end_controls_section();
 
         $this->start_controls_section('style_summary', [
@@ -96,12 +99,18 @@ class PropertySummaryWidget extends BasePropertyWidget
             'selector' => '{{WRAPPER}} .property-summary',
         ]);
         $this->end_controls_section();
+
+        $this->registerAudioPlayerStyleControls();
     }
 
     protected function render(): void
     {
-        TemplateService::includeComponent('property-summary.php', [
+        $settings = $this->get_settings_for_display();
+        $audioArgs = $this->audioPlayerTemplateArgs($settings);
+        $this->enqueueAudioPlayerAssets((bool) $audioArgs['show_audio_player']);
+
+        TemplateService::includeComponent('property-summary.php', array_merge([
             'post_id' => $this->current_property_id(),
-        ]);
+        ], $audioArgs));
     }
 }

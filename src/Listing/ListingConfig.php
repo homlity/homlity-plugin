@@ -25,6 +25,15 @@ class ListingConfig
         'show_view_toggle'       => true,
         'view_toggle_grid_icon'  => [],
         'view_toggle_map_icon'   => [],
+        'view_toggle_text_color' => '',
+        'view_toggle_icon_color' => '',
+        'view_toggle_bg_color'   => '',
+        'view_toggle_text_color_hover' => '',
+        'view_toggle_icon_color_hover' => '',
+        'view_toggle_bg_color_hover' => '',
+        'view_toggle_text_color_active' => '',
+        'view_toggle_icon_color_active' => '',
+        'view_toggle_bg_color_active' => '',
         'columns'                => 3,
         'posts_per_page'         => 12,
         'orderby'                => 'date',   // 'date'|'price_asc'|'price_desc'|'title'
@@ -136,6 +145,15 @@ class ListingConfig
             'show_view_toggle'      => !empty($settings['show_view_toggle']),
             'view_toggle_grid_icon' => self::normalizeElementorIcon($settings['view_toggle_grid_icon'] ?? []),
             'view_toggle_map_icon'  => self::normalizeElementorIcon($settings['view_toggle_map_icon'] ?? []),
+            'view_toggle_text_color' => self::normalizeCssColor($settings['view_toggle_text_color'] ?? ''),
+            'view_toggle_icon_color' => self::normalizeCssColor($settings['view_toggle_icon_color'] ?? ''),
+            'view_toggle_bg_color' => self::normalizeCssColor($settings['view_toggle_bg_color'] ?? ''),
+            'view_toggle_text_color_hover' => self::normalizeCssColor($settings['view_toggle_text_color_hover'] ?? ''),
+            'view_toggle_icon_color_hover' => self::normalizeCssColor($settings['view_toggle_icon_color_hover'] ?? ''),
+            'view_toggle_bg_color_hover' => self::normalizeCssColor($settings['view_toggle_bg_color_hover'] ?? ''),
+            'view_toggle_text_color_active' => self::normalizeCssColor($settings['view_toggle_text_color_active'] ?? ''),
+            'view_toggle_icon_color_active' => self::normalizeCssColor($settings['view_toggle_icon_color_active'] ?? ''),
+            'view_toggle_bg_color_active' => self::normalizeCssColor($settings['view_toggle_bg_color_active'] ?? ''),
             'columns'               => max(1, (int) ($settings['columns'] ?? 3)),
             'posts_per_page'        => max(1, (int) ($settings['posts_per_page'] ?? 12)),
             'orderby'               => sanitize_key($settings['default_orderby'] ?? 'date'),
@@ -241,6 +259,17 @@ class ListingConfig
             'show_grid_view'        => $bool($atts['show_grid_view'] ?? $atts['cards'] ?? null, true),
             'show_map_view'         => $bool($atts['show_map_view'] ?? $atts['map'] ?? null, true),
             'show_view_toggle'      => $bool($atts['view_toggle'] ?? null, true),
+            'view_toggle_grid_icon' => $icon($atts['view_toggle_grid_icon_value'] ?? $atts['view_toggle_grid_icon'] ?? []),
+            'view_toggle_map_icon'  => $icon($atts['view_toggle_map_icon_value'] ?? $atts['view_toggle_map_icon'] ?? []),
+            'view_toggle_text_color' => self::normalizeCssColor($atts['view_toggle_text_color'] ?? ''),
+            'view_toggle_icon_color' => self::normalizeCssColor($atts['view_toggle_icon_color'] ?? ''),
+            'view_toggle_bg_color' => self::normalizeCssColor($atts['view_toggle_bg_color'] ?? ''),
+            'view_toggle_text_color_hover' => self::normalizeCssColor($atts['view_toggle_text_color_hover'] ?? ''),
+            'view_toggle_icon_color_hover' => self::normalizeCssColor($atts['view_toggle_icon_color_hover'] ?? ''),
+            'view_toggle_bg_color_hover' => self::normalizeCssColor($atts['view_toggle_bg_color_hover'] ?? ''),
+            'view_toggle_text_color_active' => self::normalizeCssColor($atts['view_toggle_text_color_active'] ?? ''),
+            'view_toggle_icon_color_active' => self::normalizeCssColor($atts['view_toggle_icon_color_active'] ?? ''),
+            'view_toggle_bg_color_active' => self::normalizeCssColor($atts['view_toggle_bg_color_active'] ?? ''),
             'columns'               => max(1, (int) ($atts['columns'] ?? 3)),
             'posts_per_page'        => max(1, (int) ($atts['per_page'] ?? 12)),
             'orderby'               => sanitize_key($atts['orderby'] ?? 'date'),
@@ -338,6 +367,28 @@ class ListingConfig
     public function viewToggleMapIcon(): array
     {
         return is_array($this->data['view_toggle_map_icon']) ? $this->data['view_toggle_map_icon'] : [];
+    }
+    public function viewToggleCssVariables(): array
+    {
+        $map = [
+            '--homlity-view-toggle-text' => 'view_toggle_text_color',
+            '--homlity-view-toggle-icon' => 'view_toggle_icon_color',
+            '--homlity-view-toggle-background' => 'view_toggle_bg_color',
+            '--homlity-view-toggle-text-hover' => 'view_toggle_text_color_hover',
+            '--homlity-view-toggle-icon-hover' => 'view_toggle_icon_color_hover',
+            '--homlity-view-toggle-background-hover' => 'view_toggle_bg_color_hover',
+            '--homlity-view-toggle-text-active' => 'view_toggle_text_color_active',
+            '--homlity-view-toggle-icon-active' => 'view_toggle_icon_color_active',
+            '--homlity-view-toggle-background-active' => 'view_toggle_bg_color_active',
+        ];
+        $variables = [];
+        foreach ($map as $variable => $key) {
+            $value = (string) ($this->data[$key] ?? '');
+            if ($value !== '') {
+                $variables[$variable] = $value;
+            }
+        }
+        return $variables;
     }
     public function showViewToggle(): bool
     {
@@ -511,5 +562,20 @@ class ListingConfig
             'value' => $value,
             'library' => $library,
         ];
+    }
+
+    private static function normalizeCssColor($raw): string
+    {
+        $color = trim(sanitize_text_field((string) $raw));
+        if ($color === '') {
+            return '';
+        }
+        if (preg_match('/^#[0-9a-f]{3,8}$/i', $color)) {
+            return $color;
+        }
+        if (preg_match('/^(?:rgb|hsl)a?\([0-9.,%\s+-]+\)$/i', $color)) {
+            return $color;
+        }
+        return strtolower($color) === 'transparent' ? 'transparent' : '';
     }
 }

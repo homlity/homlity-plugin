@@ -14,6 +14,10 @@ if (!defined('ABSPATH')) {
 
 class PropertyFilterWidget extends Widget_Base
 {
+    private const FILTER_SCRIPT_HANDLE = 'homlity-real-estate-filter';
+    private const FRONT_COMPONENTS_STYLE_HANDLE = 'homlity-real-estate-front-components';
+    private const LISTING_STYLE_HANDLE = 'homlity-real-estate-listing';
+
     public function get_name(): string
     {
         return 'property_filter';
@@ -32,6 +36,37 @@ class PropertyFilterWidget extends Widget_Base
     public function get_categories(): array
     {
         return ['homlity-real-estate'];
+    }
+
+    public function get_script_depends(): array
+    {
+        wp_register_script(
+            self::FILTER_SCRIPT_HANDLE,
+            HOMLITY_PLUGIN_URL . 'assets/js/property-filter.js',
+            [],
+            HOMLITY_PLUGIN_VERSION,
+            true
+        );
+
+        return [self::FILTER_SCRIPT_HANDLE];
+    }
+
+    public function get_style_depends(): array
+    {
+        wp_register_style(
+            self::FRONT_COMPONENTS_STYLE_HANDLE,
+            HOMLITY_PLUGIN_URL . 'assets/css/front-components.css',
+            [],
+            HOMLITY_PLUGIN_VERSION
+        );
+        wp_register_style(
+            self::LISTING_STYLE_HANDLE,
+            HOMLITY_PLUGIN_URL . 'assets/css/property-listing.css',
+            [self::FRONT_COMPONENTS_STYLE_HANDLE],
+            HOMLITY_PLUGIN_VERSION
+        );
+
+        return [self::LISTING_STYLE_HANDLE];
     }
 
     protected function register_controls(): void
@@ -79,7 +114,7 @@ class PropertyFilterWidget extends Widget_Base
         $this->add_control('multiple_type', [
             'label' => __('Tipo de inmueble múltiple', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,
-            'default' => '',
+            'default' => 'yes',
             'condition' => ['show_type' => 'yes'],
         ]);
 

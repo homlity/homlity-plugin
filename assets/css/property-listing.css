@@ -197,9 +197,9 @@
 }
 
 .property-listing__view-btn {
-    background: #fff;
+    background: var(--homlity-view-toggle-background, #fff);
     border: none;
-    color: var(--homlity-text-soft);
+    color: var(--homlity-view-toggle-text, var(--homlity-text-soft));
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -214,7 +214,7 @@
     align-items: center;
     justify-content: center;
     flex: 0 0 auto;
-    color: inherit;
+    color: var(--homlity-view-toggle-icon, inherit);
     fill: currentColor !important;
     line-height: 1;
     overflow: visible;
@@ -233,13 +233,23 @@
 }
 
 .property-listing__view-btn:hover {
-    background: #f7f8fa;
-    color: var(--homlity-text);
+    background: var(--homlity-view-toggle-background-hover, #f7f8fa);
+    color: var(--homlity-view-toggle-text-hover, var(--homlity-text));
 }
 
-.property-listing__view-btn.is-active {
-    background: var(--homlity-primary-color);
-    color: #fff;
+.property-listing__view-btn:hover .property-listing__view-icon {
+    color: var(--homlity-view-toggle-icon-hover, var(--homlity-view-toggle-icon, inherit));
+}
+
+.property-listing__view-btn.is-active,
+.property-listing__view-btn.active {
+    background: var(--homlity-view-toggle-background-active, var(--homlity-primary-color));
+    color: var(--homlity-view-toggle-text-active, #fff);
+}
+
+.property-listing__view-btn.is-active .property-listing__view-icon,
+.property-listing__view-btn.active .property-listing__view-icon {
+    color: var(--homlity-view-toggle-icon-active, var(--homlity-view-toggle-icon, inherit));
 }
 
 /* ─── Grid (only for the default non-Bootstrap template) ─────────────────── */
@@ -454,6 +464,22 @@
 .property-listing .property-card__gallery > img,
 .property-listing .property-card__gallery-slider .swiper-slide img {
     border-radius: 0;
+}
+
+.property-listing .property-card-bs > a {
+    display: block;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.property-listing .property-card-bs .card-img-top,
+.property-listing .property-card__gallery-slider--bootstrap {
+    border-radius: 0;
+    display: block;
+    margin: 0;
+    max-width: none;
+    width: 100%;
 }
 
 .property-card__media-tags {
@@ -725,8 +751,32 @@
 .property-card__whatsapp {
     display: inline-flex;
     align-items: center;
+    flex-flow: row nowrap;
     justify-content: center;
     gap: 8px;
+    white-space: nowrap;
+}
+
+.property-card__whatsapp-icon {
+    align-items: center;
+    display: inline-flex;
+    flex: 0 0 auto;
+    justify-content: center;
+    line-height: 1;
+    width: auto;
+}
+
+.property-card__whatsapp-icon > i,
+.property-card__whatsapp-icon > svg,
+.property-card__whatsapp-icon > .homlity-divi-icon {
+    display: block;
+    flex: 0 0 auto;
+}
+
+.property-card__whatsapp-label {
+    display: inline-block;
+    flex: 0 1 auto;
+    white-space: nowrap;
 }
 
 .property-card__whatsapp--icon-right {
@@ -804,12 +854,12 @@
 
 .hpf-multi__chips {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 6px;
     text-align: left;
     flex: 1 1 auto;
     min-width: 0;
-    overflow: visible;
+    overflow: hidden;
 }
 
 .hpf-multi__placeholder {

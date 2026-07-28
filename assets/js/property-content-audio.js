@@ -291,16 +291,44 @@
         });
     }
 
+    function observeDynamicPlayers() {
+        if (!document.body || !('MutationObserver' in window)) { return; }
+
+        var observer = new MutationObserver(function (mutations) {
+            var hasNewPlayer = mutations.some(function (mutation) {
+                return Array.prototype.some.call(mutation.addedNodes, function (node) {
+                    if (!node || node.nodeType !== 1) { return false; }
+                    return node.matches('.property-content-audio-bar')
+                        || Boolean(node.querySelector('.property-content-audio-bar'));
+                });
+            });
+
+            if (hasNewPlayer) {
+                init();
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', function () {
+            init();
+            observeDynamicPlayers();
+        });
     } else {
         init();
+        observeDynamicPlayers();
     }
 
     document.addEventListener('elementor/frontend/init', function () {
         if (window.elementorFrontend && window.elementorFrontend.hooks) {
             window.elementorFrontend.hooks.addAction(
                 'frontend/element_ready/property_content.default',
+                init
+            );
+            window.elementorFrontend.hooks.addAction(
+                'frontend/element_ready/property_summary.default',
                 init
             );
         }

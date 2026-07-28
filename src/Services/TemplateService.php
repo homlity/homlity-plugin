@@ -24,6 +24,7 @@ class TemplateService implements ServiceInterface
         add_action('init', [$this, 'registerShortcodes']);
         add_filter('template_include', [$this, 'maybeLoadTemplate']);
         add_action('pre_get_posts', [$this, 'filterArchiveQuery']);
+        add_action('template_redirect', [$this, 'redirectLegacyFilteredArchiveUrl'], 1);
         add_action('template_redirect', [$this, 'maybeRenderTechnicalSheetPdf'], 1);
         add_action('template_redirect', [$this, 'redirectLegacyEnglishUrls']);
         add_action('wp_enqueue_scripts', [$this, 'enqueuePublicAssets']);
@@ -212,6 +213,111 @@ class TemplateService implements ServiceInterface
         }
 
         return $queryVars;
+    }
+
+    /**
+     * Build the canonical archive route in the same order used by rewrites.
+     *
+     * Accepted keys are both the public SEO names and their legacy query
+     * string equivalents.
+     */
+    public static function buildSeoArchiveUrl(array $filters = []): string
+    {
+        $aliases = [
+            'gestion' => ['gestion', 'property_operation'],
+            'tipo' => ['tipo', 'property_type'],
+            'ciudad' => ['ciudad', 'property_city'],
+            'barrios' => ['barrios', 'property_neighborhood'],
+        ];
+        $segments = [];
+
+        foreach ($aliases as $routeKey => $keys) {
+            $value = '';
+            foreach ($keys as $key) {
+                if (!isset($filters[$key]) || is_array($filters[$key])) {
+                    continue;
+                }
+                $value = sanitize_title((string) $filters[$key]);
+                if ($value !== '') {
+                    break;
+                }
+            }
+            if ($value === '') {
+                continue;
+            }
+            $segments[] = $routeKey;
+            $segments[] = rawurlencode($value);
+        }
+
+        $path = '/inmuebles/';
+        if ($segments !== []) {
+            $path .= implode('/', $segments) . '/';
+        }
+
+        return home_url($path);
+    }
+
+    /**
+     * Canonicalize old query-string archive links produced by older widgets.
+     */
+    public function redirectLegacyFilteredArchiveUrl(): void
+    {
+        if (is_admin() || wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
+            return;
+        }
+
+        $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+        if ($method !== 'GET' && $method !== 'HEAD') {
+            return;
+        }
+
+        $requestUri = isset($_SERVER['REQUEST_URI'])
+            ? esc_url_raw(wp_unslash((string) $_SERVER['REQUEST_URI']))
+            : '';
+        $requestPath = untrailingslashit((string) wp_parse_url($requestUri, PHP_URL_PATH));
+        $archivePath = untrailingslashit((string) wp_parse_url(home_url('/inmuebles/'), PHP_URL_PATH));
+        if ($requestPath === '' || $requestPath !== $archivePath) {
+            return;
+        }
+
+        $legacyKeys = [
+            'property_operation',
+            'property_type',
+            'property_city',
+            'property_neighborhood',
+        ];
+        $filters = [];
+        $remaining = [];
+
+        foreach ($_GET as $key => $rawValue) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only canonical redirect.
+            $key = sanitize_key((string) $key);
+            if (!in_array($key, $legacyKeys, true)) {
+                $remaining[$key] = wp_unslash($rawValue);
+                continue;
+            }
+
+            // Multi-value taxonomy filters cannot be represented safely by
+            // the current canonical route, so preserve the original request.
+            if (is_array($rawValue) || str_contains((string) $rawValue, ',')) {
+                return;
+            }
+            $value = sanitize_title(wp_unslash((string) $rawValue));
+            if ($value !== '') {
+                $filters[$key] = $value;
+            }
+        }
+
+        if ($filters === []) {
+            return;
+        }
+
+        $target = self::buildSeoArchiveUrl($filters);
+        if ($remaining !== []) {
+            $target = add_query_arg($remaining, $target);
+        }
+
+        wp_safe_redirect($target, 301, 'Homlity Real Estate');
+        exit;
     }
 
     public function addRewriteRules(): void

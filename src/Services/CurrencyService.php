@@ -14,6 +14,7 @@ if (!defined('ABSPATH')) {
 class CurrencyService implements ServiceInterface
 {
     public const DEFAULT_CURRENCY = 'COP';
+    private const PRICE_DECIMALS = 0;
 
     private string $settingsOption = HOMLITY_PLUGIN_SETTINGS_OPTION;
 
@@ -74,10 +75,14 @@ class CurrencyService implements ServiceInterface
 
         if (class_exists(\NumberFormatter::class)) {
             $formatter = new \NumberFormatter($locale ?: get_locale(), \NumberFormatter::CURRENCY);
-            return $formatter->formatCurrency((float) $price, $currency) ?: $symbol . number_format((float) $price, 2);
+            $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, self::PRICE_DECIMALS);
+            $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, self::PRICE_DECIMALS);
+
+            return $formatter->formatCurrency((float) $price, $currency)
+                ?: $symbol . number_format((float) $price, self::PRICE_DECIMALS);
         }
 
-        return $symbol . number_format((float) $price, 2);
+        return $symbol . number_format((float) $price, self::PRICE_DECIMALS);
     }
 
     public function convertPrice($price, ?string $from = null, ?string $to = null): float

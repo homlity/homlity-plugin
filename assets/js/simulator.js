@@ -7019,8 +7019,9 @@
     }
     return container;
   }
-  const fmt = new Intl.NumberFormat("es-CO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const fmtShort = new Intl.NumberFormat("es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const wholeMoneyOptions = { minimumFractionDigits: 0, maximumFractionDigits: 0 };
+  const fmt = new Intl.NumberFormat("es-CO", wholeMoneyOptions);
+  const fmtShort = new Intl.NumberFormat("es-CO", wholeMoneyOptions);
   function formatMoney(value) {
     return fmt.format(Number(value) || 0);
   }

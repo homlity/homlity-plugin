@@ -627,10 +627,15 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
             }
         }
 
-        // Keep the WhatsApp default usable even if Divi's icon list has not
-        // been initialized yet when the module fields are requested.
-        if ($name === 'whatsapp') {
-            return '&#xf232;||fa||400';
+        // Keep defaults usable when Divi requests third-party module fields
+        // before its complete icon catalogue has been initialized.
+        $fallbacks = [
+            'whatsapp'      => '&#xf232;||fa||400',
+            'th-large'      => '&#xf009;||fa||900',
+            'map-marker-alt'=> '&#xf3c5;||fa||900',
+        ];
+        if (isset($fallbacks[$name])) {
+            return $fallbacks[$name];
         }
 
         return '';

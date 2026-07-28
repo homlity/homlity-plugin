@@ -44,6 +44,7 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
             ],
             'advanced' => [
                 'toggles' => [
+                    'view_toggle_style' => esc_html__('Botones grilla/mapa', 'homlity-real-estate'),
                     'pagination_style' => esc_html__('Paginador', 'homlity-real-estate'),
                 ],
             ],
@@ -154,7 +155,7 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
                 'tab_slug'    => 'general',
                 'toggle_slug' => 'card_content',
             ],
-        ] + $this->cardVisibilityFields() + $this->cardWhatsappFields() + $this->cardFeatureIconFields() + [
+        ] + $this->cardVisibilityFields() + $this->cardWhatsappFields() + $this->cardFeatureIconFields() + $this->viewToggleFields() + [
 
             // ── Consulta ──────────────────────────────────────────────────────
             'per_page' => [
@@ -274,6 +275,43 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
             'tab_slug'    => 'advanced',
             'toggle_slug' => 'pagination_style',
             'show_if'     => ['pagination' => 'on'],
+        ];
+    }
+
+    /**
+     * View-toggle controls for pages saved with the legacy Divi module.
+     */
+    private function viewToggleFields(): array
+    {
+        $field = static fn(string $label, string $type = 'color-alpha', string $default = ''): array => [
+            'label'       => esc_html($label),
+            'type'        => $type,
+            'default'     => $default,
+            'tab_slug'    => 'advanced',
+            'toggle_slug' => 'view_toggle_style',
+            'show_if'     => ['view_toggle' => 'on'],
+        ];
+
+        return [
+            'view_toggle_grid_icon_value' => $field(
+                __('Ícono de grilla', 'homlity-real-estate'),
+                'select_icon',
+                '&#xf009;||fa||900'
+            ) + ['class' => ['et-pb-font-icon']],
+            'view_toggle_map_icon_value' => $field(
+                __('Ícono de mapa', 'homlity-real-estate'),
+                'select_icon',
+                '&#xf3c5;||fa||900'
+            ) + ['class' => ['et-pb-font-icon']],
+            'view_toggle_text_color' => $field(__('Color del texto (normal)', 'homlity-real-estate')),
+            'view_toggle_icon_color' => $field(__('Color del ícono (normal)', 'homlity-real-estate')),
+            'view_toggle_bg_color' => $field(__('Fondo (normal)', 'homlity-real-estate')),
+            'view_toggle_text_color_hover' => $field(__('Color del texto (hover)', 'homlity-real-estate')),
+            'view_toggle_icon_color_hover' => $field(__('Color del ícono (hover)', 'homlity-real-estate')),
+            'view_toggle_bg_color_hover' => $field(__('Fondo (hover)', 'homlity-real-estate')),
+            'view_toggle_text_color_active' => $field(__('Color del texto (activo)', 'homlity-real-estate')),
+            'view_toggle_icon_color_active' => $field(__('Color del ícono (activo)', 'homlity-real-estate')),
+            'view_toggle_bg_color_active' => $field(__('Fondo (activo)', 'homlity-real-estate')),
         ];
     }
 

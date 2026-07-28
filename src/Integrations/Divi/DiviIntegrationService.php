@@ -104,6 +104,22 @@ class DiviIntegrationService implements ServiceInterface
             HOMLITY_PLUGIN_VERSION,
             true
         );
+        // Keep the player available while Divi replaces a module preview via
+        // AJAX. Conditional enqueues performed during render are too late for
+        // the visual builder when the switch is enabled for the first time.
+        wp_enqueue_style(
+            'homlity-real-estate-property-content-audio',
+            HOMLITY_PLUGIN_URL . 'assets/css/property-content-audio.css',
+            ['homlity-real-estate-front-components'],
+            HOMLITY_PLUGIN_VERSION
+        );
+        wp_enqueue_script(
+            'homlity-real-estate-property-content-audio',
+            HOMLITY_PLUGIN_URL . 'assets/js/property-content-audio.js',
+            [],
+            HOMLITY_PLUGIN_VERSION,
+            true
+        );
 
         $this->enqueueIconFontFaces();
     }

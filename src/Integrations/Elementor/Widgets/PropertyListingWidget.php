@@ -81,6 +81,34 @@ class PropertyListingWidget extends Widget_Base
             ],
         ]);
 
+        $this->add_control('view_toggle_grid_icon', [
+            'label'   => __('Icono vista Cards', 'homlity-real-estate'),
+            'type'    => Controls_Manager::ICONS,
+            'default' => [
+                'value'   => 'fas fa-th-large',
+                'library' => 'fa-solid',
+            ],
+            'condition' => [
+                'show_grid_view'   => 'yes',
+                'show_map_view'    => 'yes',
+                'show_view_toggle' => 'yes',
+            ],
+        ]);
+
+        $this->add_control('view_toggle_map_icon', [
+            'label'   => __('Icono vista Mapa', 'homlity-real-estate'),
+            'type'    => Controls_Manager::ICONS,
+            'default' => [
+                'value'   => 'fas fa-map-marker-alt',
+                'library' => 'fa-solid',
+            ],
+            'condition' => [
+                'show_grid_view'   => 'yes',
+                'show_map_view'    => 'yes',
+                'show_view_toggle' => 'yes',
+            ],
+        ]);
+
         $this->add_control('columns', [
             'label'   => __('Columnas en grilla', 'homlity-real-estate'),
             'type'    => Controls_Manager::SELECT,
@@ -385,7 +413,11 @@ class PropertyListingWidget extends Widget_Base
             'type'       => Controls_Manager::SLIDER,
             'size_units' => ['px'],
             'range'      => ['px' => ['min' => 10, 'max' => 36]],
-            'selectors'  => ['{{WRAPPER}} .property-listing__view-btn svg' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};'],
+            'selectors'  => [
+                '{{WRAPPER}} .property-listing__view-icon' => 'font-size: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-listing__view-icon svg' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-listing__view-icon i, {{WRAPPER}} .property-listing__view-icon .homlity-divi-icon' => 'font-size: {{SIZE}}{{UNIT}};',
+            ],
         ]);
 
         $this->add_responsive_control('view_toggle_padding', [

@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
+use Homlity\PluginInmobiliario\Services\TemplateService;
 
 if (!isset($post_id)) {
     $post_id = get_the_ID();
@@ -45,22 +46,27 @@ $crumbs[] = ['label' => __('Inmuebles', 'homlity-real-estate'), 'url' => $archiv
 if ($operation instanceof \WP_Term) {
     $crumbs[] = [
         'label' => $operation->name,
-        'url' => add_query_arg(['property_operation' => $operation->slug], $archiveUrl),
+        'url' => TemplateService::buildSeoArchiveUrl([
+            'property_operation' => $operation->slug,
+        ]),
     ];
 }
 if ($city instanceof \WP_Term) {
     $crumbs[] = [
         'label' => $city->name,
-        'url' => add_query_arg(array_merge($baseFilters, ['property_city' => $city->slug]), $archiveUrl),
+        'url' => TemplateService::buildSeoArchiveUrl(array_merge(
+            $baseFilters,
+            ['property_city' => $city->slug]
+        )),
     ];
 }
 if ($neighborhood instanceof \WP_Term) {
     $crumbs[] = [
         'label' => $neighborhood->name,
-        'url' => add_query_arg(array_merge($baseFilters, [
+        'url' => TemplateService::buildSeoArchiveUrl(array_merge($baseFilters, [
             'property_city' => $city instanceof \WP_Term ? $city->slug : '',
             'property_neighborhood' => $neighborhood->slug,
-        ]), $archiveUrl),
+        ])),
     ];
 }
 if ($showTitle) {
@@ -79,4 +85,3 @@ if ($showTitle) {
         <?php endif; ?>
     <?php endforeach; ?>
 </nav>
-

@@ -35,6 +35,12 @@ $mapData     = $search->getMapData($query);
 $cardOptions = $config->cardOptions();
 $gridToggleIcon = $config->viewToggleGridIcon();
 $mapToggleIcon  = $config->viewToggleMapIcon();
+$viewToggleCssVariables = $config->viewToggleCssVariables();
+$viewToggleStyle = implode('', array_map(
+    static fn(string $name, string $value): string => $name . ':' . $value . ';',
+    array_keys($viewToggleCssVariables),
+    array_values($viewToggleCssVariables)
+));
 $sortOptions = [
     'date'       => __('Más recientes',         'homlity-real-estate'),
     'price_asc'  => __('Precio: menor a mayor', 'homlity-real-estate'),
@@ -57,6 +63,7 @@ $paramToAttr = static function ($value): string {
 ?>
 <div id="<?php echo esc_attr($uid); ?>"
      class="homlity-real-estate-search property-listing property-listing--bootstrap"
+     style="<?php echo esc_attr($viewToggleStyle); ?>"
      data-default-order="<?php echo esc_attr($config->orderby()); ?>"
      data-view="<?php echo esc_attr($config->defaultView()); ?>"
      data-per-page="<?php echo esc_attr($config->postsPerPage()); ?>"

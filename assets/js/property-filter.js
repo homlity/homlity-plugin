@@ -36,7 +36,7 @@
             return opt.value !== '';
         });
 
-        function renderChips() {
+        function renderSelection() {
             chips.innerHTML = '';
             var selected = options.filter(function (opt) { return opt.selected; });
 
@@ -48,39 +48,12 @@
                 return;
             }
 
-            selected.forEach(function (opt) {
-                var chip = document.createElement('span');
-                chip.className = 'hpf-multi__chip';
-
-                var label = document.createElement('span');
-                label.className = 'hpf-multi__chip-label';
-                label.textContent = opt.text;
-
-                var remove = document.createElement('span');
-                remove.className = 'hpf-multi__chip-remove';
-                remove.innerHTML = '&times;';
-                remove.setAttribute('role', 'button');
-                remove.setAttribute('tabindex', '0');
-                remove.setAttribute('aria-label', 'Quitar ' + opt.text);
-
-                function removeOption(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    opt.selected = false;
-                    notifyChange();
-                }
-
-                remove.addEventListener('click', removeOption);
-                remove.addEventListener('keydown', function (e) {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        removeOption(e);
-                    }
-                });
-
-                chip.appendChild(label);
-                chip.appendChild(remove);
-                chips.appendChild(chip);
-            });
+            var summary = document.createElement('span');
+            summary.className = 'hpf-multi__summary';
+            summary.textContent = selected.length === 1
+                ? selected[0].text
+                : selected.length + ' seleccionados';
+            chips.appendChild(summary);
         }
 
         function renderMenu() {
@@ -138,7 +111,7 @@
         }
 
         select.addEventListener('change', function () {
-            renderChips();
+            renderSelection();
             renderMenu();
         });
 
@@ -148,7 +121,7 @@
         wrapper.appendChild(trigger);
         wrapper.appendChild(menu);
 
-        renderChips();
+        renderSelection();
         renderMenu();
     }
 
