@@ -260,6 +260,7 @@
     var _w = useState(String(meta.currency_admin || (opts.currencies || ['USD'])[0])), currencyAdmin = _w[0], setCurrencyAdmin = _w[1];
     var _x = useState(!!Number(meta.admin_included || 0)), adminIncluded = _x[0], setAdminIncluded = _x[1];
     var _x2 = useState(String(meta.price_admin || '') !== '' && String(meta.price_admin || '0') !== '0'), hasAdminFee = _x2[0], setHasAdminFee = _x2[1];
+    var _x3 = useState(String(meta.price_valid_until || '')), priceValidUntil = _x3[0], setPriceValidUntil = _x3[1];
 
     var _y = useState(String(meta.area || '')), area = _y[0], setArea = _y[1];
     var _z = useState(String(meta.area_lot || '')), areaLot = _z[0], setAreaLot = _z[1];
@@ -856,6 +857,8 @@
                 h(Field, { label: 'Moneda administración' }, h(Select, { name: 'property_currency_admin', value: currencyAdmin, onChange: setCurrencyAdmin, options: currencyOptions }))
               ),
               (showRentPrice && hasAdminFee) && h('label', { className: 'hpe-check' }, h('input', { type: 'checkbox', checked: adminIncluded, onChange: function (e) { setAdminIncluded(e.target.checked); } }), 'Administración incluida en arriendo'),
+              h(Field, { label: 'Precio válido hasta' }, h(Input, { type: 'date', name: 'property_price_valid_until', value: priceValidUntil, onChange: setPriceValidUntil })),
+              h('p', { className: 'description' }, 'Fecha opcional publicada como priceValidUntil en el Schema.'),
               canHaveAdminFee && !hasAdminFee && hidden('property_price_admin', ''),
               hidden('property_admin_included', (showRentPrice && hasAdminFee && adminIncluded) ? '1' : '0')
             )

@@ -50,6 +50,12 @@ class SeoService implements ServiceInterface
             return;
         }
 
+        // The dedicated Schema module emits the canonical RealEstateListing
+        // graph. Avoid a second, conflicting Residence block on the same page.
+        if (class_exists('\\Homlity_Schema_Manager')) {
+            return;
+        }
+
         if (!is_singular(PropertyPostType::POST_TYPE)) {
             return;
         }
@@ -66,7 +72,6 @@ class SeoService implements ServiceInterface
         $area = get_post_meta($post->ID, $meta['area'], true);
         $bedrooms = get_post_meta($post->ID, $meta['bedrooms'], true);
         $bathrooms = get_post_meta($post->ID, $meta['bathrooms'], true);
-        $address = get_post_meta($post->ID, $meta['address'], true);
         $lat = get_post_meta($post->ID, $meta['latitude'], true);
         $lng = get_post_meta($post->ID, $meta['longitude'], true);
         $image = get_the_post_thumbnail_url($post, 'full');
@@ -78,10 +83,6 @@ class SeoService implements ServiceInterface
             'description' => wp_strip_all_tags(get_the_excerpt($post) ?: get_the_content(null, false, $post)),
             'url' => get_permalink($post),
             'image' => $image ?: '',
-            'address' => [
-                '@type' => 'PostalAddress',
-                'streetAddress' => $address,
-            ],
             'numberOfRooms' => $bedrooms ?: '',
             'numberOfBathroomsTotal' => $bathrooms ?: '',
             'floorSize' => [
@@ -98,11 +99,13 @@ class SeoService implements ServiceInterface
             ],
         ];
 
-        if ($lat && $lng) {
+        if (is_numeric($lat) && is_numeric($lng)) {
+            $precision = (int) apply_filters('homlity_schema_geo_precision', 2, $post->ID);
+            $precision = max(0, min(6, $precision));
             $schema['geo'] = [
                 '@type' => 'GeoCoordinates',
-                'latitude' => $lat,
-                'longitude' => $lng,
+                'latitude' => round((float) $lat, $precision),
+                'longitude' => round((float) $lng, $precision),
             ];
         }
 

@@ -50,8 +50,8 @@ class Homlity_Property_Schema
             'url'          => $url,
             'description'  => Homlity_Schema_Helpers::description($post_id),
             'image'        => !empty($images) ? $images : null,
-            'datePosted'   => get_the_date('Y-m-d', $post_id),
-            'dateModified' => get_the_modified_date('Y-m-d', $post_id),
+            'datePosted'   => get_the_date('c', $post_id),
+            'dateModified' => get_the_modified_date('c', $post_id),
             'identifier'   => $code !== '' ? $code : null,
             'mainEntity'   => ['@id' => $url . '#property'],
             'offers'       => ['@id' => $url . '#offer'],
@@ -65,28 +65,30 @@ class Homlity_Property_Schema
 
     private function property_node(int $post_id, string $url): array
     {
-        $type      = Homlity_Schema_Helpers::schema_type($post_id);
-        $name      = Homlity_Schema_Helpers::clean(get_the_title($post_id));
-        $images    = Homlity_Schema_Helpers::images($post_id);
-        $address   = Homlity_Schema_Helpers::postal_address($post_id);
-        $geo       = Homlity_Schema_Helpers::geo($post_id);
-        $amenities = Homlity_Schema_Helpers::amenity_features($post_id);
-        $add_props = Homlity_Schema_Helpers::additional_properties($post_id);
-        $size      = Homlity_Schema_Helpers::floor_size($post_id);
-        $bedrooms  = absint(Homlity_Schema_Helpers::get_meta($post_id, 'bedrooms'));
-        $bathrooms = absint(Homlity_Schema_Helpers::get_meta($post_id, 'bathrooms'));
-        $year      = Homlity_Schema_Helpers::get_meta($post_id, 'year_built');
-        $floor     = Homlity_Schema_Helpers::get_meta($post_id, 'year_built'); // re-use filtered meta key slot
-        // floor level is not a separate meta key in this plugin; leave null unless added via filter
+        $type         = Homlity_Schema_Helpers::schema_type($post_id);
+        $name         = Homlity_Schema_Helpers::clean(get_the_title($post_id));
+        $images       = Homlity_Schema_Helpers::images($post_id);
+        $address      = Homlity_Schema_Helpers::postal_address($post_id);
+        $neighborhood = Homlity_Schema_Helpers::neighborhood($post_id);
+        $geo          = Homlity_Schema_Helpers::geo($post_id);
+        $amenities    = Homlity_Schema_Helpers::amenity_features($post_id);
+        $add_props    = Homlity_Schema_Helpers::additional_properties($post_id);
+        $size         = Homlity_Schema_Helpers::floor_size($post_id);
+        $bedrooms     = absint(Homlity_Schema_Helpers::get_meta($post_id, 'bedrooms'));
+        $bathrooms    = absint(Homlity_Schema_Helpers::get_meta($post_id, 'bathrooms'));
+        $year         = Homlity_Schema_Helpers::get_meta($post_id, 'year_built');
+        $code         = Homlity_Schema_Helpers::clean(Homlity_Schema_Helpers::get_meta($post_id, 'code'));
 
         $node = [
             '@type'                  => $type,
             '@id'                    => $url . '#property',
             'name'                   => $name,
+            'identifier'             => $code !== '' ? $code : null,
             'description'            => Homlity_Schema_Helpers::description($post_id),
             'url'                    => $url,
             'image'                  => !empty($images) ? $images : null,
             'address'                => !empty($address) ? $address : null,
+            'containedInPlace'       => !empty($neighborhood) ? $neighborhood : null,
             'geo'                    => !empty($geo) ? $geo : null,
             'numberOfBedrooms'       => $bedrooms > 0 ? $bedrooms : null,
             'numberOfBathroomsTotal' => $bathrooms > 0 ? $bathrooms : null,
@@ -111,9 +113,11 @@ class Homlity_Property_Schema
 
     private function offer_node(int $post_id, string $url): array
     {
-        $op       = Homlity_Schema_Helpers::operation($post_id);
-        $price    = Homlity_Schema_Helpers::price($post_id);
-        $currency = Homlity_Schema_Helpers::currency($post_id);
+        $op          = Homlity_Schema_Helpers::operation($post_id);
+        $price       = Homlity_Schema_Helpers::price($post_id);
+        $currency    = Homlity_Schema_Helpers::currency($post_id);
+        $valid_until = Homlity_Schema_Helpers::price_valid_until($post_id);
+        $agent_id    = home_url('/') . '#realestateagent';
 
         $node = [
             '@type'            => 'Offer',
@@ -121,10 +125,12 @@ class Homlity_Property_Schema
             'url'              => $url,
             'price'            => $price !== '' ? $price : null,
             'priceCurrency'    => $price !== '' ? $currency : null,
+            'priceValidUntil'  => $price !== '' && $valid_until !== '' ? $valid_until : null,
             'availability'     => Homlity_Schema_Helpers::availability($post_id),
             'businessFunction' => Homlity_Schema_Helpers::business_function($op),
             'itemOffered'      => ['@id' => $url . '#property'],
-            'seller'           => ['@id' => home_url('/') . '#realestateagent'],
+            'offeredBy'        => ['@id' => $agent_id],
+            'seller'           => ['@id' => $agent_id],
         ];
 
         $node = Homlity_Schema_Helpers::drop_empty($node);

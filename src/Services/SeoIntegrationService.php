@@ -320,6 +320,17 @@ class SeoIntegrationService implements ServiceInterface
         if (!is_singular(PropertyPostType::POST_TYPE)) {
             return $data;
         }
+
+        // Homlity's dedicated Schema module already prints the canonical
+        // RealEstateListing graph. Do not make Rank Math emit a duplicate.
+        if (
+            class_exists('\\Homlity_Schema_Manager')
+            && \Homlity_Schema_Manager::is_enabled()
+            && \Homlity_Schema_Manager::is_property_enabled()
+        ) {
+            return $data;
+        }
+
         $post = get_post();
         if (!$post instanceof \WP_Post) {
             return $data;
@@ -328,10 +339,91 @@ class SeoIntegrationService implements ServiceInterface
         $meta = (new PropertyPostType())->metaKeys();
         $price = (string) (get_post_meta($post->ID, $meta['price_sale'], true) ?: get_post_meta($post->ID, $meta['price_rent'], true));
         $currency = (string) (get_post_meta($post->ID, $meta['currency_sale'], true) ?: get_post_meta($post->ID, $meta['currency_rent'], true) ?: (new CurrencyService())->baseCurrency());
-        $address = (string) get_post_meta($post->ID, $meta['address'], true);
+        $validUntil = isset($meta['price_valid_until'])
+            ? (string) get_post_meta($post->ID, $meta['price_valid_until'], true)
+            : '';
         $lat = (string) get_post_meta($post->ID, $meta['latitude'], true);
         $lng = (string) get_post_meta($post->ID, $meta['longitude'], true);
         $image = get_the_post_thumbnail_url($post, 'full');
+
+        $property = [
+            '@type' => class_exists('\\Homlity_Schema_Helpers')
+                ? \Homlity_Schema_Helpers::schema_type($post->ID)
+                : 'Residence',
+            'name' => get_the_title($post),
+        ];
+
+        if (class_exists('\\Homlity_Schema_Helpers')) {
+            $code = \Homlity_Schema_Helpers::clean(\Homlity_Schema_Helpers::get_meta($post->ID, 'code'));
+            if ($code !== '') {
+                $property['identifier'] = $code;
+            }
+
+            $address = \Homlity_Schema_Helpers::postal_address($post->ID);
+            if ($address !== []) {
+                $property['address'] = $address;
+            }
+
+            $neighborhood = \Homlity_Schema_Helpers::neighborhood($post->ID);
+            if ($neighborhood !== []) {
+                $property['containedInPlace'] = $neighborhood;
+            }
+
+            $geo = \Homlity_Schema_Helpers::geo($post->ID);
+
+            $bedrooms = absint(\Homlity_Schema_Helpers::get_meta($post->ID, 'bedrooms'));
+            $bathrooms = absint(\Homlity_Schema_Helpers::get_meta($post->ID, 'bathrooms'));
+            $floorSize = \Homlity_Schema_Helpers::floor_size($post->ID);
+            $amenities = \Homlity_Schema_Helpers::amenity_features($post->ID);
+            $additionalProperties = \Homlity_Schema_Helpers::additional_properties($post->ID);
+
+            if ($bedrooms > 0) {
+                $property['numberOfBedrooms'] = $bedrooms;
+            }
+            if ($bathrooms > 0) {
+                $property['numberOfBathroomsTotal'] = $bathrooms;
+            }
+            if ($floorSize > 0) {
+                $property['floorSize'] = [
+                    '@type' => 'QuantitativeValue',
+                    'value' => $floorSize,
+                    'unitCode' => 'MTK',
+                ];
+            }
+            if ($amenities !== []) {
+                $property['amenityFeature'] = $amenities;
+            }
+            if ($additionalProperties !== []) {
+                $property['additionalProperty'] = $additionalProperties;
+            }
+
+            $validUntil = \Homlity_Schema_Helpers::price_valid_until($post->ID);
+        } else {
+            $geo = [];
+            if (is_numeric($lat) && is_numeric($lng)) {
+                $precision = (int) apply_filters('homlity_schema_geo_precision', 2, $post->ID);
+                $precision = max(0, min(6, $precision));
+                $geo = [
+                    '@type' => 'GeoCoordinates',
+                    'latitude' => round((float) $lat, $precision),
+                    'longitude' => round((float) $lng, $precision),
+                ];
+            }
+        }
+
+        if ($geo !== []) {
+            $property['geo'] = $geo;
+        }
+
+        $agency = class_exists('\\Homlity_Schema_Helpers')
+            ? \Homlity_Schema_Helpers::agency()
+            : [];
+        $offeredBy = array_filter([
+            '@type' => 'RealEstateAgent',
+            'name' => $agency['name'] ?? get_bloginfo('name'),
+            'url' => home_url('/'),
+            'telephone' => $agency['telephone'] ?? '',
+        ], static fn ($value) => $value !== '');
 
         $schema = [
             '@type' => 'RealEstateListing',
@@ -346,19 +438,13 @@ class SeoIntegrationService implements ServiceInterface
                 'priceCurrency' => strtoupper($currency),
                 'availability' => 'https://schema.org/InStock',
                 'url' => get_permalink($post),
-            ],
-            'address' => [
-                '@type' => 'PostalAddress',
-                'streetAddress' => $address,
+                'itemOffered' => $property,
+                'offeredBy' => $offeredBy,
             ],
         ];
 
-        if ($lat !== '' && $lng !== '') {
-            $schema['geo'] = [
-                '@type' => 'GeoCoordinates',
-                'latitude' => $lat,
-                'longitude' => $lng,
-            ];
+        if ($price !== '' && $validUntil !== '') {
+            $schema['offers']['priceValidUntil'] = $validUntil;
         }
 
         $data['homlity_property'] = $schema;

@@ -24,6 +24,7 @@ class PropertyPostType implements ServiceInterface
         'currency_rent' => '_property_currency_rent',
         'price_admin' => '_property_price_admin',
         'currency_admin' => '_property_currency_admin',
+        'price_valid_until' => '_property_price_valid_until',
         'area' => '_property_area',
         'area_lot' => '_property_area_lot',
         'area_private' => '_property_area_private',
@@ -347,6 +348,14 @@ class PropertyPostType implements ServiceInterface
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>
+        <p>
+            <label for="property_price_valid_until"><?php esc_html_e('Precio válido hasta', 'homlity-real-estate'); ?></label>
+            <input type="date" id="property_price_valid_until"
+                   name="property_price_valid_until"
+                   value="<?php echo esc_attr(get_post_meta($post->ID, $this->metaKeys['price_valid_until'], true)); ?>"
+                   class="widefat">
+            <span class="description"><?php esc_html_e('Se publica como priceValidUntil en el Schema del inmueble.', 'homlity-real-estate'); ?></span>
+        </p>
         <?php
     }
 
@@ -1332,6 +1341,13 @@ class PropertyPostType implements ServiceInterface
             },
             'currency_admin' => static function ($value) {
                 return strtoupper(sanitize_text_field($value));
+            },
+            'price_valid_until' => static function ($value) {
+                $date = sanitize_text_field($value);
+                $parsed = \DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+                return $parsed instanceof \DateTimeImmutable && $parsed->format('Y-m-d') === $date
+                    ? $date
+                    : '';
             },
             'area' => static function ($value) {
                 return sanitize_text_field($value);

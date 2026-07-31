@@ -59,6 +59,7 @@ class Homlity_Schema_Helpers
                 'currency_rent'  => '_property_currency_rent',
                 'price_admin'    => '_property_price_admin',
                 'currency_admin' => '_property_currency_admin',
+                'price_valid_until' => '_property_price_valid_until',
                 'area'           => '_property_area',
                 'area_lot'       => '_property_area_lot',
                 'area_private'   => '_property_area_private',
@@ -66,6 +67,10 @@ class Homlity_Schema_Helpers
                 'bedrooms'       => '_property_bedrooms',
                 'bathrooms'      => '_property_bathrooms',
                 'parking'        => '_property_parking',
+                'stratum'        => '_property_stratum',
+                'floor'          => '_property_floor',
+                'levels'         => '_property_levels',
+                'elevators'      => '_property_elevators',
                 'condition'      => '_property_condition',
                 'year_built'     => '_property_age',   // plugin stores the year in _property_age
                 'code'           => '_property_code',
@@ -199,6 +204,22 @@ class Homlity_Schema_Helpers
         return strtoupper($cur);
     }
 
+    /** Returns a validated ISO date or an empty string when no validity is set. */
+    public static function price_valid_until(int $post_id): string
+    {
+        $date = (string) apply_filters(
+            'homlity_schema_price_valid_until',
+            self::get_meta($post_id, 'price_valid_until'),
+            $post_id
+        );
+        $date = trim($date);
+        $parsed = \DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+
+        return $parsed instanceof \DateTimeImmutable && $parsed->format('Y-m-d') === $date
+            ? $date
+            : '';
+    }
+
     // ── Availability ──────────────────────────────────────────────────────────
 
     public static function availability(int $post_id): string
@@ -214,7 +235,7 @@ class Homlity_Schema_Helpers
 
     public static function floor_size(int $post_id): float
     {
-        foreach (['area_built', 'area_private', 'area', 'area_lot'] as $field) {
+        foreach (['area_built', 'area_private', 'area'] as $field) {
             $v = self::get_meta($post_id, $field);
             if ($v !== '' && (float) $v > 0) {
                 return (float) $v;
@@ -225,11 +246,15 @@ class Homlity_Schema_Helpers
 
     // ── Postal address ────────────────────────────────────────────────────────
 
-    /** Returns a PostalAddress array or [] when there's nothing to show. */
+    /**
+     * Returns the public, coarse location of a property.
+     *
+     * Deliberately excludes the value stored in _property_address. Property
+     * listings must never expose their exact street address in JSON-LD; city,
+     * region and country provide enough geographic context for search engines.
+     */
     public static function postal_address(int $post_id): array
     {
-        $street = self::clean(self::get_meta($post_id, 'address'));
-
         $city_terms    = get_the_terms($post_id, self::city_taxonomy());
         $state_terms   = get_the_terms($post_id, 'property_state');
         $country_terms = get_the_terms($post_id, 'property_country');
@@ -238,32 +263,67 @@ class Homlity_Schema_Helpers
         $state   = is_array($state_terms) && !empty($state_terms)  ? self::clean(reset($state_terms)->name)   : '';
         $country = is_array($country_terms) && !empty($country_terms) ? self::clean(reset($country_terms)->name) : '';
 
-        if ($street === '' && $city === '' && $state === '' && $country === '') {
+        if ($city === '' && $state === '' && $country === '') {
             return [];
         }
 
         return self::drop_empty([
             '@type'           => 'PostalAddress',
-            'streetAddress'   => $street,
             'addressLocality' => $city,
             'addressRegion'   => $state,
             'addressCountry'  => $country,
         ]);
     }
 
+    // ── Neighborhood ─────────────────────────────────────────────────────────
+
+    /** Returns the public neighborhood as the Place containing the property. */
+    public static function neighborhood(int $post_id): array
+    {
+        $terms = get_the_terms($post_id, self::zone_taxonomy());
+        if (!is_array($terms) || empty($terms)) {
+            return [];
+        }
+
+        $name = self::clean(reset($terms)->name);
+        if ($name === '') {
+            return [];
+        }
+
+        $place = [
+            '@type' => 'Place',
+            'name'  => $name,
+        ];
+
+        return (array) apply_filters('homlity_schema_property_neighborhood', $place, $post_id);
+    }
+
     // ── Geo coordinates ───────────────────────────────────────────────────────
 
     public static function geo(int $post_id): array
     {
-        $lat = (float) self::get_meta($post_id, 'latitude');
-        $lng = (float) self::get_meta($post_id, 'longitude');
-        if ($lat === 0.0 || $lng === 0.0) {
+        $raw_lat = self::get_meta($post_id, 'latitude');
+        $raw_lng = self::get_meta($post_id, 'longitude');
+
+        if (!is_numeric($raw_lat) || !is_numeric($raw_lng)) {
             return [];
         }
+
+        $lat = (float) $raw_lat;
+        $lng = (float) $raw_lng;
+        if ($lat < -90 || $lat > 90 || $lng < -180 || $lng > 180) {
+            return [];
+        }
+
+        // Two decimals describe an approximate area of about 1 km instead of
+        // publishing the exact location. Sites can opt into another precision.
+        $precision = (int) apply_filters('homlity_schema_geo_precision', 2, $post_id);
+        $precision = max(0, min(6, $precision));
+
         return [
             '@type'     => 'GeoCoordinates',
-            'latitude'  => $lat,
-            'longitude' => $lng,
+            'latitude'  => round($lat, $precision),
+            'longitude' => round($lng, $precision),
         ];
     }
 
@@ -306,22 +366,38 @@ class Homlity_Schema_Helpers
     {
         $features = [];
 
-        if (absint(self::get_meta($post_id, 'parking')) > 0) {
-            $features[] = ['@type' => 'LocationFeatureSpecification', 'name' => 'Parqueadero', 'value' => true];
+        $add_feature = static function (string $name, $value = true) use (&$features): void {
+            $name = Homlity_Schema_Helpers::clean($name);
+            if ($name === '') {
+                return;
+            }
+
+            $key = sanitize_title($name);
+            $features[$key] = [
+                '@type' => 'LocationFeatureSpecification',
+                'name'  => $name,
+                'value' => $value,
+            ];
+        };
+
+        $parking = absint(self::get_meta($post_id, 'parking'));
+        if ($parking > 0) {
+            $add_feature('Parqueaderos', $parking);
+        }
+
+        $elevators = absint(self::get_meta($post_id, 'elevators'));
+        if ($elevators > 0) {
+            $add_feature('Ascensores', $elevators);
         }
 
         $terms = PropertyTaxonomies::getVisibleFeatureTermsForPost($post_id);
         if ($terms !== []) {
             foreach ($terms as $term) {
-                $features[] = [
-                    '@type' => 'LocationFeatureSpecification',
-                    'name'  => self::clean($term->name),
-                    'value' => true,
-                ];
+                $add_feature((string) $term->name);
             }
         }
 
-        return $features;
+        return array_values($features);
     }
 
     // ── Additional properties (PropertyValue) ─────────────────────────────────
@@ -329,6 +405,18 @@ class Homlity_Schema_Helpers
     public static function additional_properties(int $post_id): array
     {
         $props = [];
+
+        $lot_size = (float) self::get_meta($post_id, 'area_lot');
+        if ($lot_size > 0) {
+            $props[] = [
+                '@type'     => 'PropertyValue',
+                'name'      => 'Área del lote',
+                'propertyID' => 'lotSize',
+                'value'     => $lot_size,
+                'unitCode'  => 'MTK',
+                'unitText'  => 'm²',
+            ];
+        }
 
         $admin = (float) self::get_meta($post_id, 'price_admin');
         if ($admin > 0) {
@@ -350,9 +438,19 @@ class Homlity_Schema_Helpers
             $props[] = ['@type' => 'PropertyValue', 'name' => 'Estado', 'value' => $condition];
         }
 
-        $code = self::clean(self::get_meta($post_id, 'code'));
-        if ($code !== '') {
-            $props[] = ['@type' => 'PropertyValue', 'name' => 'Referencia', 'value' => $code];
+        $stratum = self::clean(self::get_meta($post_id, 'stratum'));
+        if ($stratum !== '') {
+            $props[] = ['@type' => 'PropertyValue', 'name' => 'Estrato', 'propertyID' => 'stratum', 'value' => $stratum];
+        }
+
+        $floor = self::clean(self::get_meta($post_id, 'floor'));
+        if ($floor !== '') {
+            $props[] = ['@type' => 'PropertyValue', 'name' => 'Piso', 'propertyID' => 'floor', 'value' => $floor];
+        }
+
+        $levels = absint(self::get_meta($post_id, 'levels'));
+        if ($levels > 0) {
+            $props[] = ['@type' => 'PropertyValue', 'name' => 'Niveles', 'propertyID' => 'levels', 'value' => $levels];
         }
 
         return $props;
