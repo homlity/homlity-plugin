@@ -640,7 +640,19 @@ class PropertyListingWidget extends Widget_Base
 
     protected function render(): void
     {
-        $config = ListingConfig::fromElementor($this->get_settings_for_display());
+        $settings = $this->get_settings_for_display();
+
+        // Rendering dozens of complete cards in Elementor's editor creates a
+        // very large htmlCache and can exhaust PHP memory. The public listing
+        // keeps the configured page size; only the editor preview is capped.
+        if ($this->isElementorEditorRequest()) {
+            $settings['posts_per_page'] = min(
+                12,
+                max(1, (int) ($settings['posts_per_page'] ?? 12))
+            );
+        }
+
+        $config = ListingConfig::fromElementor($settings);
         (new ListingRenderer())->render($config);
     }
 
@@ -671,6 +683,33 @@ class PropertyListingWidget extends Widget_Base
         $cache[$taxonomy] = $options;
 
         return $cache[$taxonomy];
+    }
+
+    private function isElementorEditorRequest(): bool
+    {
+        $action = isset($_REQUEST['action'])
+            ? sanitize_key(wp_unslash((string) $_REQUEST['action']))
+            : '';
+
+        if ($action === 'elementor_ajax') {
+            return true;
+        }
+
+        if (!class_exists('\\Elementor\\Plugin')) {
+            return false;
+        }
+
+        $elementor = \Elementor\Plugin::instance();
+
+        return (
+            isset($elementor->editor)
+            && method_exists($elementor->editor, 'is_edit_mode')
+            && $elementor->editor->is_edit_mode()
+        ) || (
+            isset($elementor->preview)
+            && method_exists($elementor->preview, 'is_preview_mode')
+            && $elementor->preview->is_preview_mode()
+        );
     }
 
     private function getSortOptions(): array
