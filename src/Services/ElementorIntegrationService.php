@@ -148,7 +148,16 @@ class ElementorIntegrationService implements ServiceInterface
             SimulatorWidget::class,
         ];
 
+        $this->markMemoryDiagnostic('homlity.elementor.widgets.start', [
+            'widgets' => count($widgets),
+            'memory'  => memory_get_usage(true),
+        ]);
+
         foreach ($widgets as $widgetClass) {
+            $this->markMemoryDiagnostic('homlity.elementor.widget.register', [
+                'widget' => $widgetClass,
+                'memory' => memory_get_usage(true),
+            ]);
             $widget = new $widgetClass();
             if (method_exists($widgetsManager, 'register')) {
                 $widgetsManager->register($widget);
@@ -158,6 +167,17 @@ class ElementorIntegrationService implements ServiceInterface
         }
 
         $this->widgetsRegistered = true;
+        $this->markMemoryDiagnostic('homlity.elementor.widgets.done', [
+            'memory' => memory_get_usage(true),
+        ]);
+    }
+
+    private function markMemoryDiagnostic(string $phase, array $context = []): void
+    {
+        $diagnostic = '\\SimiSync\\Support\\MemoryFatalDiagnostics';
+        if (class_exists($diagnostic) && method_exists($diagnostic, 'mark')) {
+            $diagnostic::mark($phase, $context);
+        }
     }
 
     public function registerLegacyWidgets(): void

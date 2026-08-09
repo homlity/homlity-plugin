@@ -641,19 +641,27 @@ class PropertyListingWidget extends Widget_Base
     protected function render(): void
     {
         $settings = $this->get_settings_for_display();
+        $configuredPerPage = max(1, (int) ($settings['posts_per_page'] ?? 12));
 
         // Rendering dozens of complete cards in Elementor's editor creates a
         // very large htmlCache and can exhaust PHP memory. The public listing
         // keeps the configured page size; only the editor preview is capped.
         if ($this->isElementorEditorRequest()) {
-            $settings['posts_per_page'] = min(
-                12,
-                max(1, (int) ($settings['posts_per_page'] ?? 12))
-            );
+            $settings['posts_per_page'] = min(12, $configuredPerPage);
         }
+
+        $this->markMemoryDiagnostic('homlity.elementor.listing.render', [
+            'configured_per_page' => $configuredPerPage,
+            'effective_per_page'  => (int) ($settings['posts_per_page'] ?? 12),
+            'memory'              => memory_get_usage(true),
+        ]);
 
         $config = ListingConfig::fromElementor($settings);
         (new ListingRenderer())->render($config);
+
+        $this->markMemoryDiagnostic('homlity.elementor.listing.rendered', [
+            'memory' => memory_get_usage(true),
+        ]);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -710,6 +718,14 @@ class PropertyListingWidget extends Widget_Base
             && method_exists($elementor->preview, 'is_preview_mode')
             && $elementor->preview->is_preview_mode()
         );
+    }
+
+    private function markMemoryDiagnostic(string $phase, array $context = []): void
+    {
+        $diagnostic = '\\SimiSync\\Support\\MemoryFatalDiagnostics';
+        if (class_exists($diagnostic) && method_exists($diagnostic, 'mark')) {
+            $diagnostic::mark($phase, $context);
+        }
     }
 
     private function getSortOptions(): array
