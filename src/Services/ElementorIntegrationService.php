@@ -45,12 +45,42 @@ class ElementorIntegrationService implements ServiceInterface
 
     public function register(): void
     {
+        add_action('init', [$this, 'disableActionSchedulerAsyncRunnerForEditor'], PHP_INT_MAX);
+
         if (did_action('elementor/loaded')) {
             $this->init();
             return;
         }
 
         add_action('elementor/loaded', [$this, 'init']);
+    }
+
+    /**
+     * Elementor save requests can finish very close to the PHP memory limit.
+     * Action Scheduler's shutdown dispatcher then performs another database
+     * lookup to acquire its async-runner lock, turning an otherwise completed
+     * save into a fatal error. Queue processing remains available through cron
+     * and every non-Elementor request.
+     */
+    public function disableActionSchedulerAsyncRunnerForEditor(): void
+    {
+        $action = isset($_REQUEST['action'])
+            ? sanitize_key(wp_unslash((string) $_REQUEST['action']))
+            : '';
+
+        if ($action !== 'elementor_ajax' || !class_exists('\\ActionScheduler')) {
+            return;
+        }
+
+        $runner = \ActionScheduler::runner();
+        if (!is_object($runner) || !method_exists($runner, 'unhook_dispatch_async_request')) {
+            return;
+        }
+
+        $runner->unhook_dispatch_async_request();
+        $this->markMemoryDiagnostic('homlity.elementor.async_runner.disabled', [
+            'memory' => memory_get_usage(true),
+        ]);
     }
 
     public function init(): void
