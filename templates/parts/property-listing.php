@@ -13,6 +13,7 @@
 
 use Homlity\PluginInmobiliario\Listing\ListingConfig;
 use Homlity\PluginInmobiliario\Services\IconRenderer;
+use Homlity\PluginInmobiliario\Services\TemplateService;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -218,17 +219,14 @@ $sortOptions = [
         <?php endif; ?>
     </div>
 
-    <?php if ($config->showPagination() && $query->max_num_pages > 1) : ?>
-    <div class="property-listing__pagination" data-current="<?php echo esc_attr($currentPage); ?>" data-pages="<?php echo esc_attr($query->max_num_pages); ?>">
-        <?php for ($i = 1; $i <= $query->max_num_pages; $i++) : ?>
-        <button type="button"
-                class="property-listing__page-btn<?php echo $i === $currentPage ? ' is-active' : ''; ?>"
-                data-page="<?php echo esc_attr($i); ?>">
-            <?php echo esc_html($i); ?>
-        </button>
-        <?php endfor; ?>
-    </div>
-    <?php endif; ?>
+    <?php
+    if ($config->showPagination()) {
+        TemplateService::includeComponent('property-pagination.php', [
+            'current_page' => $currentPage,
+            'total_pages'  => (int) $query->max_num_pages,
+        ]);
+    }
+    ?>
 
     <div class="property-listing__overlay" aria-hidden="true">
         <span class="property-listing__spinner"></span>

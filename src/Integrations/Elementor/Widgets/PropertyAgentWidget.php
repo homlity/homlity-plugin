@@ -378,6 +378,22 @@ class PropertyAgentWidget extends BasePropertyWidget
             'type'      => Controls_Manager::HEADING,
             'separator' => 'before',
         ]);
+        $this->add_responsive_control('btn_width', [
+            'label'   => __('Ancho de los botones', 'homlity-real-estate'),
+            'type'    => Controls_Manager::SELECT,
+            'default' => 'auto',
+            'options' => [
+                'auto' => __('Ajustado al contenido', 'homlity-real-estate'),
+                'full' => __('Ancho completo', 'homlity-real-estate'),
+            ],
+            'selectors' => [
+                '{{WRAPPER}} .property-agent-block__actions' => 'flex-direction: {{VALUE}};',
+            ],
+            'selectors_dictionary' => [
+                'auto' => 'row',
+                'full' => 'column',
+            ],
+        ]);
         $this->add_group_control(Group_Control_Typography::get_type(), [
             'name'     => 'btn_typography',
             'selector' => '{{WRAPPER}} a.property-agent-block__cta',

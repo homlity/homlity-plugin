@@ -27,8 +27,27 @@ class Homlity_Elementor_Manager
             return;
         }
 
+        self::register_assets();
+
         add_action('elementor/elements/categories_registered', [__CLASS__, 'register_category']);
         add_action('elementor/widgets/register', [__CLASS__, 'register_widgets']);
+    }
+
+    public static function register_assets(): void
+    {
+        wp_register_style(
+            'homlity-property-faq',
+            HOMLITY_PLUGIN_URL . 'assets/css/property-faq.css',
+            [],
+            HOMLITY_PLUGIN_VERSION
+        );
+        wp_register_script(
+            'homlity-property-faq',
+            HOMLITY_PLUGIN_URL . 'assets/js/property-faq.js',
+            [],
+            HOMLITY_PLUGIN_VERSION,
+            true
+        );
     }
 
     public static function register_category(\Elementor\Elements_Manager $elements_manager): void

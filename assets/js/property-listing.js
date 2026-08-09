@@ -225,7 +225,7 @@
         if (this.pagination) {
             this.pagination.addEventListener('click', function (e) {
                 var btn = e.target.closest('.property-listing__page-btn');
-                if (!btn) return;
+                if (!btn || btn.disabled) return;
                 self.currentPage = parseInt(btn.dataset.page, 10);
                 self._fetch();
                 self.el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -451,12 +451,44 @@
         this.pagination.hidden = false;
         this.pagination.dataset.current = String(this.currentPage);
         this.pagination.dataset.pages = String(pages);
-        var html = '';
-        for (var i = 1; i <= pages; i++) {
-            html += '<button type="button" class="property-listing__page-btn' +
-                (i === this.currentPage ? ' is-active' : '') +
-                '" data-page="' + i + '">' + i + '</button>';
+        this.pagination.setAttribute('aria-label', i18n.paginationLabel || 'Paginación de inmuebles');
+
+        var current = Math.min(pages, Math.max(1, this.currentPage));
+        var radius = 2;
+        var windowSize = (radius * 2) + 1;
+        var start = Math.max(1, current - radius);
+        var end = Math.min(pages, current + radius);
+        if (start === 1) {
+            end = Math.min(pages, windowSize);
+        } else if (end === pages) {
+            start = Math.max(1, pages - windowSize + 1);
         }
+
+        var edgeButton = function (page, label, ariaLabel, symbol, symbolAfter, disabled) {
+            return '<button type="button" class="property-listing__page-btn property-listing__page-btn--edge"' +
+                ' data-page="' + page + '" aria-label="' + ariaLabel + '"' + (disabled ? ' disabled' : '') + '>' +
+                (symbolAfter ? '' : '<span aria-hidden="true">' + symbol + '</span>') +
+                '<span class="property-listing__page-label">' + label + '</span>' +
+                (symbolAfter ? '<span aria-hidden="true">' + symbol + '</span>' : '') +
+                '</button>';
+        };
+
+        var html = edgeButton(1, i18n.first || 'Inicio', i18n.firstAria || 'Ir al inicio', '«', false, current === 1);
+        html += edgeButton(Math.max(1, current - 1), i18n.previous || 'Anterior', i18n.previousAria || 'Página anterior', '‹', false, current === 1);
+        if (start > 1) {
+            html += '<span class="property-listing__page-ellipsis" aria-hidden="true">…</span>';
+        }
+        for (var page = start; page <= end; page++) {
+            var pageAria = (i18n.pageAria || 'Página %d').replace('%d', String(page));
+            html += '<button type="button" class="property-listing__page-btn' +
+                (page === current ? ' is-active' : '') + '" data-page="' + page + '" aria-label="' + pageAria + '"' +
+                (page === current ? ' aria-current="page"' : '') + '>' + page + '</button>';
+        }
+        if (end < pages) {
+            html += '<span class="property-listing__page-ellipsis" aria-hidden="true">…</span>';
+        }
+        html += edgeButton(Math.min(pages, current + 1), i18n.next || 'Siguiente', i18n.nextAria || 'Página siguiente', '›', true, current === pages);
+        html += edgeButton(pages, i18n.last || 'Final', i18n.lastAria || 'Ir al final', '»', true, current === pages);
         this.pagination.innerHTML = html;
     };
 

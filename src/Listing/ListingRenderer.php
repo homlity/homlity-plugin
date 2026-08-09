@@ -402,6 +402,16 @@ class ListingRenderer
         wp_localize_script('homlity-real-estate-listing', 'homlityListingI18n', [
             'noResults' => __('No se han encontrado inmuebles para esta consulta.', 'homlity-real-estate'),
             'loading'   => __('Cargando...', 'homlity-real-estate'),
+            'paginationLabel' => __('Paginación de inmuebles', 'homlity-real-estate'),
+            'first'     => __('Inicio', 'homlity-real-estate'),
+            'firstAria' => __('Ir al inicio', 'homlity-real-estate'),
+            'previous'  => __('Anterior', 'homlity-real-estate'),
+            'previousAria' => __('Página anterior', 'homlity-real-estate'),
+            'next'      => __('Siguiente', 'homlity-real-estate'),
+            'nextAria'  => __('Página siguiente', 'homlity-real-estate'),
+            'last'      => __('Final', 'homlity-real-estate'),
+            'lastAria'  => __('Ir al final', 'homlity-real-estate'),
+            'pageAria'  => __('Página %d', 'homlity-real-estate'),
         ]);
     }
 }

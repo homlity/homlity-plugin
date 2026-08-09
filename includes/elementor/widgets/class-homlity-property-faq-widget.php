@@ -339,8 +339,13 @@ class Homlity_Property_FAQ_Widget extends \Elementor\Widget_Base
                 'center' => ['title' => __('Centro', 'homlity-real-estate'),    'icon' => 'eicon-h-align-center'],
                 'right'  => ['title' => __('Derecha', 'homlity-real-estate'),   'icon' => 'eicon-h-align-right'],
             ],
+            'selectors_dictionary' => [
+                'left'   => 'margin-left: 0; margin-right: auto;',
+                'center' => 'margin-left: auto; margin-right: auto;',
+                'right'  => 'margin-left: auto; margin-right: 0;',
+            ],
             'selectors' => [
-                '{{WRAPPER}} .homlity-property-faq-widget' => 'margin-left: {{VALUE === "center" ? "auto" : (VALUE === "right" ? "auto" : "0")}}; margin-right: {{VALUE === "center" ? "auto" : (VALUE === "left" ? "auto" : "0")}};',
+                '{{WRAPPER}} .homlity-property-faq-widget' => '{{VALUE}}',
             ],
         ]);
 

@@ -290,25 +290,14 @@ $paramToAttr = static function ($value): string {
         </div><!-- /tab-content -->
 
         <!-- ── Paginación ────────────────────────────────────────────────── -->
-        <?php if ($config->showPagination() && $query->max_num_pages > 1) : ?>
-        <div class="property-listing__pagination mt-4"
-             data-current="<?php echo esc_attr($currentPage); ?>"
-             data-pages="<?php echo esc_attr($query->max_num_pages); ?>">
-            <nav aria-label="<?php esc_attr_e('Paginación de inmuebles', 'homlity-real-estate'); ?>">
-                <ul class="pagination justify-content-center">
-                    <?php for ($i = 1; $i <= $query->max_num_pages; $i++) : ?>
-                    <li class="page-item<?php echo $i === $currentPage ? ' active' : ''; ?>">
-                        <button type="button"
-                                class="page-link property-listing__page-btn"
-                                data-page="<?php echo esc_attr($i); ?>">
-                            <?php echo esc_html($i); ?>
-                        </button>
-                    </li>
-                    <?php endfor; ?>
-                </ul>
-            </nav>
-        </div>
-        <?php endif; ?>
+        <?php
+        if ($config->showPagination()) {
+            TemplateService::includeComponent('property-pagination.php', [
+                'current_page' => $currentPage,
+                'total_pages'  => (int) $query->max_num_pages,
+            ]);
+        }
+        ?>
 
     </div><!-- /container-fluid -->
 
