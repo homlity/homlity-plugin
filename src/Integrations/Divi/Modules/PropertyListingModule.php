@@ -205,6 +205,14 @@ class Homlity_Property_Listing_Module extends ET_Builder_Module
                 'tab_slug'        => 'general',
                 'toggle_slug'     => 'query',
             ],
+            'locality' => [
+                'label'           => esc_html__('ID: Localidad fija', 'homlity-real-estate'),
+                'type'            => 'text',
+                'option_category' => 'configuration',
+                'default'         => '0',
+                'tab_slug'        => 'general',
+                'toggle_slug'     => 'query',
+            ],
 
             // ── Filtros ───────────────────────────────────────────────────────
             'filters' => [

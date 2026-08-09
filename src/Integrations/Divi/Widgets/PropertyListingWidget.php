@@ -16,6 +16,7 @@ use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Widget_Base;
 use Homlity\PluginInmobiliario\Listing\ListingConfig;
 use Homlity\PluginInmobiliario\Listing\ListingRenderer;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
+use Homlity\PluginInmobiliario\Services\LocalityPostType;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -214,6 +215,14 @@ class PropertyListingWidget extends Widget_Base
             'label'     => __('Fijar ciudad', 'homlity-real-estate'),
             'type'      => Controls_Manager::SELECT,
             'options'   => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_CITY),
+            'default'   => '',
+            'condition' => ['query_mode' => 'custom'],
+        ]);
+
+        $this->add_control('preset_locality', [
+            'label'     => __('Fijar localidad', 'homlity-real-estate'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => ['' => __('Todas', 'homlity-real-estate')] + LocalityPostType::publishedOptions(),
             'default'   => '',
             'condition' => ['query_mode' => 'custom'],
         ]);

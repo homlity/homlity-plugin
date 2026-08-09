@@ -50,6 +50,7 @@ class ListingConfig
         'preset_country'         => 0,
         'preset_state'           => 0,
         'preset_city'            => 0,
+        'preset_locality'        => 0,
         'preset_neighborhood'    => 0,
         'preset_nearby'          => 0,
         'geo_latitude'           => '',
@@ -170,6 +171,7 @@ class ListingConfig
             'preset_country'        => absint($settings['preset_country'] ?? 0),
             'preset_state'          => absint($settings['preset_state'] ?? 0),
             'preset_city'           => absint($settings['preset_city'] ?? 0),
+            'preset_locality'       => absint($settings['preset_locality'] ?? 0),
             'preset_neighborhood'   => absint($settings['preset_neighborhood'] ?? 0),
             'preset_nearby'         => absint($settings['preset_nearby'] ?? 0),
             'geo_latitude'          => sanitize_text_field($settings['geo_latitude'] ?? ''),
@@ -286,6 +288,7 @@ class ListingConfig
             'preset_country'        => absint($atts['country'] ?? 0),
             'preset_state'          => absint($atts['state'] ?? 0),
             'preset_city'           => absint($atts['city'] ?? 0),
+            'preset_locality'       => absint($atts['locality'] ?? 0),
             'preset_neighborhood'   => absint($atts['neighborhood'] ?? 0),
             'preset_nearby'         => absint($atts['nearby'] ?? 0),
             'geo_latitude'          => sanitize_text_field($atts['lat'] ?? ''),
@@ -412,6 +415,7 @@ class ListingConfig
     public function presetCountry(): int   { return (int)    $this->data['preset_country']; }
     public function presetState(): int     { return (int)    $this->data['preset_state']; }
     public function presetCity(): int      { return (int)    $this->data['preset_city']; }
+    public function presetLocality(): int  { return (int)    $this->data['preset_locality']; }
     public function presetNeighborhood(): int { return (int) $this->data['preset_neighborhood']; }
     public function presetNearby(): int    { return (int)    $this->data['preset_nearby']; }
     public function geoLatitude(): string  { return (string) $this->data['geo_latitude']; }
@@ -490,6 +494,7 @@ class ListingConfig
             'preset_country'   => $this->presetCountry(),
             'preset_state'     => $this->presetState(),
             'preset_city'      => $this->presetCity(),
+            'preset_locality'  => $this->presetLocality(),
             'preset_neighborhood' => $this->presetNeighborhood(),
             'preset_nearby'    => $this->presetNearby(),
             'geo_latitude'     => $this->geoLatitude(),

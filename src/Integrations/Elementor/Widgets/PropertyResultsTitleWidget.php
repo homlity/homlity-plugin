@@ -8,6 +8,7 @@ use Elementor\Group_Control_Typography;
 use Elementor\Widget_Base;
 use Homlity\PluginInmobiliario\Services\PropertySearchService;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
+use Homlity\PluginInmobiliario\Services\LocalityPostType;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -168,6 +169,10 @@ class PropertyResultsTitleWidget extends Widget_Base
         $gestion = $this->resolveSingleTermName($this->readParam('gestion', 'property_operation'), PropertyTaxonomies::TAXONOMY_OPERATION);
         $tipo = $this->resolveMultiTermNames($this->readParam('tipo', 'property_type'), PropertyTaxonomies::TAXONOMY_TYPE);
         $ciudades = $this->resolveMultiTermNames($this->readParam('ciudad', 'property_city'), PropertyTaxonomies::TAXONOMY_CITY);
+        $localidades = array_values(array_filter(array_map(
+            static fn(int $id): string => (string) get_the_title($id),
+            LocalityPostType::resolvePublishedIds($this->readParam('localidades', 'property_locality'))
+        )));
         $barrios = $this->resolveMultiTermNames($this->readParam('barrios', 'property_neighborhood'), PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD);
         $etiquetas = $this->resolveMultiTermNames($this->readParam('etiquetas', 'property_tag'), PropertyTaxonomies::TAXONOMY_TAG);
         $keyword = $this->readScalar('q', 's');
@@ -185,6 +190,8 @@ class PropertyResultsTitleWidget extends Widget_Base
 
         if (!empty($barrios)) {
             $parts[] = 'en barrios ' . implode(', ', $barrios);
+        } elseif (!empty($localidades)) {
+            $parts[] = 'en localidades ' . implode(', ', $localidades);
         } elseif (!empty($ciudades)) {
             $parts[] = 'en ' . implode(', ', $ciudades);
         }
@@ -297,4 +304,3 @@ class PropertyResultsTitleWidget extends Widget_Base
         return $names;
     }
 }
-

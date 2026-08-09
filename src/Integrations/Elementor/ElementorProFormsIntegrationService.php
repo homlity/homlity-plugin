@@ -103,8 +103,12 @@ class ElementorProFormsIntegrationService implements ServiceInterface
          * @param array<string,mixed> $submission Normalized form submission.
          * @param mixed               $record     Original Elementor record.
          * @param mixed               $handler    Original Elementor AJAX handler.
-         */
+        */
         do_action('homlity_elementor_form_submitted', $submission, $record, $handler);
+        do_action('homlity_form_submitted', $submission, [
+            'record'  => $record,
+            'handler' => $handler,
+        ]);
     }
 
     private function sanitizeValue(mixed $value): string|array

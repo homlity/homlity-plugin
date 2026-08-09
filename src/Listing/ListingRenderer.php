@@ -63,6 +63,8 @@ class ListingRenderer
             'property_state',
             'ciudad',
             'property_city',
+            'localidades',
+            'property_locality',
             'barrios',
             'property_neighborhood',
             'cercanias',
@@ -115,7 +117,7 @@ class ListingRenderer
                     continue;
                 }
 
-                if (in_array($key, ['category', 'operation', 'type', 'tag', 'feature', 'country', 'state', 'city', 'neighborhood', 'nearby'], true)) {
+                if (in_array($key, ['category', 'operation', 'type', 'tag', 'feature', 'country', 'state', 'city', 'locality', 'neighborhood', 'nearby'], true)) {
                     $params[$key] = $value;
                     continue;
                 }
@@ -189,6 +191,7 @@ class ListingRenderer
             $params['preset_country'] = 0;
             $params['preset_state'] = 0;
             $params['preset_city'] = 0;
+            $params['preset_locality'] = 0;
             $params['preset_neighborhood'] = 0;
             $params['preset_nearby'] = 0;
         }

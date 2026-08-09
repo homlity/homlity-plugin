@@ -24,6 +24,7 @@
         this.presetCountry    = el.dataset.presetCountry || '';
         this.presetState      = el.dataset.presetState || '';
         this.presetCity       = el.dataset.presetCity || '';
+        this.presetLocality   = el.dataset.presetLocality || '';
         this.presetNeighborhood = el.dataset.presetNeighborhood || '';
         this.presetNearby     = el.dataset.presetNearby || '';
         this.geoLatitude      = el.dataset.geoLatitude || '';
@@ -44,6 +45,7 @@
         this.country          = el.dataset.country || '';
         this.state            = el.dataset.state || '';
         this.city             = el.dataset.city || '';
+        this.locality         = el.dataset.locality || '';
         this.neighborhood     = el.dataset.neighborhood || '';
         this.nearby           = el.dataset.nearby || '';
         this.cardMediaMode    = el.dataset.cardMediaMode || 'single';
@@ -313,6 +315,7 @@
             preset_country:    this.presetCountry,
             preset_state:      this.presetState,
             preset_city:       this.presetCity,
+            preset_locality:   this.presetLocality,
             preset_neighborhood: this.presetNeighborhood,
             preset_nearby:     this.presetNearby,
             geo_latitude:      this.geoLatitude,
@@ -333,6 +336,7 @@
             country:           this.country,
             state:             this.state,
             city:              this.city,
+            locality:          this.locality,
             neighborhood:      this.neighborhood,
             nearby:            this.nearby,
             card_media_mode:   this.cardMediaMode,

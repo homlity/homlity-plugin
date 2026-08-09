@@ -59,6 +59,7 @@
         function renderMenu() {
             menu.innerHTML = '';
             options.forEach(function (opt) {
+                if (opt.hidden) return;
                 var item = document.createElement('button');
                 item.type = 'button';
                 item.className = 'hpf-multi__item' + (opt.selected ? ' is-selected' : '');
@@ -123,6 +124,65 @@
 
         renderSelection();
         renderMenu();
+    }
+
+    function bindGeoDependencies(widget) {
+        if (!widget || widget.dataset.geoDependenciesBound === '1') return;
+        widget.dataset.geoDependenciesBound = '1';
+
+        var city = widget.querySelector('select[name="ciudad[]"], select[name="ciudad"]');
+        var locality = widget.querySelector('select[name="localidades[]"], select[name="localidades"]');
+        var neighborhood = widget.querySelector('select[name="barrios[]"], select[name="barrios"]');
+        if (!locality && !neighborhood) return;
+
+        function selectedValues(select, dataKey) {
+            if (!select) return [];
+            return Array.prototype.slice.call(select.options)
+                .filter(function (option) { return option.selected && option.value !== ''; })
+                .map(function (option) { return dataKey ? String(option.dataset[dataKey] || '') : String(option.value); })
+                .filter(Boolean);
+        }
+
+        function update() {
+            var cities = selectedValues(city);
+            var localityChanged = false;
+
+            if (locality) {
+                Array.prototype.slice.call(locality.options).forEach(function (option) {
+                    if (option.value === '') return;
+                    var visible = !cities.length || cities.indexOf(String(option.dataset.citySlug || '')) !== -1;
+                    option.hidden = !visible;
+                    if (!visible && option.selected) {
+                        option.selected = false;
+                        localityChanged = true;
+                    }
+                });
+            }
+
+            var localityIds = selectedValues(locality, 'localityId');
+            var neighborhoodChanged = false;
+            if (neighborhood) {
+                Array.prototype.slice.call(neighborhood.options).forEach(function (option) {
+                    if (option.value === '') return;
+                    var cityMatches = !cities.length || cities.indexOf(String(option.dataset.citySlug || '')) !== -1;
+                    var localityMatches = !localityIds.length
+                        || localityIds.indexOf(String(option.dataset.localityId || '0')) !== -1;
+                    var visible = cityMatches && localityMatches;
+                    option.hidden = !visible;
+                    if (!visible && option.selected) {
+                        option.selected = false;
+                        neighborhoodChanged = true;
+                    }
+                });
+            }
+
+            if (localityChanged) locality.dispatchEvent(new Event('change', { bubbles: true }));
+            if (neighborhoodChanged) neighborhood.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        if (city) city.addEventListener('change', update);
+        if (locality) locality.addEventListener('change', update);
+        update();
     }
 
     function bindFormSubmit(form) {
@@ -193,6 +253,8 @@
 
     function init(context) {
         var root = context && context.querySelectorAll ? context : document;
+
+        root.querySelectorAll('.property-filter-widget').forEach(bindGeoDependencies);
 
         root.querySelectorAll('.property-filter-multiselect').forEach(createMultiSelect);
 

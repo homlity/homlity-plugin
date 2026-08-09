@@ -155,6 +155,32 @@ class PropertySearchService implements ServiceInterface
             }
         }
 
+        // Locality is an optional bridge (city -> locality -> neighborhoods),
+        // not a taxonomy assigned directly to properties. Translate it to the
+        // neighborhood terms that are actually attached to each property.
+        $localityRaw = !empty($params['preset_locality'])
+            ? absint($params['preset_locality'])
+            : ($params['locality'] ?? null);
+        if ($localityRaw !== null && $localityRaw !== '' && $localityRaw !== []) {
+            $localityIds = LocalityPostType::resolvePublishedIds($localityRaw);
+            $neighborhoodIds = [];
+            foreach ($localityIds as $localityId) {
+                $neighborhoodIds = array_merge($neighborhoodIds, LocalityPostType::neighborhoodIds($localityId));
+            }
+            $neighborhoodIds = array_values(array_unique(array_filter(array_map('absint', $neighborhoodIds))));
+
+            if ($localityIds === [] || $neighborhoodIds === []) {
+                $args['post__in'] = [0];
+            } else {
+                $args['tax_query'][] = [
+                    'taxonomy' => PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD,
+                    'field' => 'term_id',
+                    'terms' => $neighborhoodIds,
+                    'operator' => 'IN',
+                ];
+            }
+        }
+
         // Multi-tag preset from widgets/builders.
         $presetTagIds = array_values(array_filter(array_map('absint', (array) ($params['preset_tag_ids'] ?? []))));
         if (!empty($presetTagIds)) {
@@ -473,6 +499,8 @@ class PropertySearchService implements ServiceInterface
             'property_state' => 'state',
             'ciudad' => 'city',
             'property_city' => 'city',
+            'localidades' => 'locality',
+            'property_locality' => 'locality',
             'barrios' => 'neighborhood',
             'property_neighborhood' => 'neighborhood',
             'cercanias' => 'nearby',
@@ -512,6 +540,14 @@ class PropertySearchService implements ServiceInterface
         foreach ($collected as $paramKey => $values) {
             $values = array_values(array_unique(array_filter($values, static fn ($item) => $item !== '')));
             if (!$values) {
+                continue;
+            }
+
+            if ($paramKey === 'locality') {
+                $localityIds = LocalityPostType::resolvePublishedIds($values);
+                if ($localityIds) {
+                    $params[$paramKey] = count($localityIds) === 1 ? $localityIds[0] : $localityIds;
+                }
                 continue;
             }
 

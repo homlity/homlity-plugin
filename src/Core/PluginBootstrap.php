@@ -26,6 +26,7 @@ use Homlity\PluginInmobiliario\Services\CrmInfrastructureService;
 use Homlity\PluginInmobiliario\Services\DashboardNewsService;
 use Homlity\PluginInmobiliario\Services\I18nService;
 use Homlity\PluginInmobiliario\Services\LocationMetaService;
+use Homlity\PluginInmobiliario\Services\LocalityPostType;
 use Homlity\PluginInmobiliario\Services\NinjaWhatsAppPropertyOverrideService;
 use Homlity\PluginInmobiliario\Services\PropertyAjaxService;
 use Homlity\PluginInmobiliario\Services\PropertyAnalyticsService;
@@ -71,6 +72,7 @@ class PluginBootstrap
             new SimulatorService(),
             new PropertyPostType(),
             new PropertyTaxonomies(),
+            new LocalityPostType(),
             new AdminMenuService(),
             new AdminBarService(),
             new DashboardNewsService(),

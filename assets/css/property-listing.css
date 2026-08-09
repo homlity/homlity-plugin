@@ -272,7 +272,7 @@
     max-height: none !important;
 }
 
-.property-listing:not(.property-listing--bootstrap) .property-card > a {
+.property-listing:not(.property-listing--bootstrap) .property-card > a:not(.property-card__whatsapp) {
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
@@ -443,7 +443,7 @@
     object-fit: cover;
 }
 
-.property-listing .property-card > a {
+.property-listing .property-card > a:not(.property-card__whatsapp) {
     display: block;
 }
 
@@ -838,8 +838,8 @@
     font-family: inherit;
     gap: 8px;
     font-size: 0.9rem;
-    min-height: 42px;
-    padding: 8px 14px;
+    height: 42px;
+    padding: 0 14px;
     text-align: left;
     transition: border-color 0.18s, box-shadow 0.18s;
     width: 100%;
@@ -863,17 +863,14 @@
 }
 
 .hpf-multi__placeholder {
-    color: var(--homlity-text-soft);
-    font-family: inherit;
-    font-size: 0.9rem;
+    color: inherit;
+    font: inherit;
 }
 
 .hpf-multi__summary {
-    color: var(--homlity-text);
+    color: inherit;
     display: inline-block;
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 400;
+    font: inherit;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;

@@ -61,6 +61,7 @@ class ShortcodeIntegrationService implements ServiceInterface
             'featured'         => 'false',
             'operation'        => '0',         // preset operation term ID
             'type'             => '0',         // preset type term ID
+            'locality'         => '0',         // preset locality post ID
 
             // Filters
             'filters'          => 'true',

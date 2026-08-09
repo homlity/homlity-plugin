@@ -31,6 +31,71 @@ class CF7IntegrationService implements ServiceInterface
     {
         add_action('wpcf7_init', [$this, 'registerFormTags'], 10);
         add_action('wpcf7_admin_init', [$this, 'registerTagGenerator'], 20);
+        add_action('wpcf7_before_send_mail', [$this, 'captureSubmission'], 20, 3);
+    }
+
+    /**
+     * Emits the same normalized event used by the Elementor integration.
+     *
+     * @param mixed $contactForm WPCF7_ContactForm instance.
+     * @param mixed $abort       Contact Form 7 abort flag.
+     * @param mixed $submission  WPCF7_Submission instance when provided by CF7.
+     */
+    public function captureSubmission($contactForm, $abort = null, $submission = null): void
+    {
+        if (!is_object($contactForm)) {
+            return;
+        }
+
+        if (!is_object($submission) && class_exists('WPCF7_Submission')) {
+            $submission = \WPCF7_Submission::get_instance();
+        }
+        if (!is_object($submission) || !method_exists($submission, 'get_posted_data')) {
+            return;
+        }
+
+        $posted = $submission->get_posted_data();
+        if (!is_array($posted)) {
+            return;
+        }
+
+        $fields = [];
+        $labels = [];
+        foreach ($posted as $key => $value) {
+            $id = sanitize_key((string) $key);
+            if ($id === '' || str_starts_with($id, '_wpcf7') || $this->isSensitiveField($id)) {
+                continue;
+            }
+
+            $fields[$id] = $this->sanitizeSubmissionValue($value);
+            $labels[$id] = sanitize_text_field(ucwords(str_replace(['_', '-'], ' ', $id)));
+        }
+
+        $sourceUrl = method_exists($submission, 'get_meta')
+            ? (string) $submission->get_meta('url')
+            : '';
+        $sourceUrl = $sourceUrl !== '' ? $sourceUrl : (wp_get_referer() ?: home_url('/'));
+        $formId = method_exists($contactForm, 'id') ? (string) $contactForm->id() : '';
+        $formName = method_exists($contactForm, 'title')
+            ? (string) $contactForm->title()
+            : __('Formulario Contact Form 7', 'homlity-real-estate');
+
+        $normalized = [
+            'source'       => 'contact-form-7',
+            'form_id'      => sanitize_text_field($formId),
+            'form_name'    => sanitize_text_field($formName),
+            'fields'       => $fields,
+            'field_labels' => $labels,
+            'field_types'  => [],
+            'source_url'   => esc_url_raw($sourceUrl),
+            'submitted_at' => current_time('mysql'),
+        ];
+
+        do_action('homlity_cf7_form_submitted', $normalized, $contactForm, $submission);
+        do_action('homlity_form_submitted', $normalized, [
+            'contact_form' => $contactForm,
+            'submission'   => $submission,
+        ]);
     }
 
     // -------------------------------------------------------------------------
@@ -411,5 +476,22 @@ class CF7IntegrationService implements ServiceInterface
         ]);
 
         return isset($posts[0]) ? (int) $posts[0] : 0;
+    }
+
+    private function isSensitiveField(string $id): bool
+    {
+        return (bool) preg_match('/(?:password|passwd|pass|token|captcha|honeypot|nonce|credit|card|cvv)/i', $id);
+    }
+
+    private function sanitizeSubmissionValue(mixed $value): string|array
+    {
+        if (is_array($value)) {
+            return array_values(array_map(
+                static fn($item): string => sanitize_text_field((string) $item),
+                $value
+            ));
+        }
+
+        return sanitize_textarea_field((string) $value);
     }
 }

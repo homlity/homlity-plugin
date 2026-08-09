@@ -54,6 +54,7 @@ class PropertyFilterWidget extends Widget_Base
             'show_country' => __('País', 'homlity-real-estate'),
             'show_state' => __('Departamento / Provincia', 'homlity-real-estate'),
             'show_city' => __('Ciudad', 'homlity-real-estate'),
+            'show_locality' => __('Localidad', 'homlity-real-estate'),
             'show_neighborhood' => __('Barrio', 'homlity-real-estate'),
             'show_nearby' => __('Lugar cercano', 'homlity-real-estate'),
             'show_price' => __('Rango de precio', 'homlity-real-estate'),
@@ -277,14 +278,14 @@ class PropertyFilterWidget extends Widget_Base
 
         $this->add_group_control(Group_Control_Typography::get_type(), [
             'name' => 'field_typography',
-            'selector' => '{{WRAPPER}} .property-filter-widget .property-listing__filter-select, {{WRAPPER}} .property-filter-widget .property-listing__filter-input',
+            'selector' => '{{WRAPPER}} .property-filter-widget .property-listing__filter-select, {{WRAPPER}} .property-filter-widget .property-listing__filter-input, {{WRAPPER}} .property-filter-widget .hpf-multi__trigger',
         ]);
 
         $this->add_control('field_text_color', [
             'label' => __('Color de texto', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-filter-widget .property-listing__filter-select, {{WRAPPER}} .property-filter-widget .property-listing__filter-input' => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-filter-widget .property-listing__filter-select, {{WRAPPER}} .property-filter-widget .property-listing__filter-input, {{WRAPPER}} .property-filter-widget .hpf-multi__trigger' => 'color: {{VALUE}};',
             ],
         ]);
 
@@ -292,13 +293,13 @@ class PropertyFilterWidget extends Widget_Base
             'label' => __('Color de fondo', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-filter-widget .property-listing__filter-select, {{WRAPPER}} .property-filter-widget .property-listing__filter-input' => 'background-color: {{VALUE}};',
+                '{{WRAPPER}} .property-filter-widget .property-listing__filter-select, {{WRAPPER}} .property-filter-widget .property-listing__filter-input, {{WRAPPER}} .property-filter-widget .hpf-multi__trigger' => 'background-color: {{VALUE}};',
             ],
         ]);
 
         $this->add_group_control(Group_Control_Border::get_type(), [
             'name' => 'field_border',
-            'selector' => '{{WRAPPER}} .property-filter-widget .property-listing__filter-select, {{WRAPPER}} .property-filter-widget .property-listing__filter-input',
+            'selector' => '{{WRAPPER}} .property-filter-widget .property-listing__filter-select, {{WRAPPER}} .property-filter-widget .property-listing__filter-input, {{WRAPPER}} .property-filter-widget .hpf-multi__trigger',
         ]);
 
         $this->add_responsive_control('field_border_radius', [
@@ -309,7 +310,7 @@ class PropertyFilterWidget extends Widget_Base
                 'px' => ['min' => 0, 'max' => 30],
             ],
             'selectors' => [
-                '{{WRAPPER}} .property-filter-widget .property-listing__filter-select, {{WRAPPER}} .property-filter-widget .property-listing__filter-input' => 'border-radius: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-filter-widget .property-listing__filter-select, {{WRAPPER}} .property-filter-widget .property-listing__filter-input, {{WRAPPER}} .property-filter-widget .hpf-multi__trigger' => 'border-radius: {{SIZE}}{{UNIT}};',
             ],
         ]);
 
@@ -318,7 +319,7 @@ class PropertyFilterWidget extends Widget_Base
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%', 'em'],
             'selectors' => [
-                '{{WRAPPER}} .property-filter-widget .property-listing__filter-select, {{WRAPPER}} .property-filter-widget .property-listing__filter-input' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                '{{WRAPPER}} .property-filter-widget .property-listing__filter-select, {{WRAPPER}} .property-filter-widget .property-listing__filter-input, {{WRAPPER}} .property-filter-widget .hpf-multi__trigger' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
             ],
         ]);
 

@@ -9,6 +9,7 @@
  */
 
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
+use Homlity\PluginInmobiliario\Services\LocalityPostType;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -109,10 +110,53 @@ $termSelect = static function (string $name, string $taxonomy, string $label, $c
             }
             ?>>
             <option value=""><?php echo esc_html($selectUsesLabelOption ? $label : __('Todos', 'homlity-real-estate')); ?></option>
-            <?php foreach ($terms as $term): ?>
-                <option value="<?php echo esc_attr($term->slug); ?>" <?php selected(in_array($term->slug, $currentValues, true)); ?>>
+            <?php foreach ($terms as $term):
+                $optionData = '';
+                if ($taxonomy === PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD) {
+                    $cityId = (int) get_term_meta((int) $term->term_id, '_parent_city', true);
+                    $city = $cityId > 0 ? get_term($cityId, PropertyTaxonomies::TAXONOMY_CITY) : null;
+                    $localityId = (int) get_term_meta((int) $term->term_id, LocalityPostType::TERM_META_LOCALITY_ID, true);
+                    $optionData = ' data-city-slug="' . esc_attr($city instanceof \WP_Term ? $city->slug : '') . '"'
+                        . ' data-locality-id="' . esc_attr((string) $localityId) . '"';
+                }
+                ?>
+                <option value="<?php echo esc_attr($term->slug); ?>"<?php echo $optionData; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> <?php selected(in_array($term->slug, $currentValues, true)); ?>>
                     <?php echo esc_html($term->name); ?>
                 </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <?php
+};
+
+$localitySelect = static function ($currentValue, bool $usePlaceholders, bool $selectUsesLabelOption): void {
+    $localities = get_posts([
+        'post_type' => LocalityPostType::POST_TYPE,
+        'post_status' => 'publish',
+        'posts_per_page' => -1,
+        'orderby' => 'title',
+        'order' => 'ASC',
+    ]);
+    if (!$localities) {
+        return;
+    }
+    $currentValues = is_array($currentValue) ? $currentValue : [$currentValue];
+    ?>
+    <div class="property-listing__filter-group">
+        <?php if (!$usePlaceholders): ?>
+            <label class="property-listing__filter-label" for="localidades"><?php esc_html_e('Localidad', 'homlity-real-estate'); ?></label>
+        <?php endif; ?>
+        <select name="localidades[]" id="localidades" class="property-listing__filter-select property-filter-multiselect" multiple data-placeholder="<?php esc_attr_e('Localidad', 'homlity-real-estate'); ?>">
+            <option value=""><?php echo esc_html($selectUsesLabelOption ? __('Localidad', 'homlity-real-estate') : __('Todas', 'homlity-real-estate')); ?></option>
+            <?php foreach ($localities as $locality):
+                $city = get_term(LocalityPostType::cityId((int) $locality->ID), PropertyTaxonomies::TAXONOMY_CITY);
+                ?>
+                <option
+                    value="<?php echo esc_attr((string) $locality->post_name); ?>"
+                    data-locality-id="<?php echo esc_attr((string) $locality->ID); ?>"
+                    data-city-slug="<?php echo esc_attr($city instanceof \WP_Term ? $city->slug : ''); ?>"
+                    <?php selected(in_array((string) $locality->post_name, $currentValues, true) || in_array((string) $locality->ID, $currentValues, true)); ?>
+                ><?php echo esc_html((string) $locality->post_title); ?></option>
             <?php endforeach; ?>
         </select>
     </div>
@@ -173,6 +217,9 @@ $termSelect = static function (string $name, string $taxonomy, string $label, $c
             }
             if (!empty($settings['show_city'])) {
                 $termSelect('ciudad', PropertyTaxonomies::TAXONOMY_CITY, __('Ciudad', 'homlity-real-estate'), $current(['ciudad', 'property_city']), true, $usePlaceholders, $selectUsesLabelOption);
+            }
+            if (!empty($settings['show_locality'])) {
+                $localitySelect($current(['localidades', 'property_locality']), $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_neighborhood'])) {
                 $termSelect('barrios', PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD, __('Barrio', 'homlity-real-estate'), $current(['barrios', 'property_neighborhood']), true, $usePlaceholders, $selectUsesLabelOption);

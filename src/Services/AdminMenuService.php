@@ -121,11 +121,30 @@ class AdminMenuService implements ServiceInterface
             PropertyTaxonomies::TAXONOMY_COUNTRY => __('Países', 'homlity-real-estate'),
             PropertyTaxonomies::TAXONOMY_STATE => __('Departamentos / Provincias', 'homlity-real-estate'),
             PropertyTaxonomies::TAXONOMY_CITY => __('Ciudades / Municipios', 'homlity-real-estate'),
-            PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD => __('Barrios', 'homlity-real-estate'),
-            PropertyTaxonomies::TAXONOMY_LOCATION => __('Zonas', 'homlity-real-estate'),
         ];
 
         foreach ($geoTax as $tax => $label) {
+            add_submenu_page(
+                'homlity-real-estate-geo',
+                $label,
+                $label,
+                'edit_posts',
+                'edit-tags.php?taxonomy=' . $tax . '&post_type=property'
+            );
+        }
+
+        add_submenu_page(
+            'homlity-real-estate-geo',
+            __('Localidades', 'homlity-real-estate'),
+            __('Localidades', 'homlity-real-estate'),
+            'edit_posts',
+            'edit.php?post_type=' . LocalityPostType::POST_TYPE
+        );
+
+        foreach ([
+            PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD => __('Barrios', 'homlity-real-estate'),
+            PropertyTaxonomies::TAXONOMY_LOCATION => __('Zonas', 'homlity-real-estate'),
+        ] as $tax => $label) {
             add_submenu_page(
                 'homlity-real-estate-geo',
                 $label,
