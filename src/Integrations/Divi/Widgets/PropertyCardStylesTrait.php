@@ -151,7 +151,7 @@ trait PropertyCardStylesTrait
         $this->add_control('card_feature_icon_condition', [
             'label' => __('Ícono Estado', 'homlity-real-estate'),
             'type' => Controls_Manager::ICONS,
-            'default' => ['value' => 'fas fa-circle-check', 'library' => 'fa-solid'],
+            'default' => ['value' => 'fas fa-check-circle', 'library' => 'fa-solid'],
             'condition' => ['card_show_features' => 'yes', 'card_feature_condition' => 'yes'],
         ]);
         $this->add_control('card_feature_icon_code', [

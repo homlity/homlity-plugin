@@ -20,7 +20,7 @@ use Homlity\PluginInmobiliario\Services\TemplateService;
 if (!isset($post_id)) {
     $post_id = get_the_ID();
 }
-$postsPerPage  = isset($posts_per_page)  ? max(1, (int) $posts_per_page) : 3;
+$postsPerPage  = isset($posts_per_page) ? min(10, max(1, (int) $posts_per_page)) : 10;
 $columns       = isset($columns) ? max(1, (int) $columns) : 3;
 $passCardOptions = isset($card_options) && is_array($card_options) ? $card_options : [];
 

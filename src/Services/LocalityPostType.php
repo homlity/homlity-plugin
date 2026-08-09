@@ -350,16 +350,27 @@ final class LocalityPostType implements ServiceInterface
     /** @return array<string,string> */
     public static function publishedOptions(): array
     {
-        $options = [];
-        foreach (get_posts([
-            'post_type' => self::POST_TYPE,
-            'post_status' => 'publish',
-            'posts_per_page' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC',
-        ]) as $locality) {
-            $options[(string) $locality->ID] = (string) $locality->post_title;
+        static $options = null;
+
+        if (is_array($options)) {
+            return $options;
         }
+
+        $options = [];
+        global $wpdb;
+
+        $localities = $wpdb->get_results($wpdb->prepare(
+            "SELECT ID, post_title
+             FROM {$wpdb->posts}
+             WHERE post_type = %s AND post_status = 'publish'
+             ORDER BY post_title ASC",
+            self::POST_TYPE
+        ), ARRAY_A);
+
+        foreach ((array) $localities as $locality) {
+            $options[(string) $locality['ID']] = (string) $locality['post_title'];
+        }
+
         return $options;
     }
 

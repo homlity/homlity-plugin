@@ -89,9 +89,9 @@ class PropertyMapWidget extends BasePropertyWidget
         $this->add_control('related_markers_limit', [
             'label' => __('Cantidad relacionados', 'homlity-real-estate'),
             'type' => Controls_Manager::NUMBER,
-            'default' => 12,
+            'default' => 10,
             'min' => 0,
-            'max' => 30,
+            'max' => 10,
             'condition' => ['show_related_markers' => 'yes'],
         ]);
         $this->add_control('enable_street_view', [

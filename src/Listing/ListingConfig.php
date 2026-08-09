@@ -93,7 +93,7 @@ class ListingConfig
         'card_feature_icon_area_private' => ['value' => 'fas fa-house', 'library' => 'fa-solid'],
         'card_feature_icon_area_built' => ['value' => 'fas fa-ruler', 'library' => 'fa-solid'],
         'card_feature_icon_age' => ['value' => 'fas fa-clock', 'library' => 'fa-solid'],
-        'card_feature_icon_condition' => ['value' => 'fas fa-circle-check', 'library' => 'fa-solid'],
+        'card_feature_icon_condition' => ['value' => 'fas fa-check-circle', 'library' => 'fa-solid'],
         'card_feature_icon_code' => ['value' => 'fas fa-hashtag', 'library' => 'fa-solid'],
         'card_link_new_tab'      => false,
 

@@ -661,16 +661,29 @@ class PropertyListingWidget extends Widget_Base
 
     private function getTermsOptions(string $taxonomy): array
     {
+        static $cache = [];
+
+        if (isset($cache[$taxonomy])) {
+            return $cache[$taxonomy];
+        }
+
         $options = ['' => __('Todos', 'homlity-real-estate')];
-        $terms   = get_terms(['taxonomy' => $taxonomy, 'hide_empty' => false]);
+        $terms   = get_terms([
+            'taxonomy'               => $taxonomy,
+            'hide_empty'             => false,
+            'fields'                 => 'id=>name',
+            'update_term_meta_cache' => false,
+        ]);
 
         if (!is_wp_error($terms)) {
-            foreach ($terms as $term) {
-                $options[(string) $term->term_id] = $term->name;
+            foreach ($terms as $termId => $termName) {
+                $options[(string) $termId] = (string) $termName;
             }
         }
 
-        return $options;
+        $cache[$taxonomy] = $options;
+
+        return $cache[$taxonomy];
     }
 
     private function getSortOptions(): array

@@ -44,8 +44,8 @@ class PropertyRelatedWidget extends BasePropertyWidget
                 'label'   => __('Cantidad de inmuebles', 'homlity-real-estate'),
                 'type'    => Controls_Manager::NUMBER,
                 'min'     => 1,
-                'max'     => 24,
-                'default' => 3,
+                'max'     => 10,
+                'default' => 10,
             ]
         );
 
@@ -77,7 +77,7 @@ class PropertyRelatedWidget extends BasePropertyWidget
 
         TemplateService::includeComponent('property-related.php', [
             'post_id'       => $this->current_property_id(),
-            'posts_per_page' => (int) ($settings['posts_per_page'] ?? 3),
+            'posts_per_page' => min(10, max(1, (int) ($settings['posts_per_page'] ?? 10))),
             'columns'       => (int) ($settings['columns'] ?? 3),
             'card_options'  => $config->cardOptions(),
         ]);

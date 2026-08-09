@@ -85,7 +85,7 @@ $tabMapIcon = isset($map_tab_icon_map) && is_array($map_tab_icon_map) ? $map_tab
 $tabStreetIcon = isset($map_tab_icon_street) && is_array($map_tab_icon_street) ? $map_tab_icon_street : [];
 
 $relatedEnabled = !isset($widgetSettings['show_related_markers']) || $widgetSettings['show_related_markers'] === 'yes';
-$relatedLimit = isset($widgetSettings['related_markers_limit']) ? max(0, min(30, (int) $widgetSettings['related_markers_limit'])) : 12;
+$relatedLimit = isset($widgetSettings['related_markers_limit']) ? max(0, min(10, (int) $widgetSettings['related_markers_limit'])) : 10;
 $relatedMarkers = [];
 
 if ($relatedEnabled && $relatedLimit > 0) {

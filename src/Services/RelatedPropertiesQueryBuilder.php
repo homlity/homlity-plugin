@@ -25,6 +25,8 @@ if (!defined('ABSPATH')) {
 
 class RelatedPropertiesQueryBuilder
 {
+    public const MAX_RESULTS = 10;
+
     // ── Strategy constants ────────────────────────────────────────────────────
     public const STRATEGY_ANY        = 'any';
     public const STRATEGY_ALL        = 'all';
@@ -125,6 +127,8 @@ class RelatedPropertiesQueryBuilder
      */
     private function baseArgs(int $propertyId, int $postsPerPage, bool $excludeCurrent): array
     {
+        $postsPerPage = min(self::MAX_RESULTS, max(1, $postsPerPage));
+
         $args = [
             'post_type'      => PropertyPostType::POST_TYPE,
             'post_status'    => 'publish',

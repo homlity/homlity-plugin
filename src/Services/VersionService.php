@@ -38,7 +38,47 @@ class VersionService implements ServiceInterface
         // Seed new terms or structures added in updates.
         (new DataSeederService())->seed();
 
+        // Elementor's bundled Font Awesome 5 catalog uses "check-circle".
+        $this->migrateElementorFontAwesomeIcons();
+
         // Refresh rewrite rules on structure changes.
         flush_rewrite_rules(false);
+    }
+
+    private function migrateElementorFontAwesomeIcons(): void
+    {
+        global $wpdb;
+
+        $batchSize = 25;
+        $totalUpdated = 0;
+
+        do {
+            $affected = $wpdb->query($wpdb->prepare(
+                "UPDATE {$wpdb->postmeta}
+                 SET meta_value = REPLACE(meta_value, %s, %s)
+                 WHERE meta_key = %s AND meta_value LIKE %s
+                 LIMIT %d",
+                'fa-circle-check',
+                'fa-check-circle',
+                '_elementor_data',
+                '%' . $wpdb->esc_like('fa-circle-check') . '%',
+                $batchSize
+            ));
+
+            if ($affected === false) {
+                break;
+            }
+
+            $affected = (int) $affected;
+            $totalUpdated += $affected;
+        } while ($affected === $batchSize);
+
+        if (
+            $totalUpdated > 0
+            && class_exists('\\Elementor\\Plugin')
+            && isset(\Elementor\Plugin::$instance->files_manager)
+        ) {
+            \Elementor\Plugin::$instance->files_manager->clear_cache();
+        }
     }
 }
