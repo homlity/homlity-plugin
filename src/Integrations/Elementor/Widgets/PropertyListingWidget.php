@@ -581,7 +581,7 @@ class PropertyListingWidget extends Widget_Base
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-listing__page-btn' => 'background-color: {{VALUE}};'],
         ]);
-        $this->add_control('pagination_btn_border_color', [
+        $this->add_control('pagination_btn_border_color_normal', [
             'label'     => __('Color borde', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-listing__page-btn' => 'border-color: {{VALUE}};'],
