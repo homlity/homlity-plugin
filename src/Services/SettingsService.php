@@ -67,7 +67,7 @@ class SettingsService implements ServiceInterface
         }
 
         $activeTab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'general';
-        if (!in_array($activeTab, ['general', 'social', 'arriendo', 'venta', 'consignment'], true)) {
+        if (!in_array($activeTab, ['general', 'social', 'arriendo', 'venta', 'consignment', 'versions', 'incidents'], true)) {
             $activeTab = 'general';
         }
 
@@ -106,6 +106,10 @@ class SettingsService implements ServiceInterface
             'logoUrl' => HOMLITY_PLUGIN_URL . 'icono.png',
             'savePath' => '/homlity-real-estate/v1/settings',
             'locationTermsPath' => '/homlity-real-estate/v1/location-terms',
+            'pluginVersionsPath' => '/homlity-real-estate/v1/plugin-versions',
+            'pluginVersionInstallPath' => '/homlity-real-estate/v1/plugin-versions/install',
+            'errorDiagnosticsPath' => '/homlity-real-estate/v1/error-reporter/diagnostics',
+            'errorConnectionTestPath' => '/homlity-real-estate/v1/error-reporter/connection-test',
             'nonce' => wp_create_nonce('wp_rest'),
             'pageTitle' => __('Ajustes de la plataforma inmobiliaria', 'homlity-real-estate'),
             'saveLabel' => __('Guardar cambios', 'homlity-real-estate'),
@@ -116,7 +120,7 @@ class SettingsService implements ServiceInterface
     public function renderSettingsPage(): void
     {
         $activeTab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'general';
-        if (!in_array($activeTab, ['general', 'social', 'arriendo', 'venta', 'consignment'], true)) {
+        if (!in_array($activeTab, ['general', 'social', 'arriendo', 'venta', 'consignment', 'versions', 'incidents'], true)) {
             $activeTab = 'general';
         }
 

@@ -25,15 +25,15 @@ if ($homlityBuilderTemplate instanceof \WP_Post) {
     // previously caused valid Divi layouts to be rendered as empty Elementor
     // documents on property detail pages.
     if (
-        get_post_meta($homlityBuilderTemplateId, '_et_pb_use_builder', true) === 'on'
-        || get_post_meta($homlityBuilderTemplateId, '_homlity_seeded_builder', true) === 'divi'
-    ) {
-        $homlityTemplateBuilder = 'divi';
-    } elseif (
         get_post_meta($homlityBuilderTemplateId, '_elementor_edit_mode', true) === 'builder'
         || get_post_meta($homlityBuilderTemplateId, '_homlity_seeded_builder', true) === 'elementor'
     ) {
         $homlityTemplateBuilder = 'elementor';
+    } elseif (
+        get_post_meta($homlityBuilderTemplateId, '_et_pb_use_builder', true) === 'on'
+        || get_post_meta($homlityBuilderTemplateId, '_homlity_seeded_builder', true) === 'divi'
+    ) {
+        $homlityTemplateBuilder = 'divi';
     } elseif (
         get_post_meta($homlityBuilderTemplateId, '_wpb_vc_js_status', true) === 'true'
         || get_post_meta($homlityBuilderTemplateId, '_homlity_seeded_builder', true) === 'wpbakery'

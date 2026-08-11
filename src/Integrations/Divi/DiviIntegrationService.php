@@ -369,8 +369,18 @@ class DiviIntegrationService implements ServiceInterface
 
     private function detailTemplateId(): int
     {
+        if (
+            (string) get_option('homlity_plugin_visual_builder_explicit', '') === '1'
+            && sanitize_key((string) get_option('homlity_plugin_visual_builder', '')) !== 'divi'
+        ) {
+            return 0;
+        }
+
         $templateId = (int) get_option('homlity_plugin_single_template_id', 0);
         if ($templateId <= 0 || !get_post_status($templateId)) {
+            return 0;
+        }
+        if (get_post_meta($templateId, '_elementor_edit_mode', true) === 'builder') {
             return 0;
         }
         if (get_post_meta($templateId, '_et_pb_use_builder', true) !== 'on') {

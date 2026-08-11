@@ -222,17 +222,20 @@ class DataSeederService
 
     private function preferredBuilder(): string
     {
+        $stored = sanitize_key((string) get_option(self::BUILDER_OPTION, ''));
+        $explicit = (string) get_option('homlity_plugin_visual_builder_explicit', '') === '1';
+        if ($explicit && $stored !== '' && $this->builderActive($stored)) {
+            return $stored;
+        }
+
         $archiveId = (int) get_option('homlity_plugin_archive_page_id', 0);
         if ($archiveId > 0) {
             $seededBuilder = sanitize_key((string) get_post_meta($archiveId, '_homlity_seeded_builder', true));
             $hasVisualBuilder = $this->elementorActive() || $this->diviActive() || $this->wpBakeryActive();
-            if (
-                $seededBuilder !== ''
-                && $this->builderActive($seededBuilder)
-                && ($seededBuilder !== 'native' || !$hasVisualBuilder)
-            ) {
-                return $seededBuilder;
-            }
+
+            // The live builder metadata is the authoritative signal. A page
+            // converted from Divi to Elementor can legitimately retain the
+            // old Homlity seed marker until the migration completes.
             if (get_post_meta($archiveId, '_elementor_edit_mode', true) === 'builder' && $this->elementorActive()) {
                 return 'elementor';
             }
@@ -242,9 +245,16 @@ class DataSeederService
             if (get_post_meta($archiveId, '_wpb_vc_js_status', true) === 'true' && $this->wpBakeryActive()) {
                 return 'wpbakery';
             }
+
+            if (
+                $seededBuilder !== ''
+                && $this->builderActive($seededBuilder)
+                && ($seededBuilder !== 'native' || !$hasVisualBuilder)
+            ) {
+                return $seededBuilder;
+            }
         }
 
-        $stored = sanitize_key((string) get_option(self::BUILDER_OPTION, ''));
         $visualBuilderAvailable = $this->elementorActive() || $this->diviActive() || $this->wpBakeryActive();
         if (
             $stored !== ''
@@ -489,23 +499,25 @@ class DataSeederService
 
         if (!empty($existing)) {
             $templateId = (int) $existing[0];
-            update_option($optionKey, $templateId);
-            $this->removeSingleTemplateDuplicates($templateId);
-            return;
-        }
+            if (get_post_meta($templateId, '_elementor_edit_mode', true) === 'builder') {
+                update_option($optionKey, $templateId);
+                $this->removeSingleTemplateDuplicates($templateId);
+                return;
+            }
+        } else {
+            // Nothing found — create the template for the first time.
+            $templateId = wp_insert_post([
+                'post_title'     => __('Detalle de inmueble', 'homlity-real-estate'),
+                'post_name'      => 'homlity-detalle-inmueble',
+                'post_status'    => 'publish',
+                'post_type'      => 'elementor_library',
+                'comment_status' => 'closed',
+                'ping_status'    => 'closed',
+            ]);
 
-        // Nothing found — create the template for the first time.
-        $templateId = wp_insert_post([
-            'post_title'     => __('Detalle de inmueble', 'homlity-real-estate'),
-            'post_name'      => 'homlity-detalle-inmueble',
-            'post_status'    => 'publish',
-            'post_type'      => 'elementor_library',
-            'comment_status' => 'closed',
-            'ping_status'    => 'closed',
-        ]);
-
-        if (is_wp_error($templateId) || !$templateId) {
-            return;
+            if (is_wp_error($templateId) || !$templateId) {
+                return;
+            }
         }
 
         $data = [

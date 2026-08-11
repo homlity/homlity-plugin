@@ -828,7 +828,11 @@ class TemplateService implements ServiceInterface
     private function findPropertySingleTemplateEditUrl(array $adminBarChildren): string
     {
         $templateId = (int) get_option('homlity_plugin_single_template_id', 0);
-        if ($templateId > 0 && get_post_status($templateId)) {
+        if (
+            $templateId > 0
+            && get_post_status($templateId)
+            && get_post_meta($templateId, '_elementor_edit_mode', true) === 'builder'
+        ) {
             return admin_url('post.php?post=' . $templateId . '&action=elementor');
         }
 

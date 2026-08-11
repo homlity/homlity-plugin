@@ -84,12 +84,21 @@ class ElementorTemplateSettingsService implements ServiceInterface
             $unavailableLayout = 'default';
         }
 
+        $archiveId = $this->isElementorDocument($archiveId) ? $archiveId : 0;
+        $singleId = $this->isElementorDocument($singleId) ? $singleId : 0;
+        $unavailableId = $this->isElementorDocument($unavailableId) ? $unavailableId : 0;
+
         update_option(self::OPTION_ARCHIVE, $archiveId);
         update_option(self::OPTION_SINGLE, $singleId);
         update_option(self::OPTION_UNAVAILABLE, $unavailableId);
         update_option(self::OPTION_ARCHIVE_LAYOUT, $archiveLayout);
         update_option(self::OPTION_SINGLE_LAYOUT, $singleLayout);
         update_option(self::OPTION_UNAVAILABLE_LAYOUT, $unavailableLayout);
+
+        if ($archiveId > 0 || $singleId > 0 || $unavailableId > 0) {
+            update_option('homlity_plugin_visual_builder', 'elementor');
+            update_option('homlity_plugin_visual_builder_explicit', '1');
+        }
 
         // ── Recovery settings ─────────────────────────────────────────────────
         $recoveryEnabled = !empty($_POST['recovery_enabled']) ? '1' : '0';
@@ -122,12 +131,15 @@ class ElementorTemplateSettingsService implements ServiceInterface
         update_option(self::OPTION_RECOVERY_NO_RESULTS_ACT, $recoveryNoResultsAct);
 
         if ($archiveId > 0) {
+            $this->prepareElementorDocument($archiveId);
             $this->applyLayoutToPost($archiveId, $archiveLayout);
         }
         if ($singleId > 0) {
+            $this->prepareElementorDocument($singleId);
             $this->applyLayoutToPost($singleId, $singleLayout);
         }
         if ($unavailableId > 0) {
+            $this->prepareElementorDocument($unavailableId);
             $this->applyLayoutToPost($unavailableId, $unavailableLayout);
         }
 
@@ -472,6 +484,43 @@ class ElementorTemplateSettingsService implements ServiceInterface
         };
 
         update_post_meta($postId, '_wp_page_template', $template);
+    }
+
+    private function isElementorDocument(int $postId): bool
+    {
+        if ($postId <= 0 || !get_post_status($postId)) {
+            return false;
+        }
+
+        if (!in_array(get_post_type($postId), ['page', 'elementor_library'], true)) {
+            return false;
+        }
+
+        return get_post_meta($postId, '_elementor_edit_mode', true) === 'builder';
+    }
+
+    /**
+     * Remove stale ownership flags left by a previous page builder. Keeping
+     * both Elementor and Divi flags makes both builders claim the same page,
+     * which breaks the editor links and can make the wrong renderer win.
+     */
+    private function prepareElementorDocument(int $postId): void
+    {
+        foreach ([
+            '_et_pb_use_builder',
+            '_et_pb_page_layout',
+            '_et_pb_built_for_post_type',
+            '_wpb_vc_js_status',
+            '_vc_post_settings',
+        ] as $metaKey) {
+            delete_post_meta($postId, $metaKey);
+        }
+
+        if (get_post_meta($postId, '_homlity_seeded_builder', true) !== '') {
+            update_post_meta($postId, '_homlity_seeded_builder', 'elementor');
+        }
+
+        clean_post_cache($postId);
     }
 
     /**

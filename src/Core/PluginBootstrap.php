@@ -6,6 +6,7 @@
 namespace Homlity\PluginInmobiliario\Core;
 
 use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
+use Homlity\PluginInmobiliario\ErrorReporting\ErrorReporterService;
 use Homlity\PluginInmobiliario\Homologation\HomologationAdminPage;
 use Homlity\PluginInmobiliario\Homologation\HomologationRestController;
 use Homlity\PluginInmobiliario\Integrations\CF7\CF7IntegrationService;
@@ -22,6 +23,7 @@ use Homlity\PluginInmobiliario\Services\CrmIntegrationService;
 use Homlity\PluginInmobiliario\Services\CrmAdminService;
 use Homlity\PluginInmobiliario\Services\CurrencyService;
 use Homlity\PluginInmobiliario\Services\ElementorIntegrationService;
+use Homlity\PluginInmobiliario\Services\ElementorTemplateSettingsService;
 use Homlity\PluginInmobiliario\Services\CrmInfrastructureService;
 use Homlity\PluginInmobiliario\Services\DashboardNewsService;
 use Homlity\PluginInmobiliario\Services\I18nService;
@@ -45,6 +47,7 @@ use Homlity\PluginInmobiliario\Services\SeoGeoSettingsService;
 use Homlity\PluginInmobiliario\Services\SeoIntegrationService;
 use Homlity\PluginInmobiliario\Services\SeoService;
 use Homlity\PluginInmobiliario\Services\HomlityPlansService;
+use Homlity\PluginInmobiliario\Services\HomlityPluginVersionsService;
 use Homlity\PluginInmobiliario\Services\SimulatorService;
 use Homlity\PluginInmobiliario\Services\SettingsService;
 use Homlity\PluginInmobiliario\Services\TemplateService;
@@ -65,10 +68,13 @@ class PluginBootstrap
     {
         $this->services = [
             // Core WordPress services
+            new ErrorReporterService(),
             new I18nService(),
             new VersionService(),
             new HomlityPlansService(),
             new SettingsService(),
+            new HomlityPluginVersionsService(),
+            new ElementorTemplateSettingsService(),
             new SimulatorService(),
             new PropertyPostType(),
             new PropertyTaxonomies(),

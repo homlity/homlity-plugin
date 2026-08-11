@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Homlity Real Estate
  * Description: Homlity Real Estate, gestor de inmuebles, asesores, SEO y GEO listo para WordPress.
- * Version:     2.3.12
+ * Version:     2.3.17
  * Author:      Ecosistema Inmobiliario Homlity
  * Author URI:  https://homlity.com/
  * Plugin URI:  https://homlity.com/plugin-integracion-homlity-real-estate-para-wordpress/
@@ -17,6 +17,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Registered before the regular autoloader/bootstrap so startup fatals can be retained.
+require_once __DIR__ . '/includes/error-reporting/fatal-bootstrap.php';
+
 // Unique constants — never guarded, always point to this plugin's own directory.
 define('HOMLITY_RE_PLUGIN_FILE', __FILE__);
 define('HOMLITY_RE_PLUGIN_PATH', plugin_dir_path(__FILE__));
@@ -25,7 +28,7 @@ define('HOMLITY_RE_PLUGIN_URL',  plugin_dir_url(__FILE__));
 if (!defined('HOMLITY_PLUGIN_FILE'))             define('HOMLITY_PLUGIN_FILE', __FILE__);
 if (!defined('HOMLITY_PLUGIN_PATH'))             define('HOMLITY_PLUGIN_PATH', plugin_dir_path(__FILE__));
 if (!defined('HOMLITY_PLUGIN_URL'))              define('HOMLITY_PLUGIN_URL', plugin_dir_url(__FILE__));
-if (!defined('HOMLITY_PLUGIN_VERSION'))          define('HOMLITY_PLUGIN_VERSION', '2.3.12');
+if (!defined('HOMLITY_PLUGIN_VERSION'))          define('HOMLITY_PLUGIN_VERSION', '2.3.17');
 if (!defined('HOMLITY_PLUGIN_SLUG'))             define('HOMLITY_PLUGIN_SLUG', 'homlity-real-estate');
 if (!defined('HOMLITY_PLUGIN_TEXT_DOMAIN'))      define('HOMLITY_PLUGIN_TEXT_DOMAIN', 'homlity-real-estate');
 if (!defined('HOMLITY_PLUGIN_SETTINGS_OPTION'))  define('HOMLITY_PLUGIN_SETTINGS_OPTION', 'homlity_plugin_settings');
@@ -279,4 +282,5 @@ function homlity_activation_create_consignment_page(): void
 
 register_deactivation_hook(__FILE__, static function () {
     Homlity\PluginInmobiliario\Services\Ai\LlmsFullService::deactivate();
+    wp_clear_scheduled_hook(Homlity\PluginInmobiliario\ErrorReporting\ErrorReporterService::CRON_HOOK);
 });

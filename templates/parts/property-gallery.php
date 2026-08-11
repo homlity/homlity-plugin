@@ -55,6 +55,110 @@ if (!function_exists('homlity_media_extract_urls')) {
     }
 }
 
+if (!function_exists('homlity_gallery_cache_safe_url')) {
+    /**
+     * Add a stable cache version to local property media URLs.
+     *
+     * CRM integrations can store either attachment IDs or absolute upload URLs.
+     * Only WordPress upload URLs are changed so remote and signed media URLs keep
+     * their original query strings and behaviour.
+     */
+    function homlity_gallery_cache_safe_url(
+        string $url,
+        int $attachmentId = 0,
+        string $size = ''
+    ): string {
+        if ($url === '') {
+            return '';
+        }
+
+        $versionParts = [];
+
+        if ($attachmentId > 0) {
+            $versionParts[] = $attachmentId;
+            $versionParts[] = (int) get_post_modified_time('U', true, $attachmentId);
+
+            $attachedFile = get_attached_file($attachmentId);
+            if (is_string($attachedFile) && $attachedFile !== '' && is_file($attachedFile)) {
+                $modified = filemtime($attachedFile);
+                if ($modified !== false) {
+                    $versionParts[] = (int) $modified;
+                }
+            }
+        } else {
+            $uploads = wp_upload_dir();
+            $uploadUrl = (string) ($uploads['baseurl'] ?? '');
+            $uploadDir = (string) ($uploads['basedir'] ?? '');
+            $urlHost = strtolower((string) wp_parse_url($url, PHP_URL_HOST));
+            $uploadHost = strtolower((string) wp_parse_url($uploadUrl, PHP_URL_HOST));
+            $urlPath = rawurldecode((string) wp_parse_url($url, PHP_URL_PATH));
+            $uploadPath = untrailingslashit(rawurldecode((string) wp_parse_url($uploadUrl, PHP_URL_PATH)));
+
+            $sameUploadHost = $urlHost !== ''
+                && $uploadHost !== ''
+                && preg_replace('/^www\./', '', $urlHost) === preg_replace('/^www\./', '', $uploadHost);
+            $insideUploads = $uploadPath !== ''
+                && ($urlPath === $uploadPath || strpos($urlPath, $uploadPath . '/') === 0);
+
+            if (!$sameUploadHost || !$insideUploads) {
+                return $url;
+            }
+
+            // The plugin version also invalidates an already-stale CDN object on
+            // the first request after this fix is deployed.
+            $versionParts[] = defined('HOMLITY_PLUGIN_VERSION') ? HOMLITY_PLUGIN_VERSION : 'gallery';
+
+            if ($uploadDir !== '') {
+                $relativePath = ltrim(substr($urlPath, strlen($uploadPath)), '/');
+                $baseDir = trailingslashit(wp_normalize_path($uploadDir));
+                $candidate = wp_normalize_path($baseDir . $relativePath);
+                if (strpos($candidate, $baseDir) === 0 && is_file($candidate)) {
+                    $modified = filemtime($candidate);
+                    if ($modified !== false) {
+                        $versionParts[] = (int) $modified;
+                    }
+                }
+            }
+        }
+
+        $version = implode('-', array_filter($versionParts));
+        $version = (string) apply_filters(
+            'homlity_property_gallery_cache_version',
+            $version,
+            $attachmentId,
+            $size,
+            $url
+        );
+        $version = sanitize_key($version);
+
+        return $version !== '' ? add_query_arg('homlity_media', $version, $url) : $url;
+    }
+}
+
+if (!function_exists('homlity_gallery_attachment_url')) {
+    /**
+     * Return a cache-safe attachment URL for property galleries.
+     *
+     * Image CDNs can keep an older file when an attachment path is reused during a
+     * migration or media replacement. A stable version per attachment/file change
+     * forces the CDN to fetch the current WordPress image without disabling image
+     * optimization for the rest of the site.
+     */
+    function homlity_gallery_attachment_url(int $attachmentId, string $size): string
+    {
+        if ($attachmentId <= 0) {
+            return '';
+        }
+
+        $url = wp_get_attachment_image_url($attachmentId, $size);
+        if (!$url) {
+            return '';
+        }
+
+        return homlity_gallery_cache_safe_url($url, $attachmentId, $size);
+    }
+}
+
 if (!function_exists('homlity_media_extract_from_payload')) {
     /** @return array{videos: array<int,string>, photos360: array<int,string>, tours360: array<int,string>} */
     function homlity_media_extract_from_payload(int $postId): array
@@ -273,6 +377,7 @@ if (is_array($metaGallery) && !empty($metaGallery)) {
         $altBase = get_the_title($post_id);
         foreach ($metaGallery as $url) {
             $url = esc_url_raw((string) $url);
+            $url = homlity_gallery_cache_safe_url($url, 0, 'url');
             if ($url && !isset($images[$url])) {
                 $images[$url] = ['full' => $url, 'thumb' => $url, 'alt' => $altBase];
             }
@@ -280,6 +385,7 @@ if (is_array($metaGallery) && !empty($metaGallery)) {
     } elseif (is_array($firstItem)) {
         $altBase = get_the_title($post_id);
         foreach (homlity_media_extract_urls($metaGallery) as $url) {
+            $url = homlity_gallery_cache_safe_url($url, 0, 'url');
             if (!isset($images[$url])) {
                 $images[$url] = ['full' => $url, 'thumb' => $url, 'alt' => $altBase];
             }
@@ -292,6 +398,7 @@ if (is_array($metaGallery) && !empty($metaGallery)) {
     if (is_array($decodedGallery)) {
         $altBase = get_the_title($post_id);
         foreach (homlity_media_extract_urls($decodedGallery) as $url) {
+            $url = homlity_gallery_cache_safe_url($url, 0, 'url');
             if (!isset($images[$url])) {
                 $images[$url] = ['full' => $url, 'thumb' => $url, 'alt' => $altBase];
             }
@@ -306,8 +413,8 @@ if (is_array($metaGallery) && !empty($metaGallery)) {
 
 if ($galleryIds) {
     foreach ($galleryIds as $attachmentId) {
-        $full = wp_get_attachment_image_url($attachmentId, 'large');
-        $thumb = wp_get_attachment_image_url($attachmentId, 'medium_large') ?: $full;
+        $full = homlity_gallery_attachment_url($attachmentId, 'large');
+        $thumb = homlity_gallery_attachment_url($attachmentId, 'medium_large') ?: $full;
         $alt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true) ?: get_the_title($post_id);
         if ($full && !isset($images[$full])) {
             $images[$full] = ['full' => $full, 'thumb' => $thumb, 'alt' => $alt];
@@ -318,17 +425,18 @@ if ($galleryIds) {
 if (!$images) {
     $featuredUrl = get_post_meta($post_id, '_property_featured_image_url', true);
     if ($featuredUrl && filter_var($featuredUrl, FILTER_VALIDATE_URL)) {
-        $images[$featuredUrl] = ['full' => esc_url_raw($featuredUrl), 'thumb' => esc_url_raw($featuredUrl), 'alt' => get_the_title($post_id)];
+        $featuredUrl = homlity_gallery_cache_safe_url(esc_url_raw($featuredUrl), 0, 'url');
+        $images[$featuredUrl] = ['full' => $featuredUrl, 'thumb' => $featuredUrl, 'alt' => get_the_title($post_id)];
     }
 }
 
 if (!$images && has_post_thumbnail($post_id)) {
     $thumbId = get_post_thumbnail_id($post_id);
-    $full = get_the_post_thumbnail_url($post_id, 'large');
+    $full = homlity_gallery_attachment_url($thumbId, 'large');
     if ($full) {
         $images[$full] = [
             'full' => $full,
-            'thumb' => get_the_post_thumbnail_url($post_id, 'large'),
+            'thumb' => $full,
             'alt' => get_post_meta($thumbId, '_wp_attachment_image_alt', true) ?: get_the_title($post_id),
         ];
     }

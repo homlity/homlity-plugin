@@ -13,5 +13,8 @@
     "psr-4": {
       "Homlity\\PluginInmobiliario\\": "src/"
     }
+  },
+  "scripts": {
+    "test:error-reporting": "php tests/error-reporting/run.php"
   }
 }

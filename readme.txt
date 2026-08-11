@@ -4,7 +4,7 @@ Tags: real estate, property, listings, agents, property management
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.3.12
+Stable tag: 2.3.17
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,18 @@ Developed and maintained by **Ecosistema Inmobiliario Homlity**, a team speciali
 5. Public property listing on the WordPress site.
 
 == Changelog ==
+
+= 2.3.16 =
+* Added centralized, privacy-safe error reporting for official Homlity plugins.
+* Added bounded retries, license-aware Homi delivery and the Incidencias diagnostics tab.
+
+= 2.3.15 =
+* Prevented stale image-CDN thumbnails from showing photos that belong to another property.
+* Added per-attachment cache versioning to property gallery image URLs.
+
+= 2.3.14 =
+* Added an admin Versiones tab for Homlity plugin upgrades and controlled downgrades from Homi.
+* Added permission, compatibility, HTTPS, checksum, fresh-catalog and WordPress rollback safeguards.
 
 = 12.0.3 =
 * WordPress.org compliance: readme translated to English.

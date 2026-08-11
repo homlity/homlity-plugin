@@ -27,7 +27,7 @@
     if (!root) {
         return;
     }
-    const initialTab = ['general', 'social', 'arriendo', 'venta', 'consignment'].includes(root.dataset.activeTab)
+    const initialTab = ['general', 'social', 'arriendo', 'venta', 'consignment', 'versions', 'incidents'].includes(root.dataset.activeTab)
         ? root.dataset.activeTab
         : 'general';
 
@@ -262,6 +262,314 @@
             ),
             onChange: props.onChange,
         });
+    }
+
+    function VersionManager() {
+        const [plugins, setPlugins] = useState([]);
+        const [selected, setSelected] = useState({});
+        const [loading, setLoading] = useState(true);
+        const [installing, setInstalling] = useState('');
+        const [notice, setNotice] = useState({ type: '', message: '' });
+
+        function loadVersions(refresh, preserveNotice) {
+            setLoading(true);
+            if (!preserveNotice) {
+                setNotice({ type: '', message: '' });
+            }
+            const suffix = refresh ? '?refresh=1' : '';
+
+            return apiFetch({ path: config.pluginVersionsPath + suffix }).then((response) => {
+                const items = Array.isArray(response.plugins) ? response.plugins : [];
+                const defaults = {};
+                items.forEach((plugin) => {
+                    const release = (plugin.versions || []).find((item) => item.installable);
+                    if (release) {
+                        defaults[plugin.plugin] = release.version;
+                    }
+                });
+                setPlugins(items);
+                setSelected(defaults);
+                if (response.message && !preserveNotice) {
+                    setNotice({ type: 'info', message: response.message });
+                }
+            }).catch((error) => {
+                setNotice({
+                    type: 'error',
+                    message: (error && error.message) || __('No fue posible consultar las versiones.', 'homlity-real-estate'),
+                });
+            }).finally(() => setLoading(false));
+        }
+
+        useEffect(() => {
+            loadVersions(false);
+        }, []);
+
+        function installVersion(plugin) {
+            const target = selected[plugin.plugin];
+            const release = (plugin.versions || []).find((item) => item.version === target);
+            if (!release) {
+                return;
+            }
+
+            const action = release.direction === 'downgrade' ? __('bajar', 'homlity-real-estate') : __('subir', 'homlity-real-estate');
+            const confirmed = window.confirm(
+                __('Antes de continuar, confirma que tienes un respaldo reciente de archivos y base de datos. WordPress creará además un respaldo temporal del plugin. ¿Deseas ', 'homlity-real-estate')
+                + action + ' ' + plugin.name + ' '
+                + __('de la versión ', 'homlity-real-estate') + plugin.current_version
+                + __(' a la versión ', 'homlity-real-estate') + target + '?'
+            );
+            if (!confirmed) {
+                return;
+            }
+
+            setInstalling(plugin.plugin);
+            setNotice({ type: 'info', message: __('Descargando, verificando e instalando la versión seleccionada…', 'homlity-real-estate') });
+            apiFetch({
+                path: config.pluginVersionInstallPath,
+                method: 'POST',
+                data: { plugin: plugin.plugin, version: target, confirm: true },
+            }).then((response) => {
+                setNotice({ type: 'success', message: response.message || __('Versión instalada correctamente.', 'homlity-real-estate') });
+                return loadVersions(true, true);
+            }).catch((error) => {
+                setNotice({
+                    type: 'error',
+                    message: (error && error.message) || __('No fue posible cambiar la versión.', 'homlity-real-estate'),
+                });
+            }).finally(() => setInstalling(''));
+        }
+
+        return el(
+            'div',
+            { className: 'homlity-versions' },
+            [
+                el(
+                    'div',
+                    { key: 'toolbar', className: 'homlity-versions__toolbar' },
+                    [
+                        el('p', { key: 'copy' }, __('Solo se muestran plugins Homlity activos. Cada cambio se valida nuevamente contra Homi y usa el mecanismo de respaldo temporal de WordPress.', 'homlity-real-estate')),
+                        el('button', {
+                            key: 'refresh',
+                            type: 'button',
+                            className: 'homlity-settings__button homlity-settings__button--ghost',
+                            disabled: loading || !!installing,
+                            onClick: () => loadVersions(true),
+                        }, loading ? __('Consultando…', 'homlity-real-estate') : __('Actualizar catálogo', 'homlity-real-estate')),
+                    ]
+                ),
+                notice.message ? el(
+                    'div',
+                    {
+                        key: 'notice',
+                        className: classNames(
+                            'homlity-versions__notice',
+                            notice.type === 'error' && 'is-error',
+                            notice.type === 'success' && 'is-success'
+                        ),
+                    },
+                    notice.message
+                ) : null,
+                loading && plugins.length === 0
+                    ? el('div', { key: 'loading', className: 'homlity-versions__empty' }, __('Consultando Homi…', 'homlity-real-estate'))
+                    : null,
+                !loading && plugins.length === 0
+                    ? el('div', { key: 'empty', className: 'homlity-versions__empty' }, __('No hay plugins Homlity activos para administrar.', 'homlity-real-estate'))
+                    : null,
+                el(
+                    'div',
+                    { key: 'list', className: 'homlity-versions__list' },
+                    plugins.map((plugin) => {
+                        const installable = (plugin.versions || []).filter((release) => release.installable);
+                        const target = selected[plugin.plugin] || '';
+                        const release = installable.find((item) => item.version === target);
+                        const busy = installing === plugin.plugin;
+                        const directionLabel = release && release.direction === 'downgrade'
+                            ? __('Downgrade', 'homlity-real-estate')
+                            : __('Upgrade', 'homlity-real-estate');
+
+                        return el(
+                            'article',
+                            { key: plugin.plugin, className: 'homlity-versions__card' },
+                            [
+                                el(
+                                    'div',
+                                    { key: 'header', className: 'homlity-versions__card-header' },
+                                    [
+                                        el('div', { key: 'identity' }, [
+                                            el('h3', { key: 'name' }, plugin.name),
+                                            el('code', { key: 'slug' }, plugin.product_slug),
+                                        ]),
+                                        el('div', { key: 'badges', className: 'homlity-versions__badges' }, [
+                                            plugin.network_active
+                                                ? el('span', { key: 'network', className: 'homlity-versions__badge' }, __('Red', 'homlity-real-estate'))
+                                                : null,
+                                            el('span', { key: 'current', className: 'homlity-versions__badge is-current' }, __('Actual: ', 'homlity-real-estate') + plugin.current_version),
+                                        ]),
+                                    ]
+                                ),
+                                el('p', { key: 'message', className: 'homlity-versions__message' }, plugin.message),
+                                plugin.catalog_mode === 'latest'
+                                    ? el('p', { key: 'limited', className: 'homlity-versions__warning' }, __('Homi no ofrece todavía el historial para este producto; los downgrades aparecerán cuando publique /versions.', 'homlity-real-estate'))
+                                    : null,
+                                installable.length > 0
+                                    ? el(
+                                        'div',
+                                        { key: 'controls', className: 'homlity-versions__controls' },
+                                        [
+                                            el('label', { key: 'select-wrap', className: 'homlity-versions__select-wrap' }, [
+                                                el('span', { key: 'label' }, __('Versión destino', 'homlity-real-estate')),
+                                                el(
+                                                    'select',
+                                                    {
+                                                        key: 'select',
+                                                        className: 'homlity-settings__input homlity-settings__select',
+                                                        value: target,
+                                                        disabled: !!installing,
+                                                        onChange: (event) => setSelected((current) => Object.assign({}, current, { [plugin.plugin]: event.target.value })),
+                                                    },
+                                                    installable.map((item) => el(
+                                                        'option',
+                                                        { key: item.version, value: item.version },
+                                                        item.version + (item.direction === 'downgrade'
+                                                            ? ' — ' + __('downgrade', 'homlity-real-estate')
+                                                            : ' — ' + __('upgrade', 'homlity-real-estate'))
+                                                    ))
+                                                ),
+                                            ]),
+                                            el(
+                                                'button',
+                                                {
+                                                    key: 'install',
+                                                    type: 'button',
+                                                    className: classNames(
+                                                        'homlity-settings__button',
+                                                        release && release.direction === 'downgrade'
+                                                            ? 'homlity-versions__button--downgrade'
+                                                            : 'homlity-settings__button--primary'
+                                                    ),
+                                                    disabled: !!installing || !release,
+                                                    onClick: () => installVersion(plugin),
+                                                },
+                                                busy ? __('Instalando…', 'homlity-real-estate') : directionLabel
+                                            ),
+                                        ]
+                                    )
+                                    : el('div', { key: 'unavailable', className: 'homlity-versions__unavailable' }, __('No hay otra versión instalable autorizada por Homi.', 'homlity-real-estate')),
+                                release ? el(
+                                    'div',
+                                    { key: 'meta', className: 'homlity-versions__release-meta' },
+                                    [
+                                        el('span', { key: 'integrity' }, release.integrity_verified
+                                            ? __('SHA-256 disponible', 'homlity-real-estate')
+                                            : __('Sin checksum publicado', 'homlity-real-estate')),
+                                        release.requires_wp ? el('span', { key: 'wp' }, 'WordPress ≥ ' + release.requires_wp) : null,
+                                        release.requires_php ? el('span', { key: 'php' }, 'PHP ≥ ' + release.requires_php) : null,
+                                    ]
+                                ) : null,
+                            ]
+                        );
+                    })
+                ),
+            ]
+        );
+    }
+
+    function IncidentDiagnostics() {
+        const [data, setData] = useState(null);
+        const [loading, setLoading] = useState(true);
+        const [testing, setTesting] = useState(false);
+        const [notice, setNotice] = useState({ type: '', message: '' });
+
+        function load() {
+            setLoading(true);
+            return apiFetch({ path: config.errorDiagnosticsPath }).then((response) => {
+                setData(response);
+            }).catch((error) => {
+                setNotice({
+                    type: 'error',
+                    message: (error && error.message) || __('No fue posible cargar el diagnóstico.', 'homlity-real-estate'),
+                });
+            }).finally(() => setLoading(false));
+        }
+
+        useEffect(() => {
+            load();
+        }, []);
+
+        function testConnection() {
+            setTesting(true);
+            setNotice({ type: '', message: '' });
+            apiFetch({ path: config.errorConnectionTestPath, method: 'POST' }).then((response) => {
+                setNotice({ type: response.success ? 'success' : 'error', message: response.message || '' });
+                return load();
+            }).catch((error) => {
+                setNotice({
+                    type: 'error',
+                    message: (error && error.message) || __('La validación de conexión falló.', 'homlity-real-estate'),
+                });
+            }).finally(() => setTesting(false));
+        }
+
+        if (loading && !data) {
+            return el('div', { className: 'homlity-incidents__empty' }, __('Cargando diagnóstico…', 'homlity-real-estate'));
+        }
+
+        const queue = (data && data.queue) || {};
+        const reporter = (data && data.reporter) || {};
+        const plugins = (data && Array.isArray(data.plugins)) ? data.plugins : [];
+        const metric = (label, value, className) => el('div', { className: classNames('homlity-incidents__metric', className) }, [
+            el('span', { key: 'label' }, label),
+            el('strong', { key: 'value' }, value || '—'),
+        ]);
+
+        return el('div', { className: 'homlity-incidents' }, [
+            el('div', { key: 'toolbar', className: 'homlity-incidents__toolbar' }, [
+                el('p', { key: 'copy' }, __('El colector solo conserva errores fatales o fallos finales de sincronización originados en plugins oficiales. Los datos mostrados están enmascarados.', 'homlity-real-estate')),
+                el('div', { key: 'buttons', className: 'homlity-incidents__buttons' }, [
+                    el('button', {
+                        key: 'refresh', type: 'button', className: 'homlity-settings__button homlity-settings__button--ghost',
+                        disabled: loading || testing, onClick: load,
+                    }, loading ? __('Actualizando…', 'homlity-real-estate') : __('Actualizar', 'homlity-real-estate')),
+                    el('button', {
+                        key: 'test', type: 'button', className: 'homlity-settings__button homlity-settings__button--primary',
+                        disabled: loading || testing, onClick: testConnection,
+                    }, testing ? __('Validando…', 'homlity-real-estate') : __('Probar conexión de incidencias', 'homlity-real-estate')),
+                ]),
+            ]),
+            notice.message ? el('div', {
+                key: 'notice',
+                className: classNames('homlity-versions__notice', notice.type === 'error' && 'is-error', notice.type === 'success' && 'is-success'),
+            }, notice.message) : null,
+            el('div', { key: 'metrics', className: 'homlity-incidents__metrics' }, [
+                metric(__('Reporter', 'homlity-real-estate'), reporter.status === 'enabled' ? __('Activo', 'homlity-real-estate') : (reporter.status || '—')),
+                metric(__('Colector', 'homlity-real-estate'), reporter.collector ? reporter.collector + '@' + (reporter.version || 'unknown') : '—'),
+                metric(__('En cola', 'homlity-real-estate'), String(queue.queued || 0)),
+                metric(__('Bloqueados por licencia', 'homlity-real-estate'), String(queue.blocked || 0), queue.blocked ? 'is-warning' : ''),
+                metric(__('Último envío', 'homlity-real-estate'), queue.last_success_at),
+                metric(__('Próximo reintento', 'homlity-real-estate'), queue.next_retry_at || (data && data.schedule)),
+                metric(__('Último estado HTTP', 'homlity-real-estate'), queue.last_http_status ? String(queue.last_http_status) : '—'),
+                metric(__('Diagnóstico local', 'homlity-real-estate'), queue.last_local_error || __('Sin incidencias', 'homlity-real-estate'), queue.last_local_error ? 'is-warning' : ''),
+            ]),
+            queue.license_revalidation_required ? el('p', { key: 'license-warning', className: 'homlity-incidents__warning' }, __('Homi respondió 401/403. Los eventos afectados no se reintentarán hasta revalidar la licencia.', 'homlity-real-estate')) : null,
+            el('div', { key: 'table-wrap', className: 'homlity-incidents__table-wrap' }, [
+                el('table', { key: 'table', className: 'widefat striped homlity-incidents__table' }, [
+                    el('thead', { key: 'head' }, el('tr', null, [
+                        el('th', { key: 'plugin' }, __('Plugin', 'homlity-real-estate')),
+                        el('th', { key: 'version' }, __('Versión', 'homlity-real-estate')),
+                        el('th', { key: 'license' }, __('Licencia', 'homlity-real-estate')),
+                        el('th', { key: 'site' }, __('Site ID', 'homlity-real-estate')),
+                        el('th', { key: 'ready' }, __('Listo', 'homlity-real-estate')),
+                    ])),
+                    el('tbody', { key: 'body' }, plugins.length ? plugins.map((plugin) => el('tr', { key: plugin.plugin }, [
+                        el('td', { key: 'plugin' }, el('code', null, plugin.plugin)),
+                        el('td', { key: 'version' }, plugin.version || '—'),
+                        el('td', { key: 'license' }, plugin.license || '—'),
+                        el('td', { key: 'site' }, plugin.site_id || '—'),
+                        el('td', { key: 'ready' }, plugin.license_valid ? __('Sí', 'homlity-real-estate') : __('No', 'homlity-real-estate')),
+                    ])) : el('tr', null, el('td', { colSpan: 5 }, __('No se detectaron plugins oficiales.', 'homlity-real-estate')))),
+                ]),
+            ]),
+        ]);
     }
 
     function App() {
@@ -523,6 +831,18 @@
                             className: classNames('homlity-settings__tab', activeTab === 'consignment' && 'is-active'),
                             onClick: () => setActiveTab('consignment'),
                         }, __('Consignación', 'homlity-real-estate')),
+                        el('button', {
+                            key: 'versions',
+                            type: 'button',
+                            className: classNames('homlity-settings__tab', activeTab === 'versions' && 'is-active'),
+                            onClick: () => setActiveTab('versions'),
+                        }, __('Versiones', 'homlity-real-estate')),
+                        el('button', {
+                            key: 'incidents',
+                            type: 'button',
+                            className: classNames('homlity-settings__tab', activeTab === 'incidents' && 'is-active'),
+                            onClick: () => setActiveTab('incidents'),
+                        }, __('Incidencias', 'homlity-real-estate')),
                     ]
                 ),
 
@@ -760,9 +1080,31 @@
                                 dangerouslySetInnerHTML: { __html: config.consignmentHtml || '' },
                             })
                         ) : null,
+                        activeTab === 'versions' ? el(
+                            Section,
+                            {
+                                key: 'plugin-versions',
+                                className: 'homlity-settings__section--wide',
+                                eyebrow: __('Mantenimiento', 'homlity-real-estate'),
+                                title: __('Versiones de plugins Homlity', 'homlity-real-estate'),
+                                description: __('Realiza upgrades o vuelve a una versión anterior publicada y autorizada por Homi.', 'homlity-real-estate'),
+                            },
+                            el(VersionManager)
+                        ) : null,
+                        activeTab === 'incidents' ? el(
+                            Section,
+                            {
+                                key: 'error-diagnostics',
+                                className: 'homlity-settings__section--wide',
+                                eyebrow: __('Soporte', 'homlity-real-estate'),
+                                title: __('Diagnóstico de incidencias Homlity', 'homlity-real-estate'),
+                                description: __('Estado local de captura y entrega segura de errores a Homi.', 'homlity-real-estate'),
+                            },
+                            el(IncidentDiagnostics)
+                        ) : null,
                     ]
                 ),
-                el(
+                !['versions', 'incidents'].includes(activeTab) ? el(
                     'div',
                     { key: 'bottom-actions', className: 'homlity-settings__actions homlity-settings__actions--bottom' },
                     [
@@ -807,7 +1149,7 @@
                             config.resetLabel
                         ),
                     ]
-                ),
+                ) : null,
             ]
         );
     }
