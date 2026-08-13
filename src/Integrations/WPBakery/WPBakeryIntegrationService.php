@@ -66,10 +66,16 @@ class WPBakeryIntegrationService implements ServiceInterface
         add_action('wp_footer', [$this, 'printRuntimeCss'], 99);
         add_action('admin_menu', [$this, 'registerTemplateEditorMenu'], 30);
         add_action('admin_init', [$this, 'handleActivateTemplates']);
+        add_action('admin_init', [$this, 'capturePropertyPreviewContext'], 20);
         add_action('admin_bar_menu', [$this, 'addTemplateAdminBarLinks'], 1001);
         add_filter('page_row_actions', [$this, 'addTemplateRowActions'], 10, 2);
         add_filter('display_post_states', [$this, 'addTemplatePostStates'], 10, 2);
         add_filter('vc_is_valid_post_type_be', [$this, 'allowPageBackendEditor'], 10, 2);
+        add_filter('vc_check_post_type_validation', [$this, 'allowTemplatePostType'], 10, 2);
+        add_filter('vc_show_button_fe', [$this, 'allowTemplateFrontendButton'], 10, 3);
+        add_filter('vc_user_access_with_backend_editor_get_state', [$this, 'allowTemplateEditorAccess']);
+        add_filter('vc_user_access_with_frontend_editor_get_state', [$this, 'allowTemplateEditorAccess']);
+        add_filter('wpb_vc_js_status_filter', [$this, 'forceTemplateEditorStatus']);
     }
 
     public function enableEditorPostTypes(): void
@@ -91,7 +97,35 @@ class WPBakeryIntegrationService implements ServiceInterface
 
     public function allowPageBackendEditor(bool $isValid, string $postType = ''): bool
     {
-        return $postType === 'page' ? true : $isValid;
+        return $postType === 'page' && $this->isTemplateEditorRequest() ? true : $isValid;
+    }
+
+    /**
+     * WPBakery validates the post type before its backend editor class applies
+     * vc_is_valid_post_type_be. Force only Homlity's two template pages.
+     */
+    public function allowTemplatePostType(?bool $isValid, string $postType = ''): ?bool
+    {
+        return $postType === 'page' && $this->isTemplateEditorRequest() ? true : $isValid;
+    }
+
+    public function allowTemplateFrontendButton(bool $show, int $postId = 0, string $postType = ''): bool
+    {
+        return $postType === 'page' && $this->isTemplateId($postId) ? true : $show;
+    }
+
+    public function allowTemplateEditorAccess(bool $allowed): bool
+    {
+        return $this->isTemplateEditorRequest() ? true : $allowed;
+    }
+
+    /**
+     * WPBakery uses this status to decide whether the visual canvas or the
+     * classic textarea is shown for the post currently being edited.
+     */
+    public function forceTemplateEditorStatus(mixed $status): mixed
+    {
+        return $this->isTemplateEditorRequest() ? 'true' : $status;
     }
 
     public function enqueueAssets(): void
@@ -194,6 +228,32 @@ class WPBakeryIntegrationService implements ServiceInterface
         exit;
     }
 
+    public function capturePropertyPreviewContext(): void
+    {
+        $previewId = isset($_REQUEST['homlity_property_preview'])
+            ? absint(wp_unslash($_REQUEST['homlity_property_preview']))
+            : 0;
+        $editedPostId = isset($_REQUEST['post'])
+            ? absint(wp_unslash($_REQUEST['post']))
+            : 0;
+        $singleTemplateId = (int) get_option('homlity_plugin_single_template_id', 0);
+
+        if (
+            $previewId <= 0
+            || $editedPostId !== $singleTemplateId
+            || get_post_type($previewId) !== PropertyPostType::POST_TYPE
+            || !current_user_can('edit_post', $singleTemplateId)
+        ) {
+            return;
+        }
+
+        set_transient(
+            'homlity_wpbakery_property_preview_' . get_current_user_id(),
+            $previewId,
+            HOUR_IN_SECONDS
+        );
+    }
+
     public function renderTemplateEditorPage(): void
     {
         if (!current_user_can('edit_pages')) {
@@ -291,8 +351,25 @@ class WPBakeryIntegrationService implements ServiceInterface
                 'id' => 'homlity-edit-wpbakery-single-template',
                 'parent' => 'homlity-real-estate-links',
                 'title' => __('Editar detalle con WPBakery', 'homlity-real-estate'),
-                'href' => $this->frontendEditorUrl($singleId, $previewId) ?: $this->backendEditorUrl($singleId),
+                'href' => $this->frontendEditorUrl($singleId, $previewId)
+                    ?: $this->backendEditorUrl($singleId, $previewId),
             ]);
+
+            // A property renders the shared detail template. Expose that
+            // template as a visible top-level action, with this property as
+            // its preview context, instead of enabling WPBakery on CRM data.
+            if (is_singular(PropertyPostType::POST_TYPE)) {
+                $adminBar->add_node([
+                    'id' => 'homlity-edit-current-detail-wpbakery',
+                    'title' => __('Editar con WPBakery', 'homlity-real-estate'),
+                    'href' => $this->frontendEditorUrl($singleId, $previewId)
+                        ?: $this->backendEditorUrl($singleId, $previewId),
+                    'meta' => [
+                        'class' => 'homlity-edit-current-detail-wpbakery',
+                        'title' => __('Edita la plantilla global usando este inmueble como vista previa.', 'homlity-real-estate'),
+                    ],
+                ]);
+            }
         }
     }
 
@@ -306,7 +383,8 @@ class WPBakeryIntegrationService implements ServiceInterface
             $previewId = $purpose === 'single' ? $this->defaultPreviewPropertyId() : 0;
             $actions['homlity_wpbakery_editor'] = sprintf(
                 '<a href="%1$s">%2$s</a>',
-                esc_url($this->frontendEditorUrl($templateId, $previewId) ?: $this->backendEditorUrl($templateId)),
+                esc_url($this->frontendEditorUrl($templateId, $previewId)
+                    ?: $this->backendEditorUrl($templateId, $previewId)),
                 esc_html__('Editar con WPBakery', 'homlity-real-estate')
             );
             break;
@@ -366,9 +444,45 @@ class WPBakeryIntegrationService implements ServiceInterface
         return $templateId;
     }
 
-    private function backendEditorUrl(int $templateId): string
+    private function backendEditorUrl(int $templateId, int $previewId = 0): string
     {
-        return (string) get_edit_post_link($templateId, '');
+        $url = (string) get_edit_post_link($templateId, '');
+        if ($url !== '' && $previewId > 0) {
+            $url = (string) add_query_arg('homlity_property_preview', $previewId, $url);
+        }
+        return $url;
+    }
+
+    private function isTemplateId(int $postId): bool
+    {
+        if ($postId <= 0) {
+            return false;
+        }
+        return in_array($postId, [
+            (int) get_option('homlity_plugin_archive_page_id', 0),
+            (int) get_option('homlity_plugin_single_template_id', 0),
+        ], true);
+    }
+
+    private function isTemplateEditorRequest(): bool
+    {
+        $postId = 0;
+        if (isset($_REQUEST['post'])) {
+            $postId = absint(wp_unslash($_REQUEST['post']));
+        } elseif (isset($_REQUEST['post_id'])) {
+            $postId = absint(wp_unslash($_REQUEST['post_id']));
+        }
+
+        if ($this->isTemplateId($postId)) {
+            return current_user_can('edit_post', $postId);
+        }
+
+        if (!is_admin() && is_singular('page')) {
+            $queriedId = (int) get_queried_object_id();
+            return $this->isTemplateId($queriedId) && current_user_can('edit_post', $queriedId);
+        }
+
+        return false;
     }
 
     private function frontendEditorUrl(int $templateId, int $previewId = 0): string
@@ -403,7 +517,7 @@ class WPBakeryIntegrationService implements ServiceInterface
                 echo '<a class="button button-primary" href="' . esc_url($frontendUrl) . '">'
                     . esc_html__('Editor visual WPBakery', 'homlity-real-estate') . '</a> ';
             }
-            echo '<a class="button" href="' . esc_url($this->backendEditorUrl($templateId)) . '">'
+            echo '<a class="button" href="' . esc_url($this->backendEditorUrl($templateId, $previewId)) . '">'
                 . esc_html__('Editor backend WPBakery', 'homlity-real-estate') . '</a>';
         }
         echo '</td></tr>';
