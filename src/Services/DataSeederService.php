@@ -14,6 +14,8 @@ class DataSeederService
 {
     private const BUILDER_OPTION = 'homlity_plugin_visual_builder';
     private const SINGLE_TEMPLATE_VERSION = '2';
+    private const WPBAKERY_SINGLE_TEMPLATE_VERSION = '3';
+    private const WPBAKERY_ARCHIVE_TEMPLATE_VERSION = '2';
 
     public function seed(): void
     {
@@ -740,13 +742,17 @@ class DataSeederService
             && (string) get_post_meta($pageId, '_homlity_seeded_purpose', true) === $purpose;
         if ($sameSeed) {
             $templateVersion = (string) get_post_meta($pageId, '_homlity_seeded_template_version', true);
-            if ($purpose !== 'single_property' || $templateVersion === self::SINGLE_TEMPLATE_VERSION) {
+            $expectedVersion = $this->builderTemplateVersion($builder, $purpose);
+            if ($expectedVersion === '' || $templateVersion === $expectedVersion) {
                 return;
             }
 
-            // Upgrade only the untouched default detail layout. A page edited
+            // Upgrade only an untouched default layout. A page edited
             // by the site owner must never be replaced during a plugin update.
-            if ($existingContent !== trim($this->legacySingleBuilderContent($builder))) {
+            $legacyContent = $purpose === 'archive'
+                ? $this->legacyArchiveBuilderContent($builder, $pageId)
+                : $this->legacySingleBuilderContent($builder);
+            if ($existingContent !== trim($legacyContent)) {
                 return;
             }
         }
@@ -754,8 +760,9 @@ class DataSeederService
         wp_update_post(['ID' => $pageId, 'post_content' => wp_slash($content)]);
         update_post_meta($pageId, '_homlity_seeded_builder', $builder);
         update_post_meta($pageId, '_homlity_seeded_purpose', $purpose);
-        if ($purpose === 'single_property') {
-            update_post_meta($pageId, '_homlity_seeded_template_version', self::SINGLE_TEMPLATE_VERSION);
+        $templateVersion = $this->builderTemplateVersion($builder, $purpose);
+        if ($templateVersion !== '') {
+            update_post_meta($pageId, '_homlity_seeded_template_version', $templateVersion);
         }
 
         if ($builder === 'divi') {
@@ -766,6 +773,12 @@ class DataSeederService
             update_post_meta($pageId, '_et_pb_page_layout', 'et_full_width_page');
             update_post_meta($pageId, '_et_pb_built_for_post_type', 'page');
         } elseif ($builder === 'wpbakery') {
+            delete_post_meta($pageId, '_elementor_edit_mode');
+            delete_post_meta($pageId, '_elementor_data');
+            delete_post_meta($pageId, '_elementor_template_type');
+            delete_post_meta($pageId, '_et_pb_use_builder');
+            delete_post_meta($pageId, '_et_pb_page_layout');
+            delete_post_meta($pageId, '_et_pb_built_for_post_type');
             update_post_meta($pageId, '_wpb_vc_js_status', 'true');
             update_post_meta($pageId, '_vc_post_settings', ['vc_grid_id' => []]);
         }
@@ -784,8 +797,12 @@ class DataSeederService
                 . '[/et_pb_column][/et_pb_row][/et_pb_section]';
         }
         if ($builder === 'wpbakery') {
-            return '[vc_row][vc_column][vc_column_text]<h1>' . $title . '</h1>[/vc_column_text]'
-                . $listing . '[/vc_column][/vc_row]';
+            $filterTarget = $archivePageId > 0 ? ' target_page_id="' . $archivePageId . '"' : '';
+            return '[vc_row][vc_column]'
+                . '[homlity_wpb_property_results_title base_text="' . esc_attr($title) . '"][/homlity_wpb_property_results_title]'
+                . '[homlity_wpb_property_filter' . $filterTarget . '][/homlity_wpb_property_filter]'
+                . '[homlity_wpb_property_listing query_mode="current" default_view="grid" columns="3" posts_per_page="12" show_sort="yes"][/homlity_wpb_property_listing]'
+                . '[/vc_column][/vc_row]';
         }
         return '<h1>' . $title . '</h1>' . $listing;
     }
@@ -820,7 +837,57 @@ class DataSeederService
             return '[et_pb_section][et_pb_row][et_pb_column type="4_4"]' . $content
                 . '[/et_pb_column][/et_pb_row][/et_pb_section]';
         }
+        if ($builder === 'wpbakery') {
+            $modules = [
+                'property_title' => ' title_align="center"',
+                'property_breadcrumb' => '',
+                'property_media_tabs' => '',
+                'property_operation_price' => '',
+                'property_content' => '',
+                'property_features_primary' => ' list_columns="4"',
+                'property_features_secondary' => ' list_columns="4"',
+                'property_share' => '',
+                'property_map' => '',
+                'property_agent' => '',
+                'property_faq' => ' enable_auto_faqs="yes" include_global_faqs="yes"',
+                'property_related' => '',
+            ];
+            $content = '';
+            foreach ($modules as $module => $attributes) {
+                $content .= '[homlity_wpb_' . $module . $attributes . '][/homlity_wpb_' . $module . ']';
+            }
+            return '[vc_row][vc_column]' . $content . '[/vc_column][/vc_row]';
+        }
         return $this->wrapBuilderContent($builder, '[homlity_property_detail]');
+    }
+
+    private function singleTemplateVersion(string $builder): string
+    {
+        return $builder === 'wpbakery'
+            ? self::WPBAKERY_SINGLE_TEMPLATE_VERSION
+            : self::SINGLE_TEMPLATE_VERSION;
+    }
+
+    private function builderTemplateVersion(string $builder, string $purpose): string
+    {
+        if ($purpose === 'single_property') {
+            return $this->singleTemplateVersion($builder);
+        }
+        if ($purpose === 'archive' && $builder === 'wpbakery') {
+            return self::WPBAKERY_ARCHIVE_TEMPLATE_VERSION;
+        }
+        return '';
+    }
+
+    private function legacyArchiveBuilderContent(string $builder, int $archivePageId): string
+    {
+        if ($builder !== 'wpbakery') {
+            return '';
+        }
+        $title = esc_html__('Resultados de inmuebles', 'homlity-real-estate');
+        return '[vc_row][vc_column][vc_column_text]<h1>' . $title . '</h1>[/vc_column_text]'
+            . '[homlity_listing view="grid" columns="3" per_page="12" filters="true" sort="true"]'
+            . '[/vc_column][/vc_row]';
     }
 
     private function legacySingleBuilderContent(string $builder): string
