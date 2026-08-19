@@ -416,45 +416,100 @@ class AgentProfileService implements ServiceInterface
     }
 
     /**
-     * Avatar markup resolving CRM photo → avatar plugins → WP avatar.
+     * Origen de la foto del asesor: id de adjunto y URL, en ese orden de
+     * preferencia —foto del CRM, plugins de avatar, gravatar y, como último
+     * recurso, el logo de la empresa—.
+     *
+     * Existe aparte de avatarHtml() porque una etiqueta dinámica de Elementor
+     * necesita el origen y no el marcado: el widget de imagen monta su propio
+     * <img> con sus tamaños, su recorte y su carga diferida. La cadena de
+     * preferencia se decide aquí una sola vez y avatarHtml() la reutiliza.
+     *
+     * @return array{id:int, url:string, source:string}
      */
-    public static function avatarHtml(WP_User $agent, int $size = 128): string
+    public static function avatarSource(WP_User $agent, int $size = 128): array
     {
-        $alt = esc_attr((string) $agent->display_name);
-
+        // La foto del CRM llega como id de adjunto o como URL suelta. Un id
+        // cuyo adjunto ya no existe no cuenta como foto: se sigue bajando por
+        // la lista en vez de dejar al asesor sin cara.
         $crmPhoto = (string) get_user_meta($agent->ID, '_homlity_advisor_photo', true);
-        if ($crmPhoto !== '') {
-            if (is_numeric($crmPhoto)) {
-                $html = wp_get_attachment_image((int) $crmPhoto, [$size, $size], false, ['alt' => $alt]);
-                if (is_string($html) && $html !== '') {
-                    return $html;
-                }
-            } else {
-                return '<img src="' . esc_url($crmPhoto) . '" alt="' . $alt . '" width="' . (int) $size . '" height="' . (int) $size . '">';
+        if ($crmPhoto !== '' && !is_numeric($crmPhoto)) {
+            return ['id' => 0, 'url' => $crmPhoto, 'source' => 'crm'];
+        }
+        if (is_numeric($crmPhoto)) {
+            $url = wp_get_attachment_image_url((int) $crmPhoto, 'medium');
+            if (is_string($url) && $url !== '') {
+                return ['id' => (int) $crmPhoto, 'url' => $url, 'source' => 'crm'];
             }
         }
 
         $wpUserAvatarId = (int) get_user_meta($agent->ID, 'wp_user_avatar', true);
         if ($wpUserAvatarId > 0) {
-            $html = wp_get_attachment_image($wpUserAvatarId, [$size, $size], false, ['alt' => $alt]);
-            if (is_string($html) && $html !== '') {
-                return $html;
+            $url = wp_get_attachment_image_url($wpUserAvatarId, 'medium');
+            if (is_string($url) && $url !== '') {
+                return ['id' => $wpUserAvatarId, 'url' => $url, 'source' => 'wp-user-avatar'];
             }
         }
 
         $simpleLocalAvatar = get_user_meta($agent->ID, 'simple_local_avatar', true);
         if (is_array($simpleLocalAvatar) && !empty($simpleLocalAvatar['full'])) {
-            return '<img src="' . esc_url((string) $simpleLocalAvatar['full']) . '" alt="' . $alt . '" width="' . (int) $size . '" height="' . (int) $size . '">';
+            return [
+                'id' => 0,
+                'url' => (string) $simpleLocalAvatar['full'],
+                'source' => 'simple-local-avatar',
+            ];
         }
 
-        $avatar = get_avatar($agent->ID, $size, '', (string) $agent->display_name);
-        if (is_string($avatar) && $avatar !== '') {
-            return $avatar;
+        if (function_exists('get_avatar_url')) {
+            $url = get_avatar_url($agent->ID, ['size' => $size]);
+            if (is_string($url) && $url !== '') {
+                return ['id' => 0, 'url' => $url, 'source' => 'gravatar'];
+            }
         }
 
-        $logoUrl = SeoGeoSettingsService::get('company_logo', '');
+        return [
+            'id' => 0,
+            'url' => (string) SeoGeoSettingsService::get('company_logo', ''),
+            'source' => 'logo',
+        ];
+    }
 
-        return $logoUrl ? '<img src="' . esc_url((string) $logoUrl) . '" alt="' . $alt . '">' : '';
+    /**
+     * Avatar markup resolving CRM photo → avatar plugins → WP avatar.
+     */
+    public static function avatarHtml(WP_User $agent, int $size = 128): string
+    {
+        $alt = esc_attr((string) $agent->display_name);
+        $source = self::avatarSource($agent, $size);
+
+        // El gravatar se pide con get_avatar() y no con su URL: es lo que
+        // respeta el ajuste «Mostrar avatares», deja pasar los filtros de los
+        // plugins de avatar y trae el srcset ya puesto.
+        if ($source['source'] === 'gravatar') {
+            $avatar = get_avatar($agent->ID, $size, '', (string) $agent->display_name);
+            if (is_string($avatar) && $avatar !== '') {
+                return $avatar;
+            }
+        }
+
+        if ($source['id'] > 0) {
+            $html = wp_get_attachment_image($source['id'], [$size, $size], false, ['alt' => $alt]);
+            if (is_string($html) && $html !== '') {
+                return $html;
+            }
+        }
+
+        if ($source['url'] === '') {
+            return '';
+        }
+
+        // El logo de la empresa no es cuadrado: darle el lado del avatar lo
+        // deformaría, así que va sin medidas y lo dimensiona la hoja de estilos.
+        $box = $source['source'] === 'logo'
+            ? ''
+            : ' width="' . (int) $size . '" height="' . (int) $size . '"';
+
+        return '<img src="' . esc_url($source['url']) . '" alt="' . $alt . '"' . $box . '>';
     }
 
     /**

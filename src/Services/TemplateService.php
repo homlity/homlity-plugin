@@ -112,16 +112,16 @@ class TemplateService implements ServiceInterface
             return;
         }
 
-        $cssFile = HOMLITY_PLUGIN_PATH . 'assets/css/front-components.css';
-        $css = file_exists($cssFile) ? (string) file_get_contents($cssFile) : '';
-        $css .= '
-            @page { margin: 18px; }
-            body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 12px; color: #111827; }
-            .homlity-tech-sheet { max-width: none !important; padding: 0 !important; }
-            .homlity-tech-sheet__actions { display: none !important; }
-            .homlity-tech-sheet__card { page-break-inside: avoid; }
-            .homlity-tech-sheet__gallery { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
-        ';
+        // The screen stylesheet first, then the print one on top: Dompdf
+        // implements neither grid nor flexbox, so without the second file every
+        // section of the sheet stacks into a single column.
+        $css = '';
+        foreach (['assets/css/front-components.css', 'assets/css/technical-sheet-pdf.css'] as $stylesheet) {
+            $cssFile = HOMLITY_PLUGIN_PATH . $stylesheet;
+            if (file_exists($cssFile)) {
+                $css .= (string) file_get_contents($cssFile);
+            }
+        }
 
         ob_start();
         self::includeComponent('property-technical-sheet.php', ['post_id' => $postId]);
@@ -689,7 +689,7 @@ class TemplateService implements ServiceInterface
 
     public function enqueuePublicAssets(): void
     {
-        if (!$this->shouldEnqueuePublicAssets()) {
+        if (!$this->ownsCurrentRequest()) {
             return;
         }
 
@@ -971,7 +971,15 @@ class TemplateService implements ServiceInterface
         include $path;
     }
 
-    private function shouldEnqueuePublicAssets(): bool
+    /**
+     * Whether the plugin is responsible for how this request looks, and must
+     * therefore load its front stylesheet.
+     *
+     * Divi and WPBakery enqueue it for the whole site from their integration
+     * services; under Elementor this is the only thing that loads it outside a
+     * widget's own get_style_depends().
+     */
+    public function ownsCurrentRequest(): bool
     {
         if (is_singular(PropertyPostType::POST_TYPE) || is_post_type_archive(PropertyPostType::POST_TYPE) || $this->isArchivePage) {
             return true;
@@ -982,7 +990,11 @@ class TemplateService implements ServiceInterface
             return true;
         }
 
-        if (get_query_var('property_agent')) {
+        // Both advisor-profile URLs and the technical sheet. Asking the
+        // services beats matching a query var: the profile moved to
+        // /author/{asesor}/, where the legacy `property_agent` var is empty and
+        // the page would have rendered without a stylesheet.
+        if (AgentProfileService::isAgentProfileRequest() || TechnicalSheetService::isSheetRequest()) {
             return true;
         }
 

@@ -4,7 +4,7 @@ Tags: real estate, property, listings, agents, property management
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.7.1
+Stable tag: 2.7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,12 +79,20 @@ Developed and maintained by **Ecosistema Inmobiliario Homlity**, a team speciali
 
 == Changelog ==
 
+= 2.7.1 =
+* La retícula del PDF de la ficha técnica pasa a píxeles fijos: columnas de 240 px sobre los 737 útiles de una A4, en vez de porcentajes. El generador de PDF no aplica `box-sizing`, así que un 33,33 % no entraba tres veces y el reparto dependía de cuánto padding llevara cada sección.
+* El logo de la cabecera ocupa el ancho completo del título cuando el sitio no tiene logo configurado.
+* Los datos del asesor se exponen a Elementor como etiquetas dinámicas: "Asesor: dato" (nombre, cargo, teléfono, correo, biografía, sitio web y número de inmuebles), "Asesor: enlace" (perfil, WhatsApp, llamada, correo y sitio web) y "Asesor: foto". Funcionan en /author/{asesor}/ y en la ficha del inmueble, y admiten fijar un asesor concreto para previsualizar en el editor.
+
 = 2.7.0 =
 * El botón "Ficha técnica" descarga el PDF del inmueble en lugar de abrir la ficha en una pestaña nueva.
 * El widget trae un nuevo control "Acción" por si se prefiere seguir abriendo la ficha en el sitio.
 * Nuevo filtro `homlity_technical_sheet_pdf_available`.
 * El widget "Asesor del inmueble" permite disponer la tarjeta en vertical (foto sobre los datos) u horizontal (foto al lado), y por dispositivo.
 * El widget "Listado de inmuebles" añade el origen de consulta "Inmuebles del asesor de la página", con un asesor de referencia opcional para la vista previa del editor.
+* Corregido: con Elementor, la página del asesor /author/{asesor}/ y la ficha técnica /ficha-tecnica/{inmueble}/ se servían sin la hoja de estilos del plugin.
+* Corregido: con Elementor, los widgets del plugin colocados fuera de una página de inmuebles se pintaban sin estilos; ahora cada widget declara la hoja que necesita.
+* El PDF de la ficha técnica se rediseña para aprovechar el espacio: información general, dimensiones, finanzas, características, fotos y enlaces multimedia van a tres columnas, y las fotos se acotan a 150 px de ancho. Una ficha completa pasa de ocho páginas a dos.
 
 = 2.6.0 =
 * El perfil público del asesor pasa a su URL de usuario: /author/{asesor}/. Muestra foto, nombre, cargo, correo, teléfono, descripción e inmuebles relacionados.

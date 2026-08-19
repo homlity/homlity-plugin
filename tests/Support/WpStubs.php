@@ -24,6 +24,21 @@ final class WpStubs
     /** Si la petición actual es un archivo de autor. */
     public static bool $isAuthor = false;
 
+    /** Post type de is_singular(); vacío = la petición no es singular. */
+    public static string $singularPostType = '';
+
+    /** Post type de is_post_type_archive(); vacío = no es un archivo. */
+    public static string $postTypeArchive = '';
+
+    /** Página de is_page(); 0 = la petición no es una página. */
+    public static int $currentPageId = 0;
+
+    /** Post dentro del bucle: lo que devuelve get_the_ID(). */
+    public static int $currentPostId = 0;
+
+    /** Taxonomía de is_tax(); vacío = no es un archivo de término. */
+    public static string $currentTaxonomy = '';
+
     /**
      * Resuelve los WP_Query que construye el código bajo prueba.
      *
@@ -99,6 +114,11 @@ final class WpStubs
         self::$users = [];
         self::$userMeta = [];
         self::$isAuthor = false;
+        self::$singularPostType = '';
+        self::$postTypeArchive = '';
+        self::$currentPageId = 0;
+        self::$currentPostId = 0;
+        self::$currentTaxonomy = '';
         self::$queryResolver = null;
         self::$redirects = [];
         self::$postMeta = [];

@@ -14,6 +14,30 @@ if (!defined('ABSPATH')) {
 
 abstract class BasePropertyWidget extends Widget_Base
 {
+    /** The plugin's shared front stylesheet. */
+    protected const FRONT_COMPONENTS_STYLE_HANDLE = 'homlity-real-estate-front-components';
+
+    /**
+     * Every property widget is styled by the plugin's front stylesheet, and
+     * Elementor — unlike the Divi and WPBakery integrations, which enqueue it
+     * for the whole site — only loads it on the requests TemplateService owns.
+     * Declaring it here styles the widgets wherever they are dropped: a plain
+     * page, a header, an advisor profile.
+     *
+     * @return string[]
+     */
+    public function get_style_depends(): array
+    {
+        wp_register_style(
+            self::FRONT_COMPONENTS_STYLE_HANDLE,
+            HOMLITY_PLUGIN_URL . 'assets/css/front-components.css',
+            [],
+            HOMLITY_PLUGIN_VERSION
+        );
+
+        return [self::FRONT_COMPONENTS_STYLE_HANDLE];
+    }
+
     protected function register_property_control(): void
     {
         $this->add_control(

@@ -1021,3 +1021,88 @@ if (!function_exists('wp_get_attachment_image')) {
         );
     }
 }
+
+if (!function_exists('is_singular')) {
+    /** @param string|string[] $types */
+    function is_singular($types = ''): bool
+    {
+        $current = WpStubs::$singularPostType;
+        if ($current === '') {
+            return false;
+        }
+        $types = (array) $types;
+
+        return $types === [] || $types === [''] || in_array($current, $types, true);
+    }
+}
+
+if (!function_exists('is_post_type_archive')) {
+    /** @param string|string[] $types */
+    function is_post_type_archive($types = ''): bool
+    {
+        $current = WpStubs::$postTypeArchive;
+        if ($current === '') {
+            return false;
+        }
+        $types = (array) $types;
+
+        return $types === [] || $types === [''] || in_array($current, $types, true);
+    }
+}
+
+if (!function_exists('is_page')) {
+    /** @param int|string $page */
+    function is_page($page = ''): bool
+    {
+        if (WpStubs::$currentPageId <= 0) {
+            return false;
+        }
+
+        return $page === '' || (int) $page === WpStubs::$currentPageId;
+    }
+}
+
+if (!function_exists('is_tax')) {
+    /** @param string|string[] $taxonomies */
+    function is_tax($taxonomies = ''): bool
+    {
+        $current = WpStubs::$currentTaxonomy;
+        if ($current === '') {
+            return false;
+        }
+        $taxonomies = (array) $taxonomies;
+
+        return $taxonomies === [] || $taxonomies === [''] || in_array($current, $taxonomies, true);
+    }
+}
+
+if (!function_exists('get_the_ID')) {
+    /** @return int|false */
+    function get_the_ID()
+    {
+        return WpStubs::$currentPostId > 0 ? WpStubs::$currentPostId : false;
+    }
+}
+
+if (!function_exists('get_avatar_url')) {
+    /** @return string|false */
+    function get_avatar_url($userId, array $args = [])
+    {
+        return 'https://gravatar.test/' . (int) $userId . '?s=' . (int) ($args['size'] ?? 96);
+    }
+}
+
+if (!function_exists('sanitize_email')) {
+    function sanitize_email(string $email): string
+    {
+        return trim(preg_replace('/[^a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~@\-]/', '', $email) ?? '');
+    }
+}
+
+if (!function_exists('is_email')) {
+    /** @return string|false */
+    function is_email(string $email)
+    {
+        return preg_match('/^[^@\s]+@[^@\s.]+\.[^@\s]+$/', $email) === 1 ? $email : false;
+    }
+}

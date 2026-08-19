@@ -1,0 +1,166 @@
+/* ── Hoja de estilos del PDF ───────────────────────────────────────────────
+   Dompdf no implementa grid, flexbox ni `columns`, que es como está maquetada
+   la ficha en pantalla. Sin esto cada sección se apila en una sola columna y
+   la ficha se va a ocho páginas. `inline-block` sí lo entiende, y reparte el
+   ancho envolviendo a la fila siguiente.
+
+   Todo va en píxeles fijos, nunca en porcentajes: Dompdf no aplica
+   `box-sizing`, así que el padding suma al ancho declarado y un 33,33 % no
+   entra tres veces. Con medidas estáticas la retícula es exacta y se
+   comprueba sumando.
+
+   Retícula (Dompdf resuelve el px a 96 dpi: 1 px = 0,75 pt)
+
+     A4 vertical ................................... 793 px
+     − márgenes de página .......................... 2 × 16 px
+     = ancho de página ............................. 761 px
+     − borde y padding de la tarjeta ............... 2 × 12 px
+     = ancho útil dentro de una tarjeta ............ 737 px
+
+     Columna = 232 px de contenido + 8 px de aire =  240 px
+     3 × 240 ....................................... 720 px  (17 px de holgura)
+
+   Al lado de una foto —cabecera y asesor— el ancho útil baja, y las columnas
+   de esa fila se recalculan igual: está anotado en cada bloque. */
+
+@page { margin: 16px; }
+
+body {
+    color: #111827;
+    font-family: DejaVu Sans, Arial, sans-serif;
+    font-size: 11px;
+}
+
+/* El ancho de la hoja y el de cada tarjeta no se declaran: en un bloque
+   Dompdf los deriva de la página, y salen los 761 y 737 px de la cuenta de
+   arriba. Fijarlos aquí no cambiaría nada hoy y rompería el día que alguien
+   toque el margen de página. Los anchos fijos son los de las celdas. */
+.homlity-tech-sheet {
+    max-width: none;
+    padding: 0;
+}
+
+/* Botones de navegación: no tienen sentido en un archivo. */
+.homlity-tech-sheet__actions { display: none; }
+
+/* ── Compactado general ─────────────────────────────────────────────────── */
+
+.homlity-tech-sheet__hero,
+.homlity-tech-sheet__card {
+    margin-bottom: 8px;
+    padding: 9px 11px;
+}
+
+.homlity-tech-sheet__card { page-break-inside: avoid; }
+.homlity-tech-sheet__card h2 { font-size: 13px; margin: 0 0 5px; }
+.homlity-tech-sheet__card h3 { font-size: 11px; margin: 7px 0 3px; }
+
+/* ── Cabecera: logo junto al título, no encima ──────────────────────────── */
+/* El logo ocupa 71 px medidos —52 de foto, 10 de padding y 10 de aire—, así
+   que al título le quedan 666: 660. */
+
+.homlity-tech-sheet__hero-logo {
+    display: inline-block;
+    height: 52px;
+    margin-right: 10px;
+    padding: 5px;
+    vertical-align: middle;
+    width: 52px;
+}
+
+.homlity-tech-sheet__hero-text {
+    display: inline-block;
+    vertical-align: middle;
+    width: 660px;
+}
+
+/* Sin logo el título ocupa la tarjeta entera. */
+.homlity-tech-sheet__hero-text:first-child { width: 737px; }
+
+.homlity-tech-sheet__hero-text h1 { font-size: 16px; margin: 0; }
+.homlity-tech-sheet__brand-label { font-size: 9px; margin: 0 0 2px; }
+.homlity-tech-sheet__hero-subtitle { font-size: 10px; margin: 3px 0 0; }
+
+/* ── Tres columnas: información, dimensiones, características, multimedia ─ */
+
+.homlity-tech-sheet__grid > div,
+.homlity-tech-sheet__features-list li,
+.homlity-tech-sheet__media-links > div {
+    display: inline-block;
+    padding-right: 8px;
+    vertical-align: top;
+    width: 232px;
+}
+
+.homlity-tech-sheet__grid > div {
+    font-size: 11px;
+    padding-bottom: 2px;
+    padding-top: 1px;
+}
+
+/* El `columns: 2` de la hoja de pantalla no hay que anularlo: Dompdf ignora
+   la propiedad, y el reparto lo hacen los propios <li>. */
+.homlity-tech-sheet__features-list li {
+    font-size: 11px;
+    margin-bottom: 2px;
+}
+
+.homlity-tech-sheet__media-links > div { font-size: 10px; }
+.homlity-tech-sheet__media-links ul { margin: 0; padding-left: 12px; }
+
+/* ── Finanzas: la tarjeta de cada cifra trae padding propio ─────────────── */
+/* 216 + 14 de padding + 2 de borde + 8 de aire = 240. */
+
+.homlity-tech-sheet__stats > article {
+    display: inline-block;
+    margin: 0 8px 8px 0;
+    padding: 5px 7px;
+    vertical-align: top;
+    width: 216px;
+}
+
+.homlity-tech-sheet__stat-label { font-size: 8px; margin-bottom: 1px; }
+.homlity-tech-sheet__stat-value { font-size: 12px; }
+
+/* ── Asesor: foto al lado de los datos ──────────────────────────────────── */
+/* 737 − 68 de la foto = 669 → 665, y ahí caben 3 × 220. */
+
+.homlity-tech-sheet__advisor-avatar-wrap {
+    display: inline-block;
+    vertical-align: top;
+    width: 68px;
+}
+
+.homlity-tech-sheet__advisor-avatar {
+    height: 60px;
+    width: 60px;
+}
+
+.homlity-tech-sheet__grid--advisor {
+    display: inline-block;
+    vertical-align: top;
+    width: 665px;
+}
+
+.homlity-tech-sheet__grid--advisor > div { width: 212px; }
+
+/* ── Fotos: 150 px de ancho, tres por fila ──────────────────────────────── */
+/* La celda mide lo mismo que una columna de texto, así la retícula de la
+   ficha es una sola de punta a punta; la foto va dentro a su tamaño. */
+
+.homlity-tech-sheet__gallery > a {
+    display: inline-block;
+    padding: 0 8px 8px 0;
+    vertical-align: top;
+    width: 232px;
+}
+
+.homlity-tech-sheet__gallery img {
+    height: auto;
+    max-width: 150px;
+    width: 150px;
+}
+
+.homlity-tech-sheet__description { font-size: 11px; }
+.homlity-tech-sheet__description p { margin: 0 0 6px; }
+.homlity-tech-sheet__legal { font-size: 9px; }

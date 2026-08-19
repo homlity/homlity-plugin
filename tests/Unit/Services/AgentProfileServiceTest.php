@@ -326,6 +326,71 @@ final class AgentProfileServiceTest extends TestCase
         self::assertSame('3001112233', AgentProfileService::agentPhone($agent));
     }
 
+    // ── Origen de la foto ─────────────────────────────────────────────────
+    //
+    // La cadena de preferencia vive en avatarSource() y la reutiliza
+    // avatarHtml(): con las dos escritas por separado bastaba con tocar una
+    // para que la etiqueta dinámica de Elementor y el widget acabaran
+    // enseñando fotos distintas del mismo asesor.
+
+    public function testTheCrmPhotoWinsOverEveryOtherAvatar(): void
+    {
+        $agent = $this->givenAdvisor(7, 'egiraldo', [], [
+            '_homlity_advisor_photo' => '481',
+            'wp_user_avatar' => '900',
+            'simple_local_avatar' => ['full' => 'https://example.test/sla.jpg'],
+        ]);
+
+        $source = AgentProfileService::avatarSource($agent);
+
+        self::assertSame('crm', $source['source']);
+        self::assertSame(481, $source['id']);
+    }
+
+    public function testTheAvatarPluginsComeBeforeTheGravatar(): void
+    {
+        $agent = $this->givenAdvisor(7, 'egiraldo', [], ['wp_user_avatar' => '900']);
+
+        self::assertSame('wp-user-avatar', AgentProfileService::avatarSource($agent)['source']);
+
+        $other = $this->givenAdvisor(8, 'lmejia', [], [
+            'simple_local_avatar' => ['full' => 'https://example.test/sla.jpg'],
+        ]);
+
+        $source = AgentProfileService::avatarSource($other);
+        self::assertSame('simple-local-avatar', $source['source']);
+        self::assertSame('https://example.test/sla.jpg', $source['url']);
+    }
+
+    public function testWithoutAnyPhotoTheAvatarIsTheGravatar(): void
+    {
+        $agent = $this->givenAdvisor(7, 'egiraldo');
+
+        self::assertSame('gravatar', AgentProfileService::avatarSource($agent)['source']);
+    }
+
+    /** Y el gravatar se pinta con get_avatar(), no con su URL a pelo. */
+    public function testTheGravatarIsRenderedByWordPressItself(): void
+    {
+        $agent = $this->givenAdvisor(7, 'egiraldo');
+
+        self::assertStringContainsString('class="avatar"', AgentProfileService::avatarHtml($agent));
+    }
+
+    /**
+     * Un adjunto borrado deja el metadato apuntando a nada: hay que seguir
+     * bajando por la lista en vez de dejar al asesor sin cara.
+     */
+    public function testAMissingAttachmentFallsThroughToTheNextSource(): void
+    {
+        $agent = $this->givenAdvisor(7, 'egiraldo', [], [
+            '_homlity_advisor_photo' => '0',
+            'simple_local_avatar' => ['full' => 'https://example.test/sla.jpg'],
+        ]);
+
+        self::assertSame('simple-local-avatar', AgentProfileService::avatarSource($agent)['source']);
+    }
+
     // ── Redirección de la ruta antigua ────────────────────────────────────
 
     public function testTheLegacyRouteRedirectsToTheAuthorUrl(): void
