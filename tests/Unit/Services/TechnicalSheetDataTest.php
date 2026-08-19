@@ -108,6 +108,30 @@ final class TechnicalSheetDataTest extends TestCase
         self::assertSame('Sin dato', $byLabel['Área lote'], 'Un área vacía no puede salir como «Sin dato m²».');
     }
 
+    // ── Descripción ───────────────────────────────────────────────────────
+
+    /**
+     * La descripción es el texto del inmueble, no la página entera.
+     *
+     * Elementor engancha `the_content` y, cuando el post está montado con el
+     * constructor, devuelve el documento completo se le pase lo que se le
+     * pase. Pasando la descripción por ese filtro, la ficha acababa con toda
+     * la página de Elementor dentro de la tarjeta «Descripción del inmueble».
+     */
+    public function testLaDescripcionNoArrastraLaPaginaDelConstructor(): void
+    {
+        $postId = $this->givenProperty();
+        WpStubs::$postContent[$postId] = '<p>Apartamento con vista al valle.</p>';
+
+        // Así se comporta Elementor: ignora lo que recibe y devuelve lo suyo.
+        WpStubs::addFilter('the_content', static fn(): string => '<div class="elementor">PÁGINA ENTERA</div>');
+
+        $description = TechnicalSheetData::forProperty($postId)['description'];
+
+        self::assertStringNotContainsString('PÁGINA ENTERA', $description);
+        self::assertStringContainsString('Apartamento con vista al valle.', $description);
+    }
+
     // ── Asesor ────────────────────────────────────────────────────────────
 
     public function testElAsesorSaleDelUsuarioDeWordPress(): void

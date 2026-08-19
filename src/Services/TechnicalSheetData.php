@@ -40,7 +40,7 @@ final class TechnicalSheetData
             'show' => $show,
             'title' => $title,
             'permalink' => (string) get_permalink($postId),
-            'description' => (string) apply_filters('the_content', get_post_field('post_content', $postId)),
+            'description' => PropertyDescription::text($postId),
             'primary_color' => self::primaryColor($settings, $plugin),
             'company' => self::company($plugin),
             'agent' => self::agent($postId, $metaKeys, $title),

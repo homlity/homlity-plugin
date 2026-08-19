@@ -42,6 +42,9 @@ final class WpStubs
     /** @var array<int,string> post id => contenido del post */
     public static array $postContent = [];
 
+    /** @var array<int,string> post id => extracto del post */
+    public static array $postExcerpt = [];
+
     /** @var array<int,string> post id => URL de la imagen destacada */
     public static array $thumbnails = [];
 
@@ -129,6 +132,7 @@ final class WpStubs
         self::$currentPostId = 0;
         self::$postTerms = [];
         self::$postContent = [];
+        self::$postExcerpt = [];
         self::$thumbnails = [];
         self::$currentTaxonomy = '';
         self::$queryResolver = null;

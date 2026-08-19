@@ -4,7 +4,7 @@ Tags: real estate, property, listings, agents, property management
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.7.4
+Stable tag: 2.7.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,7 @@ Developed and maintained by **Ecosistema Inmobiliario Homlity**, a team speciali
 = 2.7.1 =
 * La retícula del PDF de la ficha técnica pasa a píxeles fijos: columnas de 240 px sobre los 737 útiles de una A4, en vez de porcentajes. El generador de PDF no aplica `box-sizing`, así que un 33,33 % no entraba tres veces y el reparto dependía de cuánto padding llevara cada sección.
 * El logo de la cabecera ocupa el ancho completo del título cuando el sitio no tiene logo configurado.
+* Corregido: la descripción del inmueble insertaba la página entera del constructor. Con Elementor activo, el filtro `the_content` devuelve el documento completo sin mirar lo que recibe, así que la ficha técnica —en pantalla y en PDF— y los widgets "Contenido del inmueble" y "Resumen del inmueble" acababan con la página dentro. Ahora se pinta el texto del inmueble, sin shortcodes, con respaldo al extracto y con el filtro `homlity_property_description` para quien necesite otra cosa.
 * La ficha técnica en PDF deja de repetir datos: el asesor y la inmobiliaria salen en la cabecera y el pie de cada página, y ya no se vuelven a listar en tarjetas aparte ni en el cierre. Una ficha completa baja de cuatro páginas a tres.
 * La ficha técnica en PDF se rehace con el diseño de la ficha del sistema: cabecera y pie de página repetidos en cada hoja, tarjetas con encabezado en el color de la marca, cifras y características en tres columnas, catálogo de hasta nueve fotos y botones de WhatsApp para contactar, agendar visita u ofertar. La ficha en pantalla no cambia.
 * Eliminado el widget "Inmuebles relacionados" de Elementor, Divi y WPBakery. El widget "Listado de inmuebles" ya cubre lo mismo con su modo de consulta "Inmuebles relacionados al inmueble de la página", que además permite elegir taxonomías, estrategia de coincidencia y qué hacer cuando no hay resultados. La plantilla de inmueble que genera el plugin deja de incluir la sección; donde el widget ya esté colocado hay que sustituirlo a mano por el listado en ese modo.

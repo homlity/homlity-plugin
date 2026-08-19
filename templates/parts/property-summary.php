@@ -4,6 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+use Homlity\PluginInmobiliario\Services\PropertyDescription;
 use Homlity\PluginInmobiliario\Services\TemplateService;
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
@@ -18,7 +19,7 @@ if (!isset($post_id)) {
     $post_id = get_the_ID();
 }
 
-$content = apply_filters('the_content', get_post_field('post_content', $post_id));
+$content = PropertyDescription::text((int) $post_id);
 
 if (empty($content)) {
     return;

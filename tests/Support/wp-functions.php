@@ -1114,6 +1114,9 @@ if (!function_exists('get_post_field')) {
         if ($field === 'post_content') {
             return WpStubs::$postContent[$postId] ?? '';
         }
+        if ($field === 'post_excerpt') {
+            return WpStubs::$postExcerpt[$postId] ?? '';
+        }
         if ($field === 'post_title') {
             return WpStubs::$postTitles[$postId] ?? '';
         }
@@ -1223,5 +1226,34 @@ if (!function_exists('locate_template')) {
     function locate_template($templateNames, bool $load = false, bool $requireOnce = true): string
     {
         return '';
+    }
+}
+
+if (!function_exists('strip_shortcodes')) {
+    function strip_shortcodes(string $content): string
+    {
+        return (string) preg_replace('/\[\/?[a-zA-Z0-9_-]+[^\]]*\]/', '', $content);
+    }
+}
+
+if (!function_exists('wpautop')) {
+    /** Versión reducida: envuelve en <p> lo que no venga ya en bloques. */
+    function wpautop(string $text, bool $lineBreaks = true): string
+    {
+        $text = trim($text);
+        if ($text === '' || preg_match('/^\s*<(p|div|ul|ol|table|h[1-6])\b/i', $text) === 1) {
+            return $text;
+        }
+
+        $paragraphs = preg_split('/\n\s*\n/', $text) ?: [];
+        $out = '';
+        foreach ($paragraphs as $paragraph) {
+            $paragraph = trim($paragraph);
+            if ($paragraph !== '') {
+                $out .= '<p>' . ($lineBreaks ? nl2br($paragraph) : $paragraph) . "</p>\n";
+            }
+        }
+
+        return $out;
     }
 }

@@ -4,6 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+use Homlity\PluginInmobiliario\Services\PropertyDescription;
 use Homlity\PluginInmobiliario\Services\TemplateService;
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
@@ -14,7 +15,7 @@ $tag = isset($content_tag) ? strtolower((string) $content_tag) : 'div';
 if (!in_array($tag, ['div', 'section', 'article', 'p'], true)) {
     $tag = 'div';
 }
-$contentHtml  = (string) apply_filters('the_content', get_post_field('post_content', $post_id));
+$contentHtml  = PropertyDescription::text((int) $post_id);
 $contentPlain = trim(wp_strip_all_tags($contentHtml));
 $showAudio    = !empty($show_audio_player) && $contentPlain !== '';
 $audioHeading = isset($audio_player_heading) ? (string) $audio_player_heading : __('Escucha', 'homlity-real-estate');

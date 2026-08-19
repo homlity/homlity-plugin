@@ -171,6 +171,29 @@ final class TechnicalSheetPdfGenerationTest extends TestCase
         self::assertStringContainsString('DESCRIPCIÓN DEL INMUEBLE', $text);
     }
 
+    /**
+     * La tarjeta de descripción lleva el texto del inmueble, no la página.
+     *
+     * Es el caso que se vio en producción: con el inmueble montado en
+     * Elementor, `the_content` devuelve el documento entero y la ficha salía
+     * con toda la página metida en «Descripción del inmueble».
+     */
+    public function testLaDescripcionNoTraeLaPaginaDelConstructor(): void
+    {
+        $postId = $this->givenProperty();
+        WpStubs::$postContent[$postId] = '<p>Apartamento con vista al valle de Aburrá.</p>';
+        WpStubs::addFilter(
+            'the_content',
+            static fn(): string => '<div>MENU PRINCIPAL Inicio Inmuebles Contacto PIE DE PAGINA</div>'
+        );
+
+        $text = PdfProbe::text(PdfProbe::inflate(TemplateService::technicalSheetPdf($postId)));
+
+        self::assertStringNotContainsString('MENU PRINCIPAL', $text);
+        self::assertStringNotContainsString('PIE DE PAGINA', $text);
+        self::assertStringContainsString('Apartamento con vista al valle', $text);
+    }
+
     // ── Enchufa lo que debe ───────────────────────────────────────────────
 
     /**
