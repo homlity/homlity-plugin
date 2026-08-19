@@ -15,6 +15,9 @@ if (!defined('ABSPATH')) {
 
 class PropertySearchService implements ServiceInterface
 {
+    /** Named meta clause used to order by price. */
+    private const ORDER_PRICE_CLAUSE = 'homlity_price_order';
+
     public function register(): void
     {
         add_filter('posts_clauses', [$this, 'applyPriorityKeywordSearch'], 20, 2);
@@ -100,10 +103,6 @@ class PropertySearchService implements ServiceInterface
             ],
         ];
 
-        if (!empty($params['search'])) {
-            $args['homlity_keyword_search'] = sanitize_text_field((string) $params['search']);
-        }
-
         $taxMap = [
             'category'     => PropertyTaxonomies::TAXONOMY_CATEGORY,
             'operation'    => PropertyTaxonomies::TAXONOMY_OPERATION,
@@ -119,6 +118,13 @@ class PropertySearchService implements ServiceInterface
 
         if (($params['query_mode'] ?? '') === 'current') {
             $params = array_merge($params, $this->currentQueryParams());
+        }
+
+        // Read after the `current` merge: otherwise a keyword coming from the
+        // URL would be consumed before it was collected, and every other filter
+        // of that same request would apply except the free-text one.
+        if (!empty($params['search'])) {
+            $args['homlity_keyword_search'] = sanitize_text_field((string) $params['search']);
         }
 
         // User filter terms
@@ -198,6 +204,17 @@ class PropertySearchService implements ServiceInterface
                     'operator' => 'IN',
                 ];
             }
+        }
+
+        // Advisor (asesor) filter
+        $agentId = absint($params['preset_agent'] ?? 0);
+        if ($agentId > 0) {
+            $args['meta_query'][] = [
+                'key'     => '_property_agent_id',
+                'value'   => $agentId,
+                'compare' => '=',
+                'type'    => 'NUMERIC',
+            ];
         }
 
         // Featured only
@@ -299,14 +316,18 @@ class PropertySearchService implements ServiceInterface
         // Orderby
         switch ($orderby) {
             case 'price_asc':
-                $args['orderby']  = 'meta_value_num';
-                $args['meta_key'] = $this->resolvePriceMetaKey($params);
-                $args['order']    = 'ASC';
-                break;
             case 'price_desc':
-                $args['orderby']  = 'meta_value_num';
-                $args['meta_key'] = $this->resolvePriceMetaKey($params);
-                $args['order']    = 'DESC';
+                // Ordering by a named meta clause instead of `meta_key` +
+                // `meta_value_num`: WP_Query resolves the latter against
+                // `reset($meta_clauses)` (wp-includes/class-wp-query.php),
+                // which here is the availability guard added above, not the
+                // price. That made every row tie on 0 and the sort do nothing.
+                $args['meta_query'][self::ORDER_PRICE_CLAUSE] = [
+                    'key'     => $this->resolvePriceMetaKey($params),
+                    'type'    => 'NUMERIC',
+                    'compare' => 'EXISTS',
+                ];
+                $args['orderby'] = [self::ORDER_PRICE_CLAUSE => $orderby === 'price_asc' ? 'ASC' : 'DESC'];
                 break;
             case 'title':
                 $args['orderby'] = 'title';
@@ -398,6 +419,13 @@ class PropertySearchService implements ServiceInterface
             $likeAny,
             $likeAny
         );
+
+        // The rank reads columns from the joined tables while the query groups
+        // by post ID. Aggregating it keeps the best match per property and,
+        // more importantly, makes the statement valid under MySQL's
+        // ONLY_FULL_GROUP_BY, which is on by default since 5.7 and otherwise
+        // fails the whole query — leaving the search with zero results.
+        $rankSql = 'MIN(' . $rankSql . ')';
 
         $existingOrderby = trim((string) ($clauses['orderby'] ?? ''));
         $clauses['orderby'] = $rankSql . ($existingOrderby !== '' ? ', ' . $existingOrderby : '');

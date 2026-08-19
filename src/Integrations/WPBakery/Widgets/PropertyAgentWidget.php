@@ -2,6 +2,7 @@
 
 namespace Homlity\PluginInmobiliario\Integrations\WPBakery\Widgets;
 
+use Homlity\PluginInmobiliario\Services\AgentProfileService;
 use Homlity\PluginInmobiliario\Services\TemplateService;
 use Homlity\PluginInmobiliario\Integrations\WPBakery\Compatibility\Controls_Manager;
 use Homlity\PluginInmobiliario\Integrations\WPBakery\Compatibility\Group_Control_Border;
@@ -39,14 +40,40 @@ class PropertyAgentWidget extends BasePropertyWidget
             'type'      => Controls_Manager::CHOOSE,
             'default'   => 'dynamic',
             'options'   => [
-                'dynamic' => ['title' => __('Del inmueble', 'homlity-real-estate'), 'icon' => 'eicon-post-info'],
-                'static'  => ['title' => __('Datos fijos',  'homlity-real-estate'), 'icon' => 'eicon-edit'],
+                'dynamic'       => ['title' => __('Del inmueble', 'homlity-real-estate'), 'icon' => 'eicon-post-info'],
+                'current_agent' => ['title' => __('Asesor de la página', 'homlity-real-estate'), 'icon' => 'eicon-user-circle-o'],
+                'static'        => ['title' => __('Datos fijos',  'homlity-real-estate'), 'icon' => 'eicon-edit'],
             ],
             'toggle' => false,
         ]);
 
         // — Selector de inmueble (modo dinámico) —
         $this->register_property_control();
+
+        // — Asesor de la página de perfil (/property-agent/{asesor}/) —
+        $this->add_control('agent_id', [
+            'label'       => __('Asesor', 'homlity-real-estate'),
+            'type'        => Controls_Manager::SELECT,
+            'options'     => AgentProfileService::agentChoices(),
+            'default'     => '',
+            'description' => __('Vacío: toma el asesor de la página de perfil que se está viendo. Elige uno para fijarlo o previsualizarlo en el editor.', 'homlity-real-estate'),
+            'condition'   => ['data_source' => 'current_agent'],
+        ]);
+
+        $this->add_control('show_property_count', [
+            'label'     => __('Mostrar número de inmuebles', 'homlity-real-estate'),
+            'type'      => Controls_Manager::SWITCHER,
+            'default'   => 'yes',
+            'condition' => ['data_source' => 'current_agent'],
+        ]);
+
+        $this->add_control('show_bio', [
+            'label'       => __('Mostrar biografía', 'homlity-real-estate'),
+            'type'        => Controls_Manager::SWITCHER,
+            'default'     => 'yes',
+            'description' => __('Usa el campo "Información biográfica" del perfil de usuario.', 'homlity-real-estate'),
+            'condition'   => ['data_source' => 'current_agent'],
+        ]);
 
         // — Datos fijos —
         $this->add_control('static_heading', [
@@ -100,19 +127,20 @@ class PropertyAgentWidget extends BasePropertyWidget
             'label'     => __('Botón WhatsApp', 'homlity-real-estate'),
             'type'      => Controls_Manager::SWITCHER,
             'default'   => 'yes',
-            'condition' => ['data_source' => 'dynamic'],
+            'condition' => ['data_source' => ['dynamic', 'current_agent']],
         ]);
         $this->add_control('cta_whatsapp_label', [
             'label'     => __('Texto botón WhatsApp', 'homlity-real-estate'),
             'type'      => Controls_Manager::TEXT,
             'default'   => __('Contactar por WhatsApp', 'homlity-real-estate'),
-            'condition' => ['data_source' => 'dynamic', 'show_cta_whatsapp' => 'yes'],
+            'condition' => ['data_source' => ['dynamic', 'current_agent'], 'show_cta_whatsapp' => 'yes'],
         ]);
         $this->add_control('show_cta_profile', [
             'label'     => __('Botón ver perfil', 'homlity-real-estate'),
             'type'      => Controls_Manager::SWITCHER,
             'default'   => 'yes',
             'condition' => ['data_source' => 'dynamic'],
+            'description' => __('En modo "Asesor de la página" el enlace ya es la página actual, por eso no se muestra.', 'homlity-real-estate'),
         ]);
         $this->add_control('cta_profile_label', [
             'label'     => __('Texto botón perfil', 'homlity-real-estate'),

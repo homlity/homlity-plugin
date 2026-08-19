@@ -85,6 +85,31 @@ final class ErrorEventFactory
         return $this->baseEvent($origin, 'error', $exception, $this->sanitizer->syncContext($context));
     }
 
+    /**
+     * Fallo de una acción programada cuyo propietario ya fue resuelto por el
+     * hook/grupo de la acción. A diferencia de fromSync(), NO vuelve a deducir
+     * el origen desde el archivo de la excepción: el queue runner de Action
+     * Scheduler crea la excepción dentro del vendor/ del plugin que hospeda la
+     * copia activa de la librería, que no es necesariamente el culpable.
+     *
+     * @param array<string, mixed> $context
+     * @return array<string, mixed>|null
+     */
+    public function fromScheduledAction(string $origin, \Throwable $error, array $context = []): ?array
+    {
+        $origin = $this->registry->normalizeOrigin($origin);
+        if ($origin === null || !$this->isReportableSyncFailure($error, $context)) {
+            return null;
+        }
+
+        return $this->baseEvent(
+            $origin,
+            'error',
+            $this->exceptionFromThrowable($this->registry->rootCause($error)),
+            $this->sanitizer->syncContext($context)
+        );
+    }
+
     /** @param array<string, mixed> $context */
     public function isReportableSyncFailure($error, array $context): bool
     {

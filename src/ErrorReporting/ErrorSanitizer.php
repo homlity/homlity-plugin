@@ -28,6 +28,7 @@ final class ErrorSanitizer
         'phase', 'status', 'http_status', 'attempt', 'max_attempts', 'processed', 'created',
         'updated', 'successful', 'failed', 'skipped', 'execution', 'reason', 'source', 'action_id',
         'aggregate_count', 'diagnostic', 'duration', 'duration_ms', 'sync_provider', 'sync_stage',
+        'hook', 'action_group',
     ];
 
     public function text(string $value, int $limit = self::MAX_STRING): string

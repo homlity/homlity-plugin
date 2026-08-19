@@ -37,6 +37,7 @@ use Homlity\PluginInmobiliario\Integrations\WPBakery\Widgets\PropertyResultsTitl
 use Homlity\PluginInmobiliario\Integrations\WPBakery\Widgets\PropertyShareWidget;
 use Homlity\PluginInmobiliario\Integrations\WPBakery\Widgets\PropertySummaryWidget;
 use Homlity\PluginInmobiliario\Integrations\WPBakery\Widgets\PropertyTechnicalSheetButtonWidget;
+use Homlity\PluginInmobiliario\Integrations\WPBakery\Widgets\PropertyTechnicalSheetWidget;
 use Homlity\PluginInmobiliario\Integrations\WPBakery\Widgets\PropertyTitleWidget;
 use Homlity\PluginInmobiliario\Integrations\WPBakery\Widgets\PropertyVideoWidget;
 use Homlity\PluginInmobiliario\Integrations\WPBakery\Widgets\SimulatorWidget;
@@ -1416,6 +1417,7 @@ class WPBakeryIntegrationService implements ServiceInterface
             PropertyMediaTabsWidget::class,
             PropertyVideoWidget::class,
             PropertyTechnicalSheetButtonWidget::class,
+            PropertyTechnicalSheetWidget::class,
             PropertyDynamicCodeButtonWidget::class,
             PropertyFaqWidget::class,
             PropertyFeaturedCitiesWidget::class,

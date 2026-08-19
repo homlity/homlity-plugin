@@ -26,6 +26,7 @@ use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyMediaTabsW
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyBreadcrumbWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyVideoWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyTechnicalSheetButtonWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyTechnicalSheetWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyDynamicCodeButtonWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFeaturedCitiesWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFeaturedNeighborhoodsWidget;
@@ -210,6 +211,7 @@ class ElementorIntegrationService implements ServiceInterface
             PropertyMediaTabsWidget::class,
             PropertyVideoWidget::class,
             PropertyTechnicalSheetButtonWidget::class,
+            PropertyTechnicalSheetWidget::class,
             PropertyDynamicCodeButtonWidget::class,
             PropertyFeaturedCitiesWidget::class,
             PropertyFeaturedNeighborhoodsWidget::class,

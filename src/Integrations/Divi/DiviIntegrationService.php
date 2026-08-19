@@ -164,6 +164,7 @@ class DiviIntegrationService implements ServiceInterface
             'PropertyMapWidget', 'PropertyMediaTabsWidget', 'PropertyOperationPriceWidget',
             'PropertyRelatedWidget', 'PropertyResultsTitleWidget', 'PropertyShareWidget',
             'PropertySummaryWidget', 'PropertyTechnicalSheetButtonWidget',
+            'PropertyTechnicalSheetWidget',
             'PropertyTitleWidget', 'PropertyVideoWidget', 'SimulatorWidget',
         ]);
     }

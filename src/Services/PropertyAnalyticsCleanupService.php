@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 
 class PropertyAnalyticsCleanupService implements ServiceInterface
 {
-    private const CRON_HOOK = 'homlity_purge_orphan_analytics';
+    public const CRON_HOOK = 'homlity_purge_orphan_analytics';
     private const BOOTSTRAP_OPTION = 'homlity_orphan_analytics_cleanup_bootstrapped';
 
     public function register(): void

@@ -4,7 +4,7 @@ Tags: real estate, property, listings, agents, property management
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.3.19
+Stable tag: 2.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,20 @@ Developed and maintained by **Ecosistema Inmobiliario Homlity**, a team speciali
 5. Public property listing on the WordPress site.
 
 == Changelog ==
+
+= 2.5.0 =
+* Corregido: el orden "Precio: menor a mayor" (y mayor a menor) no ordenaba nada. WordPress resolvía `meta_value_num` contra el filtro de disponibilidad en lugar del precio.
+* Corregido: la búsqueda por código y por palabra clave podía no devolver resultados en servidores con MySQL 5.7+ (ONLY_FULL_GROUP_BY).
+* Ficha técnica editable con Elementor, Divi y WPBakery: nuevo widget "Ficha técnica del inmueble" con controles de espaciado, márgenes, colores y visibilidad por sección.
+* Nueva página configurable en Configuración → Plantillas ("Página de ficha técnica"); la ficha pasa a servirse en /ficha-tecnica/{inmueble}/ y la renderiza el maquetador.
+* La dirección del inmueble ya no se publica en la ficha (opcional desde el widget).
+* Corregidos desbordamientos que cortaban datos largos, URLs, tablas e imágenes de la descripción.
+* Nuevo shortcode [homlity_technical_sheet].
+
+= 2.4.0 =
+* Cada asesor tiene su página pública en /property-agent/{asesor}/, editable con Elementor, Divi o WPBakery.
+* El widget de asesor añade la fuente "Asesor de la página", que toma el asesor de la consulta actual.
+* El widget de listado de inmuebles puede mostrar solo los inmuebles de un asesor (el de la página o uno fijo).
 
 = 2.3.16 =
 * Added centralized, privacy-safe error reporting for official Homlity plugins.

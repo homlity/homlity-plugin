@@ -16,6 +16,8 @@ class DataSeederService
     private const SINGLE_TEMPLATE_VERSION = '2';
     private const WPBAKERY_SINGLE_TEMPLATE_VERSION = '3';
     private const WPBAKERY_ARCHIVE_TEMPLATE_VERSION = '2';
+    private const AGENT_PROFILE_TEMPLATE_VERSION = '2';
+    private const TECHNICAL_SHEET_TEMPLATE_VERSION = '1';
 
     public function seed(): void
     {
@@ -182,6 +184,7 @@ class DataSeederService
         $this->seedArchiveElementorPage();
         $this->seedSingleElementorTemplate();
         $this->seedAgentProfileElementorPage();
+        $this->seedTechnicalSheetElementorPage();
         $this->seedUnavailableElementorPage();
     }
 
@@ -202,13 +205,20 @@ class DataSeederService
             $this->archiveBuilderContent($builder, (int) get_option('homlity_plugin_archive_page_id', 0))
         );
         $agentPageId = $this->ensurePage('homlity_plugin_agent_profile_page_id', 'perfil-asesor', __('Perfil del asesor', 'homlity-real-estate'));
+        $sheetPageId = $this->ensurePage('homlity_plugin_sheet_page_id', 'ficha-tecnica-inmueble', __('Ficha técnica', 'homlity-real-estate'));
         $unavailablePageId = $this->ensurePage('homlity_plugin_unavailable_template_id', 'inmueble-no-disponible', __('Inmueble no disponible', 'homlity-real-estate'));
         $singlePageId = $this->ensurePage('homlity_plugin_single_template_id', 'plantilla-detalle-inmueble', __('Detalle de inmueble', 'homlity-real-estate'));
         $this->seedBuilderPage(
             $agentPageId,
             'agent_profile',
             $builder,
-            $this->wrapBuilderContent($builder, '[homlity_agent_profile]')
+            $this->agentProfileBuilderContent($builder)
+        );
+        $this->seedBuilderPage(
+            $sheetPageId,
+            'technical_sheet',
+            $builder,
+            $this->technicalSheetBuilderContent($builder)
         );
         $this->seedBuilderPage(
             $unavailablePageId,
@@ -220,6 +230,43 @@ class DataSeederService
         if ($unavailablePageId > 0) {
             update_option('homlity_plugin_unavailable_page_layout', 'default');
         }
+    }
+
+    /**
+     * Ensures the technical sheet page exists for the active builder, without
+     * re-seeding the rest of the templates. Called on upgrade so an existing
+     * install gets the page that makes the sheet editable with its builder.
+     *
+     * Skipped on 'native': there is no builder to configure and seeding would
+     * only move the sheet URL for no gain.
+     */
+    public function seedTechnicalSheetPage(): void
+    {
+        $builder = $this->preferredBuilder();
+
+        if ($builder === 'elementor') {
+            if (!post_type_exists('elementor_library') && !class_exists('\Elementor\Plugin') && !defined('ELEMENTOR_VERSION')) {
+                return;
+            }
+            $this->seedTechnicalSheetElementorPage();
+            return;
+        }
+
+        if ($builder !== 'divi' && $builder !== 'wpbakery') {
+            return;
+        }
+
+        $sheetPageId = $this->ensurePage(
+            'homlity_plugin_sheet_page_id',
+            'ficha-tecnica-inmueble',
+            __('Ficha técnica', 'homlity-real-estate')
+        );
+        $this->seedBuilderPage(
+            $sheetPageId,
+            'technical_sheet',
+            $builder,
+            $this->technicalSheetBuilderContent($builder)
+        );
     }
 
     private function preferredBuilder(): string
@@ -592,6 +639,7 @@ class DataSeederService
             $pageId > 0
             && in_array(get_post_status($pageId), ['publish', 'draft', 'pending'], true)
             && get_post_meta($pageId, '_elementor_edit_mode', true) === 'builder'
+            && !$this->agentProfileElementorNeedsUpgrade($pageId)
         ) {
             return;
         }
@@ -626,6 +674,83 @@ class DataSeederService
 
         if (
             (int) get_option('homlity_plugin_agent_profile_elementor_page_id', 0) === (int) $pageId &&
+            get_post_meta((int) $pageId, '_elementor_edit_mode', true) === 'builder' &&
+            !$this->agentProfileElementorNeedsUpgrade((int) $pageId)
+        ) {
+            return;
+        }
+
+        $data = [
+            $this->elementorSection([
+                $this->elementorWidget('property_agent', [
+                    'data_source' => 'current_agent',
+                    'show_property_count' => 'yes',
+                    'show_bio' => 'yes',
+                ]),
+                $this->elementorWidget('property_listing', [
+                    'query_mode' => 'custom',
+                    'use_current_agent' => 'yes',
+                    'default_view' => 'grid',
+                    'columns' => 3,
+                    'posts_per_page' => 12,
+                    'show_grid_view' => 'yes',
+                    'show_map_view' => '',
+                    'show_view_toggle' => '',
+                    'show_sort' => 'yes',
+                    'show_results_count' => 'yes',
+                    'show_pagination' => 'yes',
+                ]),
+            ]),
+        ];
+
+        $this->saveElementorData((int) $pageId, $data, 'wp-page', 'agent_profile');
+        update_post_meta((int) $pageId, '_homlity_seeded_template_version', self::AGENT_PROFILE_TEMPLATE_VERSION);
+        update_option('homlity_plugin_agent_profile_elementor_page_id', (int) $pageId);
+    }
+
+    private function seedTechnicalSheetElementorPage(): void
+    {
+        $optionKey = 'homlity_plugin_sheet_page_id';
+        $pageId = (int) get_option($optionKey, 0);
+
+        if (
+            $pageId > 0
+            && in_array(get_post_status($pageId), ['publish', 'draft', 'pending'], true)
+            && get_post_meta($pageId, '_elementor_edit_mode', true) === 'builder'
+        ) {
+            return;
+        }
+
+        $existing = get_posts([
+            'name' => 'ficha-tecnica-inmueble',
+            'post_type' => 'page',
+            'post_status' => ['publish', 'draft', 'pending'],
+            'posts_per_page' => 1,
+            'no_found_rows' => true,
+            'fields' => 'ids',
+        ]);
+
+        if (!empty($existing)) {
+            $pageId = (int) $existing[0];
+            update_option($optionKey, $pageId);
+        } else {
+            $pageId = wp_insert_post([
+                'post_title' => __('Ficha técnica', 'homlity-real-estate'),
+                'post_name' => 'ficha-tecnica-inmueble',
+                'post_content' => '',
+                'post_status' => 'publish',
+                'post_type' => 'page',
+                'comment_status' => 'closed',
+                'ping_status' => 'closed',
+            ]);
+            if (is_wp_error($pageId) || !$pageId) {
+                return;
+            }
+            update_option($optionKey, (int) $pageId);
+        }
+
+        if (
+            (int) get_option('homlity_plugin_sheet_elementor_page_id', 0) === (int) $pageId &&
             get_post_meta((int) $pageId, '_elementor_edit_mode', true) === 'builder'
         ) {
             return;
@@ -633,14 +758,60 @@ class DataSeederService
 
         $data = [
             $this->elementorSection([
-                $this->elementorWidget('shortcode', [
-                    'shortcode' => '[homlity_agent_profile]',
+                $this->elementorWidget('property_technical_sheet', [
+                    'show_address' => '',
                 ]),
             ]),
         ];
 
-        $this->saveElementorData((int) $pageId, $data, 'wp-page', 'agent_profile');
-        update_option('homlity_plugin_agent_profile_elementor_page_id', (int) $pageId);
+        $this->saveElementorData((int) $pageId, $data, 'wp-page', 'technical_sheet');
+        update_post_meta((int) $pageId, '_homlity_seeded_template_version', self::TECHNICAL_SHEET_TEMPLATE_VERSION);
+        update_option('homlity_plugin_sheet_elementor_page_id', (int) $pageId);
+    }
+
+    /**
+     * True when the page still holds the untouched v1 layout (a lone
+     * [homlity_agent_profile] shortcode widget). Any page the site owner has
+     * actually edited is left alone.
+     */
+    private function agentProfileElementorNeedsUpgrade(int $pageId): bool
+    {
+        if ((string) get_post_meta($pageId, '_homlity_seeded_purpose', true) !== 'agent_profile') {
+            return false;
+        }
+        if ((string) get_post_meta($pageId, '_homlity_seeded_template_version', true) === self::AGENT_PROFILE_TEMPLATE_VERSION) {
+            return false;
+        }
+
+        $data = (string) get_post_meta($pageId, '_elementor_data', true);
+        if ($data === '' || !str_contains($data, '[homlity_agent_profile]')) {
+            return false;
+        }
+
+        $decoded = json_decode($data, true);
+        if (!is_array($decoded)) {
+            return false;
+        }
+
+        return $this->countElementorWidgets($decoded) === 1;
+    }
+
+    private function countElementorWidgets(array $elements): int
+    {
+        $total = 0;
+        foreach ($elements as $element) {
+            if (!is_array($element)) {
+                continue;
+            }
+            if (($element['elType'] ?? '') === 'widget') {
+                $total++;
+            }
+            if (!empty($element['elements']) && is_array($element['elements'])) {
+                $total += $this->countElementorWidgets($element['elements']);
+            }
+        }
+
+        return $total;
     }
 
     private function seedUnavailableElementorPage(): void
@@ -749,9 +920,12 @@ class DataSeederService
 
             // Upgrade only an untouched default layout. A page edited
             // by the site owner must never be replaced during a plugin update.
-            $legacyContent = $purpose === 'archive'
-                ? $this->legacyArchiveBuilderContent($builder, $pageId)
-                : $this->legacySingleBuilderContent($builder);
+            $legacyContent = match ($purpose) {
+                'archive' => $this->legacyArchiveBuilderContent($builder, $pageId),
+                'agent_profile' => $this->wrapBuilderContent($builder, '[homlity_agent_profile]'),
+                'technical_sheet' => $this->wrapBuilderContent($builder, '[homlity_technical_sheet]'),
+                default => $this->legacySingleBuilderContent($builder),
+            };
             if ($existingContent !== trim($legacyContent)) {
                 return;
             }
@@ -805,6 +979,48 @@ class DataSeederService
                 . '[/vc_column][/vc_row]';
         }
         return '<h1>' . $title . '</h1>' . $listing;
+    }
+
+    /**
+     * Default layout of the advisor profile page: the advisor card bound to the
+     * advisor of the request, plus a listing scoped to that advisor.
+     */
+    private function agentProfileBuilderContent(string $builder): string
+    {
+        if ($builder === 'divi') {
+            return '[et_pb_section][et_pb_row][et_pb_column type="4_4"]'
+                . '[homlity_divi_property_agent data_source="current_agent" show_property_count="on" show_bio="on"][/homlity_divi_property_agent]'
+                . '[homlity_divi_property_listing query_mode="custom" use_current_agent="on" default_view="grid" columns="3" posts_per_page="12" show_sort="on" show_map_view="off" show_view_toggle="off"][/homlity_divi_property_listing]'
+                . '[/et_pb_column][/et_pb_row][/et_pb_section]';
+        }
+        if ($builder === 'wpbakery') {
+            return '[vc_row][vc_column]'
+                . '[homlity_wpb_property_agent data_source="current_agent" show_property_count="yes" show_bio="yes"][/homlity_wpb_property_agent]'
+                . '[homlity_wpb_property_listing query_mode="custom" use_current_agent="yes" default_view="grid" columns="3" posts_per_page="12" show_sort="yes" show_map_view="" show_view_toggle=""][/homlity_wpb_property_listing]'
+                . '[/vc_column][/vc_row]';
+        }
+
+        return $this->wrapBuilderContent($builder, '[homlity_agent_profile]');
+    }
+
+    /**
+     * Default layout of the technical sheet page: the sheet bound to the
+     * property of the request.
+     */
+    private function technicalSheetBuilderContent(string $builder): string
+    {
+        if ($builder === 'divi') {
+            return '[et_pb_section][et_pb_row][et_pb_column type="4_4"]'
+                . '[homlity_divi_property_technical_sheet show_address="off"][/homlity_divi_property_technical_sheet]'
+                . '[/et_pb_column][/et_pb_row][/et_pb_section]';
+        }
+        if ($builder === 'wpbakery') {
+            return '[vc_row][vc_column]'
+                . '[homlity_wpb_property_technical_sheet show_address=""][/homlity_wpb_property_technical_sheet]'
+                . '[/vc_column][/vc_row]';
+        }
+
+        return $this->wrapBuilderContent($builder, '[homlity_technical_sheet]');
     }
 
     private function unavailableBuilderContent(string $builder): string
@@ -875,6 +1091,12 @@ class DataSeederService
         }
         if ($purpose === 'archive' && $builder === 'wpbakery') {
             return self::WPBAKERY_ARCHIVE_TEMPLATE_VERSION;
+        }
+        if ($purpose === 'agent_profile') {
+            return self::AGENT_PROFILE_TEMPLATE_VERSION;
+        }
+        if ($purpose === 'technical_sheet') {
+            return self::TECHNICAL_SHEET_TEMPLATE_VERSION;
         }
         return '';
     }

@@ -523,22 +523,50 @@
 }
 
 .homlity-tech-sheet {
+    /* Every value below is a custom property so the Elementor/Divi/WPBakery
+       "Ficha técnica del inmueble" widget can override spacing and colours
+       without fighting specificity. */
+    --sheet-max-width: 1080px;
+    --sheet-gap: 12px;
+    --sheet-card-bg: #fff;
+    --sheet-card-border-color: rgba(15, 23, 42, 0.08);
+    --sheet-card-radius: 14px;
+    --sheet-card-padding: 14px;
+    --sheet-heading-color: var(--sheet-primary, var(--homlity-primary-color));
+    --sheet-text-color: inherit;
+    --sheet-label-color: #6b7280;
+    --sheet-grid-min: 220px;
+    --sheet-gallery-min: 140px;
+
+    color: var(--sheet-text-color);
     margin: 0 auto;
-    max-width: 1080px;
+    max-width: var(--sheet-max-width);
     padding: 24px 16px 40px;
 }
 
+/* Long codes, addresses and URLs must wrap instead of overflowing the card. */
+.homlity-tech-sheet,
+.homlity-tech-sheet * {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
 .homlity-tech-sheet__hero {
-    background: linear-gradient(135deg, rgba(var(--sheet-primary-rgb), 0.14), rgba(var(--sheet-primary-rgb), 0.03));
+    background: var(--sheet-hero-bg, linear-gradient(135deg, rgba(var(--sheet-primary-rgb), 0.14), rgba(var(--sheet-primary-rgb), 0.03)));
     border: 1px solid rgba(var(--sheet-primary-rgb), 0.24);
-    border-radius: 16px;
-    margin-bottom: 12px;
-    padding: 14px;
+    border-radius: var(--sheet-card-radius);
+    margin-bottom: var(--sheet-gap);
+    padding: var(--sheet-card-padding);
+}
+
+.homlity-tech-sheet__hero-text {
+    min-width: 0;
 }
 
 .homlity-tech-sheet__hero-brand {
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     justify-content: space-between;
     margin-bottom: 10px;
@@ -597,6 +625,7 @@
 
 .homlity-tech-sheet__actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
 }
 
@@ -615,15 +644,15 @@
 }
 
 .homlity-tech-sheet__card {
-    background: #fff;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    border-radius: 14px;
-    margin-bottom: 12px;
-    padding: 14px;
+    background: var(--sheet-card-bg);
+    border: 1px solid var(--sheet-card-border-color);
+    border-radius: var(--sheet-card-radius);
+    margin-bottom: var(--sheet-gap);
+    padding: var(--sheet-card-padding);
 }
 
 .homlity-tech-sheet__card h2 {
-    color: var(--sheet-primary, var(--homlity-primary-color));
+    color: var(--sheet-heading-color);
     font-size: 17px;
     margin: 0 0 10px;
 }
@@ -636,13 +665,21 @@
 .homlity-tech-sheet__grid {
     display: grid;
     gap: 8px 14px;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--sheet-grid-min), 100%), 1fr));
+}
+
+.homlity-tech-sheet__grid > * {
+    min-width: 0;
 }
 
 .homlity-tech-sheet__stats {
     display: grid;
     gap: 10px;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--sheet-grid-min), 100%), 1fr));
+}
+
+.homlity-tech-sheet__stats > * {
+    min-width: 0;
 }
 
 .homlity-tech-sheet__stat {
@@ -653,7 +690,7 @@
 }
 
 .homlity-tech-sheet__stat-label {
-    color: #6b7280;
+    color: var(--sheet-label-color);
     display: block;
     font-size: 11px;
     font-weight: 700;
@@ -673,7 +710,7 @@
     align-items: center;
     display: grid;
     gap: 14px;
-    grid-template-columns: 110px 1fr;
+    grid-template-columns: 110px minmax(0, 1fr);
 }
 
 .homlity-tech-sheet__advisor-avatar {
@@ -718,6 +755,20 @@
     margin: 0 0 10px;
 }
 
+/* Descriptions imported from a CRM often carry wide tables and full-size
+   images; without this they push the card past the viewport. */
+.homlity-tech-sheet__description img,
+.homlity-tech-sheet__description iframe {
+    height: auto;
+    max-width: 100%;
+}
+
+.homlity-tech-sheet__description table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
 .homlity-tech-sheet__legal {
     color: #4b5563;
     font-size: 12px;
@@ -728,7 +779,7 @@
 .homlity-tech-sheet__gallery {
     display: grid;
     gap: 8px;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--sheet-gallery-min), 100%), 1fr));
 }
 
 .homlity-tech-sheet__gallery img {
@@ -743,8 +794,12 @@
 .homlity-tech-sheet__media-links {
     display: grid;
     gap: 10px 20px;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
     margin-top: 12px;
+}
+
+.homlity-tech-sheet__media-links > * {
+    min-width: 0;
 }
 
 .homlity-tech-sheet__media-links h3 {
@@ -1173,6 +1228,81 @@
   justify-content: center;
   max-width: 100%;
   text-decoration: none;
+}
+
+.property-agent-block__count {
+  font-weight: 600;
+}
+
+.property-agent-block__bio {
+  margin: 0 0 8px;
+}
+
+.property-agent-block__bio p:last-child {
+  margin-bottom: 0;
+}
+
+/* Perfil del asesor (/property-agent/{asesor}/) */
+.property-agent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.property-agent__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.property-agent__avatar img {
+  display: block;
+  border-radius: 50%;
+}
+
+.property-agent__name {
+  margin: 0 0 0.25rem;
+}
+
+.property-agent__info > p {
+  margin: 0 0 0.35rem;
+}
+
+.property-agent__count {
+  font-weight: 600;
+}
+
+.property-agent__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.3rem;
+  border-radius: 5px;
+  font-weight: 600;
+  text-decoration: none;
+  background: #25d366;
+  color: #fff;
+}
+
+.property-agent__cta:hover {
+  color: #fff;
+  opacity: 0.88;
+}
+
+.property-agent__bio {
+  margin-bottom: 2rem;
+}
+
+.property-agent__properties > h2 {
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .property-agent__header {
+    gap: 1rem;
+  }
 }
 
 /* Breadcrumb detalle inmueble */

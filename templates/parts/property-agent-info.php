@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Expected args: $post_id (int), $settings (array, optional — Elementor widget settings)
  */
 
+use Homlity\PluginInmobiliario\Services\AgentProfileService;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\SeoGeoSettingsService;
 use Homlity\PluginInmobiliario\Services\WhatsAppLinkService;
@@ -21,6 +22,15 @@ if (!isset($post_id)) {
 
 $s      = $settings ?? [];
 $source = $s['data_source'] ?? 'dynamic';
+
+// Outside a property (e.g. dropped on the advisor profile page) the widget
+// falls back to the advisor of the current request instead of rendering empty.
+if ($source === 'dynamic' && AgentProfileService::isAgentProfileRequest()) {
+    $source = 'current_agent';
+}
+
+$bio          = '';
+$propertyCount = 0;
 
 // ── Avatar fallback helper ────────────────────────────────────────────────────
 
@@ -34,7 +44,28 @@ $agentAvatarFallback = static function (string $alt): string {
 
 // ── Build agent data ──────────────────────────────────────────────────────────
 
-if ($source === 'static') {
+if ($source === 'current_agent') {
+    $agentUser = AgentProfileService::resolveAgent($s['agent_id'] ?? null);
+
+    if (!$agentUser) {
+        return;
+    }
+
+    $agent      = AgentProfileService::agentData($agentUser);
+    $name       = $agent['name'];
+    $role       = $agent['role'];
+    $phone      = $agent['phone'];
+    $email      = $agent['email'];
+    $photoUrl   = $agent['photo_url'];
+    $profileUrl = $agent['profile_url'];
+    $avatarHtml = $agent['avatar_html'];
+    $bio        = (($s['show_bio'] ?? 'yes') === 'yes') ? $agent['bio'] : '';
+    $propertyCount = (($s['show_property_count'] ?? 'yes') === 'yes') ? $agent['property_count'] : 0;
+
+    // Contact clicks here belong to no property; the tracker skips id 0.
+    $post_id = 0;
+
+} elseif ($source === 'static') {
     $photoUrl  = $s['static_photo']['url'] ?? '';
     $photoId   = (int) ($s['static_photo']['id'] ?? 0);
     $name      = $s['static_name']  ?? '';
@@ -69,7 +100,7 @@ if ($source === 'static') {
         ? ($agentUser->user_email ?: get_post_meta($post_id, $meta['agent_email'], true))
         : get_post_meta($post_id, $meta['agent_email'], true);
 
-    $profileUrl = $agentUser ? home_url('/property-agent/' . $agentUser->user_nicename) : '';
+    $profileUrl = $agentUser ? AgentProfileService::profileUrl($agentUser) : '';
     $photoUrl   = (string) get_post_meta($post_id, $meta['agent_photo'], true);
 
     if (!$agentUser && $name === '' && $role === '' && !$phone && !$email && $photoUrl === '') {
@@ -111,7 +142,28 @@ if ($source === 'static') {
 
 $ctas = [];
 
-if ($source === 'dynamic') {
+if ($source === 'current_agent') {
+    $whatsAppUrl = WhatsAppLinkService::buildAgentLink(
+        (string) $phone,
+        sprintf(
+            /* translators: %s: advisor name */
+            __('Hola %s, vi tu perfil en el sitio web y quiero más información.', 'homlity-real-estate'),
+            (string) $name
+        )
+    );
+
+    if (($s['show_cta_whatsapp'] ?? 'yes') === 'yes' && $whatsAppUrl) {
+        $ctas[] = [
+            'text'   => $s['cta_whatsapp_label'] ?? __('Contactar por WhatsApp', 'homlity-real-estate'),
+            'url'    => $whatsAppUrl,
+            'target' => '_blank',
+        ];
+    }
+
+    // The profile link is the page being viewed, so it is never offered here.
+    $profileUrl = '';
+
+} elseif ($source === 'dynamic') {
     $whatsAppUrl = WhatsAppLinkService::buildPropertyLink((int) $post_id, (string) $phone);
 
     if (($s['show_cta_whatsapp'] ?? 'yes') === 'yes' && $whatsAppUrl) {
@@ -173,6 +225,22 @@ if (!$name && !$avatarHtml) {
 
             <?php if ($role): ?>
                 <p class="property-agent-block__role"><?php echo esc_html($role); ?></p>
+            <?php endif; ?>
+
+            <?php if ($propertyCount > 0): ?>
+                <p class="property-agent-block__count">
+                    <?php
+                    echo esc_html(sprintf(
+                        /* translators: %d: number of available properties */
+                        _n('%d inmueble disponible', '%d inmuebles disponibles', $propertyCount, 'homlity-real-estate'),
+                        $propertyCount
+                    ));
+                    ?>
+                </p>
+            <?php endif; ?>
+
+            <?php if ($bio !== ''): ?>
+                <div class="property-agent-block__bio"><?php echo wp_kses_post(wpautop($bio)); ?></div>
             <?php endif; ?>
 
             <?php if ($phone): ?>

@@ -15,6 +15,8 @@ final class OfficialPluginRegistry
     private const PLUGINS = [
         'homlity-real-estate' => [
             'directories' => ['homlity-real-estate'],
+            'hook_prefixes' => ['homlity_plugin_', 'homlity_error_reporter_', 'homlity_purge_'],
+            'action_groups' => ['homlity-real-estate'],
             'main_file' => 'homlity-real-estate/plugin-inmobiliario.php',
             'license_option' => 'homlity_license_key',
             'site_id_option' => 'homlity_license_site_id',
@@ -23,6 +25,8 @@ final class OfficialPluginRegistry
         ],
         'homlity-sync' => [
             'directories' => ['homlity-sync'],
+            'hook_prefixes' => ['homlity_sync_', 'homlity_consignacion_'],
+            'action_groups' => ['homlity-sync'],
             'main_file' => 'homlity-sync/plugin-homlity-sync.php',
             'license_option' => 'homlity_license_key',
             'site_id_option' => 'homlity_license_site_id',
@@ -31,6 +35,8 @@ final class OfficialPluginRegistry
         ],
         'homlity-wasi' => [
             'directories' => ['plugin-wasi-sync', 'homlity-wasi'],
+            'hook_prefixes' => ['wasi_sync/'],
+            'action_groups' => ['wasi-sync'],
             'main_file' => 'plugin-wasi-sync/plugin-wasi-sync.php',
             'license_option' => 'plugin_wasi_sync_license_key',
             'site_id_option' => 'plugin_wasi_sync_license_site_id',
@@ -39,6 +45,8 @@ final class OfficialPluginRegistry
         ],
         'homlity-simi' => [
             'directories' => ['plugin-simi-sync', 'homlity-simi'],
+            'hook_prefixes' => ['simi_sync/'],
+            'action_groups' => ['simi-sync'],
             'main_file' => 'plugin-simi-sync/plugin-simi-sync.php',
             'license_option' => 'plugin_simi_sync_license_key',
             'site_id_option' => 'plugin_simi_sync_license_site_id',
@@ -47,6 +55,8 @@ final class OfficialPluginRegistry
         ],
         'homlity-softinm' => [
             'directories' => ['plugin-softinm-sync', 'homlity-softinm'],
+            'hook_prefixes' => ['softinm_sync/'],
+            'action_groups' => ['softinm-sync'],
             'main_file' => 'plugin-softinm-sync/plugin-softinm-sync.php',
             'license_option' => 'plugin_softinm_sync_license_key',
             'site_id_option' => 'plugin_softinm_sync_license_site_id',
@@ -55,7 +65,7 @@ final class OfficialPluginRegistry
         ],
     ];
 
-    public function originForFile(string $file): ?string
+    public function originForFile(string $file, bool $ownCodeOnly = false): ?string
     {
         $normalized = str_replace('\\', '/', $file);
         $pluginsRoot = rtrim(str_replace('\\', '/', WP_PLUGIN_DIR), '/') . '/';
@@ -64,6 +74,12 @@ final class OfficialPluginRegistry
         }
 
         $relative = substr($normalized, strlen($pluginsRoot));
+        // Las librerías de terceros que empaquetamos (Action Scheduler, Guzzle…)
+        // se ejecutan en nombre de quien las llama: no identifican al culpable.
+        if ($ownCodeOnly && strpos($relative, '/vendor/') !== false) {
+            return null;
+        }
+
         $directory = strtok($relative, '/');
         foreach ($this->definitions() as $canonical => $definition) {
             if (in_array($directory, $definition['directories'], true)) {
@@ -73,21 +89,76 @@ final class OfficialPluginRegistry
         return null;
     }
 
-    public function originForThrowable(\Throwable $throwable): ?string
+    /**
+     * Resuelve el plugin propietario de un hook programado.
+     * Gana el prefijo más específico para que homlity_sync_* no caiga en
+     * homlity-real-estate ni al revés.
+     */
+    public function originForHook(string $hook): ?string
     {
-        $origin = $this->originForFile($throwable->getFile());
-        if ($origin !== null) {
-            return $origin;
+        $hook = trim($hook);
+        if ($hook === '') {
+            return null;
         }
-        foreach ($throwable->getTrace() as $frame) {
-            if (!empty($frame['file'])) {
-                $origin = $this->originForFile((string) $frame['file']);
-                if ($origin !== null) {
-                    return $origin;
+
+        $origin = null;
+        $matched = 0;
+        foreach ($this->definitions() as $canonical => $definition) {
+            foreach ((array) ($definition['hook_prefixes'] ?? []) as $prefix) {
+                $prefix = (string) $prefix;
+                if ($prefix !== '' && strpos($hook, $prefix) === 0 && strlen($prefix) > $matched) {
+                    $origin = $canonical;
+                    $matched = strlen($prefix);
+                }
+            }
+        }
+        return $origin;
+    }
+
+    /** Resuelve el plugin propietario de un grupo de Action Scheduler. */
+    public function originForActionGroup(string $group): ?string
+    {
+        $group = sanitize_key($group);
+        if ($group === '') {
+            return null;
+        }
+        foreach ($this->definitions() as $canonical => $definition) {
+            foreach ((array) ($definition['action_groups'] ?? []) as $candidate) {
+                if (sanitize_key((string) $candidate) === $group) {
+                    return $canonical;
                 }
             }
         }
         return null;
+    }
+
+    public function originForThrowable(\Throwable $throwable, bool $ownCodeOnly = false): ?string
+    {
+        for ($current = $throwable; $current !== null; $current = $current->getPrevious()) {
+            $origin = $this->originForFile($current->getFile(), $ownCodeOnly);
+            if ($origin !== null) {
+                return $origin;
+            }
+            foreach ($current->getTrace() as $frame) {
+                if (!empty($frame['file'])) {
+                    $origin = $this->originForFile((string) $frame['file'], $ownCodeOnly);
+                    if ($origin !== null) {
+                        return $origin;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /** Causa raíz de una excepción re-lanzada (p. ej. por el queue runner). */
+    public function rootCause(\Throwable $throwable): \Throwable
+    {
+        $root = $throwable;
+        while (($previous = $root->getPrevious()) !== null) {
+            $root = $previous;
+        }
+        return $root;
     }
 
     public function normalizeOrigin(string $origin): ?string

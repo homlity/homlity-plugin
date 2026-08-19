@@ -29,6 +29,21 @@ class WhatsAppLinkService
     }
 
     /**
+     * Direct link to an advisor's own number. Unlike buildPropertyLink() this
+     * never falls back to the agency-wide WhatsApp account: an advisor profile
+     * must reach that advisor.
+     */
+    public static function buildAgentLink(string $phone, string $message = ''): string
+    {
+        $digits = preg_replace('/\D+/', '', $phone);
+        if ($digits === '') {
+            return '';
+        }
+
+        return self::buildApiUrl($digits, $message);
+    }
+
+    /**
      * @return array{phone:string,message:string}|array{}
      */
     private static function resolveNinjaAccount(): array

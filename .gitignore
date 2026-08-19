@@ -1,3 +1,7 @@
 # Composer
 /vendor/
 composer.lock
+# Pruebas
+/build/
+.phpunit.cache/
+.phpunit.result.cache

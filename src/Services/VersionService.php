@@ -38,10 +38,16 @@ class VersionService implements ServiceInterface
         // Seed new terms or structures added in updates.
         (new DataSeederService())->seed();
 
+        // 2.5.0: the technical sheet gained its own builder-editable page.
+        (new DataSeederService())->seedTechnicalSheetPage();
+
         // Elementor's bundled Font Awesome 5 catalog uses "check-circle".
         $this->migrateElementorFontAwesomeIcons();
 
-        // Refresh rewrite rules on structure changes.
+        // Refresh rewrite rules on structure changes. Re-register first: the
+        // seeder may have just created the archive or advisor profile pages,
+        // and the rules added on `init` do not know about them yet.
+        (new TemplateService())->addRewriteRules();
         flush_rewrite_rules(false);
     }
 

@@ -10,6 +10,7 @@
  *   [homlity_listing]
  *   [homlity_listing view="map" columns="2" template="bootstrap" per_page="6"]
  *   [homlity_listing operation="12" filters="false"]
+ *   [homlity_listing current_agent="true"]   (advisor profile pages)
  *
  * All available attributes and their defaults are listed in ::defaults().
  */
@@ -62,6 +63,8 @@ class ShortcodeIntegrationService implements ServiceInterface
             'operation'        => '0',         // preset operation term ID
             'type'             => '0',         // preset type term ID
             'locality'         => '0',         // preset locality post ID
+            'agent'            => '0',         // restrict to one advisor (user ID)
+            'current_agent'    => 'false',     // on /property-agent/{asesor}/, use that advisor
 
             // Filters
             'filters'          => 'true',

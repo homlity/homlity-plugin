@@ -127,21 +127,100 @@ final class ErrorReporterService implements ServiceInterface
     /** @param mixed $context */
     public function captureActionSchedulerFailure($actionId, \Throwable $error, $context = null): void
     {
-        $objectId = spl_object_id($error);
-        if (isset($this->observedWorkerFailures[$objectId])) {
-            unset($this->observedWorkerFailures[$objectId]);
+        if ($this->wasAlreadyObserved($error)) {
             return;
         }
-        $origin = $this->registry->originForThrowable($error);
+
+        [$hook, $group] = $this->scheduledActionIdentity($actionId);
+        $origin = $this->registry->originForHook($hook) ?? $this->registry->originForActionGroup($group);
+
+        if ($origin === null) {
+            // El hook no es nuestro (o no se pudo resolver la acción). La excepción
+            // apunta a nuestro árbol vendor/ únicamente porque hospedamos la copia
+            // activa de Action Scheduler, así que sólo la aceptamos si la cadena de
+            // causas pasa por código propio fuera de vendor/. Eso descarta las
+            // acciones huérfanas de terceros sin silenciar un fallo real nuestro
+            // ejecutado bajo un hook todavía no declarado.
+            $origin = $this->registry->originForThrowable($error, true);
+        }
+
         if ($origin === null) {
             return;
         }
-        $this->captureSyncError($origin, $error, [
+
+        $this->captureScheduledActionFailure($origin, $error, [
             'operation' => 'action_scheduler',
             'action_id' => absint($actionId),
             'status' => 'failed',
             'execution' => is_scalar($context) ? (string) $context : '',
+            'hook' => $hook,
+            'action_group' => $group,
         ]);
+    }
+
+    /** @param array<string, mixed> $context */
+    private function captureScheduledActionFailure(string $origin, \Throwable $error, array $context): void
+    {
+        if ($this->capturing) {
+            return;
+        }
+        $this->capturing = true;
+        try {
+            $event = $this->factory->fromScheduledAction($origin, $error, $context);
+            if ($event !== null) {
+                $this->queue->enqueue($event);
+            }
+        } catch (\Throwable $ignored) {
+        } finally {
+            $this->capturing = false;
+        }
+    }
+
+    /**
+     * Action Scheduler re-lanza el Throwable original dentro de una Exception
+     * nueva, así que la deduplicación debe mirar toda la cadena de causas.
+     */
+    private function wasAlreadyObserved(\Throwable $error): bool
+    {
+        for ($current = $error; $current !== null; $current = $current->getPrevious()) {
+            $objectId = spl_object_id($current);
+            if (isset($this->observedWorkerFailures[$objectId])) {
+                unset($this->observedWorkerFailures[$objectId]);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Hook y grupo reales de la acción fallida. Son la única fuente fiable de
+     * propiedad: el hook lo declara quien programó la acción.
+     *
+     * @param mixed $actionId
+     * @return array{0:string,1:string}
+     */
+    private function scheduledActionIdentity($actionId): array
+    {
+        $actionId = absint($actionId);
+        if ($actionId <= 0 || !class_exists('\\ActionScheduler') || !is_callable(['\\ActionScheduler', 'store'])) {
+            return ['', ''];
+        }
+
+        try {
+            $store = \ActionScheduler::store();
+            if (!is_object($store) || !method_exists($store, 'fetch_action')) {
+                return ['', ''];
+            }
+            $action = $store->fetch_action($actionId);
+            if (!is_object($action) || !method_exists($action, 'get_hook')) {
+                return ['', ''];
+            }
+            $hook = (string) $action->get_hook();
+            $group = method_exists($action, 'get_group') ? (string) $action->get_group() : '';
+            return [trim($hook), trim($group)];
+        } catch (\Throwable $ignored) {
+            return ['', ''];
+        }
     }
 
     /** @return array<string, array<string, int>> */

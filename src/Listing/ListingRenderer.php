@@ -10,6 +10,7 @@
 
 namespace Homlity\PluginInmobiliario\Listing;
 
+use Homlity\PluginInmobiliario\Services\AgentProfileService;
 use Homlity\PluginInmobiliario\Services\PropertySearchService;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
@@ -194,6 +195,13 @@ class ListingRenderer
             $params['preset_locality'] = 0;
             $params['preset_neighborhood'] = 0;
             $params['preset_nearby'] = 0;
+        }
+
+        // Advisor scope. Resolved here (not in ListingConfig) because it depends
+        // on the request: on /property-agent/{slug}/ the listing shows exactly
+        // that advisor's properties, whichever builder rendered the page.
+        if (empty($params['preset_agent']) && !empty($params['use_current_agent'])) {
+            $params['preset_agent'] = AgentProfileService::currentAgentId();
         }
 
         $args   = $this->search->buildQueryArgs($params);

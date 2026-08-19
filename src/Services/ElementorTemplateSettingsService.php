@@ -18,6 +18,8 @@ class ElementorTemplateSettingsService implements ServiceInterface
     private const OPTION_ARCHIVE = 'homlity_plugin_archive_page_id';
     private const OPTION_SINGLE  = 'homlity_plugin_single_template_id';
     private const OPTION_UNAVAILABLE = 'homlity_plugin_unavailable_template_id';
+    private const OPTION_AGENT_PROFILE = 'homlity_plugin_agent_profile_page_id';
+    private const OPTION_SHEET_PAGE = 'homlity_plugin_sheet_page_id';
     private const OPTION_ARCHIVE_LAYOUT = 'homlity_plugin_archive_page_layout';
     private const OPTION_SINGLE_LAYOUT  = 'homlity_plugin_single_page_layout';
     private const OPTION_UNAVAILABLE_LAYOUT  = 'homlity_plugin_unavailable_page_layout';
@@ -88,6 +90,22 @@ class ElementorTemplateSettingsService implements ServiceInterface
         $singleId = $this->isElementorDocument($singleId) ? $singleId : 0;
         $unavailableId = $this->isElementorDocument($unavailableId) ? $unavailableId : 0;
 
+        // Builder-agnostic: the advisor profile page may be built with
+        // Elementor, Divi or WPBakery, so it is not validated as an Elementor
+        // document. An empty value falls back to the plugin template.
+        $agentProfileId = isset($_POST['agent_profile_page_id']) ? absint($_POST['agent_profile_page_id']) : 0;
+        if ($agentProfileId > 0 && get_post_type($agentProfileId) !== 'page') {
+            $agentProfileId = 0;
+        }
+        update_option(self::OPTION_AGENT_PROFILE, $agentProfileId);
+
+        // Same rule for the technical sheet page: any builder may own it.
+        $sheetPageId = isset($_POST['sheet_page_id']) ? absint($_POST['sheet_page_id']) : 0;
+        if ($sheetPageId > 0 && get_post_type($sheetPageId) !== 'page') {
+            $sheetPageId = 0;
+        }
+        update_option(self::OPTION_SHEET_PAGE, $sheetPageId);
+
         update_option(self::OPTION_ARCHIVE, $archiveId);
         update_option(self::OPTION_SINGLE, $singleId);
         update_option(self::OPTION_UNAVAILABLE, $unavailableId);
@@ -143,7 +161,11 @@ class ElementorTemplateSettingsService implements ServiceInterface
             $this->applyLayoutToPost($unavailableId, $unavailableLayout);
         }
 
-        // Regenerar reglas de reescritura porque archive_page_id puede haber cambiado
+        // Regenerar reglas de reescritura porque archive_page_id, la página de
+        // perfil del asesor o la de ficha técnica pueden haber cambiado. Se vuelven a registrar antes
+        // del flush: las reglas añadidas en `init` todavía llevan los IDs
+        // anteriores y quedarían grabadas tal cual.
+        (new TemplateService())->addRewriteRules();
         flush_rewrite_rules();
 
         wp_safe_redirect(add_query_arg([
@@ -162,6 +184,8 @@ class ElementorTemplateSettingsService implements ServiceInterface
         $archiveId         = (int)    get_option(self::OPTION_ARCHIVE, 0);
         $singleId          = (int)    get_option(self::OPTION_SINGLE, 0);
         $unavailableId     = (int)    get_option(self::OPTION_UNAVAILABLE, 0);
+        $agentProfileId    = (int)    get_option(self::OPTION_AGENT_PROFILE, 0);
+        $sheetPageId       = (int)    get_option(self::OPTION_SHEET_PAGE, 0);
         $archiveLayout     = (string) get_option(self::OPTION_ARCHIVE_LAYOUT, 'default');
         $singleLayout      = (string) get_option(self::OPTION_SINGLE_LAYOUT, 'default');
         $unavailableLayout = (string) get_option(self::OPTION_UNAVAILABLE_LAYOUT, 'default');
@@ -275,6 +299,56 @@ class ElementorTemplateSettingsService implements ServiceInterface
                             <p class="description">
                                 <?php esc_html_e(
                                     'Dentro de la página puedes usar los shortcodes: [homlity_unavailable_notice], [homlity_unavailable_similar_properties] y [homlity_unavailable_search_context].',
+                                    'homlity-real-estate'
+                                ); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="agent_profile_page_id">
+                                <?php esc_html_e('Página de perfil del asesor', 'homlity-real-estate'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <?php
+                            wp_dropdown_pages([
+                                'id' => 'agent_profile_page_id',
+                                'name' => 'agent_profile_page_id',
+                                'selected' => $agentProfileId,
+                                'show_option_none' => __('— Usar plantilla del plugin —', 'homlity-real-estate'),
+                                'option_none_value' => '0',
+                                'post_status' => ['publish', 'draft', 'pending'],
+                            ]);
+                            ?>
+                            <p class="description">
+                                <?php esc_html_e(
+                                    'Diseña esta página con Elementor, Divi o WPBakery y se usará para cada asesor en /property-agent/{asesor}/. Coloca el widget "Asesor del inmueble" en modo "Asesor de la página" y el widget de listado con "Inmuebles del asesor de la página" activado.',
+                                    'homlity-real-estate'
+                                ); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="sheet_page_id">
+                                <?php esc_html_e('Página de ficha técnica', 'homlity-real-estate'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <?php
+                            wp_dropdown_pages([
+                                'id' => 'sheet_page_id',
+                                'name' => 'sheet_page_id',
+                                'selected' => $sheetPageId,
+                                'show_option_none' => __('— Usar plantilla del plugin —', 'homlity-real-estate'),
+                                'option_none_value' => '0',
+                                'post_status' => ['publish', 'draft', 'pending'],
+                            ]);
+                            ?>
+                            <p class="description">
+                                <?php esc_html_e(
+                                    'Diseña esta página con Elementor, Divi o WPBakery y se usará para cada inmueble en /ficha-tecnica/{inmueble}/. Coloca el widget "Ficha técnica del inmueble": desde ahí controlas espacios, márgenes, colores y qué secciones se muestran.',
                                     'homlity-real-estate'
                                 ); ?>
                             </p>

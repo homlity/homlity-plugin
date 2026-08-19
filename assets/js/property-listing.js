@@ -27,6 +27,7 @@
         this.presetLocality   = el.dataset.presetLocality || '';
         this.presetNeighborhood = el.dataset.presetNeighborhood || '';
         this.presetNearby     = el.dataset.presetNearby || '';
+        this.presetAgent      = el.dataset.presetAgent || '';
         this.geoLatitude      = el.dataset.geoLatitude || '';
         this.geoLongitude     = el.dataset.geoLongitude || '';
         this.geoRadiusKm      = el.dataset.geoRadiusKm || '';
@@ -318,6 +319,7 @@
             preset_locality:   this.presetLocality,
             preset_neighborhood: this.presetNeighborhood,
             preset_nearby:     this.presetNearby,
+            preset_agent:      this.presetAgent,
             geo_latitude:      this.geoLatitude,
             geo_longitude:     this.geoLongitude,
             geo_radius_km:     this.geoRadiusKm,

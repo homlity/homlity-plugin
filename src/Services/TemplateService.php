@@ -34,6 +34,7 @@ class TemplateService implements ServiceInterface
     public function registerShortcodes(): void
     {
         add_shortcode('homlity_agent_profile', [$this, 'renderAgentProfileShortcode']);
+        add_shortcode('homlity_technical_sheet', [$this, 'renderTechnicalSheetShortcode']);
         add_shortcode('homlity_property_detail', [$this, 'renderPropertyDetailShortcode']);
     }
 
@@ -41,6 +42,19 @@ class TemplateService implements ServiceInterface
     {
         ob_start();
         self::includeComponent('agent-profile-content.php');
+        return (string) ob_get_clean();
+    }
+
+    public function renderTechnicalSheetShortcode(array $atts = []): string
+    {
+        $candidate = isset($atts['id']) ? absint($atts['id']) : 0;
+        $postId = TechnicalSheetService::resolvePropertyId($candidate);
+        if ($postId <= 0) {
+            return '';
+        }
+
+        ob_start();
+        self::includeComponent('property-technical-sheet.php', ['post_id' => $postId]);
         return (string) ob_get_clean();
     }
 
@@ -76,14 +90,16 @@ class TemplateService implements ServiceInterface
             return;
         }
 
-        if (!is_singular(PropertyPostType::POST_TYPE)) {
+        if (!TechnicalSheetService::isSheetRequest()) {
             return;
         }
 
-        $sheetFlag = isset($_GET['homlity_sheet'])
-            ? sanitize_key(wp_unslash((string) $_GET['homlity_sheet']))
-            : sanitize_key((string) get_query_var('homlity_sheet', ''));
-        if ($sheetFlag !== '1') {
+        $forceDownload = (isset($_GET['download']) ? sanitize_key(wp_unslash((string) $_GET['download'])) : '') === '1';
+
+        // On the builder route the HTML page *is* the deliverable, so only an
+        // explicit ?download=1 streams a PDF. The legacy URL keeps its previous
+        // behaviour of rendering the PDF inline whenever Dompdf is installed.
+        if (TechnicalSheetService::isRouteRequest() && !$forceDownload) {
             return;
         }
 
@@ -91,7 +107,7 @@ class TemplateService implements ServiceInterface
             return;
         }
 
-        $postId = (int) get_queried_object_id();
+        $postId = TechnicalSheetService::currentPropertyId();
         if ($postId <= 0) {
             return;
         }
@@ -121,7 +137,6 @@ class TemplateService implements ServiceInterface
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
         $filename = sanitize_title(get_the_title($postId)) ?: 'ficha-tecnica';
-        $forceDownload = (isset($_GET['download']) ? sanitize_key(wp_unslash((string) $_GET['download'])) : '') === '1';
         if ($forceDownload) {
             PropertyTechnicalSheetDownloadTrackingService::trackDownload($postId);
         }
@@ -151,6 +166,7 @@ class TemplateService implements ServiceInterface
         $vars[] = 'date_to';
         $vars[] = 'homlity_property_archive';
         $vars[] = 'homlity_sheet';
+        $vars[] = TechnicalSheetService::QUERY_VAR;
         return $vars;
     }
 
@@ -324,11 +340,37 @@ class TemplateService implements ServiceInterface
     {
         $archivePageId = (int) get_option('homlity_plugin_archive_page_id', 0);
 
+        // Advisor profile pages. When a builder page is configured the request
+        // resolves to that page, so Elementor/Divi/WPBakery render it natively
+        // (their assets, the theme layout and the editor preview all apply)
+        // while `property_agent` keeps the advisor of the request available.
+        $agentPageId = AgentProfileService::pageId();
+        $agentTarget = $agentPageId > 0 ? 'page_id=' . $agentPageId . '&' : '';
+
         add_rewrite_rule(
-            '^property-agent/([^/]+)/?$',
-            'index.php?property_agent=$matches[1]',
+            '^' . AgentProfileService::ROUTE_BASE . '/([^/]+)/page/([0-9]{1,})/?$',
+            'index.php?' . $agentTarget . 'property_agent=$matches[1]&paged=$matches[2]',
             'top'
         );
+
+        add_rewrite_rule(
+            '^' . AgentProfileService::ROUTE_BASE . '/([^/]+)/?$',
+            'index.php?' . $agentTarget . 'property_agent=$matches[1]',
+            'top'
+        );
+
+        // Technical sheet. Same idea as the advisor profile: when a page is
+        // configured the request resolves to it, so the builder renders the
+        // sheet natively and its spacing/colour controls apply, while
+        // `homlity_sheet_property` keeps the property of the request available.
+        $sheetPageId = TechnicalSheetService::pageId();
+        if ($sheetPageId > 0) {
+            add_rewrite_rule(
+                '^' . TechnicalSheetService::ROUTE_BASE . '/([^/]+)/?$',
+                'index.php?page_id=' . $sheetPageId . '&' . TechnicalSheetService::QUERY_VAR . '=$matches[1]',
+                'top'
+            );
+        }
 
         add_rewrite_rule(
             '^properties/([^/]+)/?$',
@@ -565,13 +607,28 @@ class TemplateService implements ServiceInterface
             return $template;
         }
 
-        if (get_query_var('property_agent')) {
+        if (AgentProfileService::isAgentProfileRequest()) {
+            // A builder-driven page renders itself; overriding the template
+            // here would strip the theme/builder layout around the widgets.
+            if (AgentProfileService::pageUsesBuilder() && is_page(AgentProfileService::pageId())) {
+                return $template;
+            }
+
             return self::locateTemplate('property-agent.php', $template);
         }
 
+        if (TechnicalSheetService::isRouteRequest()) {
+            // A builder-driven page renders itself; overriding the template
+            // here would strip the theme/builder layout around the widget.
+            if (TechnicalSheetService::pageUsesBuilder() && is_page(TechnicalSheetService::pageId())) {
+                return $template;
+            }
+
+            return self::locateTemplate('property-technical-sheet.php', $template);
+        }
+
         if (is_singular(PropertyPostType::POST_TYPE)) {
-            if ((isset($_GET['homlity_sheet']) ? sanitize_key(wp_unslash((string) $_GET['homlity_sheet'])) : '') === '1'
-                || sanitize_key((string) get_query_var('homlity_sheet', '')) === '1') {
+            if (TechnicalSheetService::isLegacyRequest()) {
                 return self::locateTemplate('property-technical-sheet.php', $template);
             }
             return self::locateTemplate('single-property.php', $template);

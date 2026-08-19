@@ -9,12 +9,26 @@
     "guzzlehttp/guzzle": "^7.10",
     "dompdf/dompdf": "^3.0"
   },
+  "require-dev": {
+    "phpunit/phpunit": "^10.5"
+  },
   "autoload": {
     "psr-4": {
       "Homlity\\PluginInmobiliario\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Homlity\\PluginInmobiliario\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  },
   "scripts": {
+    "test": "phpunit",
+    "test:unit": "phpunit --testsuite=unit",
+    "test:coverage": "phpunit --coverage-html build/coverage",
     "test:error-reporting": "php tests/error-reporting/run.php"
   }
 }

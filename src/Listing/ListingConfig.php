@@ -53,6 +53,8 @@ class ListingConfig
         'preset_locality'        => 0,
         'preset_neighborhood'    => 0,
         'preset_nearby'          => 0,
+        'preset_agent'           => 0,     // filter by advisor (user id)
+        'use_current_agent'      => false, // take the advisor from the profile page being viewed
         'geo_latitude'           => '',
         'geo_longitude'          => '',
         'geo_radius_km'          => 0,
@@ -174,6 +176,8 @@ class ListingConfig
             'preset_locality'       => absint($settings['preset_locality'] ?? 0),
             'preset_neighborhood'   => absint($settings['preset_neighborhood'] ?? 0),
             'preset_nearby'         => absint($settings['preset_nearby'] ?? 0),
+            'preset_agent'          => absint($settings['preset_agent'] ?? 0),
+            'use_current_agent'     => !empty($settings['use_current_agent']),
             'geo_latitude'          => sanitize_text_field($settings['geo_latitude'] ?? ''),
             'geo_longitude'         => sanitize_text_field($settings['geo_longitude'] ?? ''),
             'geo_radius_km'         => max(0, (float) ($settings['geo_radius_km'] ?? 0)),
@@ -291,6 +295,8 @@ class ListingConfig
             'preset_locality'       => absint($atts['locality'] ?? 0),
             'preset_neighborhood'   => absint($atts['neighborhood'] ?? 0),
             'preset_nearby'         => absint($atts['nearby'] ?? 0),
+            'preset_agent'          => absint($atts['agent'] ?? 0),
+            'use_current_agent'     => $bool($atts['current_agent'] ?? null, false),
             'geo_latitude'          => sanitize_text_field($atts['lat'] ?? ''),
             'geo_longitude'         => sanitize_text_field($atts['lng'] ?? ''),
             'geo_radius_km'         => max(0, (float) ($atts['radius_km'] ?? 0)),
@@ -418,6 +424,8 @@ class ListingConfig
     public function presetLocality(): int  { return (int)    $this->data['preset_locality']; }
     public function presetNeighborhood(): int { return (int) $this->data['preset_neighborhood']; }
     public function presetNearby(): int    { return (int)    $this->data['preset_nearby']; }
+    public function presetAgent(): int     { return (int)    $this->data['preset_agent']; }
+    public function useCurrentAgent(): bool { return (bool)  $this->data['use_current_agent']; }
     public function geoLatitude(): string  { return (string) $this->data['geo_latitude']; }
     public function geoLongitude(): string { return (string) $this->data['geo_longitude']; }
     public function geoRadiusKm(): float   { return (float)  $this->data['geo_radius_km']; }
@@ -497,6 +505,8 @@ class ListingConfig
             'preset_locality'  => $this->presetLocality(),
             'preset_neighborhood' => $this->presetNeighborhood(),
             'preset_nearby'    => $this->presetNearby(),
+            'preset_agent'     => $this->presetAgent(),
+            'use_current_agent' => $this->useCurrentAgent(),
             'geo_latitude'     => $this->geoLatitude(),
             'geo_longitude'    => $this->geoLongitude(),
             'geo_radius_km'    => $this->geoRadiusKm(),

@@ -2,6 +2,7 @@
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 namespace Homlity\PluginInmobiliario\Integrations\Divi\Widgets;
 
+use Homlity\PluginInmobiliario\Services\AgentProfileService;
 use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Controls_Manager;
 use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Group_Control_Border;
 use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Group_Control_Box_Shadow;
@@ -227,7 +228,7 @@ class PropertyAgentsAvailableWidget extends Widget_Base
             $count = $row['count'];
             $phone = $this->resolveUserPhone($user->ID);
             $email = (string) $user->user_email;
-            $profileUrl = home_url('/property-agent/' . $user->user_nicename);
+            $profileUrl = AgentProfileService::profileUrl($user);
 
             echo '<article class="hml-agents-available__card">';
             echo '<div class="hml-agents-available__avatar">' . get_avatar($user->ID, 96) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

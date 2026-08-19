@@ -17,6 +17,8 @@ use Homlity\PluginInmobiliario\Integrations\WPBakery\WPBakeryIntegrationService;
 use Homlity\PluginInmobiliario\Services\Ai\LlmsFullAdminService;
 use Homlity\PluginInmobiliario\Services\Ai\LlmsFullService;
 use Homlity\PluginInmobiliario\Services\AdminBarService;
+use Homlity\PluginInmobiliario\Services\AgentProfileService;
+use Homlity\PluginInmobiliario\Services\TechnicalSheetService;
 use Homlity\PluginInmobiliario\Services\AdminMenuService;
 use Homlity\PluginInmobiliario\Services\CapabilityService;
 use Homlity\PluginInmobiliario\Services\CrmIntegrationService;
@@ -94,6 +96,8 @@ class PluginBootstrap
             new CrmIntegrationService(),
             new CrmAdminService(),
             new TemplateService(),
+            new AgentProfileService(),
+            new TechnicalSheetService(),
             new PropertySearchService(),
 
             // Homologation: canonical data mapping across all CRM integrations

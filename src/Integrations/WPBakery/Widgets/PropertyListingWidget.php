@@ -15,6 +15,7 @@ use Homlity\PluginInmobiliario\Integrations\WPBakery\Compatibility\Group_Control
 use Homlity\PluginInmobiliario\Integrations\WPBakery\Compatibility\Widget_Base;
 use Homlity\PluginInmobiliario\Listing\ListingConfig;
 use Homlity\PluginInmobiliario\Listing\ListingRenderer;
+use Homlity\PluginInmobiliario\Services\AgentProfileService;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 use Homlity\PluginInmobiliario\Services\LocalityPostType;
 
@@ -269,6 +270,23 @@ class PropertyListingWidget extends Widget_Base
             'options'   => $this->getTermsOptions(PropertyTaxonomies::TAXONOMY_NEARBY),
             'default'   => '',
             'condition' => ['query_mode' => 'custom'],
+        ]);
+
+        $this->add_control('use_current_agent', [
+            'label'       => __('Inmuebles del asesor de la página', 'homlity-real-estate'),
+            'type'        => Controls_Manager::SWITCHER,
+            'default'     => '',
+            'description' => __('En /property-agent/{asesor}/ muestra únicamente los inmuebles de ese asesor.', 'homlity-real-estate'),
+            'condition'   => ['query_mode' => 'custom'],
+        ]);
+
+        $this->add_control('preset_agent', [
+            'label'       => __('Fijar asesor', 'homlity-real-estate'),
+            'type'        => Controls_Manager::SELECT,
+            'options'     => AgentProfileService::agentChoices(),
+            'default'     => '',
+            'description' => __('Tiene prioridad sobre el asesor de la página.', 'homlity-real-estate'),
+            'condition'   => ['query_mode' => 'custom'],
         ]);
 
         // ── Opciones de inmuebles relacionados (solo visible en modo related_current) ──

@@ -85,6 +85,7 @@ $paramToAttr = static function ($value): string {
      data-preset-locality="<?php echo esc_attr($params['preset_locality'] ?? $config->presetLocality()); ?>"
      data-preset-neighborhood="<?php echo esc_attr($params['preset_neighborhood'] ?? $config->presetNeighborhood()); ?>"
      data-preset-nearby="<?php echo esc_attr($params['preset_nearby'] ?? $config->presetNearby()); ?>"
+     data-preset-agent="<?php echo esc_attr($params['preset_agent'] ?? $config->presetAgent()); ?>"
      data-geo-latitude="<?php echo esc_attr($params['geo_latitude'] ?? $config->geoLatitude()); ?>"
      data-geo-longitude="<?php echo esc_attr($params['geo_longitude'] ?? $config->geoLongitude()); ?>"
      data-geo-radius-km="<?php echo esc_attr($params['geo_radius_km'] ?? $config->geoRadiusKm()); ?>"
