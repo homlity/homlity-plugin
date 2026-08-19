@@ -1213,3 +1213,15 @@ if (!function_exists('sanitize_hex_color')) {
         return preg_match('/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/', $color) === 1 ? $color : null;
     }
 }
+
+if (!function_exists('locate_template')) {
+    /**
+     * Sin tema instalado no hay plantilla que sobrescriba a la del plugin.
+     *
+     * @param string|string[] $templateNames
+     */
+    function locate_template($templateNames, bool $load = false, bool $requireOnce = true): string
+    {
+        return '';
+    }
+}

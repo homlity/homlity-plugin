@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Homlity\PluginInmobiliario\Tests\Unit\Services;
 
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
+use Homlity\PluginInmobiliario\Services\TechnicalSheetData;
+use Homlity\PluginInmobiliario\Tests\Support\PdfProbe;
 use Homlity\PluginInmobiliario\Tests\Support\TestCase;
 use Homlity\PluginInmobiliario\Tests\Support\WpStubs;
 use WP_Term;
@@ -31,10 +33,8 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
     private const PDF_CSS = HOMLITY_PLUGIN_PATH . 'assets/css/technical-sheet-pdf.css';
     private const TEMPLATE = HOMLITY_PLUGIN_PATH . 'templates/parts/property-technical-sheet-pdf.php';
 
-    private const PT_PER_PX = 0.75;
-    private const A4_HEIGHT_PT = 841.89;
-    private const A4_HEIGHT_PX = 1122.52;
-    private const A4_WIDTH_PX = 793.7;
+    private const A4_HEIGHT_PX = PdfProbe::A4_HEIGHT_PX;
+    private const A4_WIDTH_PX = PdfProbe::A4_WIDTH_PX;
     private const TOLERANCE = 1.5;
 
     private const POST_ID = 501;
@@ -97,6 +97,7 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
         WpStubs::setOption('homlity_seo_settings', [
             'company_name' => 'Royal Propiedad Raíz',
             'contact_website' => 'https://royal.test',
+            'contact_address' => 'Calle 10 # 43C - 20, Oficina 501',
             'geo_city' => 'Medellín',
         ]);
         WpStubs::setOption(HOMLITY_PLUGIN_SETTINGS_OPTION, ['primary_color' => '#e0533d']);
@@ -150,8 +151,9 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
-        // Sin comprimir, el flujo de contenido de cada página queda en claro.
-        return $dompdf->output(['compress' => 0]);
+        // PdfProbe descomprime los flujos, así que no hace falta pedirle a
+        // Dompdf que no comprima.
+        return PdfProbe::inflate((string) $dompdf->output());
     }
 
     /**
@@ -173,107 +175,6 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
         self::assertNotEmpty($found, 'La hoja del PDF ya no declara los tres márgenes de @page.');
 
         return ['top' => (float) $found[1], 'side' => (float) $found[2], 'bottom' => (float) $found[3]];
-    }
-
-    /**
-     * Líneas de texto por página.
-     *
-     * @return array<int, array<int, array{x:float, y:float, text:string}>>
-     */
-    private static function textByPage(string $pdf): array
-    {
-        $pages = [];
-
-        foreach (preg_split('/\bendstream\b/', $pdf) ?: [] as $stream) {
-            if (!str_contains($stream, ' Td ')) {
-                continue;
-            }
-
-            // El `Tc` opcional es el interletraje de los rótulos en mayúsculas.
-            //
-            // La clase negada y no `.*?`: sobre el megabyte que ocupa un PDF
-            // con fotos, un cuantificador perezoso agota el límite de retroceso
-            // de PCRE y preg_match_all devuelve cero coincidencias sin avisar.
-            // La alternativa con la barra es para los paréntesis escapados.
-            preg_match_all(
-                '/BT\s+([\d.-]+)\s+([\d.-]+)\s+Td\s+(?:[\d.-]+\s+Tc\s+)?\/\w+\s+[\d.]+\s+Tf\s+\[\(((?:[^()\\\\]|\\\\.)*)\)\]\s+TJ/',
-                $stream,
-                $matches,
-                PREG_SET_ORDER
-            );
-
-            $runs = [];
-            foreach ($matches as $run) {
-                $runs[] = [
-                    'x' => (float) $run[1] / self::PT_PER_PX,
-                    'y' => (self::A4_HEIGHT_PT - (float) $run[2]) / self::PT_PER_PX,
-                    'text' => self::decode($run[3]),
-                ];
-            }
-
-            $pages[] = $runs;
-        }
-
-        return $pages;
-    }
-
-    /**
-     * Según la fuente, Dompdf escribe la cadena con un byte por carácter o en
-     * UTF-16BE.
-     *
-     * El indicio de UTF-16BE es el byte alto a cero del primer carácter, no
-     * que todo sea ASCII: «FICHA TÉCNICA» lleva una É, que en UTF-16BE es
-     * 00 C9, y con la comprobación restringida a ASCII imprimible el rótulo se
-     * quedaba en crudo y no lo encontraba ninguna prueba.
-     */
-    private static function decode(string $glyphs): string
-    {
-        if ($glyphs === '' || strlen($glyphs) % 2 !== 0 || $glyphs[0] !== "\x00") {
-            return $glyphs;
-        }
-
-        $decoded = mb_convert_encoding($glyphs, 'UTF-8', 'UTF-16BE');
-
-        return is_string($decoded) ? $decoded : $glyphs;
-    }
-
-    /**
-     * Imágenes por página.
-     *
-     * @return array<int, array<int, array{x:float, y:float, width:float, height:float}>>
-     */
-    private static function imagesByPage(string $pdf): array
-    {
-        $pages = [];
-
-        foreach (preg_split('/\bendstream\b/', $pdf) ?: [] as $stream) {
-            if (!str_contains($stream, ' Td ')) {
-                continue;
-            }
-
-            preg_match_all(
-                '/q\s+([\d.-]+)\s+0\s+0\s+([\d.-]+)\s+([\d.-]+)\s+([\d.-]+)\s+cm\s*\/\w+\s+Do/',
-                $stream,
-                $matches,
-                PREG_SET_ORDER
-            );
-
-            $images = [];
-            foreach ($matches as $box) {
-                $height = (float) $box[2];
-                $images[] = [
-                    'width' => (float) $box[1] / self::PT_PER_PX,
-                    'height' => $height / self::PT_PER_PX,
-                    'x' => (float) $box[3] / self::PT_PER_PX,
-                    // El origen de una imagen es su esquina inferior izquierda.
-                    'y' => (self::A4_HEIGHT_PT - (float) $box[4] - $height) / self::PT_PER_PX,
-                ];
-            }
-
-            $pages[] = $images;
-        }
-
-        return $pages;
     }
 
     /**
@@ -389,7 +290,7 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
         $this->givenProperty();
         $this->givenFeatures(array_map(static fn(int $n): string => 'Característica ' . $n, range(1, 30)));
 
-        $pages = self::textByPage($this->render(self::POST_ID));
+        $pages = PdfProbe::textByPage($this->render(self::POST_ID));
 
         self::assertGreaterThan(1, count($pages), 'La ficha de prueba tiene que ocupar más de una página.');
         foreach ($pages as $number => $runs) {
@@ -405,7 +306,7 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
         $this->givenProperty();
         $this->givenFeatures(array_map(static fn(int $n): string => 'Característica ' . $n, range(1, 30)));
 
-        $pages = self::textByPage($this->render(self::POST_ID));
+        $pages = PdfProbe::textByPage($this->render(self::POST_ID));
 
         self::assertGreaterThan(1, count($pages));
         foreach ($pages as $number => $runs) {
@@ -430,7 +331,7 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
         $this->givenProperty();
         $this->givenFeatures(array_map(static fn(int $n): string => 'Característica ' . $n, range(1, 30)));
 
-        $parts = self::split(self::textByPage($this->render(self::POST_ID)));
+        $parts = self::split(PdfProbe::textByPage($this->render(self::POST_ID)));
 
         self::assertNotEmpty($parts['header'], 'No hay cabecera repetida que medir.');
 
@@ -465,7 +366,7 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
         $this->givenProperty();
         $this->givenFeatures(array_map(static fn(int $n): string => 'Característica ' . $n, range(1, 30)));
 
-        $parts = self::split(self::textByPage($this->render(self::POST_ID)));
+        $parts = self::split(PdfProbe::textByPage($this->render(self::POST_ID)));
 
         self::assertNotEmpty($parts['footer'], 'No hay banda del pie que medir.');
 
@@ -500,7 +401,7 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
     {
         $this->givenProperty();
 
-        $pages = self::textByPage($this->render(self::POST_ID));
+        $pages = PdfProbe::textByPage($this->render(self::POST_ID));
         $anchor = self::find($pages[0], 'FINANZAS');
         self::assertNotNull($anchor);
 
@@ -519,7 +420,7 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
     {
         $this->givenProperty();
 
-        $pages = self::textByPage($this->render(self::POST_ID));
+        $pages = PdfProbe::textByPage($this->render(self::POST_ID));
         $anchor = self::find($pages[0], 'DIMENSIONES');
         self::assertNotNull($anchor);
 
@@ -538,7 +439,7 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
         $this->givenFeatures(['Ascensor', 'Balcón', 'Gimnasio', 'Depósito']);
 
         $pdf = $this->render(self::POST_ID);
-        $runs = array_merge(...self::textByPage($pdf));
+        $runs = array_merge(...PdfProbe::textByPage($pdf));
 
         $cells = [];
         foreach (['Ascensor', 'Balc', 'Gimnasio', 'Dep'] as $needle) {
@@ -554,6 +455,101 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
 
         self::assertGreaterThan($cells['Ascensor']['y'] + 5, $cells['Dep']['y'], 'La cuarta no bajó de fila.');
         self::assertEqualsWithDelta($cells['Ascensor']['x'], $cells['Dep']['x'], self::TOLERANCE, 'La cuarta no vuelve a la primera columna.');
+    }
+
+    // ── Sin repeticiones ──────────────────────────────────────────────────
+
+    /**
+     * Lo que sale en la cabecera o en el pie no se repite en el cuerpo.
+     *
+     * Las dos se repintan en todas las páginas, así que volver a poner el
+     * teléfono del asesor o el nombre de la inmobiliaria dentro de una tarjeta
+     * es gastar sitio en algo que el lector ya tiene delante. Llegaron a salir
+     * tres veces cada uno.
+     */
+    public function testElCuerpoNoRepiteLoQueYaDiceLaCabeceraOElPie(): void
+    {
+        $this->givenProperty();
+        $this->givenFeatures(array_map(static fn(int $n): string => 'Característica ' . $n, range(1, 30)));
+
+        $parts = self::split(PdfProbe::textByPage($this->render(self::POST_ID)));
+
+        $fixed = array_unique(array_merge(
+            array_column($parts['header'], 'text'),
+            array_column($parts['footer'], 'text')
+        ));
+
+        foreach ($parts['body'] as $number => $runs) {
+            foreach ($runs as $run) {
+                foreach ($fixed as $repeated) {
+                    $repeated = trim($repeated);
+                    // Los rótulos cortos y los de sección no cuentan: repetir
+                    // la palabra «Correo» como etiqueta no es repetir un dato.
+                    //
+                    // Un rótulo es texto con letras y todo en mayúsculas. La
+                    // condición lleva lo de las letras porque sin ella un
+                    // teléfono o una fecha —que no tienen may/min— pasaban por
+                    // rótulo y se colaban sin comprobar.
+                    $isLabel = preg_match('/\p{L}/u', $repeated) === 1
+                        && mb_strtoupper($repeated) === $repeated;
+                    if (mb_strlen($repeated) < 8 || $isLabel) {
+                        continue;
+                    }
+                    self::assertStringNotContainsString(
+                        $repeated,
+                        $run['text'],
+                        sprintf('Página %d: «%s» ya sale en la cabecera o el pie de cada página.', $number + 1, $repeated)
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * Y dentro del cuerpo tampoco se repite un mismo dato en dos tarjetas.
+     *
+     * Se comprueba contra los valores que produce TechnicalSheetData y sobre
+     * el texto de la página con los espacios quitados, no línea a línea: una
+     * URL larga parte en dos en una celda estrecha y entera en una ancha, así
+     * que comparando líneas sueltas la repetición pasaba desapercibida.
+     */
+    public function testElCuerpoNoRepiteUnDatoEnDosTarjetas(): void
+    {
+        $postId = $this->givenProperty();
+        $this->givenFeatures(['Ascensor', 'Balcón', 'Gimnasio']);
+
+        $parts = self::split(PdfProbe::textByPage($this->render($postId)));
+
+        $flat = '';
+        foreach ($parts['body'] as $runs) {
+            $flat .= implode('', array_column($runs, 'text'));
+        }
+        $flat = (string) preg_replace('/\s+/u', '', $flat);
+
+        $data = TechnicalSheetData::forProperty($postId);
+        $values = [
+            'la URL del inmueble' => $data['permalink'],
+            'el nombre del asesor' => $data['agent']['name'],
+            'el teléfono del asesor' => $data['agent']['phone'],
+            'el correo del asesor' => $data['agent']['email'],
+            'el nombre de la inmobiliaria' => $data['company']['name'],
+            'el documento de la inmobiliaria' => $data['company']['document'],
+        ];
+        // El sitio web de la inmobiliaria se queda fuera: es un prefijo de la
+        // URL del inmueble, así que contarlo daría por repetido algo que
+        // ningún lector ve dos veces.
+
+        foreach ($values as $what => $value) {
+            $value = (string) preg_replace('/\s+/u', '', $value);
+            if ($value === '') {
+                continue;
+            }
+            self::assertLessThanOrEqual(
+                1,
+                substr_count($flat, $value),
+                'El cuerpo repite ' . $what . '.'
+            );
+        }
     }
 
     // ── Catálogo de fotos ─────────────────────────────────────────────────
@@ -603,12 +599,12 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
         $this->givenProperty(['_property_agent_id' => '0']);
         WpStubs::$users = [];
 
-        $pages = self::textByPage($this->render(self::POST_ID));
+        $pages = PdfProbe::textByPage($this->render(self::POST_ID));
         $runs = $pages[0];
 
         self::assertNotNull(self::find($runs, 'FICHA'), 'La cabecera desapareció sin asesor.');
         self::assertNotNull(self::find($runs, 'Royal'), 'La cabecera no cae en la inmobiliaria.');
-        self::assertNull(self::find($runs, 'ASESOR ASIGNADO'), 'Sin asesor no debería haber tarjeta de asesor.');
+        self::assertNull(self::find($runs, 'Jorge Oquendo'), 'Sin asesor no debería aparecer ningún asesor.');
     }
 
     /** Y los botones de WhatsApp, que son el teléfono del asesor, desaparecen. */
@@ -617,7 +613,7 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
         $this->givenProperty(['_property_agent_id' => '0']);
         WpStubs::$users = [];
 
-        $runs = array_merge(...self::textByPage($this->render(self::POST_ID)));
+        $runs = array_merge(...PdfProbe::textByPage($this->render(self::POST_ID)));
 
         self::assertNull(self::find($runs, 'SEGUIMOS'), 'Sin teléfono no hay a quién escribir.');
     }
@@ -630,7 +626,7 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
         $this->givenProperty();
         $this->givenFeatures(['Ascensor']);
 
-        $runs = array_merge(...self::textByPage($this->render(self::POST_ID)));
+        $runs = array_merge(...PdfProbe::textByPage($this->render(self::POST_ID)));
 
         foreach ([
             'FICHA',
@@ -638,7 +634,6 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
             'FINANZAS',
             'DIMENSIONES',
             'DETALLES CLAVE',
-            'ASESOR ASIGNADO',
             'DESCRIPCI',
             'CARACTER',
             'SEGUIMOS',
@@ -656,7 +651,7 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
         $this->givenProperty();
         $this->givenFeatures(['Ascensor', 'Balcón', 'Gimnasio']);
 
-        $runs = array_merge(...self::textByPage($this->render(self::POST_ID)));
+        $runs = array_merge(...PdfProbe::textByPage($this->render(self::POST_ID)));
         $margins = self::pageMargins();
         $rightEdge = self::A4_WIDTH_PX - $margins['side'];
 

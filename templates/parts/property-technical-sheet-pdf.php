@@ -42,7 +42,10 @@ $primary  = $sheet['primary_color'];
 $asText   = static fn($value): string => TechnicalSheetData::text($value);
 
 $headingStyle = 'color:' . $primary . ';';
-$hasAgent = trim((string) $agent['name']) !== '';
+// El asesor vive en la cabecera, que se repite en todas las páginas: por eso
+// el interruptor del widget manda aquí y no sobre una tarjeta suelta. Apagado,
+// la cabecera cae en la inmobiliaria.
+$hasAgent = $show['advisor'] && trim((string) $agent['name']) !== '';
 
 /**
  * Iconos como SVG en data URI.
@@ -195,9 +198,13 @@ $location = array_values(array_filter([
         <div class="section-heading" style="<?php echo esc_attr($headingStyle); ?>"><?php esc_html_e('Información pública de la inmobiliaria', 'homlity-real-estate'); ?></div>
         <table class="section-table">
             <tr>
-                <td colspan="2">
+                <td style="width:50%">
                     <div class="section-label"><?php esc_html_e('Documento', 'homlity-real-estate'); ?></div>
                     <div class="section-value"><?php echo esc_html($asText($company['document'])); ?></div>
+                </td>
+                <td style="width:50%">
+                    <div class="section-label"><?php esc_html_e('Sitio web', 'homlity-real-estate'); ?></div>
+                    <div class="section-value break-all c-gray"><?php echo esc_html($asText($company['website'])); ?></div>
                 </td>
             </tr>
             <tr>
@@ -211,23 +218,18 @@ $location = array_values(array_filter([
                 </td>
             </tr>
             <tr>
-                <td>
+                <?php
+                // La calle y la ciudad de la oficina son un solo dato: en dos
+                // celdas parecía que la ficha decía dos veces dónde está la
+                // inmobiliaria.
+                $officeAddress = array_values(array_filter(array_merge(
+                    [$company['address']],
+                    $location
+                )));
+                ?>
+                <td colspan="2">
                     <div class="section-label"><?php esc_html_e('Dirección', 'homlity-real-estate'); ?></div>
-                    <div class="section-value"><?php echo esc_html($asText($company['address'])); ?></div>
-                </td>
-                <td>
-                    <div class="section-label"><?php esc_html_e('Ubicación', 'homlity-real-estate'); ?></div>
-                    <div class="section-value"><?php echo esc_html($location ? implode(' · ', $location) : 'Sin dato'); ?></div>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <div class="section-label"><?php esc_html_e('Sitio web', 'homlity-real-estate'); ?></div>
-                    <div class="section-value break-all c-gray"><?php echo esc_html($asText($company['website'])); ?></div>
-                </td>
-                <td>
-                    <div class="section-label"><?php esc_html_e('Ficha en el portal', 'homlity-real-estate'); ?></div>
-                    <div class="section-value break-all c-gray"><?php echo esc_html($sheet['permalink']); ?></div>
+                    <div class="section-value"><?php echo esc_html($officeAddress ? implode(' · ', $officeAddress) : 'Sin dato'); ?></div>
                 </td>
             </tr>
         </table>
@@ -291,28 +293,6 @@ $location = array_values(array_filter([
                         <?php endfor; ?>
                     </tr>
                 <?php endforeach; ?>
-            </table>
-        </div>
-    <?php endif; ?>
-
-    <?php if ($show['advisor'] && $hasAgent) : ?>
-        <div class="section-card no-break">
-            <div class="section-heading" style="<?php echo esc_attr($headingStyle); ?>"><?php esc_html_e('Asesor asignado', 'homlity-real-estate'); ?></div>
-            <table class="section-table">
-                <tr>
-                    <td style="width:33.33%">
-                        <div class="section-label"><?php esc_html_e('Nombre', 'homlity-real-estate'); ?></div>
-                        <div class="section-value"><?php echo esc_html($agent['name']); ?></div>
-                    </td>
-                    <td style="width:33.33%">
-                        <div class="section-label"><?php esc_html_e('Teléfono', 'homlity-real-estate'); ?></div>
-                        <div class="section-value"><?php echo esc_html($asText($agent['phone'])); ?></div>
-                    </td>
-                    <td style="width:33.33%">
-                        <div class="section-label"><?php esc_html_e('Correo', 'homlity-real-estate'); ?></div>
-                        <div class="section-value break-all"><?php echo esc_html($asText($agent['email'])); ?></div>
-                    </td>
-                </tr>
             </table>
         </div>
     <?php endif; ?>
@@ -450,11 +430,12 @@ $location = array_values(array_filter([
                 cuenta. El original lo comenta igual —«puede partir»— aunque
                 se dejó la clase puesta. */ ?>
         <div class="section-card">
-            <p class="text-center margin-0">
-                <?php if ($hasAgent) : ?>
-                    <strong><?php echo esc_html($agent['name']); ?></strong>,
-                <?php endif; ?>
-                <strong><?php echo esc_html($company['name']); ?></strong> ·
+            <?php /* Solo la fecha: el nombre del asesor, su teléfono, su correo,
+                    la inmobiliaria y la URL del inmueble ya salen en la cabecera
+                    y el pie de cada página, así que repetirlos aquí era relleno.
+                    La hora sí es dato nuevo —dice a qué precios y disponibilidad
+                    corresponde la ficha—. */ ?>
+            <p class="text-center margin-0 font-11">
                 <?php echo $iconTag('clock', $primary); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 <?php
                 printf(
@@ -464,25 +445,10 @@ $location = array_values(array_filter([
                 );
                 ?>
             </p>
-            <p class="text-center margin-top-6 font-11">
-                <?php if ($hasAgent && $agent['phone']) : ?>
-                    <?php echo $iconTag('phone', $primary); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                    <?php echo esc_html($agent['phone']); ?> |
-                <?php endif; ?>
-                <?php echo $iconTag('globe', $primary); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                <span class="break-all"><?php echo esc_html($sheet['permalink']); ?></span>
-                <?php if ($hasAgent && $agent['email']) : ?>
-                    | <?php echo $iconTag('mail', $primary); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                    <span class="break-all"><?php echo esc_html($agent['email']); ?></span>
-                <?php endif; ?>
-            </p>
             <p class="legal-note">
                 <?php
                 printf(
-                    /* translators: 1: sitio web de la inmobiliaria, 2: ubicación. */
-                    esc_html__('Propiedad sujeta a disponibilidad. Precio sujeto a cambios sin previo aviso. El envío de esta ficha no compromete a las partes a la suscripción de ningún documento legal. La información y medidas son aproximadas y deberán ratificarse con la documentación pertinente. Lo invitamos a visitarnos en %1$s · %2$s.', 'homlity-real-estate'),
-                    esc_html($company['website']),
-                    esc_html($location ? implode(' ', $location) : $company['name'])
+                    esc_html__('Propiedad sujeta a disponibilidad. Precio sujeto a cambios sin previo aviso. El envío de esta ficha no compromete a las partes a la suscripción de ningún documento legal. La información y medidas son aproximadas y deberán ratificarse con la documentación pertinente.', 'homlity-real-estate')
                 );
                 ?>
             </p>

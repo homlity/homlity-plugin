@@ -103,13 +103,46 @@ class TemplateService implements ServiceInterface
             return;
         }
 
-        if (!class_exists('\Dompdf\Dompdf')) {
+        $postId = TechnicalSheetService::currentPropertyId();
+        $pdf = self::technicalSheetPdf($postId);
+        if ($pdf === '') {
             return;
         }
 
-        $postId = TechnicalSheetService::currentPropertyId();
-        if ($postId <= 0) {
-            return;
+        if ($forceDownload) {
+            PropertyTechnicalSheetDownloadTrackingService::trackDownload($postId);
+        }
+
+        $filename = self::technicalSheetPdfFilename($postId);
+
+        nocache_headers();
+        header('Content-Type: application/pdf');
+        header('Content-Length: ' . strlen($pdf));
+        header(sprintf(
+            '%s; filename="%s"',
+            $forceDownload ? 'Content-Disposition: attachment' : 'Content-Disposition: inline',
+            $filename
+        ));
+
+        echo $pdf; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        exit;
+    }
+
+    /**
+     * La ficha técnica de un inmueble, en bytes de PDF.
+     *
+     * Está separado de maybeRenderTechnicalSheetPdf() para poder comprobarlo:
+     * el método de la petición termina en `exit`, así que mientras el armado
+     * vivía dentro no había forma de mirar lo que salía. Devuelve cadena vacía
+     * —y no un PDF roto— cuando no hay nada que componer.
+     */
+    public static function technicalSheetPdf(int $postId, array $settings = []): string
+    {
+        if (!class_exists('\Dompdf\Dompdf')) {
+            return '';
+        }
+        if ($postId <= 0 || get_post_type($postId) !== PropertyPostType::POST_TYPE) {
+            return '';
         }
 
         // Solo la hoja del PDF: la ficha de pantalla y la del archivo son dos
@@ -119,24 +152,35 @@ class TemplateService implements ServiceInterface
         $css = file_exists($cssFile) ? (string) file_get_contents($cssFile) : '';
 
         ob_start();
-        self::includeComponent('property-technical-sheet-pdf.php', ['post_id' => $postId]);
+        self::includeComponent('property-technical-sheet-pdf.php', [
+            'post_id' => $postId,
+            'settings' => $settings,
+        ]);
         $content = (string) ob_get_clean();
 
-        $html = '<!doctype html><html><head><meta charset="utf-8"><style>' . $css . '</style></head><body>' . $content . '</body></html>';
+        $html = '<!doctype html><html><head><meta charset="utf-8"><style>' . $css
+            . '</style></head><body>' . $content . '</body></html>';
 
         $options = new \Dompdf\Options();
+        // Las fotos del inmueble viven en la biblioteca de medios, que para
+        // Dompdf es remota aunque sea el mismo sitio.
         $options->set('isRemoteEnabled', true);
         $options->set('isHtml5ParserEnabled', true);
+
         $dompdf = new \Dompdf\Dompdf($options);
         $dompdf->loadHtml($html, 'UTF-8');
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
-        $filename = sanitize_title(get_the_title($postId)) ?: 'ficha-tecnica';
-        if ($forceDownload) {
-            PropertyTechnicalSheetDownloadTrackingService::trackDownload($postId);
-        }
-        $dompdf->stream($filename . '.pdf', ['Attachment' => $forceDownload]);
-        exit;
+
+        return (string) $dompdf->output();
+    }
+
+    /** Nombre del archivo que se descarga, derivado del nombre del inmueble. */
+    public static function technicalSheetPdfFilename(int $postId): string
+    {
+        $slug = sanitize_title((string) get_the_title($postId));
+
+        return ($slug !== '' ? $slug : 'ficha-tecnica') . '.pdf';
     }
 
     public function registerQueryVars(array $vars): array
