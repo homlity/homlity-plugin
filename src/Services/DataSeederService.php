@@ -595,7 +595,6 @@ class DataSeederService
                     'enable_auto_faqs' => 'yes',
                     'include_global_faqs' => 'yes',
                 ]),
-                $this->elementorWidget('property_related'),
             ]),
         ];
 
@@ -1044,7 +1043,6 @@ class DataSeederService
                 'property_map' => '',
                 'property_agent' => '',
                 'property_faq' => ' enable_auto_faqs="on" include_global_faqs="on"',
-                'property_related' => '',
             ];
             $content = '';
             foreach ($modules as $module => $attributes) {
@@ -1066,7 +1064,6 @@ class DataSeederService
                 'property_map' => '',
                 'property_agent' => '',
                 'property_faq' => ' enable_auto_faqs="yes" include_global_faqs="yes"',
-                'property_related' => '',
             ];
             $content = '';
             foreach ($modules as $module => $attributes) {
@@ -1112,6 +1109,13 @@ class DataSeederService
             . '[/vc_column][/vc_row]';
     }
 
+    /**
+     * Contenido con el que se sembraban las plantillas en versiones
+     * anteriores. Es la huella que permite distinguir una plantilla sin tocar
+     * de una que el dueño del sitio editó, así que describe lo que hay escrito
+     * en esas páginas —incluido `property_related`, un módulo que ya no
+     * existe— y no lo que se sembraría hoy.
+     */
     private function legacySingleBuilderContent(string $builder): string
     {
         if ($builder === 'divi') {

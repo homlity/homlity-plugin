@@ -13,7 +13,6 @@ use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFilterWidg
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyGalleryWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyListingWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyMapWidget;
-use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyRelatedWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyResultsTitleWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyCardWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\SimulatorWidget;
@@ -223,7 +222,6 @@ class ElementorIntegrationService implements ServiceInterface
             PropertyMapWidget::class,
             PropertyAgentWidget::class,
             PropertyShareWidget::class,
-            PropertyRelatedWidget::class,
             PropertyCardWidget::class,
             SimulatorWidget::class,
         ];

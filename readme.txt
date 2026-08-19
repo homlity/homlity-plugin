@@ -4,7 +4,7 @@ Tags: real estate, property, listings, agents, property management
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.7.2
+Stable tag: 2.7.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,8 @@ Developed and maintained by **Ecosistema Inmobiliario Homlity**, a team speciali
 = 2.7.1 =
 * La retícula del PDF de la ficha técnica pasa a píxeles fijos: columnas de 240 px sobre los 737 útiles de una A4, en vez de porcentajes. El generador de PDF no aplica `box-sizing`, así que un 33,33 % no entraba tres veces y el reparto dependía de cuánto padding llevara cada sección.
 * El logo de la cabecera ocupa el ancho completo del título cuando el sitio no tiene logo configurado.
+* La ficha técnica en PDF se rehace con el diseño de la ficha del sistema: cabecera y pie de página repetidos en cada hoja, tarjetas con encabezado en el color de la marca, cifras y características en tres columnas, catálogo de hasta nueve fotos y botones de WhatsApp para contactar, agendar visita u ofertar. La ficha en pantalla no cambia.
+* Eliminado el widget "Inmuebles relacionados" de Elementor, Divi y WPBakery. El widget "Listado de inmuebles" ya cubre lo mismo con su modo de consulta "Inmuebles relacionados al inmueble de la página", que además permite elegir taxonomías, estrategia de coincidencia y qué hacer cuando no hay resultados. La plantilla de inmueble que genera el plugin deja de incluir la sección; donde el widget ya esté colocado hay que sustituirlo a mano por el listado en ese modo.
 * Los datos del asesor se exponen a Elementor como etiquetas dinámicas: "Asesor: dato" (nombre, cargo, teléfono, correo, biografía, sitio web y número de inmuebles), "Asesor: enlace" (perfil, WhatsApp, llamada, correo y sitio web) y "Asesor: foto". Funcionan en /author/{asesor}/ y en la ficha del inmueble, y admiten fijar un asesor concreto para previsualizar en el editor.
 
 = 2.7.0 =

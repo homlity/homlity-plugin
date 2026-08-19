@@ -112,19 +112,14 @@ class TemplateService implements ServiceInterface
             return;
         }
 
-        // The screen stylesheet first, then the print one on top: Dompdf
-        // implements neither grid nor flexbox, so without the second file every
-        // section of the sheet stacks into a single column.
-        $css = '';
-        foreach (['assets/css/front-components.css', 'assets/css/technical-sheet-pdf.css'] as $stylesheet) {
-            $cssFile = HOMLITY_PLUGIN_PATH . $stylesheet;
-            if (file_exists($cssFile)) {
-                $css .= (string) file_get_contents($cssFile);
-            }
-        }
+        // Solo la hoja del PDF: la ficha de pantalla y la del archivo son dos
+        // plantillas distintas, y arrastrar aquí front-components.css metía
+        // reglas de rejilla y de responsive que Dompdf no implementa.
+        $cssFile = HOMLITY_PLUGIN_PATH . 'assets/css/technical-sheet-pdf.css';
+        $css = file_exists($cssFile) ? (string) file_get_contents($cssFile) : '';
 
         ob_start();
-        self::includeComponent('property-technical-sheet.php', ['post_id' => $postId]);
+        self::includeComponent('property-technical-sheet-pdf.php', ['post_id' => $postId]);
         $content = (string) ob_get_clean();
 
         $html = '<!doctype html><html><head><meta charset="utf-8"><style>' . $css . '</style></head><body>' . $content . '</body></html>';

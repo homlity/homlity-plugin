@@ -1106,3 +1106,110 @@ if (!function_exists('is_email')) {
         return preg_match('/^[^@\s]+@[^@\s.]+\.[^@\s]+$/', $email) === 1 ? $email : false;
     }
 }
+
+if (!function_exists('get_post_field')) {
+    /** @return string */
+    function get_post_field(string $field, int $postId = 0): string
+    {
+        if ($field === 'post_content') {
+            return WpStubs::$postContent[$postId] ?? '';
+        }
+        if ($field === 'post_title') {
+            return WpStubs::$postTitles[$postId] ?? '';
+        }
+
+        return '';
+    }
+}
+
+if (!function_exists('get_the_terms')) {
+    /** @return array<int,object>|false */
+    function get_the_terms($post, string $taxonomy)
+    {
+        $postId = is_object($post) ? (int) $post->ID : (int) $post;
+        $terms = WpStubs::$postTerms[$postId][$taxonomy] ?? [];
+
+        return $terms === [] ? false : $terms;
+    }
+}
+
+if (!function_exists('get_the_date')) {
+    function get_the_date(string $format = '', int $postId = 0): string
+    {
+        return date($format !== '' ? $format : 'Y-m-d', 1700000000);
+    }
+}
+
+if (!function_exists('get_the_modified_date')) {
+    function get_the_modified_date(string $format = '', int $postId = 0): string
+    {
+        return date($format !== '' ? $format : 'Y-m-d', 1710000000);
+    }
+}
+
+if (!function_exists('get_the_post_thumbnail_url')) {
+    /** @return string|false */
+    function get_the_post_thumbnail_url(int $postId = 0, $size = 'post-thumbnail')
+    {
+        return WpStubs::$thumbnails[$postId] ?? false;
+    }
+}
+
+if (!function_exists('get_site_icon_url')) {
+    function get_site_icon_url(int $size = 512): string
+    {
+        return (string) (WpStubs::$options['site_icon_url'] ?? '');
+    }
+}
+
+if (!function_exists('date_i18n')) {
+    function date_i18n(string $format, $timestamp = false): string
+    {
+        return date($format, $timestamp === false ? 1710000000 : (int) $timestamp);
+    }
+}
+
+if (!function_exists('current_time')) {
+    /** @return string|int */
+    function current_time(string $type = 'mysql', $gmt = 0)
+    {
+        return $type === 'timestamp' ? 1710000000 : date('Y-m-d H:i:s', 1710000000);
+    }
+}
+
+if (!function_exists('wp_get_referer')) {
+    /** @return string|false */
+    function wp_get_referer()
+    {
+        return false;
+    }
+}
+
+if (!function_exists('wp_kses_post')) {
+    function wp_kses_post(string $html): string
+    {
+        return $html;
+    }
+}
+
+if (!function_exists('esc_html_e')) {
+    function esc_html_e(string $text, string $domain = ''): void
+    {
+        echo esc_html($text);
+    }
+}
+
+if (!function_exists('esc_attr_e')) {
+    function esc_attr_e(string $text, string $domain = ''): void
+    {
+        echo esc_attr($text);
+    }
+}
+
+if (!function_exists('sanitize_hex_color')) {
+    /** @return string|null */
+    function sanitize_hex_color(string $color): ?string
+    {
+        return preg_match('/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/', $color) === 1 ? $color : null;
+    }
+}

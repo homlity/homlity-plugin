@@ -1,166 +1,308 @@
-/* ── Hoja de estilos del PDF ───────────────────────────────────────────────
-   Dompdf no implementa grid, flexbox ni `columns`, que es como está maquetada
-   la ficha en pantalla. Sin esto cada sección se apila en una sola columna y
-   la ficha se va a ocho páginas. `inline-block` sí lo entiende, y reparte el
-   ancho envolviendo a la fila siguiente.
+/* ── Ficha técnica en PDF ───────────────────────────────────────────────────
+   Port a Dompdf del diseño de la ficha del sistema
+   (resources/views/mails/sistema/layouts/{styles-tabla,appPdf}.blade.php).
 
-   Todo va en píxeles fijos, nunca en porcentajes: Dompdf no aplica
-   `box-sizing`, así que el padding suma al ancho declarado y un 33,33 % no
-   entra tres veces. Con medidas estáticas la retícula es exacta y se
-   comprueba sumando.
+   El original lo compone Html2Pdf, que es TCPDF por dentro; aquí compone
+   Dompdf. Lo que cambia, y por qué:
+
+     `<page_header>` / `<page_footer>`   →  cajas en `position: fixed`, que
+        Dompdf repinta en cada página. El hueco lo reserva el margen de @page.
+     `box-sizing: border-box`            →  Dompdf no lo aplica. Por eso la
+        retícula va en tablas y no en cajas sueltas: el algoritmo de tabla sí
+        reparte bien el ancho con bordes y padding de por medio, y los
+        porcentajes de columna salen exactos.
+     `object-fit: cover`                 →  no existe. Las fotos llevan alto
+        fijo y se recortan con `overflow: hidden` en la celda.
+     iconos PNG en base64                →  SVG en data URI, que Dompdf dibuja
+        como vectores y admite el color de la marca.
 
    Retícula (Dompdf resuelve el px a 96 dpi: 1 px = 0,75 pt)
 
-     A4 vertical ................................... 793 px
-     − márgenes de página .......................... 2 × 16 px
-     = ancho de página ............................. 761 px
-     − borde y padding de la tarjeta ............... 2 × 12 px
-     = ancho útil dentro de una tarjeta ............ 737 px
+     A4 vertical ..................................... 793 px
+     − márgenes laterales de página .................. 2 × 24 px
+     = ancho de contenido ............................ 745 px
 
-     Columna = 232 px de contenido + 8 px de aire =  240 px
-     3 × 240 ....................................... 720 px  (17 px de holgura)
+   El color de la marca entra por `--sheet-primary`, que la plantilla escribe
+   en el atributo `style` del contenedor. Dompdf no resuelve `var()`, así que
+   cada regla que lo necesita lo recibe también en línea; lo que hay aquí es
+   el valor de reserva. */
 
-   Al lado de una foto —cabecera y asesor— el ancho útil baja, y las columnas
-   de esa fila se recalculan igual: está anotado en cada bloque. */
-
-@page { margin: 16px; }
-
-body {
-    color: #111827;
-    font-family: DejaVu Sans, Arial, sans-serif;
-    font-size: 11px;
+@page {
+    /* Arriba cabe la cabecera fija, abajo la banda del pie. Los 190 px no son
+       a ojo: es lo que mide la cabecera con asesor —logo, contacto y foto—,
+       más un poco de aire. Si se queda corto la cabecera se pinta encima de la
+       primera tarjeta, porque una caja fija no ocupa sitio en el flujo. */
+    margin: 190px 24px 64px;
 }
 
-/* El ancho de la hoja y el de cada tarjeta no se declaran: en un bloque
-   Dompdf los deriva de la página, y salen los 761 y 737 px de la cuenta de
-   arriba. Fijarlos aquí no cambiaría nada hoy y rompería el día que alguien
-   toque el margen de página. Los anchos fijos son los de las celdas. */
-.homlity-tech-sheet {
-    max-width: none;
+body {
+    background: #ffffff;
+    color: #111827;
+    font-family: DejaVu Sans, Arial, sans-serif;
+    font-size: 12px;
+    line-height: 1.35;
+    margin: 0;
     padding: 0;
 }
 
-/* Botones de navegación: no tienen sentido en un archivo. */
-.homlity-tech-sheet__actions { display: none; }
-
-/* ── Compactado general ─────────────────────────────────────────────────── */
-
-.homlity-tech-sheet__hero,
-.homlity-tech-sheet__card {
-    margin-bottom: 8px;
-    padding: 9px 11px;
+a {
+    color: inherit;
+    text-decoration: none;
 }
 
-.homlity-tech-sheet__card { page-break-inside: avoid; }
-.homlity-tech-sheet__card h2 { font-size: 13px; margin: 0 0 5px; }
-.homlity-tech-sheet__card h3 { font-size: 11px; margin: 7px 0 3px; }
-
-/* ── Cabecera: logo junto al título, no encima ──────────────────────────── */
-/* El logo ocupa 71 px medidos —52 de foto, 10 de padding y 10 de aire—, así
-   que al título le quedan 666: 660. */
-
-.homlity-tech-sheet__hero-logo {
-    display: inline-block;
-    height: 52px;
-    margin-right: 10px;
-    padding: 5px;
-    vertical-align: middle;
-    width: 52px;
-}
-
-.homlity-tech-sheet__hero-text {
-    display: inline-block;
-    vertical-align: middle;
-    width: 660px;
-}
-
-/* Sin logo el título ocupa la tarjeta entera. */
-.homlity-tech-sheet__hero-text:first-child { width: 737px; }
-
-.homlity-tech-sheet__hero-text h1 { font-size: 16px; margin: 0; }
-.homlity-tech-sheet__brand-label { font-size: 9px; margin: 0 0 2px; }
-.homlity-tech-sheet__hero-subtitle { font-size: 10px; margin: 3px 0 0; }
-
-/* ── Tres columnas: información, dimensiones, características, multimedia ─ */
-
-.homlity-tech-sheet__grid > div,
-.homlity-tech-sheet__features-list li,
-.homlity-tech-sheet__media-links > div {
-    display: inline-block;
-    padding-right: 8px;
-    vertical-align: top;
-    width: 232px;
-}
-
-.homlity-tech-sheet__grid > div {
-    font-size: 11px;
-    padding-bottom: 2px;
-    padding-top: 1px;
-}
-
-/* El `columns: 2` de la hoja de pantalla no hay que anularlo: Dompdf ignora
-   la propiedad, y el reparto lo hacen los propios <li>. */
-.homlity-tech-sheet__features-list li {
-    font-size: 11px;
-    margin-bottom: 2px;
-}
-
-.homlity-tech-sheet__media-links > div { font-size: 10px; }
-.homlity-tech-sheet__media-links ul { margin: 0; padding-left: 12px; }
-
-/* ── Finanzas: la tarjeta de cada cifra trae padding propio ─────────────── */
-/* 216 + 14 de padding + 2 de borde + 8 de aire = 240. */
-
-.homlity-tech-sheet__stats > article {
-    display: inline-block;
-    margin: 0 8px 8px 0;
-    padding: 5px 7px;
-    vertical-align: top;
-    width: 216px;
-}
-
-.homlity-tech-sheet__stat-label { font-size: 8px; margin-bottom: 1px; }
-.homlity-tech-sheet__stat-value { font-size: 12px; }
-
-/* ── Asesor: foto al lado de los datos ──────────────────────────────────── */
-/* 737 − 68 de la foto = 669 → 665, y ahí caben 3 × 220. */
-
-.homlity-tech-sheet__advisor-avatar-wrap {
-    display: inline-block;
-    vertical-align: top;
-    width: 68px;
-}
-
-.homlity-tech-sheet__advisor-avatar {
-    height: 60px;
-    width: 60px;
-}
-
-.homlity-tech-sheet__grid--advisor {
-    display: inline-block;
-    vertical-align: top;
-    width: 665px;
-}
-
-.homlity-tech-sheet__grid--advisor > div { width: 212px; }
-
-/* ── Fotos: 150 px de ancho, tres por fila ──────────────────────────────── */
-/* La celda mide lo mismo que una columna de texto, así la retícula de la
-   ficha es una sola de punta a punta; la foto va dentro a su tamaño. */
-
-.homlity-tech-sheet__gallery > a {
-    display: inline-block;
-    padding: 0 8px 8px 0;
-    vertical-align: top;
-    width: 232px;
-}
-
-.homlity-tech-sheet__gallery img {
+img {
     height: auto;
-    max-width: 150px;
-    width: 150px;
+    max-width: 100%;
 }
 
-.homlity-tech-sheet__description { font-size: 11px; }
-.homlity-tech-sheet__description p { margin: 0 0 6px; }
-.homlity-tech-sheet__legal { font-size: 9px; }
+table {
+    border-collapse: collapse;
+    /* Sin esto Dompdf reparte según el contenido y una descripción larga se
+       come la columna de al lado. */
+    table-layout: fixed;
+    width: 100%;
+}
+
+td,
+th {
+    padding: 0;
+    vertical-align: top;
+    word-wrap: break-word;
+}
+
+/* ── Cabecera y pie repetidos ───────────────────────────────────────────── */
+/* `position: fixed` es lo que hace que Dompdf los repinte en todas las
+   páginas. Los desplazamientos son negativos porque el origen es la caja de
+   contenido, ya descontado el margen de @page. */
+
+.sheet-header {
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: -182px;
+}
+
+.sheet-footer {
+    bottom: -52px;
+    left: 0;
+    position: fixed;
+    right: 0;
+}
+
+.sheet-footer__bar {
+    background: #000000;
+    color: #ffffff;
+    font-size: 10px;
+    padding: 6px 10px;
+    text-align: center;
+}
+
+.sheet-header__logo {
+    max-height: 56px;
+    max-width: 150px;
+}
+
+.sheet-header__portrait {
+    height: 76px;
+    width: 76px;
+}
+
+.sheet-header__contact {
+    font-size: 11px;
+    margin-top: 6px;
+}
+
+.sheet-header__contact a {
+    color: #374151;
+    display: block;
+    margin-top: 3px;
+}
+
+/* ── Tarjetas de sección ────────────────────────────────────────────────── */
+
+.section-card {
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    margin: 0 0 10px;
+    padding: 12px;
+}
+
+/* Solo en los bloques cortos: partir una descripción larga por la mitad de
+   una página es correcto, dejar media tarjeta de cifras huérfana no. */
+.no-break {
+    page-break-inside: avoid;
+}
+
+.section-heading {
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0.06em;
+    margin: 0 0 8px;
+    text-transform: uppercase;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1.15;
+    margin: 0;
+}
+
+.section-label {
+    color: #6b7280;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.section-value {
+    color: #111827;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.section-table td {
+    padding-bottom: 8px;
+    padding-right: 10px;
+}
+
+/* ── Cifras ─────────────────────────────────────────────────────────────── */
+
+/* El 33,33 % documenta la intención más que forzarla: Dompdf normaliza los
+   porcentajes de columna, así que tres celdas en una fila salen a un tercio
+   aunque pidan la mitad. Lo que reparte es haber puesto tres. */
+.stat-cell {
+    padding: 4px;
+    width: 33.33%;
+}
+
+.stat-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.stat-label {
+    color: #6b7280;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    font-size: 13px;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+/* ── Características ────────────────────────────────────────────────────── */
+
+.feature-cell {
+    padding: 4px;
+    width: 33.33%;
+}
+
+.feature-chip {
+    background: #f3f3f3;
+    border-radius: 10px;
+    font-size: 11px;
+    padding: 6px 8px;
+}
+
+.feature-chip img {
+    margin-right: 4px;
+    vertical-align: middle;
+    width: 11px;
+}
+
+/* ── Catálogo multimedia ────────────────────────────────────────────────── */
+
+.photo-cell {
+    padding: 4px;
+    width: 33.33%;
+}
+
+/* El recorte lo hace la celda: Dompdf no implementa `object-fit`, así que la
+   foto se estira al ancho y lo que sobra por abajo se esconde. */
+.photo-frame {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    height: 150px;
+    overflow: hidden;
+}
+
+.photo-frame img {
+    display: block;
+    width: 100%;
+}
+
+.media-links {
+    font-size: 11px;
+}
+
+.media-links td {
+    padding-right: 10px;
+    width: 33.33%;
+}
+
+.media-links ul {
+    margin: 4px 0 0;
+    padding-left: 14px;
+}
+
+/* ── Llamadas a la acción ───────────────────────────────────────────────── */
+
+.cta-cell {
+    padding: 4px;
+    width: 33.33%;
+}
+
+.cta-btn {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    display: block;
+    font-size: 11px;
+    font-weight: bold;
+    margin-top: 6px;
+    padding: 10px 12px;
+    text-align: center;
+}
+
+.cta-btn img {
+    margin-right: 5px;
+    vertical-align: middle;
+    width: 11px;
+}
+
+/* ── Cierre ─────────────────────────────────────────────────────────────── */
+
+.legal-note {
+    color: #6b7280;
+    font-size: 10px;
+    margin: 8px 0 0;
+    text-align: center;
+}
+
+.text-center { text-align: center; }
+.text-justify { text-align: justify; }
+.c-gray { color: #6b7280; }
+.color-subtitle { color: #475569; }
+.font-11 { font-size: 11px; }
+.margin-0 { margin: 0; }
+.margin-top-4 { margin-top: 4px; }
+.margin-top-6 { margin-top: 6px; }
+
+.description p {
+    margin: 0 0 6px;
+    text-align: justify;
+}
+
+/* Una URL larga sin espacios no tiene por dónde partirse y desborda la celda;
+   `break-word` es lo que Dompdf entiende para trocearla. */
+.break-all {
+    word-wrap: break-word;
+}

@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 
 /**
  * Shared WPBakery controls for widgets that render property cards.
- * Used by PropertyListingWidget and PropertyRelatedWidget.
+ * Used by PropertyListingWidget and PropertyCardWidget.
  */
 trait PropertyCardStylesTrait
 {

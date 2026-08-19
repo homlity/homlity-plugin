@@ -36,6 +36,15 @@ final class WpStubs
     /** Post dentro del bucle: lo que devuelve get_the_ID(). */
     public static int $currentPostId = 0;
 
+    /** @var array<int,array<string,array<int,object>>> post id => taxonomía => términos */
+    public static array $postTerms = [];
+
+    /** @var array<int,string> post id => contenido del post */
+    public static array $postContent = [];
+
+    /** @var array<int,string> post id => URL de la imagen destacada */
+    public static array $thumbnails = [];
+
     /** Taxonomía de is_tax(); vacío = no es un archivo de término. */
     public static string $currentTaxonomy = '';
 
@@ -118,6 +127,9 @@ final class WpStubs
         self::$postTypeArchive = '';
         self::$currentPageId = 0;
         self::$currentPostId = 0;
+        self::$postTerms = [];
+        self::$postContent = [];
+        self::$thumbnails = [];
         self::$currentTaxonomy = '';
         self::$queryResolver = null;
         self::$redirects = [];
