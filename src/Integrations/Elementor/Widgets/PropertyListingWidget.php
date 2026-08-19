@@ -133,6 +133,7 @@ class PropertyListingWidget extends Widget_Base
                 'custom'          => __('Filtros configurados en el widget', 'homlity-real-estate'),
                 'current'         => __('Consulta actual (archivo, categoría, etiqueta, búsqueda)', 'homlity-real-estate'),
                 'related_current' => __('Inmuebles relacionados al inmueble de la página', 'homlity-real-estate'),
+                'related_agent'   => __('Inmuebles del asesor de la página', 'homlity-real-estate'),
             ],
             'default' => 'custom',
         ]);
@@ -276,7 +277,7 @@ class PropertyListingWidget extends Widget_Base
             'label'       => __('Inmuebles del asesor de la página', 'homlity-real-estate'),
             'type'        => Controls_Manager::SWITCHER,
             'default'     => '',
-            'description' => __('En /property-agent/{asesor}/ muestra únicamente los inmuebles de ese asesor.', 'homlity-real-estate'),
+            'description' => __('En la página del asesor, /author/{asesor}/, muestra únicamente los inmuebles de ese asesor.', 'homlity-real-estate'),
             'condition'   => ['query_mode' => 'custom'],
         ]);
 
@@ -287,6 +288,16 @@ class PropertyListingWidget extends Widget_Base
             'default'     => '',
             'description' => __('Tiene prioridad sobre el asesor de la página.', 'homlity-real-estate'),
             'condition'   => ['query_mode' => 'custom'],
+        ]);
+
+        // ── Opciones del asesor de la página (solo visible en modo related_agent) ──
+        $this->add_control('related_agent_id', [
+            'label'       => __('Asesor de referencia', 'homlity-real-estate'),
+            'type'        => Controls_Manager::SELECT,
+            'options'     => AgentProfileService::agentChoices(),
+            'default'     => '',
+            'condition'   => ['query_mode' => 'related_agent'],
+            'description' => __('Vacío: toma el asesor de la página que se está viendo, /author/{asesor}/. Elige uno para fijarlo o previsualizarlo en el editor.', 'homlity-real-estate'),
         ]);
 
         // ── Opciones de inmuebles relacionados (solo visible en modo related_current) ──

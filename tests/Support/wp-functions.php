@@ -68,9 +68,23 @@ if (!class_exists('WP_Post')) {
 if (!class_exists('WP_Query')) {
     class WP_Query
     {
+        /** @var array<int,mixed> */
+        public array $posts = [];
+
+        public int $found_posts = 0;
+
         /** @param array<string,mixed> $query_vars */
         public function __construct(public array $query_vars = [])
         {
+            // Sin resolver registrado la consulta no devuelve nada: las
+            // pruebas que sólo inspeccionan los argumentos no tienen que
+            // preparar resultados.
+            $resolver = WpStubs::$queryResolver;
+            if (is_callable($resolver)) {
+                $result = $resolver($query_vars);
+                $this->posts = (array) ($result['posts'] ?? []);
+                $this->found_posts = (int) ($result['found_posts'] ?? count($this->posts));
+            }
         }
 
         public function get(string $var, mixed $default = '')
@@ -852,5 +866,158 @@ if (!function_exists('set_transient')) {
         WpStubs::$options['_transient_' . $key] = $value;
 
         return true;
+    }
+}
+
+// ── Usuarios y archivos de autor ───────────────────────────────────────────
+
+if (!class_exists('WP_User')) {
+    class WP_User
+    {
+        public int $ID = 0;
+        public string $user_nicename = '';
+        public string $display_name = '';
+        public string $user_email = '';
+        public string $user_url = '';
+
+        /** @var string[] */
+        public array $roles = [];
+
+        /** @param array<string,mixed> $data */
+        public function __construct(array $data = [])
+        {
+            $this->ID = (int) ($data['ID'] ?? 0);
+            $this->user_nicename = (string) ($data['user_nicename'] ?? '');
+            $this->display_name = (string) ($data['display_name'] ?? '');
+            $this->user_email = (string) ($data['user_email'] ?? '');
+            $this->user_url = (string) ($data['user_url'] ?? '');
+            $this->roles = array_map('strval', (array) ($data['roles'] ?? []));
+        }
+    }
+}
+
+if (!class_exists('HomlityTestRedirect')) {
+    /**
+     * wp_safe_redirect() va seguido de exit() en producción, que no se puede
+     * ejecutar dentro de una prueba. El stub lanza esta excepción para que la
+     * prueba compruebe el destino y el código sin matar el proceso.
+     */
+    class HomlityTestRedirect extends \RuntimeException
+    {
+        public function __construct(public readonly string $location, public readonly int $status)
+        {
+            parent::__construct(sprintf('Redirect %d → %s', $status, $location));
+        }
+    }
+}
+
+if (!function_exists('get_userdata')) {
+    function get_userdata(int $userId)
+    {
+        return WpStubs::$users[$userId] ?? false;
+    }
+}
+
+if (!function_exists('get_user_by')) {
+    function get_user_by(string $field, $value)
+    {
+        if ($field === 'id' || $field === 'ID') {
+            return WpStubs::$users[(int) $value] ?? false;
+        }
+
+        foreach (WpStubs::$users as $user) {
+            if ($field === 'slug' && $user->user_nicename === (string) $value) {
+                return $user;
+            }
+            if ($field === 'email' && $user->user_email === (string) $value) {
+                return $user;
+            }
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('get_user_meta')) {
+    function get_user_meta(int $userId, string $key = '', bool $single = false)
+    {
+        $meta = WpStubs::$userMeta[$userId] ?? [];
+        if ($key === '') {
+            return $meta;
+        }
+
+        $value = $meta[$key] ?? '';
+
+        return $single ? $value : [$value];
+    }
+}
+
+if (!function_exists('is_author')) {
+    function is_author(): bool
+    {
+        return WpStubs::$isAuthor;
+    }
+}
+
+if (!function_exists('get_author_posts_url')) {
+    function get_author_posts_url(int $userId, string $nicename = ''): string
+    {
+        if ($nicename === '') {
+            $user = WpStubs::$users[$userId] ?? null;
+            $nicename = $user instanceof \WP_User ? $user->user_nicename : '';
+        }
+
+        return $nicename === '' ? '' : home_url('/author/' . $nicename . '/');
+    }
+}
+
+if (!function_exists('trailingslashit')) {
+    function trailingslashit(string $value): string
+    {
+        return rtrim($value, '/\\') . '/';
+    }
+}
+
+if (!function_exists('wp_safe_redirect')) {
+    function wp_safe_redirect(string $location, int $status = 302, string $by = ''): void
+    {
+        WpStubs::$redirects[] = ['location' => $location, 'status' => $status];
+
+        throw new \HomlityTestRedirect($location, $status);
+    }
+}
+
+if (!function_exists('get_avatar')) {
+    function get_avatar($userId, int $size = 96, string $default = '', string $alt = ''): string
+    {
+        return sprintf(
+            '<img class="avatar" src="https://gravatar.test/%d" alt="%s" width="%d" height="%d">',
+            (int) $userId,
+            $alt,
+            $size,
+            $size
+        );
+    }
+}
+
+if (!function_exists('wp_get_attachment_image_url')) {
+    function wp_get_attachment_image_url(int $attachmentId, $size = 'thumbnail')
+    {
+        return $attachmentId > 0 ? 'https://example.test/uploads/' . $attachmentId . '.jpg' : false;
+    }
+}
+
+if (!function_exists('wp_get_attachment_image')) {
+    function wp_get_attachment_image(int $attachmentId, $size = 'thumbnail', bool $icon = false, array $attr = []): string
+    {
+        if ($attachmentId <= 0) {
+            return '';
+        }
+
+        return sprintf(
+            '<img src="https://example.test/uploads/%d.jpg" alt="%s">',
+            $attachmentId,
+            (string) ($attr['alt'] ?? '')
+        );
     }
 }

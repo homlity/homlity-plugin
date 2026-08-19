@@ -4,7 +4,7 @@ Tags: real estate, property, listings, agents, property management
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.5.1
+Stable tag: 2.7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,20 @@ Developed and maintained by **Ecosistema Inmobiliario Homlity**, a team speciali
 5. Public property listing on the WordPress site.
 
 == Changelog ==
+
+= 2.7.0 =
+* El botón "Ficha técnica" descarga el PDF del inmueble en lugar de abrir la ficha en una pestaña nueva.
+* El widget trae un nuevo control "Acción" por si se prefiere seguir abriendo la ficha en el sitio.
+* Nuevo filtro `homlity_technical_sheet_pdf_available`.
+* El widget "Asesor del inmueble" permite disponer la tarjeta en vertical (foto sobre los datos) u horizontal (foto al lado), y por dispositivo.
+* El widget "Listado de inmuebles" añade el origen de consulta "Inmuebles del asesor de la página", con un asesor de referencia opcional para la vista previa del editor.
+
+= 2.6.0 =
+* El perfil público del asesor pasa a su URL de usuario: /author/{asesor}/. Muestra foto, nombre, cargo, correo, teléfono, descripción e inmuebles relacionados.
+* Solo se toman los usuarios que son asesores (rol de asesor o con inmuebles asignados); el archivo de autor del resto lo sigue sirviendo el tema.
+* La ruta anterior /property-agent/{asesor}/ redirige con 301 a la URL de usuario, para no competir consigo misma en el índice.
+* La página de perfil maquetada con Divi o WPBakery ya se renderiza también en la URL de autor (antes solo Elementor).
+* Nuevos filtros: `homlity_agent_profile_use_author_url` (volver a la ruta antigua si el sitio tiene desactivados los archivos de autor) y `homlity_user_is_agent`.
 
 = 2.5.0 =
 * Corregido: el orden "Precio: menor a mayor" (y mayor a menor) no ordenaba nada. WordPress resolvía `meta_value_num` contra el filtro de disponibilidad en lugar del precio.

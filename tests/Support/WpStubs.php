@@ -15,6 +15,25 @@ final class WpStubs
     /** @var array<string,mixed> */
     public static array $options = [];
 
+    /** @var array<int,\WP_User> user id => usuario */
+    public static array $users = [];
+
+    /** @var array<int,array<string,mixed>> user id => [metaKey => value] */
+    public static array $userMeta = [];
+
+    /** Si la petición actual es un archivo de autor. */
+    public static bool $isAuthor = false;
+
+    /**
+     * Resuelve los WP_Query que construye el código bajo prueba.
+     *
+     * @var null|callable(array<string,mixed>):array{posts?:array<int,mixed>,found_posts?:int}
+     */
+    public static $queryResolver = null;
+
+    /** @var array<int,array{location:string,status:int}> redirecciones emitidas */
+    public static array $redirects = [];
+
     /** @var array<int,array<string,mixed>> postId => [metaKey => value] */
     public static array $postMeta = [];
 
@@ -77,6 +96,11 @@ final class WpStubs
     public static function reset(): void
     {
         self::$options = [];
+        self::$users = [];
+        self::$userMeta = [];
+        self::$isAuthor = false;
+        self::$queryResolver = null;
+        self::$redirects = [];
         self::$postMeta = [];
         self::$postTitles = [];
         self::$permalinks = [];
@@ -98,6 +122,30 @@ final class WpStubs
         self::$scheduledActions = [];
         self::$cronEvents = [];
         self::$locale = 'es_CO';
+    }
+
+    /**
+     * Registers a user so get_user_by()/get_userdata() can find it.
+     *
+     * @param array<string,mixed> $fields
+     * @param string[]            $roles
+     * @param array<string,mixed> $meta
+     */
+    public static function setUser(int $id, string $nicename, array $fields = [], array $roles = [], array $meta = []): \WP_User
+    {
+        $user = new \WP_User(array_merge([
+            'ID' => $id,
+            'user_nicename' => $nicename,
+            'display_name' => $nicename,
+            'user_email' => '',
+            'user_url' => '',
+            'roles' => $roles,
+        ], $fields));
+
+        self::$users[$id] = $user;
+        self::$userMeta[$id] = $meta;
+
+        return $user;
     }
 
     /**

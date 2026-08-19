@@ -2,12 +2,21 @@
 /**
  * Agent (asesor) profile pages.
  *
- * Every advisor linked to a property gets its own front page at
- * /property-agent/{user_nicename}/. When a page is configured in
- * `homlity_plugin_agent_profile_page_id`, the rewrite resolves to that page so
- * Elementor, Divi and WPBakery render it as a regular page — builder assets,
- * theme layout and editor preview included — while the advisor of the request
- * stays available to the widgets through this service.
+ * Every advisor has a public profile at their WordPress user URL,
+ * /author/{user_nicename}/. The legacy /property-agent/{user_nicename}/ route
+ * still resolves and 301s there, so links published before the move keep
+ * working and only one URL is indexable.
+ *
+ * When a page is configured in `homlity_plugin_agent_profile_page_id` its
+ * builder layout renders the profile: on the legacy route the rewrite resolves
+ * straight to that page (Elementor, Divi and WPBakery render it as a regular
+ * page), and on the author archive — which WordPress owns and cannot be
+ * rewritten to a page without hijacking every author on the site — the same
+ * layout is rendered inline by templates/property-agent.php.
+ *
+ * Only users who look like advisors are taken over: holding the advisor role
+ * or at least one published property. A plain blog author keeps the theme's
+ * own archive.
  */
 
 namespace Homlity\PluginInmobiliario\Services;
@@ -24,15 +33,19 @@ class AgentProfileService implements ServiceInterface
     public const QUERY_VAR  = 'property_agent';
     public const PAGE_OPTION = 'homlity_plugin_agent_profile_page_id';
 
-    /** Base path of the profile URLs. */
+    /** Base path of the legacy profile URLs, kept as a 301 source. */
     public const ROUTE_BASE = 'property-agent';
 
     /** Resolved advisor for the current request, memoized. */
     private static ?WP_User $currentAgent = null;
     private static bool $currentAgentResolved = false;
 
+    /** Per-request cache of qualifiesAsAgent(), keyed by user id. */
+    private static array $qualifies = [];
+
     public function register(): void
     {
+        add_action('template_redirect', [$this, 'redirectLegacyProfileUrl'], 0);
         add_action('template_redirect', [$this, 'maybeSendNotFound'], 1);
         add_filter('document_title_parts', [$this, 'filterDocumentTitle']);
         add_filter('body_class', [$this, 'filterBodyClass']);
@@ -50,11 +63,80 @@ class AgentProfileService implements ServiceInterface
     // ── Request context ───────────────────────────────────────────────────────
 
     /**
-     * True when the current request is an advisor profile URL.
+     * Whether the advisor profile lives at the native /author/{slug}/ URL.
+     *
+     * Filterable because some SEO plugins can be configured to disable author
+     * archives site-wide; turning this off falls back to the /property-agent/
+     * route for both the links and the 301.
+     */
+    public static function usesAuthorUrl(): bool
+    {
+        return (bool) apply_filters('homlity_agent_profile_use_author_url', true);
+    }
+
+    /**
+     * True when the current request is an advisor profile URL, on either the
+     * author archive or the legacy route.
      */
     public static function isAgentProfileRequest(): bool
     {
-        return (string) get_query_var(self::QUERY_VAR, '') !== '';
+        if ((string) get_query_var(self::QUERY_VAR, '') !== '') {
+            return true;
+        }
+
+        return self::isAuthorArchiveRequest();
+    }
+
+    /**
+     * True when the request is the author archive of a user who qualifies as
+     * an advisor. Non-advisor authors are deliberately left to the theme.
+     */
+    public static function isAuthorArchiveRequest(): bool
+    {
+        if (!self::usesAuthorUrl() || !function_exists('is_author') || !is_author()) {
+            return false;
+        }
+
+        return self::authorArchiveAgent() instanceof WP_User;
+    }
+
+    /**
+     * The advisor behind the current author archive, or null when the archive
+     * belongs to someone who is not an advisor.
+     */
+    private static function authorArchiveAgent(): ?WP_User
+    {
+        $queried = get_queried_object();
+
+        return $queried instanceof WP_User && self::qualifiesAsAgent($queried) ? $queried : null;
+    }
+
+    /**
+     * Whether a user should get an advisor profile instead of the theme's
+     * author archive.
+     *
+     * Holding the advisor role or at least one published property is what
+     * separates an asesor from a plain blog author. The property check covers
+     * CRM-synced advisors, who are often created without the role.
+     */
+    public static function qualifiesAsAgent(WP_User $user): bool
+    {
+        $userId = (int) $user->ID;
+        if ($userId <= 0) {
+            return false;
+        }
+        if (isset(self::$qualifies[$userId])) {
+            return self::$qualifies[$userId];
+        }
+
+        $roles = array_map('strval', (array) $user->roles);
+        $qualifies = in_array(CapabilityService::ROLE_ASSESSOR, $roles, true)
+            || in_array(CapabilityService::LEGACY_ROLE_ASSESSOR, $roles, true)
+            || self::propertyCount($userId) > 0;
+
+        self::$qualifies[$userId] = (bool) apply_filters('homlity_user_is_agent', $qualifies, $user);
+
+        return self::$qualifies[$userId];
     }
 
     /**
@@ -71,7 +153,9 @@ class AgentProfileService implements ServiceInterface
 
         $slug = sanitize_title((string) get_query_var(self::QUERY_VAR, ''));
         if ($slug === '') {
-            return null;
+            self::$currentAgent = self::isAuthorArchiveRequest() ? self::authorArchiveAgent() : null;
+
+            return self::$currentAgent;
         }
 
         $user = get_user_by('slug', $slug);
@@ -89,21 +173,21 @@ class AgentProfileService implements ServiceInterface
      */
     public static function resolveAgent($candidate = null): ?WP_User
     {
-        if (is_numeric($candidate) && (int) $candidate > 0) {
-            $user = get_user_by('id', (int) $candidate);
-            if ($user instanceof WP_User) {
-                return $user;
-            }
-        }
+        return self::normalizeUser($candidate) ?? self::currentAgent();
+    }
 
-        if (is_string($candidate) && $candidate !== '') {
-            $user = get_user_by('slug', sanitize_title($candidate));
-            if ($user instanceof WP_User) {
-                return $user;
-            }
-        }
-
-        return self::currentAgent();
+    /**
+     * Drop the per-request memoization.
+     *
+     * The resolved advisor and the advisor/not-advisor verdicts are cached for
+     * the lifetime of the request; anything that serves more than one request
+     * in a process (tests, WP-CLI loops) has to clear them between requests.
+     */
+    public static function resetRequestCache(): void
+    {
+        self::$currentAgent = null;
+        self::$currentAgentResolved = false;
+        self::$qualifies = [];
     }
 
     public static function currentAgentId(): int
@@ -117,23 +201,76 @@ class AgentProfileService implements ServiceInterface
 
     /**
      * Public profile URL for an advisor (WP_User, user id or nicename).
+     *
+     * The advisor's own user URL, /author/{nicename}/, so the profile lives
+     * where WordPress already publishes the person. Falls back to the legacy
+     * route when author URLs are turned off, or when the argument is a bare
+     * slug that matches no user (nothing to build an author URL from).
      */
     public static function profileUrl($agent): string
     {
-        if ($agent instanceof WP_User) {
-            $slug = (string) $agent->user_nicename;
-        } elseif (is_numeric($agent)) {
-            $user = get_user_by('id', (int) $agent);
-            $slug = $user instanceof WP_User ? (string) $user->user_nicename : '';
-        } else {
-            $slug = sanitize_title((string) $agent);
+        $user = self::normalizeUser($agent);
+
+        if ($user instanceof WP_User && self::usesAuthorUrl()) {
+            $url = self::authorUrl($user);
+            if ($url !== '') {
+                return $url;
+            }
         }
+
+        $slug = $user instanceof WP_User
+            ? (string) $user->user_nicename
+            : sanitize_title(is_string($agent) ? $agent : '');
 
         if ($slug === '') {
             return '';
         }
 
         return home_url('/' . self::ROUTE_BASE . '/' . $slug . '/');
+    }
+
+    /**
+     * Legacy /property-agent/{slug}/ URL, kept for the 301 and as a fallback.
+     */
+    public static function legacyProfileUrl($agent): string
+    {
+        $user = self::normalizeUser($agent);
+        $slug = $user instanceof WP_User
+            ? (string) $user->user_nicename
+            : sanitize_title(is_string($agent) ? $agent : '');
+
+        return $slug === '' ? '' : home_url('/' . self::ROUTE_BASE . '/' . $slug . '/');
+    }
+
+    /** @param WP_User|int|string|null $agent */
+    private static function normalizeUser($agent): ?WP_User
+    {
+        if ($agent instanceof WP_User) {
+            return $agent;
+        }
+        if (is_numeric($agent) && (int) $agent > 0) {
+            $user = get_user_by('id', (int) $agent);
+
+            return $user instanceof WP_User ? $user : null;
+        }
+        if (is_string($agent) && $agent !== '') {
+            $user = get_user_by('slug', sanitize_title($agent));
+
+            return $user instanceof WP_User ? $user : null;
+        }
+
+        return null;
+    }
+
+    private static function authorUrl(WP_User $user): string
+    {
+        if (!function_exists('get_author_posts_url')) {
+            return '';
+        }
+
+        $url = get_author_posts_url((int) $user->ID, (string) $user->user_nicename);
+
+        return is_string($url) ? $url : '';
     }
 
     /**
@@ -409,6 +546,42 @@ class AgentProfileService implements ServiceInterface
     }
 
     // ── Front hooks ───────────────────────────────────────────────────────────
+
+    /**
+     * Send the legacy /property-agent/{slug}/ URL to the advisor's user URL.
+     *
+     * Without this the same profile would answer on two paths and compete with
+     * itself in the index. Runs before maybeSendNotFound() so a known advisor
+     * is redirected rather than evaluated for a 404; an unknown slug falls
+     * through and still 404s.
+     */
+    public function redirectLegacyProfileUrl(): void
+    {
+        if (is_admin() || !self::usesAuthorUrl()) {
+            return;
+        }
+        if ((string) get_query_var(self::QUERY_VAR, '') === '') {
+            return;
+        }
+
+        $agent = self::currentAgent();
+        if (!$agent instanceof WP_User) {
+            return;
+        }
+
+        $target = self::authorUrl($agent);
+        if ($target === '') {
+            return;
+        }
+
+        $paged = max(1, (int) get_query_var('paged'));
+        if ($paged > 1) {
+            $target = trailingslashit($target) . 'page/' . $paged . '/';
+        }
+
+        wp_safe_redirect($target, 301, 'Homlity Real Estate');
+        exit;
+    }
 
     /**
      * An unknown advisor slug must be a 404, never an empty profile page.

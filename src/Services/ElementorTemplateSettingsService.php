@@ -323,7 +323,7 @@ class ElementorTemplateSettingsService implements ServiceInterface
                             ?>
                             <p class="description">
                                 <?php esc_html_e(
-                                    'Diseña esta página con Elementor, Divi o WPBakery y se usará para cada asesor en /property-agent/{asesor}/. Coloca el widget "Asesor del inmueble" en modo "Asesor de la página" y el widget de listado con "Inmuebles del asesor de la página" activado.',
+                                    'Diseña esta página con Elementor, Divi o WPBakery y se usará para cada asesor en su URL de usuario, /author/{asesor}/. Coloca el widget "Asesor del inmueble" en modo "Asesor de la página" y el widget de listado con "Inmuebles del asesor de la página" activado.',
                                     'homlity-real-estate'
                                 ); ?>
                             </p>

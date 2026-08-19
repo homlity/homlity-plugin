@@ -86,4 +86,68 @@ final class TechnicalSheetServiceTest extends TestCase
             TechnicalSheetService::pdfUrl(10)
         );
     }
+
+    // ── El botón entrega un PDF ───────────────────────────────────────────────
+
+    /**
+     * Pulsar el botón debe bajar un archivo, no abrir una página con la ficha.
+     */
+    public function testTheButtonPointsAtThePdf(): void
+    {
+        $this->givenProperty(10, 'apartamento-guatape');
+        $this->givenSheetPage(55, 'publish');
+
+        self::assertTrue(TechnicalSheetService::pdfAvailable(), 'Dompdf viene en vendor/.');
+        self::assertSame(
+            ['url' => 'https://example.test/ficha-tecnica/apartamento-guatape/?download=1', 'is_download' => true],
+            TechnicalSheetService::buttonTarget(10)
+        );
+    }
+
+    public function testTheButtonPointsAtThePdfOnTheLegacyUrlToo(): void
+    {
+        $this->givenProperty(10, 'apartamento-guatape');
+
+        self::assertSame(
+            [
+                'url' => 'https://example.test/inmueble/apartamento-guatape/?homlity_sheet=1&download=1',
+                'is_download' => true,
+            ],
+            TechnicalSheetService::buttonTarget(10)
+        );
+    }
+
+    /**
+     * Sin Dompdf la URL de descarga devuelve la ficha en HTML. Prometer un
+     * archivo ahí guardaría un .html en las descargas del visitante.
+     */
+    public function testWithoutDompdfTheButtonOpensTheHtmlSheet(): void
+    {
+        $this->givenProperty(10, 'apartamento-guatape');
+        $this->givenSheetPage(55, 'publish');
+        WpStubs::addFilter('homlity_technical_sheet_pdf_available', static fn(): bool => false);
+
+        self::assertFalse(TechnicalSheetService::pdfAvailable());
+        self::assertSame(
+            ['url' => 'https://example.test/ficha-tecnica/apartamento-guatape/', 'is_download' => false],
+            TechnicalSheetService::buttonTarget(10)
+        );
+    }
+
+    /** El sitio puede volver a la ficha en pantalla desde el widget. */
+    public function testTheSiteCanAskForTheHtmlSheetInstead(): void
+    {
+        $this->givenProperty(10, 'apartamento-guatape');
+        $this->givenSheetPage(55, 'publish');
+
+        self::assertSame(
+            ['url' => 'https://example.test/ficha-tecnica/apartamento-guatape/', 'is_download' => false],
+            TechnicalSheetService::buttonTarget(10, false)
+        );
+    }
+
+    public function testTheButtonHasNoTargetForAnythingThatIsNotAProperty(): void
+    {
+        self::assertSame(['url' => '', 'is_download' => false], TechnicalSheetService::buttonTarget(999));
+    }
 }

@@ -36,12 +36,23 @@ class PropertyTechnicalSheetButtonWidget extends BasePropertyWidget
         $this->add_control('button_text', [
             'label' => __('Texto botón', 'homlity-real-estate'),
             'type' => Controls_Manager::TEXT,
-            'default' => __('Ver ficha técnica', 'homlity-real-estate'),
+            'default' => __('Descargar ficha técnica', 'homlity-real-estate'),
+        ]);
+        $this->add_control('link_action', [
+            'label' => __('Acción', 'homlity-real-estate'),
+            'type' => Controls_Manager::SELECT,
+            'default' => 'download',
+            'options' => [
+                'download' => __('Descargar el PDF', 'homlity-real-estate'),
+                'view' => __('Abrir la ficha en el sitio', 'homlity-real-estate'),
+            ],
+            'description' => __('Sin Dompdf instalado el botón abre la ficha en el sitio aunque se elija el PDF.', 'homlity-real-estate'),
         ]);
         $this->add_control('open_in_new_tab', [
             'label' => __('Abrir en nueva pestaña', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,
             'default' => 'yes',
+            'condition' => ['link_action' => 'view'],
         ]);
         $this->end_controls_section();
 

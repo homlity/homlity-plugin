@@ -37,7 +37,7 @@ class ListingConfig
         'columns'                => 3,
         'posts_per_page'         => 12,
         'orderby'                => 'date',   // 'date'|'price_asc'|'price_desc'|'title'
-        'query_mode'             => 'custom', // 'custom' | 'current' | 'related_current'
+        'query_mode'             => 'custom', // 'custom' | 'current' | 'related_current' | 'related_agent'
         'featured_only'          => false,
         'search_keyword'         => '',
         'preset_category'        => 0,
@@ -101,6 +101,7 @@ class ListingConfig
 
         // ── Related-properties mode ───────────────────────────────────────────
         'related_property_id'    => 0,       // 0 = auto-detect from current post
+        'related_agent_id'       => 0,       // 0 = take the advisor of the request
         'related_taxonomies'     => [],      // empty = all allowed taxonomies
         'related_strategy'       => 'any',   // 'any' | 'all' | 'tags_first'
         'related_fallback'       => 'recent', // 'recent' | 'same_city' | 'hide' | 'empty'
@@ -225,6 +226,7 @@ class ListingConfig
             'card_link_new_tab'      => !empty($settings['card_link_new_tab']),
             // Related-properties mode
             'related_property_id'   => absint($settings['related_property_id'] ?? 0),
+            'related_agent_id'      => absint($settings['related_agent_id'] ?? 0),
             'related_taxonomies'    => array_values(array_filter(array_map('sanitize_key', (array) ($settings['related_taxonomies'] ?? [])))),
             'related_strategy'      => self::sanitizeRelatedStrategy($settings['related_strategy'] ?? 'any'),
             'related_fallback'      => self::sanitizeRelatedFallback($settings['related_fallback'] ?? 'recent'),
@@ -438,6 +440,7 @@ class ListingConfig
 
     // Related-properties getters
     public function relatedPropertyId(): int      { return (int)    $this->data['related_property_id']; }
+    public function relatedAgentId(): int         { return (int)    $this->data['related_agent_id']; }
     public function relatedTaxonomies(): array    { return (array)  $this->data['related_taxonomies']; }
     public function relatedStrategy(): string     { return (string) $this->data['related_strategy']; }
     public function relatedFallback(): string     { return (string) $this->data['related_fallback']; }

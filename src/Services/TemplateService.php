@@ -340,10 +340,9 @@ class TemplateService implements ServiceInterface
     {
         $archivePageId = (int) get_option('homlity_plugin_archive_page_id', 0);
 
-        // Advisor profile pages. When a builder page is configured the request
-        // resolves to that page, so Elementor/Divi/WPBakery render it natively
-        // (their assets, the theme layout and the editor preview all apply)
-        // while `property_agent` keeps the advisor of the request available.
+        // Legacy advisor profile route. The public URL is now the advisor's
+        // own /author/{nicename}/; these rules stay registered so the old
+        // links resolve far enough for AgentProfileService to 301 them there.
         $agentPageId = AgentProfileService::pageId();
         $agentTarget = $agentPageId > 0 ? 'page_id=' . $agentPageId . '&' : '';
 
@@ -610,6 +609,9 @@ class TemplateService implements ServiceInterface
         if (AgentProfileService::isAgentProfileRequest()) {
             // A builder-driven page renders itself; overriding the template
             // here would strip the theme/builder layout around the widgets.
+            // Only reachable on the legacy route, which rewrites to the page —
+            // an author archive is never `is_page()`, so it falls through to
+            // property-agent.php, which inlines that same builder layout.
             if (AgentProfileService::pageUsesBuilder() && is_page(AgentProfileService::pageId())) {
                 return $template;
             }

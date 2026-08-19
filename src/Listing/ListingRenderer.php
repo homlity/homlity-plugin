@@ -45,6 +45,25 @@ class ListingRenderer
         self::enqueueAssets();
 
         $params = $config->toQueryParams();
+
+        // ── Advisor mode: the listing is scoped to one advisor ────────────────
+        // Resolved before anything else can rewrite query_mode, so a visitor
+        // filtering by city inside a profile still only sees that advisor's
+        // properties. From here on it is an ordinary custom query with the
+        // advisor pinned, which is also what the listing hands to the AJAX
+        // round-trip — admin-ajax has no profile page to read the advisor from.
+        if (($params['query_mode'] ?? '') === 'related_agent') {
+            $scoped = self::scopeToAgent($params, $config->relatedAgentId());
+            if ($scoped === null) {
+                self::renderEditorPlaceholder(
+                    __('Vista previa: no hay asesor activo. Elige un asesor de referencia en las opciones del widget.', 'homlity-real-estate')
+                );
+                return;
+            }
+
+            $params = $scoped;
+        }
+
         $requestFilterKeys = [
             'q',
             's',
@@ -198,7 +217,7 @@ class ListingRenderer
         }
 
         // Advisor scope. Resolved here (not in ListingConfig) because it depends
-        // on the request: on /property-agent/{slug}/ the listing shows exactly
+        // on the request: on an advisor's profile the listing shows exactly
         // that advisor's properties, whichever builder rendered the page.
         if (empty($params['preset_agent']) && !empty($params['use_current_agent'])) {
             $params['preset_agent'] = AgentProfileService::currentAgentId();
@@ -226,16 +245,9 @@ class ListingRenderer
         $propertyId = $this->resolveRelatedPropertyId($config);
 
         if ($propertyId <= 0) {
-            // No property context. In the Elementor editor, show a placeholder.
-            if (
-                \defined('ELEMENTOR_VERSION')
-                && \class_exists('\Elementor\Plugin')
-                && \Elementor\Plugin::$instance->editor->is_edit_mode()
-            ) {
-                echo '<p class="homlity-related-placeholder" style="padding:16px;background:#fff3cd;border-radius:4px;">'
-                    . esc_html__('Vista previa: no hay inmueble activo. Selecciona un inmueble de referencia en las opciones del widget.', 'homlity-real-estate')
-                    . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-            }
+            self::renderEditorPlaceholder(
+                __('Vista previa: no hay inmueble activo. Selecciona un inmueble de referencia en las opciones del widget.', 'homlity-real-estate')
+            );
             return;
         }
 
@@ -283,6 +295,66 @@ class ListingRenderer
      *   3. Loop context (get_the_ID()).
      *   4. Global $post.
      */
+    /**
+     * Pin the listing to one advisor for query_mode 'related_agent'.
+     *
+     * Returns null when no advisor could be resolved — better an empty widget
+     * than a profile page listing the whole catalogue.
+     *
+     * @param  array<string,mixed> $params
+     * @return array<string,mixed>|null
+     */
+    public static function scopeToAgent(array $params, int $configuredAgentId = 0): ?array
+    {
+        $agentId = $configuredAgentId > 0 ? $configuredAgentId : AgentProfileService::currentAgentId();
+        if ($agentId <= 0) {
+            return null;
+        }
+
+        // The widget's own preset filters are hidden in this mode, so any value
+        // left over from a previous mode would filter the listing from a
+        // control the site owner can no longer see. Clearing them also lets a
+        // visitor's own filters land on top of the advisor.
+        $params['search'] = '';
+        $params['use_current_property_tags'] = false;
+        foreach ([
+            'preset_category', 'preset_operation', 'preset_type', 'preset_tag',
+            'preset_feature', 'preset_country', 'preset_state', 'preset_city',
+            'preset_locality', 'preset_neighborhood', 'preset_nearby',
+        ] as $presetKey) {
+            $params[$presetKey] = 0;
+        }
+        $params['preset_tag_ids'] = [];
+
+        $params['preset_agent'] = $agentId;
+
+        // From here on it is an ordinary custom query with the advisor pinned,
+        // which is also what the listing hands to the AJAX round-trip:
+        // admin-ajax has no profile page to read the advisor from.
+        $params['query_mode'] = 'custom';
+
+        return $params;
+    }
+
+    /**
+     * Warn inside the builder editor when the listing has no context to work
+     * from. The front stays silent: a visitor should see nothing, not a notice.
+     */
+    private static function renderEditorPlaceholder(string $message): void
+    {
+        if (
+            !\defined('ELEMENTOR_VERSION')
+            || !\class_exists('\Elementor\Plugin')
+            || !\Elementor\Plugin::$instance->editor->is_edit_mode()
+        ) {
+            return;
+        }
+
+        echo '<p class="homlity-related-placeholder" style="padding:16px;background:#fff3cd;border-radius:4px;">'
+            . esc_html($message)
+            . '</p>';
+    }
+
     private function resolveRelatedPropertyId(ListingConfig $config): int
     {
         // 1. Explicit override (set in the widget for editor preview)

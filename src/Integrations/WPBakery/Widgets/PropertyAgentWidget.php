@@ -202,6 +202,30 @@ class PropertyAgentWidget extends BasePropertyWidget
             'label' => __('Card', 'homlity-real-estate'),
             'type'  => Controls_Manager::HEADING,
         ]);
+        $this->add_responsive_control('card_layout', [
+            'label'   => __('Disposición', 'homlity-real-estate'),
+            'type'    => Controls_Manager::CHOOSE,
+            'default' => 'vertical',
+            'options' => [
+                'vertical' => [
+                    'title' => __('Vertical: la foto sobre los datos', 'homlity-real-estate'),
+                    'icon'  => 'eicon-v-align-top',
+                ],
+                'horizontal' => [
+                    'title' => __('Horizontal: la foto al lado de los datos', 'homlity-real-estate'),
+                    'icon'  => 'eicon-h-align-left',
+                ],
+            ],
+            'toggle'      => false,
+            'description' => __('En horizontal conviene volver a vertical en móvil, donde la foto y los datos lado a lado quedan estrechos.', 'homlity-real-estate'),
+            'selectors'   => [
+                '{{WRAPPER}} .property-agent-block__card' => 'flex-direction: {{VALUE}};',
+            ],
+            'selectors_dictionary' => [
+                'vertical'   => 'column',
+                'horizontal' => 'row',
+            ],
+        ]);
         $this->add_control('agent_bg', [
             'label'     => __('Fondo', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,

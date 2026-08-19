@@ -1170,10 +1170,23 @@
 }
 
 /* Asesor del inmueble */
+/* La direccion la fija el control "Disposicion" del widget; column es el valor
+   por defecto y lo que ven las tarjetas guardadas antes de que existiera. */
 .property-agent-block__card {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* En horizontal la foto manda el ancho y los datos ocupan el resto. min-width:0
+   deja que un correo largo se encoja en vez de desbordar la tarjeta. */
+.property-agent-block__avatar {
+  flex: 0 0 auto;
+}
+
+.property-agent-block__info {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .property-agent-block__avatar img {

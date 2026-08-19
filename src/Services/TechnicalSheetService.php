@@ -183,6 +183,36 @@ class TechnicalSheetService implements ServiceInterface
     }
 
     /**
+     * Whether a request to pdfUrl() actually returns a PDF.
+     *
+     * Without Dompdf the download URL falls through to the HTML sheet, so a
+     * caller that promises a file has to check first: a link that saves an
+     * .html to the visitor's downloads folder is worse than one that opens it.
+     */
+    public static function pdfAvailable(): bool
+    {
+        return (bool) apply_filters('homlity_technical_sheet_pdf_available', class_exists('\\Dompdf\\Dompdf'));
+    }
+
+    /**
+     * Where the sheet button should point, and whether the browser will get a
+     * file instead of a page.
+     *
+     * @return array{url:string,is_download:bool}
+     */
+    public static function buttonTarget(int $postId, bool $preferPdf = true): array
+    {
+        if ($preferPdf && self::pdfAvailable()) {
+            $pdf = self::pdfUrl($postId);
+            if ($pdf !== '') {
+                return ['url' => $pdf, 'is_download' => true];
+            }
+        }
+
+        return ['url' => self::sheetUrl($postId), 'is_download' => false];
+    }
+
+    /**
      * Page whose builder layout renders the sheet, 0 when not configured.
      *
      * Only a published page counts: routing a public URL to a draft would 404
