@@ -14,6 +14,9 @@ if (!defined('ABSPATH')) {
 
 class PropertyFeaturedTermsWidget extends Widget_Base
 {
+    private const FRONT_COMPONENTS_STYLE_HANDLE = 'homlity-real-estate-front-components';
+    private const LISTING_STYLE_HANDLE = 'homlity-real-estate-listing';
+
     public function get_name(): string
     {
         return 'property_featured_terms';
@@ -32,6 +35,39 @@ class PropertyFeaturedTermsWidget extends Widget_Base
     public function get_categories(): array
     {
         return ['homlity-real-estate'];
+    }
+
+    /**
+     * La hoja que maqueta los grupos de términos.
+     *
+     * Sin esto el widget salía sin estilos en la web pública y con ellos en el
+     * editor: enqueuePreviewAssets() mete las dos hojas dentro del iframe de
+     * previsualización, pero fuera de ahí Elementor solo carga lo que cada
+     * widget declara. Los grupos se apilaban en vez de repartirse en dos
+     * columnas y las listas salían con las viñetas del navegador.
+     *
+     * Su hermano por taxonomía —PropertyFeaturedTermsBaseWidget— no necesita
+     * nada de esto: pinta otras clases, que no tienen hoja, y lleva su
+     * maquetación en atributos `style`.
+     *
+     * @return string[]
+     */
+    public function get_style_depends(): array
+    {
+        wp_register_style(
+            self::FRONT_COMPONENTS_STYLE_HANDLE,
+            HOMLITY_PLUGIN_URL . 'assets/css/front-components.css',
+            [],
+            HOMLITY_PLUGIN_VERSION
+        );
+        wp_register_style(
+            self::LISTING_STYLE_HANDLE,
+            HOMLITY_PLUGIN_URL . 'assets/css/property-listing.css',
+            [self::FRONT_COMPONENTS_STYLE_HANDLE],
+            HOMLITY_PLUGIN_VERSION
+        );
+
+        return [self::LISTING_STYLE_HANDLE];
     }
 
     protected function register_controls(): void

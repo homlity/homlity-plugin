@@ -498,7 +498,13 @@
 }
 
 .property-tech-sheet-btn-wrap {
+    /* En columna para que el aviso de estado quede debajo del botón, y
+       `flex-start` porque en columna el reparto por defecto estiraría el botón
+       a todo el ancho del contenedor —en fila no lo hacía—. */
+    align-items: flex-start;
     display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .property-tech-sheet-btn {
@@ -520,6 +526,68 @@
 .property-tech-sheet-btn:hover {
     color: #fff;
     opacity: 0.92;
+}
+
+/* ── Estado de descarga de la ficha ─────────────────────────────────────────
+   El PDF lo compone Dompdf en el momento de pedirlo, y eso tarda. Como la
+   respuesta es un adjunto, el navegador no navega ni pinta indicador alguno:
+   sin lo que sigue el botón se queda quieto y parece que el clic no llegó.
+   Lo enciende technical-sheet-download.js añadiendo `is-loading`. */
+
+.property-tech-sheet-btn__spinner {
+    display: none;
+}
+
+.property-tech-sheet-btn.is-loading {
+    cursor: progress;
+    /* Sin bajar la opacidad del todo: el texto del botón cambia a «Generando
+       ficha…» y tiene que seguir leyéndose. */
+    opacity: 0.85;
+}
+
+.property-tech-sheet-btn.is-loading .property-tech-sheet-btn__spinner {
+    animation: homlity-tech-sheet-spin 0.7s linear infinite;
+    /* Tres cuartos de aro en el color del texto y el cuarto que falta
+       transparente: es el hueco lo que hace visible el giro. En `currentColor`
+       y no en un gris fijo porque el botón lo repinta cada constructor —fondo
+       oscuro o claro— y un aro de color fijo desaparecería en la mitad de los
+       casos. */
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    border-right-color: transparent;
+    display: inline-block;
+    flex: none;
+    height: 14px;
+    margin-right: 8px;
+    width: 14px;
+}
+
+@keyframes homlity-tech-sheet-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Girar sin parar marea a quien pidió menos movimiento. El aro se queda
+   quieto y late, que sigue diciendo «esto está en marcha». */
+@media (prefers-reduced-motion: reduce) {
+    .property-tech-sheet-btn.is-loading .property-tech-sheet-btn__spinner {
+        animation: homlity-tech-sheet-pulse 1.4s ease-in-out infinite;
+        border-right-color: currentColor;
+    }
+
+    @keyframes homlity-tech-sheet-pulse {
+        50% { opacity: 0.25; }
+    }
+}
+
+.property-tech-sheet-btn__status {
+    display: none;
+    font-size: 13px;
+    line-height: 1.35;
+    margin: 0;
+}
+
+.property-tech-sheet-btn__status.is-visible {
+    display: block;
 }
 
 .homlity-tech-sheet {

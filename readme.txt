@@ -4,7 +4,7 @@ Tags: real estate, property, listings, agents, property management
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.7.6
+Stable tag: 2.7.10
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,19 @@ Developed and maintained by **Ecosistema Inmobiliario Homlity**, a team speciali
 5. Public property listing on the WordPress site.
 
 == Changelog ==
+
+= 2.7.9 =
+* Corregido: el widget "Destacados por ubicación y tipo" salía sin estilos en la web pública, por la misma razón que el de asesores: no declaraba la hoja donde vive su CSS, y Elementor solo carga lo que cada widget pide. Los grupos se apilaban en vez de repartirse en columnas y las listas salían con las viñetas del navegador. En Divi y WPBakery no pasaba. Los widgets por taxonomía —"Ciudades destacadas" y sus hermanos— no estaban afectados: llevan su maquetación en el propio marcado.
+
+= 2.7.8 =
+* Corregido: el widget "Asesores con inmuebles disponibles" salía sin estilos en la web pública. En el editor de Elementor se veía bien —el plugin mete sus hojas dentro del iframe de previsualización—, pero fuera de ahí Elementor solo carga lo que cada widget declara y este no declaraba ninguna, así que la maquetación de las tarjetas se deshacía al publicar. En Divi y WPBakery no pasaba, porque esos dos cargan la hoja para todo el sitio.
+* Corregido: el widget no enseñaba la foto ni el teléfono de los asesores sincronizados desde un CRM. Pedía el avatar con la función de WordPress, que solo sabe de gravatar, y el teléfono en dos campos que no son donde el CRM lo guarda. Ahora usa la misma cadena que el resto del sitio: foto del CRM, plugins de avatar, gravatar y, en último lugar, el logo de la inmobiliaria.
+* Nuevo interruptor "Mostrar en los listados de asesores del sitio" en el perfil de cada asesor. Un asesor que deja la inmobiliaria conserva sus inmuebles publicados y su rol, así que no había forma de distinguirlo de quien sigue: al desmarcarlo deja de aparecer en el widget, sin tocar sus inmuebles y sin dejar de ser el contacto en las fichas de los suyos. Viene marcado para todo el mundo, de modo que actualizar no oculta a nadie. Se puede decidir por código con el filtro `homlity_agent_is_publicly_listed`.
+* La consulta de asesores del widget pasa a `AvailableAgentsService`, en vez de estar copiada dentro de cada uno de los tres widgets. Los empates en número de inmuebles se desempatan por nombre, así que el orden del listado deja de cambiar entre una visita y la siguiente.
+
+= 2.7.7 =
+* El botón "Descargar ficha técnica" avisa de que está trabajando. Componer el PDF tarda —el generador arma la ficha, se trae las fotos del inmueble y las rasteriza—, y como la respuesta llega como archivo adjunto el navegador no navega ni pinta ningún indicador: el botón se quedaba quieto y sin decir nada hasta que la descarga aparecía, así que parecía que el clic no había llegado. Ahora muestra un aro girando y el texto "Generando ficha…" mientras dura la espera, no acepta un segundo clic hasta terminar —cada uno vuelve a componer la ficha entera en el servidor— y avisa si algo falla en lugar de dejar el botón mudo. Sin JavaScript el enlace sigue descargando el PDF como hasta ahora.
+* Corregido: cuando el servidor devolvía una página de error en lugar del PDF, el navegador la guardaba igualmente con extensión .pdf y el visitante se quedaba con un archivo que no abre. Ahora se detecta y se avisa.
 
 = 2.7.1 =
 * Corregido: cuando WordPress rechazaba el guardado de un inmueble venido de un CRM, el servicio de sincronización escribía sus metadatos, taxonomías y asesor sobre el post con ID 1 del sitio. El error de WordPress se convertía a entero antes de comprobarlo, y un objeto convertido a entero vale 1, así que la comprobación de error no llegaba a ejecutarse nunca. Ahora un fallo al guardar se devuelve como tal y no se escribe nada.

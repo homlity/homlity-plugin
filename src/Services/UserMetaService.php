@@ -46,6 +46,45 @@ class UserMetaService implements ServiceInterface
             </tr>
         </table>
         <?php
+        $this->renderPublicListingField($user);
+    }
+
+    /**
+     * El interruptor que decide si el asesor sale en los listados del sitio.
+     *
+     * Solo se pinta para quien es asesor: en el perfil de un suscriptor o de
+     * un redactor no significa nada, y una casilla que no hace nada en la
+     * mayoría de los perfiles del sitio es ruido.
+     *
+     * @param mixed $user
+     */
+    private function renderPublicListingField($user): void
+    {
+        if (!$user instanceof \WP_User || !AgentProfileService::qualifiesAsAgent($user)) {
+            return;
+        }
+
+        $listed = AgentProfileService::isPubliclyListed($user);
+        ?>
+        <h2><?php esc_html_e('Asesor', 'homlity-real-estate'); ?></h2>
+        <table class="form-table">
+            <tr>
+                <th><?php esc_html_e('Visibilidad', 'homlity-real-estate'); ?></th>
+                <td>
+                    <?php // El campo oculto es lo que permite desmarcar: una casilla sin marcar no se envía. ?>
+                    <input type="hidden" name="homlity_agent_public_present" value="1" />
+                    <label for="homlity_agent_public">
+                        <input type="checkbox" name="homlity_agent_public" id="homlity_agent_public"
+                               value="1" <?php checked($listed); ?> />
+                        <?php esc_html_e('Mostrar en los listados de asesores del sitio', 'homlity-real-estate'); ?>
+                    </label>
+                    <p class="description">
+                        <?php esc_html_e('Al desmarcarlo el asesor deja de aparecer en el widget «Asesores con inmuebles disponibles». Sus inmuebles publicados no cambian, y sigue apareciendo como contacto en la ficha de los suyos.', 'homlity-real-estate'); ?>
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <?php
     }
 
     public function savePhone(int $userId): void
@@ -57,5 +96,28 @@ class UserMetaService implements ServiceInterface
             ? sanitize_text_field($_POST['homlity_plugin_phone'])
             : '';
         update_user_meta($userId, $this->phoneMeta, $value);
+
+        $this->savePublicListing($userId);
+    }
+
+    /**
+     * El interruptor solo se guarda cuando su formulario venía en la petición.
+     *
+     * Sin el campo testigo, cualquier otro formulario que dispare estos mismos
+     * ganchos —el alta de usuario, o un plugin con su propia pantalla de
+     * perfil— llegaría aquí sin la casilla y ocultaría al asesor sin que nadie
+     * lo hubiera pedido.
+     */
+    private function savePublicListing(int $userId): void
+    {
+        if (!isset($_POST['homlity_agent_public_present'])) {
+            return;
+        }
+
+        update_user_meta(
+            $userId,
+            AgentProfileService::PUBLIC_META,
+            isset($_POST['homlity_agent_public']) ? '1' : '0'
+        );
     }
 }

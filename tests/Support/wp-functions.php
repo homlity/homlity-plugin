@@ -167,7 +167,7 @@ if (!class_exists('HomlityTestWpdb')) {
         /** @return list<object|array<string,mixed>> */
         public function get_results(string $query, mixed $output = null): array
         {
-            $rows = $this->engine->select($query);
+            $rows = $this->cannedRows($query) ?? $this->engine->select($query);
 
             // ARRAY_A pide filas asociativas; sin honrarlo, el código bajo
             // prueba recibiría objetos y fallaría por una razón que no existe
@@ -206,6 +206,29 @@ if (!class_exists('HomlityTestWpdb')) {
             }
 
             return 0;
+        }
+
+        /**
+         * Las filas fijadas para esta consulta, o null si no hay ninguna.
+         *
+         * La consulta se registra igual que en query(): una prueba que fija el
+         * resultado sigue queriendo afirmar sobre el SQL que se emitió.
+         *
+         * @return list<array<string,mixed>>|null
+         */
+        private function cannedRows(string $query): ?array
+        {
+            foreach (WpStubs::$sqlResults as $needle => $rows) {
+                if (stripos($query, (string) $needle) === false) {
+                    continue;
+                }
+
+                $this->rawQueries[] = trim((string) preg_replace('/\s+/', ' ', $query));
+
+                return $rows;
+            }
+
+            return null;
         }
 
         /** @return mixed */
@@ -348,6 +371,13 @@ if (!function_exists('esc_html__')) {
     function esc_html__(string $text, string $domain = 'default'): string
     {
         return esc_html($text);
+    }
+}
+
+if (!function_exists('esc_attr__')) {
+    function esc_attr__(string $text, string $domain = 'default'): string
+    {
+        return esc_attr($text);
     }
 }
 
@@ -1129,6 +1159,13 @@ if (!class_exists('WP_User')) {
         public string $user_email = '';
         public string $user_url = '';
 
+        /**
+         * Baja del usuario en WordPress: 0 es alta, cualquier otra cosa no.
+         * Lo escriben los plugins de gestión de usuarios, y el plugin lo mira
+         * antes de enseñar a nadie.
+         */
+        public int $user_status = 0;
+
         /** @var string[] */
         public array $roles = [];
 
@@ -1140,6 +1177,7 @@ if (!class_exists('WP_User')) {
             $this->display_name = (string) ($data['display_name'] ?? '');
             $this->user_email = (string) ($data['user_email'] ?? '');
             $this->user_url = (string) ($data['user_url'] ?? '');
+            $this->user_status = (int) ($data['user_status'] ?? 0);
             $this->roles = array_map('strval', (array) ($data['roles'] ?? []));
         }
     }
@@ -1242,7 +1280,10 @@ if (!function_exists('get_avatar')) {
         return sprintf(
             '<img class="avatar" src="https://gravatar.test/%d" alt="%s" width="%d" height="%d">',
             (int) $userId,
-            $alt,
+            // WordPress escapa el alt aquí dentro. Sin hacerlo, este doble
+            // haría fallar a quien le pasa el nombre en crudo —que es lo
+            // correcto— por un agujero que en producción no existe.
+            esc_attr($alt),
             $size,
             $size
         );
@@ -1672,7 +1713,15 @@ if (!function_exists('get_users')) {
     {
         $found = [];
 
+        // `include` filtra por id y es lo que usa el plugin para traerse un
+        // puñado de asesores concretos; sin honrarlo, una prueba recibiría
+        // todos los usuarios del sitio y pasaría por la razón equivocada.
+        $include = array_map('intval', (array) ($args['include'] ?? []));
+
         foreach (WpStubs::$users as $user) {
+            if ($include !== [] && !in_array((int) $user->ID, $include, true)) {
+                continue;
+            }
             $matches = true;
             foreach ((array) ($args['meta_query'] ?? []) as $clause) {
                 if (!is_array($clause) || !isset($clause['key'])) {
@@ -1941,5 +1990,50 @@ if (!function_exists('get_stylesheet_directory')) {
     function get_stylesheet_directory(): string
     {
         return WpStubs::$stylesheetDirectory;
+    }
+}
+
+if (!function_exists('wp_enqueue_script')) {
+    function wp_enqueue_script(
+        string $handle,
+        string $src = '',
+        array $deps = [],
+        $ver = false,
+        $args = []
+    ): void {
+        WpStubs::$enqueuedScripts[$handle] = [
+            'src' => $src,
+            'deps' => $deps,
+            'ver' => $ver,
+            'args' => $args,
+        ];
+    }
+}
+
+if (!function_exists('checked')) {
+    function checked(mixed $checked, mixed $current = true, bool $display = true): string
+    {
+        $html = (string) $checked === (string) $current ? " checked='checked'" : '';
+        if ($display) {
+            echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        }
+
+        return $html;
+    }
+}
+
+if (!function_exists('_n')) {
+    function _n(string $single, string $plural, int $number, string $domain = 'default'): string
+    {
+        return $number === 1 ? $single : $plural;
+    }
+}
+
+if (!function_exists('sanitize_html_class')) {
+    function sanitize_html_class(string $class, string $fallback = ''): string
+    {
+        $sanitized = (string) preg_replace('/[^A-Za-z0-9_\- ]/', '', $class);
+
+        return $sanitized !== '' ? $sanitized : $fallback;
     }
 }

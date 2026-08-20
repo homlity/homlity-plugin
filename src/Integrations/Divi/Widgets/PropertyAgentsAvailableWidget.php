@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 namespace Homlity\PluginInmobiliario\Integrations\Divi\Widgets;
 
 use Homlity\PluginInmobiliario\Services\AgentProfileService;
@@ -9,7 +8,7 @@ use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Group_Control_Box
 use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Group_Control_Typography;
 use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Icons_Manager;
 use Homlity\PluginInmobiliario\Integrations\Divi\Compatibility\Widget_Base;
-use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\AvailableAgentsService;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -209,7 +208,7 @@ class PropertyAgentsAvailableWidget extends Widget_Base
     protected function render(): void
     {
         $settings = $this->get_settings_for_display();
-        $rows = $this->queryAgentsWithAvailableProperties(max(1, (int) ($settings['limit'] ?? 12)));
+        $rows = AvailableAgentsService::agents(max(1, (int) ($settings['limit'] ?? 12)));
 
         if (empty($rows)) {
             return;
@@ -226,12 +225,12 @@ class PropertyAgentsAvailableWidget extends Widget_Base
         foreach ($rows as $row) {
             $user = $row['user'];
             $count = $row['count'];
-            $phone = $this->resolveUserPhone($user->ID);
+            $phone = AgentProfileService::agentPhone($user);
             $email = (string) $user->user_email;
             $profileUrl = AgentProfileService::profileUrl($user);
 
             echo '<article class="hml-agents-available__card">';
-            echo '<div class="hml-agents-available__avatar">' . get_avatar($user->ID, 96) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '<div class="hml-agents-available__avatar">' . AgentProfileService::avatarHtml($user, 96) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo '<h3 class="hml-agents-available__name"><a href="' . esc_url($profileUrl) . '">' . esc_html($user->display_name) . '</a></h3>';
             /* translators: %d: number of available properties */
             echo '<p class="hml-agents-available__count">' . esc_html(sprintf(_n('%d inmueble disponible', '%d inmuebles disponibles', $count, 'homlity-real-estate'), $count)) . '</p>';
@@ -260,93 +259,5 @@ class PropertyAgentsAvailableWidget extends Widget_Base
             echo '</article>';
         }
         echo '</div>';
-    }
-
-    /**
-     * @return array<int,array{user:\WP_User,count:int}>
-     */
-    private function queryAgentsWithAvailableProperties(int $limit): array
-    {
-        global $wpdb;
-
-        $records = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT CAST(pm_agent.meta_value AS UNSIGNED) AS agent_id, COUNT(DISTINCT p.ID) AS total
-             FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm_agent ON pm_agent.post_id = p.ID AND pm_agent.meta_key = '_property_agent_id'
-             LEFT JOIN {$wpdb->postmeta} pm_status ON pm_status.post_id = p.ID AND pm_status.meta_key = '_property_status'
-             LEFT JOIN {$wpdb->postmeta} pm_available ON pm_available.post_id = p.ID AND pm_available.meta_key = '_property_available'
-             WHERE p.post_type = %s
-               AND p.post_status = 'publish'
-               AND pm_agent.meta_value REGEXP '^[0-9]+$'
-               AND CAST(pm_agent.meta_value AS UNSIGNED) > 0
-               AND (pm_status.meta_id IS NULL OR LOWER(pm_status.meta_value) = 'active')
-               AND (pm_available.meta_id IS NULL OR LOWER(pm_available.meta_value) IN ('1','true','yes','active'))
-             GROUP BY agent_id
-             ORDER BY total DESC, agent_id ASC
-             LIMIT %d",
-                PropertyPostType::POST_TYPE,
-                $limit
-            ),
-            ARRAY_A
-        );
-        if (!is_array($records) || empty($records)) {
-            return [];
-        }
-
-        $counts = [];
-        $agentIds = [];
-        foreach ($records as $record) {
-            $agentId = (int) ($record['agent_id'] ?? 0);
-            $total = (int) ($record['total'] ?? 0);
-            if ($agentId <= 0 || $total <= 0) {
-                continue;
-            }
-            $counts[$agentId] = $total;
-            $agentIds[] = $agentId;
-        }
-
-        if (empty($agentIds)) {
-            return [];
-        }
-
-        $users = get_users([
-            'include' => array_values(array_unique($agentIds)),
-            'fields' => 'all',
-        ]);
-
-        if (empty($users)) {
-            return [];
-        }
-
-        $result = [];
-        foreach ($users as $user) {
-            if (!isset($counts[$user->ID])) {
-                continue;
-            }
-            if ((int) ($user->user_status ?? 0) !== 0) {
-                continue;
-            }
-            $result[] = [
-                'user' => $user,
-                'count' => (int) $counts[$user->ID],
-            ];
-        }
-
-        usort($result, static function (array $a, array $b): int {
-            return $b['count'] <=> $a['count'];
-        });
-
-        return $result;
-    }
-
-    private function resolveUserPhone(int $userId): string
-    {
-        $phone = (string) get_user_meta($userId, 'phone', true);
-        if ($phone !== '') {
-            return $phone;
-        }
-
-        return (string) get_user_meta($userId, 'billing_phone', true);
     }
 }

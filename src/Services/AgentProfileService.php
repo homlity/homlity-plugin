@@ -36,6 +36,15 @@ class AgentProfileService implements ServiceInterface
     /** Base path of the legacy profile URLs, kept as a 301 source. */
     public const ROUTE_BASE = 'property-agent';
 
+    /**
+     * Interruptor «Mostrar en la web» del perfil del asesor.
+     *
+     * Guarda '1' o '0'. Sin valor guardado el asesor se lista: el interruptor
+     * llegó cuando los sitios ya tenían su plantilla montada, y estrenarlo
+     * vaciando el listado de asesores sería peor que no tenerlo.
+     */
+    public const PUBLIC_META = '_homlity_agent_public';
+
     /** Resolved advisor for the current request, memoized. */
     private static ?WP_User $currentAgent = null;
     private static bool $currentAgentResolved = false;
@@ -137,6 +146,25 @@ class AgentProfileService implements ServiceInterface
         self::$qualifies[$userId] = (bool) apply_filters('homlity_user_is_agent', $qualifies, $user);
 
         return self::$qualifies[$userId];
+    }
+
+    /**
+     * Si el asesor sale en los listados públicos del sitio.
+     *
+     * Un asesor que deja la inmobiliaria conserva sus inmuebles publicados
+     * —siguen a la venta— y su rol, así que ni el recuento ni el rol sirven
+     * para distinguirlo de quien sigue trabajando allí. Este interruptor sí.
+     *
+     * No afecta a la ficha del inmueble: quien atiende ese inmueble concreto
+     * se sigue enseñando, porque la alternativa es una ficha sin nadie a quien
+     * llamar. Lo que apaga es la aparición en los listados de asesores.
+     */
+    public static function isPubliclyListed(WP_User $agent): bool
+    {
+        $stored = get_user_meta($agent->ID, self::PUBLIC_META, true);
+        $listed = ($stored === '' || $stored === null) ? true : ((string) $stored === '1');
+
+        return (bool) apply_filters('homlity_agent_is_publicly_listed', $listed, $agent);
     }
 
     /**

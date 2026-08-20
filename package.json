@@ -6,7 +6,8 @@
     "build": "wp-scripts build assets/src/consignment/index.js --output-path=assets/dist",
     "start": "wp-scripts start assets/src/consignment/index.js --output-path=assets/dist",
     "build:simulator": "vite build --config vite.simulator.config.js",
-    "build:all": "npm run build && npm run build:simulator"
+    "build:all": "npm run build && npm run build:simulator",
+    "test:js": "wp-scripts test-unit-js"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.3",

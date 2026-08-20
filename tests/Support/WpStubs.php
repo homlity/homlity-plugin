@@ -154,6 +154,24 @@ final class WpStubs
     /** @var list<int> Códigos HTTP emitidos con status_header(). */
     public static array $statusHeaders = [];
 
+    /** @var array<string,array<string,mixed>> Lo que se pasó a wp_enqueue_script(). */
+    public static array $enqueuedScripts = [];
+
+    /**
+     * Filas fijadas para consultas que el motor en memoria no sabe leer,
+     * indexadas por una subcadena de la consulta.
+     *
+     * El motor lanza una excepción ante cualquier SQL que no entienda, y eso
+     * es a propósito: devolver un array vacío convertiría cada prueba en un
+     * falso positivo. Pero hay consultas —un JOIN contra las metas de los
+     * inmuebles, por ejemplo— que no compensa enseñarle a ejecutar. Fijar aquí
+     * su resultado deja probar lo que se hace con las filas sin fingir que la
+     * consulta se ejecutó, y sin abrir la mano para el resto.
+     *
+     * @var array<string,list<array<string,mixed>>>
+     */
+    public static array $sqlResults = [];
+
     /** Directorio del tema activo, para las plantillas sobrescribibles. */
     public static string $stylesheetDirectory = '/tmp/homlity-tema-inexistente';
 
@@ -260,6 +278,8 @@ final class WpStubs
         self::$existingTables = [];
         self::$is404 = false;
         self::$statusHeaders = [];
+        self::$enqueuedScripts = [];
+        self::$sqlResults = [];
         self::$stylesheetDirectory = '/tmp/homlity-tema-inexistente';
         self::$isAdminScreen = false;
         self::$doingAjax = false;

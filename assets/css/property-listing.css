@@ -1263,6 +1263,12 @@
 
 .hml-agents-available__avatar img {
     border-radius: 999px;
+    display: block;
+    /* La foto del asesor llega con sus medidas puestas, pero el respaldo
+       —el logo de la inmobiliaria, cuando no hay foto ni gravatar— llega sin
+       ninguna a propósito, para no deformarlo. Sin este tope entra a tamaño
+       original y revienta la tarjeta. */
+    max-width: 96px;
 }
 
 .hml-agents-available__name,
