@@ -28,24 +28,44 @@ final class PdfProbe
     /**
      * El PDF con los flujos descomprimidos.
      *
-     * Dompdf comprime con Flate salvo que se le pida lo contrario. Se
-     * descomprime aquí, en vez de pedirle a Dompdf que no comprima, para que
-     * las pruebas miren exactamente los bytes que se descargaría alguien.
+     * Dompdf comprime con Flate. Se descomprime aquí, en vez de pedirle que no
+     * comprima, para que las pruebas miren exactamente los bytes que se
+     * descargaría alguien.
+     *
+     * El final de cada flujo se toma de su `/Length` y no buscando el
+     * `endstream` que viene detrás. Buscándolo se pierde un byte cada vez que
+     * los datos comprimidos acaban en un salto de línea —el propio separador
+     * se lo lleva—, y con un byte de menos la descompresión falla en silencio:
+     * ese flujo se queda comprimido, y la página entera desaparece de la
+     * lectura sin que nada avise.
      */
     public static function inflate(string $pdf): string
     {
-        return (string) preg_replace_callback(
-            '/(<<[^<>]*\/Filter\s*\/FlateDecode[^<>]*>>\s*stream\r?\n)(.*?)(\r?\nendstream)/s',
-            static function (array $match): string {
-                $plain = @gzuncompress($match[2]);
-                if ($plain === false) {
-                    $plain = @gzinflate($match[2]);
-                }
-
-                return $plain === false ? $match[0] : $match[1] . $plain . $match[3];
-            },
-            $pdf
+        $matched = preg_match_all(
+            '/<<[^<>]*\/Filter\s*\/FlateDecode[^<>]*\/Length\s+(\d+)[^<>]*>>\s*stream\r?\n/s',
+            $pdf,
+            $matches,
+            PREG_OFFSET_CAPTURE | PREG_SET_ORDER
         );
+        if ($matched === false || $matched === 0) {
+            return $pdf;
+        }
+
+        // De atrás hacia delante: así los desplazamientos de los flujos que
+        // quedan por delante siguen siendo válidos aunque el texto crezca.
+        foreach (array_reverse($matches) as $stream) {
+            $from = (int) $stream[0][1] + strlen((string) $stream[0][0]);
+            $length = (int) $stream[1][0];
+
+            $plain = @gzuncompress(substr($pdf, $from, $length));
+            if ($plain === false) {
+                continue;
+            }
+
+            $pdf = substr($pdf, 0, $from) . $plain . substr($pdf, $from + $length);
+        }
+
+        return $pdf;
     }
 
     /** Cuántas páginas declara el documento. */
@@ -75,6 +95,39 @@ final class PdfProbe
             'width' => (float) $found[3] - (float) $found[1],
             'height' => (float) $found[4] - (float) $found[2],
         ];
+    }
+
+    /**
+     * Todos los colores con los que se pinta el documento, en hexadecimal.
+     *
+     * En el flujo de contenido un color aparece como `r g b rg` si es relleno
+     * y `r g b RG` si es trazo, con los tres canales de 0 a 1. Hacen falta los
+     * dos: el texto y los iconos se rellenan, pero el borde de un botón se
+     * traza, y mirando solo el relleno un borde mal coloreado pasa
+     * desapercibido.
+     *
+     * Sirve para comprobar que el color configurado llega hasta la tinta, y no
+     * solo hasta el atributo `style`.
+     *
+     * @return string[]
+     */
+    public static function fillColors(string $pdf): array
+    {
+        $colors = [];
+
+        foreach (self::contentStreams($pdf) as $stream) {
+            preg_match_all('/([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+(?:rg|RG)\b/', $stream, $matches, PREG_SET_ORDER);
+            foreach ($matches as $rgb) {
+                $colors[] = sprintf(
+                    '#%02x%02x%02x',
+                    (int) round((float) $rgb[1] * 255),
+                    (int) round((float) $rgb[2] * 255),
+                    (int) round((float) $rgb[3] * 255)
+                );
+            }
+        }
+
+        return array_values(array_unique($colors));
     }
 
     /** Si el documento lleva las fuentes incrustadas. */

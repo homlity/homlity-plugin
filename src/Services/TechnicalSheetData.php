@@ -42,6 +42,7 @@ final class TechnicalSheetData
             'permalink' => (string) get_permalink($postId),
             'description' => PropertyDescription::text($postId),
             'primary_color' => self::primaryColor($settings, $plugin),
+            'colors' => self::colors($settings, $plugin),
             'company' => self::company($plugin),
             'agent' => self::agent($postId, $metaKeys, $title),
             'finance' => self::finance($postId, $metaKeys, $plugin),
@@ -99,16 +100,58 @@ final class TechnicalSheetData
         return $visibility;
     }
 
+    /** El color con el que se pinta la ficha si no hay ninguno configurado. */
+    public const DEFAULT_COLOR = '#ff6752';
+
     /**
-     * El color del widget manda sobre el global del plugin.
+     * Los colores con los que se construye el PDF.
+     *
+     * Salen de SEO & GEO → Marca visual, que es donde la inmobiliaria
+     * configura los suyos. Se leen con stored() y no con get() porque esa
+     * pestaña trae valores por defecto: preguntando por el valor efectivo, un
+     * sitio que nunca la abrió parecería haber elegido el naranja de fábrica y
+     * pisaría el color que sí configuró en los ajustes del plugin.
+     *
+     * @param array<string,mixed> $settings Ajustes del widget.
+     * @param array<string,mixed> $plugin   Ajustes generales del plugin.
+     * @return array{primary:string, button:string, button_text:string}
+     */
+    public static function colors(array $settings, array $plugin): array
+    {
+        $primary = self::primaryColor($settings, $plugin);
+
+        // Los botones tienen su propio par en el panel; sin configurar, se
+        // pintan con el color principal sobre blanco.
+        $button = sanitize_hex_color((string) SeoGeoSettingsService::stored('brand_color_button')) ?: $primary;
+        $buttonText = sanitize_hex_color((string) SeoGeoSettingsService::stored('brand_color_button_text')) ?: $button;
+
+        return [
+            'primary' => $primary,
+            'button' => $button,
+            'button_text' => $buttonText,
+        ];
+    }
+
+    /**
+     * El color principal: el del widget manda sobre el de la marca, y ese
+     * sobre el global del plugin.
      *
      * @param array<string,mixed> $settings
      * @param array<string,mixed> $plugin
      */
     public static function primaryColor(array $settings, array $plugin): string
     {
-        return sanitize_hex_color((string) ($settings['sheet_primary'] ?? ''))
-            ?: (sanitize_hex_color((string) ($plugin['primary_color'] ?? '')) ?: '#ff6752');
+        $widget = sanitize_hex_color((string) ($settings['sheet_primary'] ?? ''));
+        if ($widget) {
+            return $widget;
+        }
+
+        $brand = sanitize_hex_color((string) SeoGeoSettingsService::stored('brand_color_primary'));
+        if ($brand) {
+            return $brand;
+        }
+
+        return sanitize_hex_color((string) ($plugin['primary_color'] ?? '')) ?: self::DEFAULT_COLOR;
     }
 
     /**
@@ -153,6 +196,8 @@ final class TechnicalSheetData
         $email = '';
         $photo = '';
 
+        $photoId = 0;
+
         $agentId = (int) get_post_meta($postId, $metaKeys['agent_id'], true);
         if ($agentId > 0) {
             $user = get_user_by('id', $agentId);
@@ -168,11 +213,18 @@ final class TechnicalSheetData
                     ?: get_user_meta($agentId, 'billing_phone', true)
                 );
                 $email = (string) $user->user_email;
-                $photo = (string) (
-                    get_user_meta($agentId, '_homlity_advisor_photo', true)
-                    ?: get_avatar_url($agentId, ['size' => 120])
-                    ?: ''
-                );
+
+                // La misma cadena de preferencia que usan los widgets: foto
+                // del CRM, plugins de avatar y gravatar. Antes esto tenía su
+                // propia lista, más corta, y el PDF enseñaba una foto distinta
+                // de la del resto del sitio.
+                $source = AgentProfileService::avatarSource($user);
+                // El logo de la empresa no cuenta como foto del asesor: ya
+                // sale en la cabecera y saldría dos veces.
+                if ($source['source'] !== 'logo') {
+                    $photo = $source['url'];
+                    $photoId = $source['id'];
+                }
             }
         }
 
@@ -188,12 +240,44 @@ final class TechnicalSheetData
             'phone' => $phone,
             'email' => $email,
             'photo' => $photo,
+            'photo_orientation' => self::orientation($photoId),
             'whatsapp' => WhatsAppLinkService::buildPropertyLink(
                 $postId,
                 $phone,
                 'Buen día, estoy interesado en ' . $title
             ),
         ];
+    }
+
+    /**
+     * Si una foto es más alta que ancha, más ancha que alta, o no se sabe.
+     *
+     * Dompdf no implementa `object-fit`, así que para que una foto llene su
+     * marco sin deformarse hay que decirle cuál de los dos lados estirar, y
+     * eso depende de la orientación. De la biblioteca de medios se saca sin
+     * descargar nada; de una URL del CRM no hay forma de saberlo sin ir a
+     * buscarla, y se deja en «desconocida», que el marco trata como vertical
+     * —que es como viene casi toda foto de perfil—.
+     */
+    private static function orientation(int $attachmentId): string
+    {
+        if ($attachmentId <= 0) {
+            return 'unknown';
+        }
+
+        $image = wp_get_attachment_image_src($attachmentId, 'medium');
+        if (!is_array($image) || (int) ($image[1] ?? 0) <= 0 || (int) ($image[2] ?? 0) <= 0) {
+            return 'unknown';
+        }
+
+        $width = (int) $image[1];
+        $height = (int) $image[2];
+
+        if ($width === $height) {
+            return 'square';
+        }
+
+        return $width > $height ? 'landscape' : 'portrait';
     }
 
     /**

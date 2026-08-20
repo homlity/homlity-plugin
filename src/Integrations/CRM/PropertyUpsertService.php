@@ -71,18 +71,22 @@ class PropertyUpsertService
             'post_status'  => $this->normalizePostStatus((string) ($postData['status'] ?? 'publish')),
         ];
 
-        if ($postId > 0) {
-            $payload['ID'] = $postId;
-            $postId = (int) wp_update_post($payload, true);
-        } else {
-            $postId = (int) wp_insert_post($payload, true);
+        // Sin el `(int)` a propósito: con él, un WP_Error se convertía en 1 —eso
+        // es lo que vale un objeto casteado a entero—, la comprobación de error
+        // de abajo no llegaba a dispararse nunca, y el servicio seguía adelante
+        // escribiendo las metas, las taxonomías y el asesor del inmueble sobre
+        // el post con ID 1 del sitio.
+        $saved = $postId > 0
+            ? wp_update_post(array_merge($payload, ['ID' => $postId]), true)
+            : wp_insert_post($payload, true);
+
+        if (is_wp_error($saved)) {
+            return ['ok' => false, 'error' => $saved->get_error_message()];
         }
 
-        if (is_wp_error($postId) || $postId <= 0) {
-            return [
-                'ok'    => false,
-                'error' => is_wp_error($postId) ? $postId->get_error_message() : 'Unable to save post',
-            ];
+        $postId = (int) $saved;
+        if ($postId <= 0) {
+            return ['ok' => false, 'error' => 'Unable to save post'];
         }
 
         $this->saveMeta($postId, $normalized, $source, $externalId);

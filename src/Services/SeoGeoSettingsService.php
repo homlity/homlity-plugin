@@ -113,6 +113,27 @@ class SeoGeoSettingsService implements ServiceInterface
         return $settings[$key] ?? $default;
     }
 
+    /**
+     * El valor tal como está guardado, o null si nadie lo ha configurado.
+     *
+     * get() fusiona con defaults(), así que devuelve algo siempre: para
+     * `brand_color_primary` devuelve #ff6752 aunque el sitio no haya abierto
+     * nunca la pestaña. Cuando hay que decidir entre esta opción y otra —qué
+     * color manda en un sitio que configuró el del plugin y no el de la
+     * marca—, hace falta saber si de verdad se eligió.
+     */
+    public static function stored(string $key): ?string
+    {
+        $saved = get_option(self::OPTION_NAME, []);
+        if (!is_array($saved) || !isset($saved[$key])) {
+            return null;
+        }
+
+        $value = is_scalar($saved[$key]) ? trim((string) $saved[$key]) : '';
+
+        return $value !== '' ? $value : null;
+    }
+
     public static function defaults(): array
     {
         return [

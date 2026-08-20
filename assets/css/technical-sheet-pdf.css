@@ -22,10 +22,10 @@
      − márgenes laterales de página .................. 2 × 24 px
      = ancho de contenido ............................ 745 px
 
-   El color de la marca entra por `--sheet-primary`, que la plantilla escribe
-   en el atributo `style` del contenedor. Dompdf no resuelve `var()`, así que
-   cada regla que lo necesita lo recibe también en línea; lo que hay aquí es
-   el valor de reserva. */
+   El color sale de SEO & GEO → Marca visual y la plantilla lo escribe en el
+   atributo `style` de cada elemento que lo necesita: Dompdf no resuelve
+   `var()`, así que no sirve declararlo una vez. Lo que hay en esta hoja son
+   los valores de reserva, para cuando no hay nada configurado. */
 
 @page {
     /* Arriba cabe la cabecera fija, abajo la banda del pie. Los 190 px no son
@@ -97,14 +97,46 @@ th {
     text-align: center;
 }
 
+/* El logo entra por su lado mayor y el otro lo sigue: Dompdf respeta los dos
+   topes a la vez y mantiene la proporción, así que un logo apaisado sale a
+   150 de ancho y uno vertical a 56 de alto sin deformarse ni desbordar. */
 .sheet-header__logo {
     max-height: 56px;
     max-width: 150px;
 }
 
+/* Centrado contra el bloque de contacto, que ocupa más alto. */
+.sheet-header__brand {
+    vertical-align: middle;
+}
+
+/* La foto del asesor, recortada en redondo.
+
+   El marco es lo que sostiene la maqueta: fija el alto pase lo que pase con la
+   foto. Sin él, una foto vertical se dibuja más alta que ancha, la cabecera
+   crece y se come la primera tarjeta, porque el hueco que reserva @page está
+   calculado para un alto concreto. El `overflow` recorta, y con el radio a la
+   mitad del lado Dompdf recorta en círculo de verdad.
+
+   El fondo gris se ve cuando la foto no cubre del todo: mejor un disco liso
+   que una esquina en blanco. */
 .sheet-header__portrait {
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 38px;
     height: 76px;
+    overflow: hidden;
     width: 76px;
+}
+
+.sheet-header__portrait-img--wide {
+    display: block;
+    width: 100%;
+}
+
+.sheet-header__portrait-img--tall {
+    display: block;
+    height: 76px;
 }
 
 .sheet-header__contact {

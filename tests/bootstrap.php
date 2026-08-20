@@ -31,6 +31,18 @@ if (!defined('WP_PLUGIN_DIR')) {
     // excepciones— sin depender de la instalación de WordPress del entorno.
     define('WP_PLUGIN_DIR', __DIR__ . '/Fixtures/plugins');
 }
+if (!defined('ARRAY_A')) {
+    define('ARRAY_A', 'ARRAY_A');
+}
+if (!defined('OBJECT')) {
+    define('OBJECT', 'OBJECT');
+}
+if (!defined('COOKIEPATH')) {
+    define('COOKIEPATH', '/');
+}
+if (!defined('COOKIE_DOMAIN')) {
+    define('COOKIE_DOMAIN', '');
+}
 if (!defined('WPINC')) {
     define('WPINC', 'wp-includes');
 }
@@ -76,5 +88,7 @@ if (!defined('HOMLITY_PLUGIN_NAMESPACE_PREFIX')) {
     define('HOMLITY_PLUGIN_NAMESPACE_PREFIX', 'Homlity\\PluginInmobiliario\\');
 }
 
+require __DIR__ . '/Support/FakeSqlEngine.php';
 require __DIR__ . '/Support/wp-functions.php';
+require __DIR__ . '/Support/service-namespace-functions.php';
 require __DIR__ . '/Support/action-scheduler-stubs.php';

@@ -39,6 +39,7 @@ $company  = $sheet['company'];
 $agent    = $sheet['agent'];
 $media    = $sheet['media'];
 $primary  = $sheet['primary_color'];
+$colors   = $sheet['colors'];
 $asText   = static fn($value): string => TechnicalSheetData::text($value);
 
 $headingStyle = 'color:' . $primary . ';';
@@ -109,7 +110,7 @@ $location = array_values(array_filter([
     <div class="section-card" style="border-color:<?php echo esc_attr($primary); ?>">
         <table>
             <tr>
-                <td style="width:180px">
+                <td style="width:170px" class="sheet-header__brand">
                     <?php if ($company['logo']) : ?>
                         <a href="<?php echo esc_url($company['website']); ?>">
                             <img src="<?php echo esc_url($company['logo']); ?>" alt="<?php echo esc_attr($company['name']); ?>" class="sheet-header__logo">
@@ -157,14 +158,26 @@ $location = array_values(array_filter([
                         <?php endif; ?>
                     </div>
                 </td>
-                <td style="width:88px">
+                <?php if ($hasAgent && $agent['photo'] !== '') : ?>
                     <?php
-                    $portrait = $agent['photo'] !== '' ? $agent['photo'] : $company['logo'];
-                    if ($portrait) :
-                        ?>
-                        <img src="<?php echo esc_url($portrait); ?>" alt="<?php echo esc_attr($hasAgent ? $agent['name'] : $company['name']); ?>" class="sheet-header__portrait">
-                    <?php endif; ?>
-                </td>
+                    // Sin `object-fit`, quién llena el marco depende de la
+                    // orientación: una foto vertical se estira a lo ancho y se
+                    // recorta por abajo —la cara queda arriba—, y una apaisada
+                    // se estira a lo alto y se recorta por los lados. Cuando no
+                    // se sabe se trata como vertical, que es como viene casi
+                    // toda foto de perfil.
+                    $fill = $agent['photo_orientation'] === 'landscape'
+                        ? 'sheet-header__portrait-img--tall'
+                        : 'sheet-header__portrait-img--wide';
+                    ?>
+                    <td style="width:84px">
+                        <div class="sheet-header__portrait" style="border-color:<?php echo esc_attr($primary); ?>">
+                            <img src="<?php echo esc_url($agent['photo']); ?>"
+                                alt="<?php echo esc_attr($agent['name']); ?>"
+                                class="<?php echo esc_attr($fill); ?>">
+                        </div>
+                    </td>
+                <?php endif; ?>
             </tr>
         </table>
     </div>
@@ -411,8 +424,8 @@ $location = array_values(array_filter([
                         <td class="cta-cell">
                             <div class="stat-label"><?php echo esc_html($question); ?></div>
                             <?php if ($ctaUrl) : ?>
-                                <a class="cta-btn" href="<?php echo esc_url($ctaUrl); ?>" style="border-color:<?php echo esc_attr($primary); ?>;color:<?php echo esc_attr($primary); ?>">
-                                    <?php echo $iconTag('arrow', $primary); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                                <a class="cta-btn" href="<?php echo esc_url($ctaUrl); ?>" style="border-color:<?php echo esc_attr($colors['button']); ?>;color:<?php echo esc_attr($colors['button_text']); ?>">
+                                    <?php echo $iconTag('arrow', $colors['button']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                                     <?php echo esc_html($action); ?>
                                 </a>
                             <?php endif; ?>

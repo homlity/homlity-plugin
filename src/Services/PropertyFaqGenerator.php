@@ -290,7 +290,13 @@ class PropertyFaqGenerator
         if (($settings['show_admin'] ?? 'yes') === 'yes') {
             $admin_price = (float) preg_replace('/[^0-9.]/', '', $data['price_admin'] ?? '');
             if ($admin_price > 0) {
-                $currency  = sanitize_text_field($data['currency_admin'] ?? $data['currency_sale'] ?? '');
+                // `??` no sirve aquí: get_property_data() rellena todas las
+                // claves con (string), así que una moneda sin informar llega
+                // como '' —no como null— y el respaldo nunca se activaba.
+                $currency  = sanitize_text_field($data['currency_admin'] ?? '');
+                if ($currency === '') {
+                    $currency = sanitize_text_field($data['currency_sale'] ?? '');
+                }
                 $formatted = '$' . number_format_i18n($admin_price, 0);
                 if ($currency) {
                     $formatted .= ' ' . $currency;

@@ -18,15 +18,47 @@ class HomologationRepository
     private const TABLE = 'homlity_homologation';
     private const CACHE_GROUP = 'homlity_homologation';
 
-    private function cacheKey(string $suffix): string
+    /**
+     * Versión de la caché: cambiarla invalida de golpe todo lo memorizado.
+     *
+     * Hace falta porque las claves `by_source:` y `by_canonical:` son
+     * ilimitadas —una por cada término de cada CRM—, así que no se pueden
+     * borrar una a una, y la caché de objetos de WordPress no permite vaciar
+     * un grupo entero. Incluir la versión en la clave hace que las entradas
+     * viejas queden inalcanzables y caduquen solas.
+     */
+    private function cacheVersion(): int
     {
-        return md5($this->table() . ':' . $suffix);
+        $version = wp_cache_get($this->versionKey(), self::CACHE_GROUP);
+
+        return is_numeric($version) && (int) $version > 0 ? (int) $version : 1;
     }
 
+    private function versionKey(): string
+    {
+        return md5($this->table() . ':version');
+    }
+
+    private function cacheKey(string $suffix): string
+    {
+        return md5($this->table() . ':v' . $this->cacheVersion() . ':' . $suffix);
+    }
+
+    /**
+     * Invalida TODO lo memorizado, no sólo los contadores del panel.
+     *
+     * Antes se borraban únicamente `sources` y `stats`, y las entradas
+     * `by_source:` sobrevivían a la escritura. Eso tenía dos consecuencias:
+     * tras crear un mapeo, `findBySource()` seguía devolviendo el `null`
+     * memorizado —así que `upsert()` volvía a intentar un INSERT que la clave
+     * única rechazaba, y `resolveToCanonical()` respondía "sin mapeo" en la
+     * misma petición—; y tras borrar una fila obsoleta, el `upsert()` que la
+     * sustituía tomaba la rama de UPDATE contra una fila inexistente y el
+     * mapeo se perdía.
+     */
     private function clearCache(): void
     {
-        wp_cache_delete($this->cacheKey('sources'), self::CACHE_GROUP);
-        wp_cache_delete($this->cacheKey('stats'), self::CACHE_GROUP);
+        wp_cache_set($this->versionKey(), $this->cacheVersion() + 1, self::CACHE_GROUP, 0);
     }
 
     private function table(): string

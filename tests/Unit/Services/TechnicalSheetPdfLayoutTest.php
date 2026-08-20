@@ -457,6 +457,147 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
         self::assertEqualsWithDelta($cells['Ascensor']['x'], $cells['Dep']['x'], self::TOLERANCE, 'La cuarta no vuelve a la primera columna.');
     }
 
+    // ── Color de la marca ─────────────────────────────────────────────────
+
+    /**
+     * El botón se pinta con su par de colores configurado, no con el
+     * principal.
+     *
+     * Esto se comprueba en el marcado porque en la tinta no se distingue: el
+     * borde y el icono del botón salen del mismo color, así que cambiando solo
+     * el del borde el PDF sigue conteniendo el color correcto en algún sitio.
+     */
+    public function testElBotonUsaSuParDeColoresConfigurado(): void
+    {
+        $this->givenProperty();
+        WpStubs::setOption('homlity_seo_settings', [
+            'company_name' => 'Royal Propiedad Raíz',
+            'contact_address' => 'Calle 10 # 43C - 20',
+            'brand_color_primary' => '#1f3c88',
+            'brand_color_button' => '#0a7d3b',
+            'brand_color_button_text' => '#ffffff',
+        ]);
+
+        $html = $this->renderHtml(self::POST_ID);
+
+        self::assertStringContainsString(
+            'border-color:#0a7d3b;color:#ffffff',
+            $html,
+            'El botón no usa el color de botón ni el de su texto.'
+        );
+    }
+
+    /** Y los encabezados de sección, con el principal. */
+    public function testLosEncabezadosUsanElColorPrincipal(): void
+    {
+        $this->givenProperty();
+        WpStubs::setOption('homlity_seo_settings', [
+            'company_name' => 'Royal Propiedad Raíz',
+            'contact_address' => 'Calle 10 # 43C - 20',
+            'brand_color_primary' => '#1f3c88',
+        ]);
+
+        $html = $this->renderHtml(self::POST_ID);
+
+        self::assertStringContainsString('color:#1f3c88;', $html);
+        self::assertStringNotContainsString('#ff6752', $html, 'Se coló el color de fábrica.');
+    }
+
+    // ── Fotos de la cabecera ──────────────────────────────────────────────
+
+    /**
+     * La foto del asesor va en un marco de tamaño fijo.
+     *
+     * El marco es lo que sostiene la maqueta: recorta y fija el alto pase lo
+     * que pase con la foto. Sin él una foto vertical se dibuja más alta que
+     * ancha, la cabecera crece y tapa la primera tarjeta, porque el hueco que
+     * reserva @page está calculado para un alto concreto.
+     */
+    public function testLaFotoDelAsesorVaEnUnMarcoDeTamanoFijo(): void
+    {
+        $this->givenProperty();
+        WpStubs::setUser(7, 'joquendo', [
+            'display_name' => 'Jorge Oquendo',
+            'user_email' => 'jorge@royal.test',
+        ], ['homlity_asesor'], [
+            '_homlity_advisor_phone' => '+57 300 123 4567',
+            '_homlity_advisor_photo' => 'https://royal.test/fotos/joquendo.jpg',
+        ]);
+
+        $html = $this->renderHtml(self::POST_ID);
+
+        self::assertStringContainsString('class="sheet-header__portrait"', $html);
+        self::assertStringContainsString('https://royal.test/fotos/joquendo.jpg', $html);
+    }
+
+    /**
+     * Sin `object-fit`, la clase de relleno depende de la orientación: una
+     * foto apaisada se estira a lo alto y una vertical a lo ancho. Con la
+     * misma para las dos, una de ellas deja el marco a medio llenar.
+     */
+    public function testLaClaseDeRellenoDependeDeLaOrientacion(): void
+    {
+        foreach ([
+            'landscape' => ['sheet-header__portrait-img--tall', [400, 300]],
+            'portrait' => ['sheet-header__portrait-img--wide', [300, 400]],
+            'square' => ['sheet-header__portrait-img--wide', [400, 400]],
+        ] as $orientation => [$expected, [$width, $height]]) {
+            $this->givenProperty();
+            WpStubs::$attachmentSizes[901] = [$width, $height];
+            WpStubs::setUser(7, 'joquendo', ['display_name' => 'Jorge Oquendo'], ['homlity_asesor'], [
+                '_homlity_advisor_phone' => '+57 300 123 4567',
+                '_homlity_advisor_photo' => '901',
+            ]);
+
+            self::assertStringContainsString(
+                $expected,
+                $this->renderHtml(self::POST_ID),
+                'Relleno equivocado para una foto ' . $orientation . '.'
+            );
+        }
+    }
+
+    /** Sin foto no se pinta un marco vacío. */
+    public function testSinFotoNoHayMarcoVacio(): void
+    {
+        $this->givenProperty();
+        WpStubs::setUser(7, 'joquendo', ['display_name' => 'Jorge Oquendo'], ['homlity_asesor'], [
+            '_homlity_advisor_phone' => '+57 300 123 4567',
+        ]);
+        WpStubs::$avatarsDisabled = true;
+
+        self::assertStringNotContainsString('sheet-header__portrait', $this->renderHtml(self::POST_ID));
+    }
+
+    /**
+     * Y el logo no se pinta dos veces en la misma fila.
+     *
+     * La cadena de avatar acaba cayendo en el logo de la empresa; aceptándolo
+     * como foto del asesor, el mismo logo salía a la izquierda y a la derecha
+     * de la cabecera.
+     */
+    public function testElLogoNoSalePorDuplicadoEnLaCabecera(): void
+    {
+        $this->givenProperty();
+        WpStubs::setOption('homlity_seo_settings', [
+            'company_name' => 'Royal Propiedad Raíz',
+            'company_logo' => 'https://royal.test/logo.png',
+            'contact_address' => 'Calle 10 # 43C - 20',
+        ]);
+        WpStubs::setUser(7, 'joquendo', ['display_name' => 'Jorge Oquendo'], ['homlity_asesor'], [
+            '_homlity_advisor_phone' => '+57 300 123 4567',
+        ]);
+        WpStubs::$avatarsDisabled = true;
+
+        $header = substr($this->renderHtml(self::POST_ID), 0, (int) strpos($this->renderHtml(self::POST_ID), '<div class="sheet-footer">'));
+
+        self::assertSame(
+            1,
+            substr_count($header, 'https://royal.test/logo.png'),
+            'El logo sale más de una vez en la cabecera.'
+        );
+    }
+
     // ── Sin repeticiones ──────────────────────────────────────────────────
 
     /**

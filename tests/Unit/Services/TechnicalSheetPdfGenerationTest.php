@@ -113,6 +113,35 @@ final class TechnicalSheetPdfGenerationTest extends TestCase
         self::assertGreaterThanOrEqual(1, PdfProbe::pageCount(PdfProbe::inflate($pdf)));
     }
 
+    /**
+     * Todas las páginas se pueden leer.
+     *
+     * Suena a comprobar el instrumento, y lo es a propósito: cuando un flujo
+     * no se descomprime, esa página desaparece de la lectura sin que nada
+     * falle, y las pruebas que cuentan páginas siguen pasando midiendo de
+     * menos. Pasó: un flujo cuyos datos acababan en salto de línea perdía un
+     * byte y se quedaba comprimido.
+     */
+    public function testTodasLasPaginasSePuedenLeer(): void
+    {
+        $this->givenProperty();
+        $terms = [];
+        foreach (range(1, 40) as $n) {
+            $terms[] = new WP_Term(600 + $n, PropertyTaxonomies::TAXONOMY_FEATURE, 'c' . $n, 'Característica ' . $n);
+        }
+        WpStubs::$postTerms[self::POST_ID][PropertyTaxonomies::TAXONOMY_FEATURE] = $terms;
+
+        $pdf = PdfProbe::inflate(TemplateService::technicalSheetPdf(self::POST_ID));
+
+        $declared = PdfProbe::pageCount($pdf);
+        self::assertGreaterThan(1, $declared, 'La ficha de prueba tenía que ocupar más de una página.');
+        self::assertCount(
+            $declared,
+            PdfProbe::textByPage($pdf),
+            'Hay páginas que no se pudieron leer: alguna quedó sin descomprimir.'
+        );
+    }
+
     public function testElPapelEsA4Vertical(): void
     {
         $pdf = PdfProbe::inflate(TemplateService::technicalSheetPdf($this->givenProperty()));
@@ -255,6 +284,44 @@ final class TechnicalSheetPdfGenerationTest extends TestCase
             TemplateService::technicalSheetPdf($postId, ['show_finance' => ''])
         ));
         self::assertStringNotContainsString('FINANZAS', $sinFinanzas);
+    }
+
+    // ── Color de la marca ─────────────────────────────────────────────────
+
+    /**
+     * El color configurado en SEO & GEO → Marca visual llega hasta la tinta.
+     *
+     * Se mira el color de relleno del flujo de contenido y no el atributo
+     * `style` del HTML: que el color esté escrito en la plantilla no prueba
+     * que Dompdf lo haya aplicado.
+     */
+    public function testElColorDeLaMarcaLlegaAlPdf(): void
+    {
+        $this->givenProperty();
+        WpStubs::setOption('homlity_seo_settings', [
+            'company_name' => 'Royal Propiedad Raíz',
+            'brand_color_primary' => '#1f3c88',
+        ]);
+
+        $colors = PdfProbe::fillColors(PdfProbe::inflate(TemplateService::technicalSheetPdf(self::POST_ID)));
+
+        self::assertContains('#1f3c88', $colors, 'El PDF no se pintó con el color de la inmobiliaria.');
+        self::assertNotContains('#ff6752', $colors, 'Sigue apareciendo el color de fábrica.');
+    }
+
+    /** Y el par de los botones también. */
+    public function testElColorDeBotonConfiguradoLlegaAlPdf(): void
+    {
+        $this->givenProperty();
+        WpStubs::setOption('homlity_seo_settings', [
+            'company_name' => 'Royal Propiedad Raíz',
+            'brand_color_primary' => '#1f3c88',
+            'brand_color_button' => '#0a7d3b',
+        ]);
+
+        $colors = PdfProbe::fillColors(PdfProbe::inflate(TemplateService::technicalSheetPdf(self::POST_ID)));
+
+        self::assertContains('#0a7d3b', $colors, 'Los botones no usan su color configurado.');
     }
 
     // ── Cuando no hay nada que componer ───────────────────────────────────

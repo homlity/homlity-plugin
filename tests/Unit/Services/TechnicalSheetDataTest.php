@@ -170,6 +170,89 @@ final class TechnicalSheetDataTest extends TestCase
         self::assertSame('maria@royal.test', $agent['email']);
     }
 
+    // ── Foto del asesor ───────────────────────────────────────────────────
+
+    /**
+     * La orientación se saca de la biblioteca de medios, sin descargar nada.
+     *
+     * Hace falta porque Dompdf no implementa `object-fit`: para que la foto
+     * llene su marco sin deformarse hay que decidir cuál de los dos lados se
+     * estira, y eso depende de si es más alta o más ancha.
+     */
+    public function testDetectaLaOrientacionDeLaFoto(): void
+    {
+        foreach ([
+            'portrait' => [300, 400],
+            'landscape' => [400, 300],
+            'square' => [400, 400],
+        ] as $expected => [$width, $height]) {
+            $postId = $this->givenProperty(['_property_agent_id' => '7']);
+            WpStubs::$attachmentSizes[901] = [$width, $height];
+            WpStubs::setUser(7, 'jo', ['display_name' => 'Jorge'], [], ['_homlity_advisor_photo' => '901']);
+
+            self::assertSame(
+                $expected,
+                TechnicalSheetData::forProperty($postId)['agent']['photo_orientation'],
+                'Mal detectada la orientación de una foto de ' . $width . 'x' . $height . '.'
+            );
+        }
+    }
+
+    /** Una foto servida por el CRM no está en la biblioteca y no se sabe. */
+    public function testLaOrientacionDeUnaFotoExternaEsDesconocida(): void
+    {
+        $postId = $this->givenProperty(['_property_agent_id' => '7']);
+        WpStubs::setUser(7, 'jo', ['display_name' => 'Jorge'], [], [
+            '_homlity_advisor_photo' => 'https://crm.test/fotos/jo.jpg',
+        ]);
+
+        self::assertSame('unknown', TechnicalSheetData::forProperty($postId)['agent']['photo_orientation']);
+    }
+
+    /**
+     * La foto sale de la misma cadena de preferencia que usan los widgets.
+     * Antes la ficha tenía su propia lista, más corta, y el PDF podía enseñar
+     * una foto distinta de la del resto del sitio.
+     */
+    public function testLaFotoSaleDeLaCadenaDeAvatarDelPlugin(): void
+    {
+        $postId = $this->givenProperty(['_property_agent_id' => '7']);
+        WpStubs::setUser(7, 'jo', ['display_name' => 'Jorge'], [], [
+            'simple_local_avatar' => ['full' => 'https://royal.test/sla.jpg'],
+        ]);
+
+        self::assertSame(
+            'https://royal.test/sla.jpg',
+            TechnicalSheetData::forProperty($postId)['agent']['photo']
+        );
+    }
+
+    /**
+     * El logo de la empresa no cuenta como foto del asesor.
+     *
+     * La cadena de avatar acaba cayendo en él, y la cabecera ya lo enseña a la
+     * izquierda: aceptándolo aquí, el mismo logo salía dos veces en la misma
+     * fila.
+     */
+    public function testElLogoDeLaEmpresaNoSirveDeFotoDelAsesor(): void
+    {
+        $postId = $this->givenProperty(['_property_agent_id' => '7']);
+        WpStubs::setUser(7, 'jo', ['display_name' => 'Jorge'], [], []);
+        WpStubs::setOption('homlity_seo_settings', ['company_logo' => 'https://royal.test/logo.png']);
+        // Con los avatares de WordPress apagados la cadena llega hasta el logo,
+        // que es lo que hay que rechazar aquí.
+        WpStubs::$avatarsDisabled = true;
+
+        $agent = TechnicalSheetData::forProperty($postId)['agent'];
+
+        self::assertSame('', $agent['photo'], 'El logo se coló como foto del asesor.');
+        self::assertSame(
+            'https://royal.test/logo.png',
+            TechnicalSheetData::forProperty($postId)['company']['logo'],
+            'Y sigue estando disponible como logo, que es su sitio.'
+        );
+    }
+
     // ── Multimedia ────────────────────────────────────────────────────────
 
     /**
@@ -234,21 +317,86 @@ final class TechnicalSheetDataTest extends TestCase
         self::assertSame('Medellín', $company['city']);
     }
 
-    /** El color del widget manda sobre el global del plugin. */
-    public function testElColorDelWidgetGanaAlDelPlugin(): void
+    /**
+     * El color de la ficha es el que la inmobiliaria configura en
+     * SEO & GEO → Marca visual, que es lo que el PDF ignoraba.
+     */
+    public function testUsaElColorConfiguradoDeLaInmobiliaria(): void
     {
-        self::assertSame('#123456', TechnicalSheetData::primaryColor(
-            ['sheet_primary' => '#123456'],
-            ['primary_color' => '#abcdef']
-        ));
+        WpStubs::setOption('homlity_seo_settings', ['brand_color_primary' => '#1f3c88']);
+
+        self::assertSame('#1f3c88', TechnicalSheetData::primaryColor([], []));
+    }
+
+    /** Un color puesto en el widget pisa al de la marca, para esa ficha. */
+    public function testElColorDelWidgetGanaAlDeLaMarca(): void
+    {
+        WpStubs::setOption('homlity_seo_settings', ['brand_color_primary' => '#1f3c88']);
+
+        self::assertSame('#123456', TechnicalSheetData::primaryColor(['sheet_primary' => '#123456'], []));
+    }
+
+    /**
+     * Y el de la marca pisa al general del plugin, que es el que se usaba.
+     */
+    public function testElColorDeLaMarcaGanaAlGeneralDelPlugin(): void
+    {
+        WpStubs::setOption('homlity_seo_settings', ['brand_color_primary' => '#1f3c88']);
+
+        self::assertSame('#1f3c88', TechnicalSheetData::primaryColor([], ['primary_color' => '#abcdef']));
+    }
+
+    /**
+     * Sin tocar la pestaña de marca sigue mandando el color del plugin.
+     *
+     * `brand_color_primary` trae un valor por defecto, así que preguntando por
+     * el valor efectivo un sitio que nunca abrió esa pestaña parecería haber
+     * elegido el naranja de fábrica, y le cambiaría el color a quien sí había
+     * configurado el del plugin.
+     */
+    public function testSinConfigurarLaMarcaMandaElColorDelPlugin(): void
+    {
         self::assertSame('#abcdef', TechnicalSheetData::primaryColor([], ['primary_color' => '#abcdef']));
+    }
+
+    public function testSinNadaConfiguradoQuedaElColorDeFabrica(): void
+    {
         self::assertSame('#ff6752', TechnicalSheetData::primaryColor([], []));
     }
 
     /** Un color inventado no puede colarse en el atributo `style`. */
-    public function testUnColorInvalidoCaeAlPorDefecto(): void
+    public function testUnColorInvalidoCaeAlSiguienteDeLaLista(): void
     {
-        self::assertSame('#ff6752', TechnicalSheetData::primaryColor(['sheet_primary' => 'rojo'], []));
+        WpStubs::setOption('homlity_seo_settings', ['brand_color_primary' => 'rojo corporativo']);
+
+        self::assertSame('#abcdef', TechnicalSheetData::primaryColor(['sheet_primary' => 'rojo'], ['primary_color' => '#abcdef']));
+    }
+
+    /** Los botones tienen su propio par en el mismo panel. */
+    public function testLosBotonesUsanSuColorConfigurado(): void
+    {
+        WpStubs::setOption('homlity_seo_settings', [
+            'brand_color_primary' => '#1f3c88',
+            'brand_color_button' => '#0a7d3b',
+            'brand_color_button_text' => '#ffffff',
+        ]);
+
+        $colors = TechnicalSheetData::colors([], []);
+
+        self::assertSame('#1f3c88', $colors['primary']);
+        self::assertSame('#0a7d3b', $colors['button']);
+        self::assertSame('#ffffff', $colors['button_text']);
+    }
+
+    /** Y sin ese par, los botones se pintan con el color principal. */
+    public function testSinColorDeBotonSeUsaElPrincipal(): void
+    {
+        WpStubs::setOption('homlity_seo_settings', ['brand_color_primary' => '#1f3c88']);
+
+        $colors = TechnicalSheetData::colors([], []);
+
+        self::assertSame('#1f3c88', $colors['button']);
+        self::assertSame('#1f3c88', $colors['button_text']);
     }
 
     // ── Detalles ──────────────────────────────────────────────────────────
