@@ -70,7 +70,16 @@ if (!defined('HOMLITY_PLUGIN_URL')) {
     define('HOMLITY_PLUGIN_URL', 'http://example.test/wp-content/plugins/homlity-real-estate/');
 }
 if (!defined('HOMLITY_PLUGIN_VERSION')) {
-    define('HOMLITY_PLUGIN_VERSION', 'test');
+    // La versión real de la cabecera del plugin, no una etiqueta inventada:
+    // la Developer API la compara con version_compare() y una cadena que no
+    // sea semver haría pasar pruebas que en producción fallarían.
+    $pluginHeader = (string) file_get_contents($pluginRoot . '/plugin-inmobiliario.php');
+    preg_match('/^\s*\*\s*Version:\s*(.+)$/mi', $pluginHeader, $versionMatch);
+
+    define('HOMLITY_PLUGIN_VERSION', trim($versionMatch[1] ?? '0.0.0'));
+}
+if (!defined('HOMLITY_API_VERSION')) {
+    define('HOMLITY_API_VERSION', '1.0.0');
 }
 if (!defined('HOMLITY_PLUGIN_SLUG')) {
     define('HOMLITY_PLUGIN_SLUG', 'homlity-real-estate');
@@ -87,6 +96,11 @@ if (!defined('HOMLITY_PLUGIN_VERSION_OPTION')) {
 if (!defined('HOMLITY_PLUGIN_NAMESPACE_PREFIX')) {
     define('HOMLITY_PLUGIN_NAMESPACE_PREFIX', 'Homlity\\PluginInmobiliario\\');
 }
+
+// Los helpers globales de la Developer API. En producción los carga el archivo
+// principal del plugin; aquí hace falta cargarlos a mano, y sólo después de
+// definir ABSPATH: el archivo aborta si se incluye fuera de WordPress.
+require_once $pluginRoot . '/src/Developer/functions.php';
 
 require __DIR__ . '/Support/FakeSqlEngine.php';
 require __DIR__ . '/Support/wp-functions.php';

@@ -308,7 +308,9 @@ class Homlity_Consignment_Rest_Controller
         if (class_exists($upsert_class)) {
             try {
                 $service = new $upsert_class();
-                $result  = $service->upsert($payload);
+                // 'consignment' so listeners of the public property hooks can tell
+                // a form submission from a CRM sync.
+                $result  = $service->upsert($payload, 'consignment');
                 if (!empty($result['ok']) && !empty($result['post_id'])) {
                     // Stamp consignment meta
                     update_post_meta((int) $result['post_id'], '_consignment_source', 'public-form');

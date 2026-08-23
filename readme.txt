@@ -3,8 +3,8 @@ Contributors: homlity
 Tags: real estate, property, listings, agents, property management
 Requires at least: 5.8
 Tested up to: 7.0
-Requires PHP: 7.4
-Stable tag: 2.7.10
+Requires PHP: 8.0
+Stable tag: 2.8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,17 @@ Developed and maintained by **Ecosistema Inmobiliario Homlity**, a team speciali
 5. Public property listing on the WordPress site.
 
 == Changelog ==
+
+= 2.8.0 =
+* Homlity Real Estate incorpora una **Developer API** pública y estable: doce acciones, cuatro filtros, once clases, tres interfaces y siete funciones globales bajo el namespace `Homlity\Developer\`. A partir de ahora un desarrollador externo puede construir integraciones con CRMs, portales, ERP, analítica o IA como plugins independientes, sin modificar ni un archivo del plugin. Documentación en https://homlity.com/desarrolladores/
+* Nuevos eventos del ciclo de vida de un inmueble: creado, actualizado, borrado, sincronizado, cambio de estado y cambio de galería. Se disparan cuando la escritura ha terminado del todo —post, metadatos, taxonomías, fotos y asesor—, no a mitad como hace `save_post` de WordPress, así que una integración recibe el inmueble completo y no uno sin precio ni fotos.
+* La actualización de un inmueble informa de qué cambió exactamente. Un CRM que reenvía un registro idéntico deja de provocar trabajo inútil en las integraciones, y una integración puede saber si el cambio lo causó ella misma para no devolvérselo al CRM en un bucle.
+* Nuevo modelo público de inmueble. La galería de un inmueble se guarda en cuatro formatos distintos según de dónde vino, y los precios llegan de los CRM como texto libre; el modelo lo normaliza todo, de modo que ninguna integración tenga que saberlo.
+* Los datos personales del propietario captados por el formulario de consignación —nombre, documento, teléfono, correo— y la respuesta cruda del CRM, que puede contener credenciales, no se publican a las extensiones. El modelo se construye desde una lista de campos permitidos, no descartando los prohibidos, así que un dato nuevo tampoco puede colarse por descuido.
+* La dirección exacta de un inmueble cuyo propietario pidió ocultarla sigue oculta también para las extensiones.
+* Nuevo sistema de registro de extensiones con comprobación automática de compatibilidad. Una extensión que necesita una versión superior de Homlity, de PHP o de WordPress no arranca y lo explica, en vez de romper el sitio. Una extensión que falla al arrancar queda aislada y no se lleva por delante a las demás.
+* Corregido: el plugin declaraba requisitos contradictorios. Composer exigía PHP 8.0, este archivo decía PHP 7.4 y la cabecera del plugin no decía nada, así que un sitio con PHP 7.4 podía instalarlo y romperse. Ahora los tres dicen PHP 8.0 y WordPress 5.8.
+* Ningún cambio rompe compatibilidad: no se ha renombrado ni eliminado ninguna clase, función, hook, opción ni metadato existente.
 
 = 2.7.9 =
 * Corregido: el widget "Destacados por ubicación y tipo" salía sin estilos en la web pública, por la misma razón que el de asesores: no declaraba la hoja donde vive su CSS, y Elementor solo carga lo que cada widget pide. Los grupos se apilaban en vez de repartirse en columnas y las listas salían con las viñetas del navegador. En Divi y WPBakery no pasaba. Los widgets por taxonomía —"Ciudades destacadas" y sus hermanos— no estaban afectados: llevan su maquetación en el propio marcado.

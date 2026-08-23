@@ -7,7 +7,9 @@
 
 namespace Homlity\PluginInmobiliario\Services;
 
+use Homlity\Developer\Events\PropertyContext;
 use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
+use Homlity\PluginInmobiliario\Core\PropertyEventDispatcher;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -1321,6 +1323,17 @@ class PropertyPostType implements ServiceInterface
             return;
         }
 
+        // `pre_post_update` already snapshotted the property for an edit; a
+        // brand-new property has nothing to diff against.
+        $previousState  = PropertyEventDispatcher::takeSnapshot($postId);
+        $previousStatus = is_array($previousState) ? (string) ($previousState['post.status'] ?? '') : '';
+
+        // WordPress creates an auto-draft first and then updates it, so "there
+        // was no snapshot" is not the only shape a brand-new property takes.
+        $isNewProperty = $previousState === null
+            || $previousStatus === ''
+            || $previousStatus === 'auto-draft';
+
         $validationErrors = $this->validateRequiredFieldsFromRequest($postId, $post);
 
         $sanitizers = [
@@ -1483,6 +1496,14 @@ class PropertyPostType implements ServiceInterface
             $this->appendValidationErrorToRedirect($validationErrors);
             $this->forceDraftIfNeeded($postId);
         }
+
+        // Meta, gallery, taxonomies and the slug are all written by now, so the
+        // public lifecycle hooks describe the property as it was actually saved.
+        PropertyEventDispatcher::dispatchSaved(
+            $postId,
+            $previousState ?? [],
+            new PropertyContext(PropertyContext::ORIGIN_ADMIN, '', $isNewProperty)
+        );
     }
 
     public function renderValidationNotice(): void

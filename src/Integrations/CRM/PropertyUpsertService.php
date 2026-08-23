@@ -2,6 +2,9 @@
 // phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 namespace Homlity\PluginInmobiliario\Integrations\CRM;
 
+use Homlity\Developer\Events\PropertyContext;
+use Homlity\Developer\Support\Hooks;
+use Homlity\PluginInmobiliario\Core\PropertyEventDispatcher;
 use Homlity\PluginInmobiliario\Homologation\EntityType;
 use Homlity\PluginInmobiliario\Homologation\HomologationService;
 use Homlity\PluginInmobiliario\Integrations\CRM\FieldMap\PropertyFieldSchema;
@@ -33,11 +36,39 @@ class PropertyUpsertService
     }
 
     /**
-     * @param array<string,mixed> $normalized
+     * Create or update a property from a canonical normalized payload.
+     *
+     * @param array<string,mixed> $normalized Canonical property payload.
+     * @param string              $origin     One of the {@see PropertyContext} ORIGIN_* constants.
+     *                                        Describes who is writing, so the public lifecycle
+     *                                        hooks can tell a CRM sync from a consignment.
      * @return array<string,mixed>
      */
-    public function upsert(array $normalized): array
+    public function upsert(array $normalized, string $origin = PropertyContext::ORIGIN_CRM): array
     {
+        $sourceKey = sanitize_key((string) ($normalized['external']['source'] ?? ''));
+
+        /**
+         * Filters a normalized property payload just before it is written.
+         *
+         * This is the last chance to change what Homlity persists: every field
+         * of the canonical schema is present and the taxonomy terms have not
+         * been resolved yet.
+         *
+         * A return value that is not an array is ignored, so a mistaken filter
+         * cannot blank out a property.
+         *
+         * @since 2.8.0
+         *
+         * @param array<string,mixed> $normalized Canonical payload. See docs/developers/models/property.md.
+         * @param string              $source     Key of the CRM the record came from, or ''.
+         * @param string              $origin     One of the PropertyContext ORIGIN_* constants.
+         */
+        $filtered = apply_filters(Hooks::FILTER_PROPERTY_NORMALIZED, $normalized, $sourceKey, $origin);
+        if (is_array($filtered)) {
+            $normalized = $filtered;
+        }
+
         $external   = is_array($normalized['external'] ?? null) ? $normalized['external'] : [];
         $source     = sanitize_key((string) ($external['source'] ?? ''));
         $externalId = sanitize_text_field((string) ($external['id'] ?? ''));
@@ -55,6 +86,11 @@ class PropertyUpsertService
                 $postId = $this->findByCode($code);
             }
         }
+
+        // Read the previous state now, while it still is the previous state:
+        // the public `homlity/property/updated` hook promises a real diff.
+        $isNew         = $postId === 0;
+        $previousState = $isNew ? [] : PropertyEventDispatcher::snapshot($postId);
 
         $postData = is_array($normalized['post'] ?? null) ? $normalized['post'] : [];
 
@@ -104,6 +140,14 @@ class PropertyUpsertService
             sanitize_text_field((string) (ArrayPath::get($normalized, 'external.hash') ?? '')),
             'synced',
             sanitize_text_field((string) (ArrayPath::get($normalized, 'external.updated_at') ?? ''))
+        );
+
+        // Everything is persisted — post, meta, media, advisor, taxonomies — so
+        // the property handed to listeners is exactly the one that was saved.
+        PropertyEventDispatcher::dispatchSaved(
+            $postId,
+            $previousState,
+            new PropertyContext($origin, $source, $isNew)
         );
 
         return ['ok' => true, 'post_id' => $postId];

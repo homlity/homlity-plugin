@@ -1,0 +1,15 @@
+{
+  "name": "acme/homlity-example-extension",
+  "description": "Extensión de ejemplo para Homlity Real Estate.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=8.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "HomlityExample\\": "src/"
+    }
+  }
+}

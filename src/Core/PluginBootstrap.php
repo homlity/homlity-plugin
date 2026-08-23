@@ -5,6 +5,7 @@
 
 namespace Homlity\PluginInmobiliario\Core;
 
+use Homlity\Developer\Support\Hooks;
 use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 use Homlity\PluginInmobiliario\ErrorReporting\ErrorReporterService;
 use Homlity\PluginInmobiliario\Homologation\HomologationAdminPage;
@@ -69,6 +70,11 @@ class PluginBootstrap
     public function init(): void
     {
         $this->services = [
+            // Public Developer API: lifecycle hooks and the extension registry.
+            // First in the list so `homlity/loaded` is the only public signal
+            // that the core finished booting, never a partially-wired one.
+            new DeveloperApiService(),
+
             // Core WordPress services
             new ErrorReporterService(),
             new I18nService(),
@@ -147,5 +153,16 @@ class PluginBootstrap
         foreach ($this->services as $service) {
             $service->register();
         }
+
+        /**
+         * Fires once the Homlity core has registered every one of its services.
+         *
+         * Runs on `plugins_loaded` priority 20. Post types, taxonomies and
+         * rewrite rules are *not* registered yet — they land on `init`. Use
+         * `homlity/initialized` when you need to query properties.
+         *
+         * @since 2.8.0
+         */
+        do_action(Hooks::LOADED);
     }
 }

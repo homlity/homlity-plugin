@@ -1,7 +1,22 @@
 # Composer
 /vendor/
-composer.lock
-# Pruebas
+
+# Node
+/node_modules/
+npm-debug.log*
+
+# Compilaciones
 /build/
+/assets/dist/*.map
+
+# Pruebas
 .phpunit.cache/
 .phpunit.result.cache
+
+# Entorno
+.env
+.env.*
+!.env.example
+
+# Sistema
+.DS_Store

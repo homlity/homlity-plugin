@@ -7,6 +7,7 @@
 
 namespace Homlity\PluginInmobiliario\Services;
 
+use Homlity\Developer\Support\Hooks;
 use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 
 if (!defined('ABSPATH')) {
@@ -338,7 +339,25 @@ class PropertySearchService implements ServiceInterface
                 $args['order']   = 'DESC';
         }
 
-        return $args;
+        /**
+         * Filters the `WP_Query` arguments used to list and search properties.
+         *
+         * Applies to the listing shortcode, the page-builder widgets and the
+         * listing AJAX endpoint — every place the plugin queries properties on
+         * behalf of a visitor. Two clauses are already in `meta_query` and are
+         * what keeps withdrawn properties off the site; removing them exposes
+         * inventory the agency took off the market.
+         *
+         * A return value that is not an array is ignored.
+         *
+         * @since 2.8.0
+         *
+         * @param array<string,mixed> $args   Query arguments, ready for `WP_Query`.
+         * @param array<string,mixed> $params Normalized request parameters that produced them.
+         */
+        $filtered = apply_filters(Hooks::FILTER_PROPERTY_QUERY_ARGS, $args, $params);
+
+        return is_array($filtered) ? $filtered : $args;
     }
 
     public function applyPriorityKeywordSearch(array $clauses, \WP_Query $query): array

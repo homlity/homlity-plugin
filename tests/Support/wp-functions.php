@@ -52,6 +52,7 @@ if (!class_exists('WP_Post')) {
         public string $post_status = 'publish';
         public string $post_title = '';
         public string $post_content = '';
+        public string $post_excerpt = '';
 
         /** @param array<string,mixed> $data */
         public function __construct(array $data = [])
@@ -531,6 +532,17 @@ if (!function_exists('delete_option')) {
         unset(WpStubs::$options[$key]);
 
         return $existed;
+    }
+}
+
+if (!function_exists('get_site_option')) {
+    /**
+     * @param mixed $default
+     * @return mixed
+     */
+    function get_site_option(string $key, $default = false)
+    {
+        return WpStubs::$options[$key] ?? $default;
     }
 }
 
@@ -1287,6 +1299,29 @@ if (!function_exists('get_avatar')) {
             $size,
             $size
         );
+    }
+}
+
+if (!function_exists('wp_get_attachment_url')) {
+    /** @return string|false */
+    function wp_get_attachment_url(int $attachmentId = 0)
+    {
+        return wp_get_attachment_image_url($attachmentId, 'full');
+    }
+}
+
+if (!function_exists('wp_get_attachment_image_src')) {
+    /** @return array{0:string,1:int,2:int,3:bool}|false */
+    function wp_get_attachment_image_src(int $attachmentId, $size = 'thumbnail', bool $icon = false)
+    {
+        $url = wp_get_attachment_image_url($attachmentId, $size);
+        if ($url === false) {
+            return false;
+        }
+
+        [$width, $height] = WpStubs::$attachmentSizes[$attachmentId] ?? [600, 400];
+
+        return [$url, (int) $width, (int) $height, false];
     }
 }
 

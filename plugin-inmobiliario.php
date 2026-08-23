@@ -3,12 +3,14 @@
 /**
  * Plugin Name: Homlity Real Estate
  * Description: Homlity Real Estate, gestor de inmuebles, asesores, SEO y GEO listo para WordPress.
- * Version:     2.7.10
+ * Version:     2.8.1
  * Author:      Ecosistema Inmobiliario Homlity
  * Author URI:  https://homlity.com/
  * Plugin URI:  https://homlity.com/plugin-integracion-homlity-real-estate-para-wordpress/
  * Text Domain: homlity-real-estate
  * Domain Path: /languages
+ * Requires at least: 5.8
+ * Requires PHP: 8.0
  * License:     GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
@@ -28,12 +30,19 @@ define('HOMLITY_RE_PLUGIN_URL',  plugin_dir_url(__FILE__));
 if (!defined('HOMLITY_PLUGIN_FILE'))             define('HOMLITY_PLUGIN_FILE', __FILE__);
 if (!defined('HOMLITY_PLUGIN_PATH'))             define('HOMLITY_PLUGIN_PATH', plugin_dir_path(__FILE__));
 if (!defined('HOMLITY_PLUGIN_URL'))              define('HOMLITY_PLUGIN_URL', plugin_dir_url(__FILE__));
-if (!defined('HOMLITY_PLUGIN_VERSION'))          define('HOMLITY_PLUGIN_VERSION', '2.7.10');
+if (!defined('HOMLITY_PLUGIN_VERSION'))          define('HOMLITY_PLUGIN_VERSION', '2.8.1');
 if (!defined('HOMLITY_PLUGIN_SLUG'))             define('HOMLITY_PLUGIN_SLUG', 'homlity-real-estate');
 if (!defined('HOMLITY_PLUGIN_TEXT_DOMAIN'))      define('HOMLITY_PLUGIN_TEXT_DOMAIN', 'homlity-real-estate');
 if (!defined('HOMLITY_PLUGIN_SETTINGS_OPTION'))  define('HOMLITY_PLUGIN_SETTINGS_OPTION', 'homlity_plugin_settings');
 if (!defined('HOMLITY_PLUGIN_VERSION_OPTION'))   define('HOMLITY_PLUGIN_VERSION_OPTION', 'homlity_plugin_version');
 if (!defined('HOMLITY_PLUGIN_NAMESPACE_PREFIX')) define('HOMLITY_PLUGIN_NAMESPACE_PREFIX', 'Homlity\\PluginInmobiliario\\');
+
+// Public Developer API. `Homlity\Developer\` is the only namespace external
+// plugins may depend on; everything under `Homlity\PluginInmobiliario\` is
+// internal and may change in a minor release.
+// See docs/developers/ and https://homlity.com/desarrolladores/
+if (!defined('HOMLITY_API_VERSION'))             define('HOMLITY_API_VERSION', '1.0.0');
+if (!defined('HOMLITY_DEVELOPER_NAMESPACE'))     define('HOMLITY_DEVELOPER_NAMESPACE', 'Homlity\\Developer\\');
 
 add_action('init', static function (): void {
     load_plugin_textdomain(
@@ -149,17 +158,32 @@ if (!function_exists('homy_get_social_icon')) {
 // registers its own autoloader pointing to its own src/ — regardless of which copy
 // set HOMLITY_PLUGIN_PATH first.
 spl_autoload_register(static function (string $class): void {
-    if (strpos($class, 'Homlity\\PluginInmobiliario\\') !== 0) {
+    // Longest prefix first: `Homlity\Developer\` lives in src/Developer/, and
+    // must not be resolved through the internal prefix's rule.
+    $prefixes = [
+        'Homlity\\Developer\\'          => __DIR__ . '/src/Developer/',
+        'Homlity\\PluginInmobiliario\\' => __DIR__ . '/src/',
+    ];
+
+    foreach ($prefixes as $prefix => $baseDir) {
+        if (strpos($class, $prefix) !== 0) {
+            continue;
+        }
+
+        $relativeClass = substr($class, strlen($prefix));
+        $path = $baseDir . str_replace('\\', '/', $relativeClass) . '.php';
+
+        if (file_exists($path)) {
+            require_once $path;
+        }
+
         return;
     }
-
-    $relativeClass = substr($class, strlen('Homlity\\PluginInmobiliario\\'));
-    $path = __DIR__ . '/src/' . str_replace('\\', '/', $relativeClass) . '.php';
-
-    if (file_exists($path)) {
-        require_once $path;
-    }
 });
+
+// The public helpers must exist before `plugins_loaded` so an extension loaded
+// after this file can call them from its own bootstrap.
+require_once __DIR__ . '/src/Developer/functions.php';
 
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require __DIR__ . '/vendor/autoload.php';
