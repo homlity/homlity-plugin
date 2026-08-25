@@ -1,4 +1,10 @@
 <?php
+// Los superglobales que se leen en este archivo sirven sólo para saber en qué
+// contexto del maquetador se está pintando (vista previa, pestaña activa,
+// petición AJAX del editor). No procesan formularios: van saneados con
+// absint()/sanitize_key() y toda rama que cambia estado exige current_user_can(),
+// así que un nonce no aplica.
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
 
 declare(strict_types=1);
 
@@ -194,6 +200,8 @@ if (!class_exists(Icons_Manager::class)) {
                 }
                 $attrs .= ' ' . esc_attr($attributeName) . '="' . esc_attr((string) $attributeValue) . '"';
             }
+            // $attrs se compone arriba atributo a atributo con esc_attr().
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo '<i' . $attrs . '></i>';
         }
     }

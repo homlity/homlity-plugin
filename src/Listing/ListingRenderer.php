@@ -170,8 +170,8 @@ class ListingRenderer
                 (int) (
                     get_query_var('paged')
                     ?: get_query_var('page')
-                    ?: ($_GET['paged'] ?? 0)
-                    ?: ($_GET['page'] ?? 0)
+                    ?: absint(wp_unslash($_GET['paged'] ?? 0))
+                    ?: absint(wp_unslash($_GET['page'] ?? 0))
                     ?: 1
                 )
             );
@@ -491,6 +491,7 @@ class ListingRenderer
             'nextAria'  => __('Página siguiente', 'homlity-real-estate'),
             'last'      => __('Final', 'homlity-real-estate'),
             'lastAria'  => __('Ir al final', 'homlity-real-estate'),
+            /* translators: %d: número de página; lo sustituye el JavaScript del listado. */
             'pageAria'  => __('Página %d', 'homlity-real-estate'),
         ]);
     }

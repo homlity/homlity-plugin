@@ -1,0 +1,389 @@
+/**
+ * Hero slider: a full-bleed property carousel for the main hero of a
+ * real-estate home page.
+ *
+ * Every visual value that Elementor controls (height, colours, spacing,
+ * typography) is written by the widget's selectors; the custom properties here
+ * are the defaults used when a control is left empty.
+ */
+
+.hml-hero-slider {
+    --hml-hero-height: 620px;
+    --hml-hero-radius: 0px;
+    --hml-hero-content-width: 640px;
+    --hml-hero-content-gap: 14px;
+    --hml-hero-content-padding: 48px;
+    --hml-hero-scrim-from: rgba(0, 0, 0, 0.72);
+    --hml-hero-scrim-to: rgba(0, 0, 0, 0);
+    --hml-hero-text: #ffffff;
+    --hml-hero-accent: #ffffff;
+    --hml-hero-arrow-color: #ffffff;
+    --hml-hero-arrow-size: 28px;
+    --hml-hero-bullet: rgba(255, 255, 255, 0.55);
+    --hml-hero-bullet-active: #ffffff;
+    --hml-hero-slide-gap: 24px;
+
+    /* Placement, written by the responsive "content position" control so the
+       same slide can sit bottom-left on desktop and centred on a phone. */
+    --hml-hero-align-v: end;
+    --hml-hero-align-h: start;
+    --hml-hero-text-align: left;
+    --hml-hero-items: flex-start;
+
+    /* Split layout */
+    --hml-hero-split-media: 55%;
+    --hml-hero-split-cols: var(--hml-hero-split-media) 1fr;
+    --hml-hero-media-order: 1;
+    --hml-hero-content-order: 2;
+    --hml-hero-panel-bg: #111827;
+    --hml-hero-media-min-height: 280px;
+
+    position: relative;
+    width: 100%;
+}
+
+.hml-hero-slider__swiper {
+    overflow: hidden;
+    border-radius: var(--hml-hero-radius);
+}
+
+.hml-hero-slider__slide {
+    position: relative;
+    height: var(--hml-hero-height);
+    overflow: hidden;
+    display: grid;
+}
+
+/* ── Media ─────────────────────────────────────────────────────────────── */
+
+.hml-hero-slider__media {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.hml-hero-slider__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scale(1.001); /* avoids sub-pixel gaps against the scrim */
+}
+
+.hml-hero-slider__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to top,
+        var(--hml-hero-scrim-from) 0%,
+        var(--hml-hero-scrim-to) 65%
+    );
+    pointer-events: none;
+}
+
+/* The Ken Burns drift only runs on the slide currently on screen, so the
+   browser is never animating images the visitor cannot see. */
+.hml-hero-slider--kenburns .swiper-slide-active .hml-hero-slider__image {
+    animation: hml-hero-kenburns 12s ease-out forwards;
+}
+
+@keyframes hml-hero-kenburns {
+    from { transform: scale(1.001); }
+    to   { transform: scale(1.12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hml-hero-slider--kenburns .swiper-slide-active .hml-hero-slider__image {
+        animation: none;
+    }
+}
+
+/* ── Content ───────────────────────────────────────────────────────────── */
+
+.hml-hero-slider__content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: var(--hml-hero-content-gap);
+    width: 100%;
+    max-width: var(--hml-hero-content-width);
+    padding: var(--hml-hero-content-padding);
+    color: var(--hml-hero-text);
+    align-self: var(--hml-hero-align-v);
+    justify-self: var(--hml-hero-align-h);
+    text-align: var(--hml-hero-text-align);
+    align-items: var(--hml-hero-items);
+}
+
+/* Children that are inline-flex would otherwise ignore the text alignment. */
+.hml-hero-slider__location,
+.hml-hero-slider__features,
+.hml-hero-slider__actions {
+    justify-content: var(--hml-hero-items);
+}
+
+.hml-hero-slider__operation {
+    display: inline-flex;
+    align-self: var(--hml-hero-items);
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--hml-hero-accent);
+    color: #111827;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.hml-hero-slider__title {
+    margin: 0;
+    font-size: clamp(26px, 3.4vw, 46px);
+    line-height: 1.15;
+    font-weight: 700;
+    color: inherit;
+}
+
+.hml-hero-slider__title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.hml-hero-slider__title a:hover,
+.hml-hero-slider__title a:focus-visible {
+    text-decoration: underline;
+}
+
+.hml-hero-slider__location {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 16px;
+    opacity: 0.92;
+}
+
+.hml-hero-slider__excerpt {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.55;
+    opacity: 0.9;
+}
+
+.hml-hero-slider__features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.hml-hero-slider__feature {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(6px);
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+.hml-hero-slider__feature-icon svg {
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+}
+
+.hml-hero-slider__price {
+    margin: 0;
+    font-size: clamp(20px, 2.2vw, 30px);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.hml-hero-slider__code {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.75;
+}
+
+/* ── Actions ───────────────────────────────────────────────────────────── */
+
+.hml-hero-slider__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 4px;
+    /* Sits above the whole-slide link so the buttons stay clickable. */
+    position: relative;
+    z-index: 4;
+}
+
+.hml-hero-slider__button,
+.hml-hero-slider__whatsapp {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 13px 26px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: transform 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+}
+
+.hml-hero-slider__button {
+    background: var(--hml-hero-accent);
+    color: #111827;
+}
+
+.hml-hero-slider__whatsapp {
+    background: #25d366;
+    color: #ffffff;
+}
+
+.hml-hero-slider__button:hover,
+.hml-hero-slider__whatsapp:hover,
+.hml-hero-slider__button:focus-visible,
+.hml-hero-slider__whatsapp:focus-visible {
+    transform: translateY(-2px);
+}
+
+.hml-hero-slider__button-icon svg,
+.hml-hero-slider__whatsapp-icon svg {
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+}
+
+/* Covers the slide so the whole area is clickable, while the content block
+   and its buttons stay above it. */
+.hml-hero-slider__overlay-link {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+}
+
+.hml-hero-slider__overlay-link:focus-visible {
+    outline: 3px solid var(--hml-hero-accent);
+    outline-offset: -6px;
+}
+
+/* ── Navigation ────────────────────────────────────────────────────────── */
+
+.hml-hero-slider .swiper-button-prev,
+.hml-hero-slider .swiper-button-next {
+    --swiper-navigation-size: var(--hml-hero-arrow-size);
+    color: var(--hml-hero-arrow-color);
+    z-index: 5;
+}
+
+.hml-hero-slider .swiper-pagination-bullet {
+    background: var(--hml-hero-bullet);
+    opacity: 1;
+}
+
+.hml-hero-slider .swiper-pagination-bullet-active {
+    background: var(--hml-hero-bullet-active);
+}
+
+.hml-hero-slider .swiper-pagination-progressbar .swiper-pagination-progressbar-fill {
+    background: var(--hml-hero-bullet-active);
+}
+
+.hml-hero-slider .swiper-pagination-fraction {
+    color: var(--hml-hero-text);
+    font-weight: 600;
+}
+
+/* ── Split layout ──────────────────────────────────────────────────────── */
+
+/* The image and the content panel share the slide as two grid tracks. Which
+   track each one takes, and the column sizes, come from custom properties so
+   the "media side" control can differ per device — including stacking the
+   panel under the image on a phone. */
+.hml-hero-slider--split .hml-hero-slider__slide {
+    height: auto;
+    min-height: var(--hml-hero-height);
+    grid-template-columns: var(--hml-hero-split-cols);
+    align-items: stretch;
+}
+
+.hml-hero-slider--split .hml-hero-slider__media {
+    position: relative;
+    inset: auto;
+    order: var(--hml-hero-media-order);
+    min-height: var(--hml-hero-media-min-height);
+}
+
+/* The panel supplies its own contrast, so the gradient meant for text sitting
+   on top of a photo would only muddy the image here. */
+.hml-hero-slider--split .hml-hero-slider__scrim {
+    display: none;
+}
+
+.hml-hero-slider--split .hml-hero-slider__content {
+    order: var(--hml-hero-content-order);
+    background: var(--hml-hero-panel-bg);
+    max-width: none;
+    justify-self: stretch;
+    align-self: stretch;
+    justify-content: var(--hml-hero-align-v);
+}
+
+/* ── Cards layout ──────────────────────────────────────────────────────── */
+
+.hml-hero-slider--cards .hml-hero-slider__slide {
+    height: auto;
+    /* Equal-height cards regardless of how much text each one carries. */
+    align-items: stretch;
+}
+
+.hml-hero-slider--cards .hml-hero-slider__slide > .property-card {
+    width: 100%;
+    height: 100%;
+}
+
+.hml-hero-slider--cards .hml-hero-slider__swiper {
+    padding-bottom: 8px;
+}
+
+/* ── Empty state ───────────────────────────────────────────────────────── */
+
+.hml-hero-slider__empty {
+    margin: 0;
+    padding: 32px;
+    text-align: center;
+    opacity: 0.7;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+    .hml-hero-slider {
+        --hml-hero-content-padding: 36px;
+    }
+}
+
+@media (max-width: 767px) {
+    .hml-hero-slider {
+        --hml-hero-content-padding: 24px;
+        --hml-hero-content-gap: 11px;
+    }
+
+    .hml-hero-slider__actions {
+        width: 100%;
+    }
+
+    .hml-hero-slider__button,
+    .hml-hero-slider__whatsapp {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+}

@@ -66,6 +66,9 @@ class SettingsService implements ServiceInterface
             return;
         }
 
+        // Sólo lee qué pestaña pidió el navegador para encolar sus assets; no
+        // procesa nada, así que el nonce no aplica.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $activeTab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'general';
         if (!in_array($activeTab, ['general', 'social', 'arriendo', 'venta', 'consignment', 'versions', 'incidents'], true)) {
             $activeTab = 'general';
@@ -119,6 +122,9 @@ class SettingsService implements ServiceInterface
 
     public function renderSettingsPage(): void
     {
+        // Sólo lee qué pestaña pidió el navegador para encolar sus assets; no
+        // procesa nada, así que el nonce no aplica.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $activeTab = isset($_GET['tab']) ? sanitize_key((string) wp_unslash($_GET['tab'])) : 'general';
         if (!in_array($activeTab, ['general', 'social', 'arriendo', 'venta', 'consignment', 'versions', 'incidents'], true)) {
             $activeTab = 'general';
@@ -216,6 +222,8 @@ class SettingsService implements ServiceInterface
         $values['default_neighborhood'] = isset($values['default_neighborhood']) && $values['default_neighborhood'] !== ''
             ? absint($values['default_neighborhood'])
             : 0;
+
+        $values[SearchLocationDefaults::SETTING_KEY] = !empty($values[SearchLocationDefaults::SETTING_KEY]);
 
         $values['archive_per_page'] = isset($values['archive_per_page'])
             ? max(1, (int) $values['archive_per_page'])
@@ -421,6 +429,7 @@ class SettingsService implements ServiceInterface
             'default_state' => 0,
             'default_city' => 0,
             'default_neighborhood' => 0,
+            SearchLocationDefaults::SETTING_KEY => false,
             'archive_per_page' => 12,
             'archive_order' => 'created_desc',
             'primary_color' => '#ff6752',

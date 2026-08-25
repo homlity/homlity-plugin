@@ -3,13 +3,13 @@
 /**
  * Plugin Name: Homlity Real Estate
  * Description: Homlity Real Estate, gestor de inmuebles, asesores, SEO y GEO listo para WordPress.
- * Version:     2.8.1
+ * Version:     2.8.2
  * Author:      Ecosistema Inmobiliario Homlity
  * Author URI:  https://homlity.com/
  * Plugin URI:  https://homlity.com/plugin-integracion-homlity-real-estate-para-wordpress/
  * Text Domain: homlity-real-estate
  * Domain Path: /languages
- * Requires at least: 5.8
+ * Requires at least: 6.0
  * Requires PHP: 8.0
  * License:     GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -30,7 +30,7 @@ define('HOMLITY_RE_PLUGIN_URL',  plugin_dir_url(__FILE__));
 if (!defined('HOMLITY_PLUGIN_FILE'))             define('HOMLITY_PLUGIN_FILE', __FILE__);
 if (!defined('HOMLITY_PLUGIN_PATH'))             define('HOMLITY_PLUGIN_PATH', plugin_dir_path(__FILE__));
 if (!defined('HOMLITY_PLUGIN_URL'))              define('HOMLITY_PLUGIN_URL', plugin_dir_url(__FILE__));
-if (!defined('HOMLITY_PLUGIN_VERSION'))          define('HOMLITY_PLUGIN_VERSION', '2.8.1');
+if (!defined('HOMLITY_PLUGIN_VERSION'))          define('HOMLITY_PLUGIN_VERSION', '2.8.2');
 if (!defined('HOMLITY_PLUGIN_SLUG'))             define('HOMLITY_PLUGIN_SLUG', 'homlity-real-estate');
 if (!defined('HOMLITY_PLUGIN_TEXT_DOMAIN'))      define('HOMLITY_PLUGIN_TEXT_DOMAIN', 'homlity-real-estate');
 if (!defined('HOMLITY_PLUGIN_SETTINGS_OPTION'))  define('HOMLITY_PLUGIN_SETTINGS_OPTION', 'homlity_plugin_settings');
@@ -44,13 +44,9 @@ if (!defined('HOMLITY_PLUGIN_NAMESPACE_PREFIX')) define('HOMLITY_PLUGIN_NAMESPAC
 if (!defined('HOMLITY_API_VERSION'))             define('HOMLITY_API_VERSION', '1.0.0');
 if (!defined('HOMLITY_DEVELOPER_NAMESPACE'))     define('HOMLITY_DEVELOPER_NAMESPACE', 'Homlity\\Developer\\');
 
-add_action('init', static function (): void {
-    load_plugin_textdomain(
-        HOMLITY_PLUGIN_TEXT_DOMAIN,
-        false,
-        dirname(plugin_basename(__FILE__)) . '/languages/'
-    );
-});
+// Sin load_plugin_textdomain(): desde WP 4.6 el núcleo carga las traducciones
+// del propio plugin a partir de la cabecera «Domain Path», y hacerlo a mano en
+// 'init' es además lo que dispara el aviso _load_textdomain_just_in_time de 6.7.
 
 if (!function_exists('homlity_plugin_get_option')) {
     function homlity_plugin_get_option(string $optionName, string $legacyOptionName, $default = false)

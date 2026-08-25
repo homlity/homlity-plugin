@@ -1,4 +1,8 @@
 <?php
+// Los nombres de hook de este archivo salen de constantes de Homlity\Developer\Support\Hooks
+// (o los recibe el método como argumento ya prefijado). Todas valen 'homlity/...',
+// pero el sniff sólo sabe leer literales y las marca como dinámicas.
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 // phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 // phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 /**
@@ -16,11 +20,34 @@ if (!defined('ABSPATH')) {
 
 class PropertySearchService implements ServiceInterface
 {
-    /** Named meta clause used to order by price. */
-    private const ORDER_PRICE_CLAUSE = 'homlity_price_order';
+    /**
+     * Query var que lleva el sentido del orden cuando se ordena por precio.
+     *
+     * El precio por el que ordena cada inmueble no se puede decidir al armar
+     * los argumentos: hay que mirarlo fila a fila en SQL. Ver applyPriceOrder().
+     */
+    public const PRICE_ORDER_QUERY_VAR = 'homlity_price_order';
+
+    /**
+     * Criterio de desempate, común a todos los órdenes.
+     *
+     * Sin él, «más nuevo a más viejo» sale desordenado: la sincronización crea
+     * los inmuebles por lotes y decenas comparten el mismo segundo en
+     * post_date, así que dentro de cada grupo MySQL los devuelve como quiera.
+     * Y como el reparto de empates entre páginas tampoco está garantizado, el
+     * visitante puede ver una ficha repetida y perderse otra al paginar.
+     *
+     * Se desempata por ID descendente: el último inmueble que entró va primero,
+     * que es lo que espera quien pide «más recientes».
+     */
+    private const TIE_BREAK_ORDERBY = ['ID' => 'DESC'];
 
     public function register(): void
     {
+        // El orden por precio va antes que el ranking de búsqueda: así, cuando
+        // hay palabra clave, applyPriorityKeywordSearch() antepone su MIN(...)
+        // y la relevancia manda sobre el precio, no al revés.
+        add_filter('posts_clauses', [$this, 'applyPriceOrder'], 10, 2);
         add_filter('posts_clauses', [$this, 'applyPriorityKeywordSearch'], 20, 2);
         add_action('template_redirect', [$this, 'maybeRedirectExactCodeSearch'], 1);
     }
@@ -318,24 +345,32 @@ class PropertySearchService implements ServiceInterface
         switch ($orderby) {
             case 'price_asc':
             case 'price_desc':
-                // Ordering by a named meta clause instead of `meta_key` +
-                // `meta_value_num`: WP_Query resolves the latter against
-                // `reset($meta_clauses)` (wp-includes/class-wp-query.php),
-                // which here is the availability guard added above, not the
-                // price. That made every row tie on 0 and the sort do nothing.
-                $args['meta_query'][self::ORDER_PRICE_CLAUSE] = [
-                    'key'     => $this->resolvePriceMetaKey($params),
-                    'type'    => 'NUMERIC',
-                    'compare' => 'EXISTS',
-                ];
-                $args['orderby'] = [self::ORDER_PRICE_CLAUSE => $orderby === 'price_asc' ? 'ASC' : 'DESC'];
+                // El precio por el que ordena cada inmueble se resuelve fila a
+                // fila en applyPriceOrder(), no aquí. Fijar una sola clave para
+                // todo el listado —lo que se hacía antes— dejaba a los
+                // arriendos ordenando por _property_price_sale, que en ellos
+                // vale 0: empataban todos y salían en el orden interno de
+                // MySQL. Eso es lo que se veía como «de mayor a menor sale
+                // desordenado» en cuanto la lista mezclaba venta y arriendo.
+                $args[self::PRICE_ORDER_QUERY_VAR] = $orderby === 'price_asc' ? 'ASC' : 'DESC';
+
+                // Base válida para que WP_Query genere un ORDER BY bien formado
+                // que el filtro de abajo sustituye entero.
+                $args['orderby'] = ['date' => 'DESC'] + self::TIE_BREAK_ORDERBY;
+                $args['order']   = 'DESC';
                 break;
             case 'title':
-                $args['orderby'] = 'title';
-                $args['order']   = $order;
+                // El desplegable ofrece «Nombre A–Z» y nunca manda dirección,
+                // así que aquí llegaba el DESC por defecto y el listado salía
+                // Z–A. Sin dirección explícita, alfabético de verdad.
+                // El ID desempata; ver TIE_BREAK_ORDERBY.
+                $titleOrder = strtoupper((string) ($params['order'] ?? 'ASC')) === 'DESC' ? 'DESC' : 'ASC';
+
+                $args['orderby'] = ['title' => $titleOrder] + self::TIE_BREAK_ORDERBY;
+                $args['order']   = $titleOrder;
                 break;
             default:
-                $args['orderby'] = 'date';
+                $args['orderby'] = ['date' => 'DESC'] + self::TIE_BREAK_ORDERBY;
                 $args['order']   = 'DESC';
         }
 
@@ -358,6 +393,77 @@ class PropertySearchService implements ServiceInterface
         $filtered = apply_filters(Hooks::FILTER_PROPERTY_QUERY_ARGS, $args, $params);
 
         return is_array($filtered) ? $filtered : $args;
+    }
+
+    /**
+     * Ordena por el precio que imprime cada ficha, resuelto fila a fila.
+     *
+     * Antes se elegía una única clave de precio para todo el listado a partir
+     * del filtro de gestión. En una lista mixta —o sin filtro, que es el caso
+     * por defecto del widget «Listado de inmuebles»— los arriendos se ordenaban
+     * por `_property_price_sale`, que en ellos vale 0: empataban todos y MySQL
+     * los devolvía en el orden que quisiera. El visitante veía una columna de
+     * precios impresos sin ningún orden.
+     */
+    public function applyPriceOrder(array $clauses, \WP_Query $query): array
+    {
+        $direction = strtoupper((string) $query->get(self::PRICE_ORDER_QUERY_VAR));
+        if ($direction !== 'ASC' && $direction !== 'DESC') {
+            return $clauses;
+        }
+
+        if ($query->get('post_type') !== PropertyPostType::POST_TYPE) {
+            return $clauses;
+        }
+
+        global $wpdb;
+
+        // Si los JOIN ya están puestos, repetirlos deja la consulta con dos
+        // alias iguales y MySQL la rechaza entera («Not unique table/alias»).
+        if (strpos((string) ($clauses['join'] ?? ''), 'homlity_pm_sale') !== false) {
+            return $clauses;
+        }
+
+        // LEFT JOIN a propósito. El `compare => EXISTS` de antes generaba un
+        // INNER JOIN, así que un inmueble sin la clave de precio —una carga
+        // manual, una integración antigua— desaparecía del listado al ordenar
+        // por precio en lugar de quedarse al final.
+        $clauses['join'] .= " LEFT JOIN {$wpdb->postmeta} AS homlity_pm_sale
+            ON {$wpdb->posts}.ID = homlity_pm_sale.post_id
+            AND homlity_pm_sale.meta_key = '_property_price_sale'";
+
+        $clauses['join'] .= " LEFT JOIN {$wpdb->postmeta} AS homlity_pm_rent
+            ON {$wpdb->posts}.ID = homlity_pm_rent.post_id
+            AND homlity_pm_rent.meta_key = '_property_price_rent'";
+
+        // Mismo criterio que la tarjeta (templates/parts/property-card.php):
+        // se muestra el precio de venta y, si no lo hay, el de arriendo.
+        // Ordenar por otro número dejaría los precios impresos descolocados,
+        // que es justo el fallo que esto arregla.
+        //
+        // Va agregado con MAX() porque la consulta agrupa por ID: bajo
+        // ONLY_FULL_GROUP_BY —activo por defecto desde MySQL 5.7— un ORDER BY
+        // sobre una columna sin agregar tumba la consulta entera.
+        $sale  = "CAST(MAX(homlity_pm_sale.meta_value) AS DECIMAL(20,2))";
+        $rent  = "CAST(MAX(homlity_pm_rent.meta_value) AS DECIMAL(20,2))";
+        $price = "IF(COALESCE({$sale}, 0) > 0, {$sale}, COALESCE({$rent}, 0))";
+
+        // El ID desempata. Sin un criterio estable, dos inmuebles al mismo
+        // precio pueden salir en distinto orden en cada página y el visitante
+        // ve fichas repetidas o se salta otras al pasar de página.
+        // Se sustituye el ORDER BY, no se le añade nada: lo que WP_Query haya
+        // generado es la base neutra que se pidió en buildQueryArgs().
+        $clauses['orderby'] = "{$price} {$direction}, {$wpdb->posts}.ID DESC";
+
+        $groupBy = trim((string) ($clauses['groupby'] ?? ''));
+        $postIdField = "{$wpdb->posts}.ID";
+        if ($groupBy === '') {
+            $clauses['groupby'] = $postIdField;
+        } elseif (stripos($groupBy, $postIdField) === false) {
+            $clauses['groupby'] .= ', ' . $postIdField;
+        }
+
+        return $clauses;
     }
 
     public function applyPriorityKeywordSearch(array $clauses, \WP_Query $query): array

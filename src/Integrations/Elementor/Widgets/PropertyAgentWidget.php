@@ -324,6 +324,29 @@ class PropertyAgentWidget extends BasePropertyWidget
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-agent-block__name, {{WRAPPER}} .property-agent-block__name a' => 'color: {{VALUE}};'],
         ]);
+        // Sin valor por defecto a propósito: si no se toca, no se escribe ninguna
+        // regla y las tarjetas ya guardadas siguen alineadas como estaban.
+        $this->add_responsive_control('name_align', [
+            'label'   => __('Alineación', 'homlity-real-estate'),
+            'type'    => Controls_Manager::CHOOSE,
+            'options' => [
+                'left' => [
+                    'title' => __('Izquierda', 'homlity-real-estate'),
+                    'icon'  => 'eicon-text-align-left',
+                ],
+                'center' => [
+                    'title' => __('Centro', 'homlity-real-estate'),
+                    'icon'  => 'eicon-text-align-center',
+                ],
+                'right' => [
+                    'title' => __('Derecha', 'homlity-real-estate'),
+                    'icon'  => 'eicon-text-align-right',
+                ],
+            ],
+            'selectors' => [
+                '{{WRAPPER}} .property-agent-block__name' => 'text-align: {{VALUE}};',
+            ],
+        ]);
 
         // — Cargo —
         $this->add_control('role_heading', [
@@ -438,12 +461,17 @@ class PropertyAgentWidget extends BasePropertyWidget
                 'auto' => __('Ajustado al contenido', 'homlity-real-estate'),
                 'full' => __('Ancho completo', 'homlity-real-estate'),
             ],
+            'description' => __('«Ancho completo» hace que cada botón ocupe la fila entera, así que quedan uno debajo del otro.', 'homlity-real-estate'),
             'selectors' => [
-                '{{WRAPPER}} .property-agent-block__actions' => 'flex-direction: {{VALUE}};',
+                '{{WRAPPER}} a.property-agent-block__cta' => '{{VALUE}}',
             ],
+            // Se fija el ancho del botón en lugar de poner la fila en columna: así
+            // los controles de «Botón 1»/«Botón 2» pueden sobreescribir uno solo.
+            // El contenedor lleva flex-wrap, de modo que dos botones al 100%
+            // siguen quedando apilados igual que antes.
             'selectors_dictionary' => [
-                'auto' => 'row',
-                'full' => 'column',
+                'auto' => 'flex: 0 1 auto; width: auto;',
+                'full' => 'flex: 1 0 100%; width: 100%;',
             ],
         ]);
         $this->add_group_control(Group_Control_Typography::get_type(), [
@@ -490,8 +518,116 @@ class PropertyAgentWidget extends BasePropertyWidget
             'default'    => ['unit' => 'px', 'size' => 10],
             'selectors'  => ['{{WRAPPER}} .property-agent-block__actions' => 'gap: {{SIZE}}{{UNIT}};'],
         ]);
+        // Acompaña a la alineación de foto y nombre: con los botones ajustados al
+        // contenido, una tarjeta centrada dejaba la fila de botones pegada a la
+        // izquierda.
+        $this->add_responsive_control('actions_align', [
+            'label'   => __('Alineación de los botones', 'homlity-real-estate'),
+            'type'    => Controls_Manager::CHOOSE,
+            'options' => [
+                'flex-start' => [
+                    'title' => __('Izquierda', 'homlity-real-estate'),
+                    'icon'  => 'eicon-text-align-left',
+                ],
+                'center' => [
+                    'title' => __('Centro', 'homlity-real-estate'),
+                    'icon'  => 'eicon-text-align-center',
+                ],
+                'flex-end' => [
+                    'title' => __('Derecha', 'homlity-real-estate'),
+                    'icon'  => 'eicon-text-align-right',
+                ],
+            ],
+            'selectors' => [
+                '{{WRAPPER}} .property-agent-block__actions' => 'justify-content: {{VALUE}};',
+            ],
+        ]);
+
+        // Cada botón por separado. Lo de arriba sigue siendo la base común.
+        $this->register_cta_style_controls('btn1', '1', __('Botón 1', 'homlity-real-estate'));
+        $this->register_cta_style_controls('btn2', '2', __('Botón 2', 'homlity-real-estate'));
 
         $this->end_controls_section();
+    }
+
+    /**
+     * Controles de estilo de un botón concreto.
+     *
+     * El modificador es posicional (--1, --2) porque es lo que se corresponde con
+     * lo que se ve en el editor: «Botón 1» es siempre el primero que aparece,
+     * sea WhatsApp, el perfil o uno propio.
+     *
+     * El selector encadena dos clases a propósito. Así gana por especificidad a
+     * los controles generales de «Botones», que usan una sola, y no hay que
+     * confiar en el orden en que se impriman las reglas.
+     *
+     * Los controles sin valor no escriben ninguna regla: ese botón se queda
+     * entonces con lo que diga la sección general.
+     */
+    private function register_cta_style_controls(string $prefix, string $modifier, string $label): void
+    {
+        $selector = '{{WRAPPER}} a.property-agent-block__cta.property-agent-block__cta--' . $modifier;
+
+        $this->add_control($prefix . '_heading', [
+            'label'     => $label,
+            'type'      => Controls_Manager::HEADING,
+            'separator' => 'before',
+        ]);
+        $this->add_responsive_control($prefix . '_width', [
+            'label'   => __('Ancho', 'homlity-real-estate'),
+            'type'    => Controls_Manager::SELECT,
+            'default' => '',
+            'options' => [
+                ''     => __('El de «Botones»', 'homlity-real-estate'),
+                'auto' => __('Ajustado al contenido', 'homlity-real-estate'),
+                'full' => __('Ancho completo', 'homlity-real-estate'),
+            ],
+            'selectors' => [$selector => '{{VALUE}}'],
+            'selectors_dictionary' => [
+                'auto' => 'flex: 0 1 auto; width: auto;',
+                'full' => 'flex: 1 0 100%; width: 100%;',
+            ],
+        ]);
+        $this->add_group_control(Group_Control_Typography::get_type(), [
+            'name'     => $prefix . '_typography',
+            'selector' => $selector,
+        ]);
+        $this->add_responsive_control($prefix . '_padding', [
+            'label'      => __('Padding', 'homlity-real-estate'),
+            'type'       => Controls_Manager::DIMENSIONS,
+            'size_units' => ['px', 'em'],
+            'selectors'  => [$selector => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
+        ]);
+        $this->add_responsive_control($prefix . '_radius', [
+            'label'      => __('Radio borde', 'homlity-real-estate'),
+            'type'       => Controls_Manager::DIMENSIONS,
+            'size_units' => ['px', '%'],
+            'selectors'  => [$selector => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'],
+        ]);
+        $this->add_control($prefix . '_bg', [
+            'label'     => __('Fondo', 'homlity-real-estate'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [$selector => 'background-color: {{VALUE}};'],
+        ]);
+        $this->add_control($prefix . '_color', [
+            'label'     => __('Color texto', 'homlity-real-estate'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [$selector => 'color: {{VALUE}};'],
+        ]);
+        $this->add_control($prefix . '_bg_hover', [
+            'label'     => __('Fondo (hover)', 'homlity-real-estate'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [$selector . ':hover' => 'background-color: {{VALUE}};'],
+        ]);
+        $this->add_control($prefix . '_color_hover', [
+            'label'     => __('Color texto (hover)', 'homlity-real-estate'),
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [$selector . ':hover' => 'color: {{VALUE}};'],
+        ]);
+        $this->add_group_control(Group_Control_Border::get_type(), [
+            'name'     => $prefix . '_border',
+            'selector' => $selector,
+        ]);
     }
 
     protected function render(): void

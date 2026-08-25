@@ -66,7 +66,7 @@ if (
 ) {
     // Keep the queried property as the global post so dynamic modules and
     // shortcodes resolve its data, while rendering the template page content.
-    echo apply_filters('the_content', $homlityBuilderTemplate->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+    echo apply_filters('the_content', $homlityBuilderTemplate->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- 'the_content' es un filtro del núcleo; aplicarlo es justo lo que se quiere.
     if (!$isCanvasLayout) {
         get_footer();
     }

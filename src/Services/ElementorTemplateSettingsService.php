@@ -38,7 +38,13 @@ class ElementorTemplateSettingsService implements ServiceInterface
 
     public function register(): void
     {
-        add_action('admin_menu', [$this, 'registerMenu']);
+        // Prioridad 30, como las subpáginas de Divi y WPBakery: el menú padre
+        // 'homlity-real-estate-settings' lo crea AdminMenuService en prioridad 10 y
+        // se instancia después que este servicio. Registrando el submenú antes que
+        // el padre, get_plugin_page_hookname() lo guarda como 'admin_page_…' y en la
+        // petición real lo busca como 'homlity_page_…': no coinciden y WordPress
+        // responde «no tienes permisos para acceder a esta página».
+        add_action('admin_menu', [$this, 'registerMenu'], 30);
         add_action('admin_init', [$this, 'handleSave']);
     }
 
@@ -315,8 +321,8 @@ class ElementorTemplateSettingsService implements ServiceInterface
                             wp_dropdown_pages([
                                 'id' => 'agent_profile_page_id',
                                 'name' => 'agent_profile_page_id',
-                                'selected' => $agentProfileId,
-                                'show_option_none' => __('— Usar plantilla del plugin —', 'homlity-real-estate'),
+                                'selected' => (int) $agentProfileId,
+                                'show_option_none' => esc_html__('— Usar plantilla del plugin —', 'homlity-real-estate'),
                                 'option_none_value' => '0',
                                 'post_status' => ['publish', 'draft', 'pending'],
                             ]);
@@ -340,8 +346,8 @@ class ElementorTemplateSettingsService implements ServiceInterface
                             wp_dropdown_pages([
                                 'id' => 'sheet_page_id',
                                 'name' => 'sheet_page_id',
-                                'selected' => $sheetPageId,
-                                'show_option_none' => __('— Usar plantilla del plugin —', 'homlity-real-estate'),
+                                'selected' => (int) $sheetPageId,
+                                'show_option_none' => esc_html__('— Usar plantilla del plugin —', 'homlity-real-estate'),
                                 'option_none_value' => '0',
                                 'post_status' => ['publish', 'draft', 'pending'],
                             ]);

@@ -894,7 +894,7 @@
             hidden('property_nearby', selectedNearby.join(','))
           )
         ),
-        h('section', { className: 'hpe-card' },
+        h('section', { className: 'hpe-card hpe-span-3 hpe-card--location-full' },
           h('h2', null, 'Ubicación'),
           h(Field, { label: 'Dirección', required: true, error: hasError('address') ? 'Este campo es obligatorio.' : '' }, h(Input, { name: 'property_address', required: true, value: address, onChange: setAddress })),
           h(Field, { label: 'País', required: true, error: hasError('country') ? 'Este campo es obligatorio.' : '' }, h(Select, { name: 'property_country', value: country, required: true, onChange: setCountry, options: opts.countries || [] })),

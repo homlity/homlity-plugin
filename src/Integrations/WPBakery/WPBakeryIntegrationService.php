@@ -1,4 +1,10 @@
 <?php
+// Los superglobales que se leen en este archivo sirven sólo para saber en qué
+// contexto del maquetador se está pintando (vista previa, pestaña activa,
+// petición AJAX del editor). No procesan formularios: van saneados con
+// absint()/sanitize_key() y toda rama que cambia estado exige current_user_can(),
+// así que un nonce no aplica.
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
 /**
  * WPBakery integration.
  *
@@ -49,8 +55,6 @@ if (!defined('ABSPATH')) {
 
 class WPBakeryIntegrationService implements ServiceInterface
 {
-    private const CATEGORY = 'Homlity Plugin';
-
     private bool $mapped = false;
     private bool $listingMapped = false;
     /** @var array<string,string> */
@@ -563,6 +567,7 @@ class WPBakeryIntegrationService implements ServiceInterface
                 do_action('homlity_wpbakery_widget_registration_error', $widgetClass, $exception);
 
                 if (defined('WP_DEBUG') && WP_DEBUG) {
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Diagnóstico sólo con WP_DEBUG; en producción no se ejecuta.
                     error_log(sprintf(
                         'Homlity WPBakery: no se pudo registrar %s: %s',
                         $widgetClass,
@@ -575,12 +580,24 @@ class WPBakeryIntegrationService implements ServiceInterface
         $this->mapped = true;
     }
 
+    /**
+     * Nombre de la categoría bajo la que WPBakery agrupa los elementos Homlity.
+     *
+     * Va como literal y no como constante porque el extractor de traducciones
+     * sólo lee cadenas literales: con __(self::CATEGORY) la cadena nunca
+     * llegaba a los .po y la categoría se quedaba siempre en español.
+     */
+    private function categoryLabel(): string
+    {
+        return __('Homlity Plugin', 'homlity-real-estate');
+    }
+
     private function mapListing(): void
     {
         vc_map([
             'name'        => __('Listado de inmuebles', 'homlity-real-estate'),
             'base'        => 'homlity_listing',
-            'category'    => __(self::CATEGORY, 'homlity-real-estate'),
+            'category'    => $this->categoryLabel(),
             'icon'        => HOMLITY_PLUGIN_URL . 'icono.png',
             'description' => __('Grilla/mapa de propiedades con filtros y orden.', 'homlity-real-estate'),
             'params'      => $this->listingParams(),
@@ -607,9 +624,10 @@ class WPBakeryIntegrationService implements ServiceInterface
         vc_map([
             'name'        => $widget->get_title(),
             'base'        => $base,
-            'category'    => __(self::CATEGORY, 'homlity-real-estate'),
+            'category'    => $this->categoryLabel(),
             'icon'        => HOMLITY_PLUGIN_URL . 'icono.png',
             'description' => sprintf(
+                /* translators: %s: nombre del widget Homlity que se registra en WPBakery. */
                 __('Elemento Homlity para WPBakery: %s.', 'homlity-real-estate'),
                 $widget->get_title()
             ),
@@ -685,6 +703,10 @@ class WPBakeryIntegrationService implements ServiceInterface
             return;
         }
 
+        // CSS generado por el propio plugin. No puede pasar por esc_html() sin
+        // romper los selectores; wp_strip_all_tags() es lo que impide cerrar la
+        // etiqueta <style> antes de tiempo.
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo '<style type="text/css" id="homlity-wpbakery-runtime-css">'
             . wp_strip_all_tags(implode('', $this->runtimeCss))
             . '</style>';

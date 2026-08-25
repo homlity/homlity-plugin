@@ -11,6 +11,7 @@ use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFeaturesPr
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFeaturesSecondaryWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyFilterWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyGalleryWidget;
+use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyHeroSliderWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyListingWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyMapWidget;
 use Homlity\PluginInmobiliario\Integrations\Elementor\Widgets\PropertyResultsTitleWidget;
@@ -65,9 +66,11 @@ class ElementorIntegrationService implements ServiceInterface
      */
     public function disableActionSchedulerAsyncRunnerForEditor(): void
     {
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Sólo identifica la petición del editor de Elementor; Elementor valida su propio nonce.
         $action = isset($_REQUEST['action'])
             ? sanitize_key(wp_unslash((string) $_REQUEST['action']))
             : '';
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
         if ($action !== 'elementor_ajax' || !class_exists('\\ActionScheduler')) {
             return;
@@ -104,27 +107,36 @@ class ElementorIntegrationService implements ServiceInterface
 
         $this->markMemoryDiagnostic('homlity.elementor.core_revision.disabled', [
             'removed' => (bool) $removed,
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Sólo identifica la petición del editor de Elementor; Elementor valida su propio nonce.
             'post_id' => isset($_REQUEST['editor_post_id'])
                 ? absint($_REQUEST['editor_post_id'])
                 : 0,
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
             'memory'  => memory_get_usage(true),
         ]);
     }
 
     private function isElementorSaveRequest(): bool
     {
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Sólo identifica la petición del editor de Elementor; Elementor valida su propio nonce.
         $action = isset($_REQUEST['action'])
             ? sanitize_key(wp_unslash((string) $_REQUEST['action']))
             : '';
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
         if ($action !== 'elementor_ajax') {
             return false;
         }
 
-        $actions = $_POST['actions'] ?? '';
+        // Elementor comprueba su propio nonce dentro del handler de
+        // elementor_ajax; aquí sólo se mira el payload para decidir si conviene
+        // aliviar las revisiones. El texto va crudo porque se compara con una
+        // expresión regular sobre el JSON tal cual lo manda el editor.
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $actions = wp_unslash($_POST['actions'] ?? '');
         if (is_array($actions)) {
             $actions = wp_json_encode($actions);
         } else {
-            $actions = wp_unslash((string) $actions);
+            $actions = (string) $actions;
         }
 
         return is_string($actions)
@@ -200,6 +212,7 @@ class ElementorIntegrationService implements ServiceInterface
         $widgets = [
             PropertyFilterWidget::class,
             PropertyListingWidget::class,
+            PropertyHeroSliderWidget::class,
             PropertyResultsTitleWidget::class,
             PropertyTitleWidget::class,
             PropertyOperationPriceWidget::class,

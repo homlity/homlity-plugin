@@ -1,4 +1,10 @@
 <?php
+// Los superglobales que se leen en este archivo sirven sólo para saber en qué
+// contexto del maquetador se está pintando (vista previa, pestaña activa,
+// petición AJAX del editor). No procesan formularios: van saneados con
+// absint()/sanitize_key() y toda rama que cambia estado exige current_user_can(),
+// así que un nonce no aplica.
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
 
 declare(strict_types=1);
 
@@ -122,7 +128,7 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
 
         // Divi's server-side partial preview is rendered through admin-ajax,
         // where et_core_is_fb_enabled() intentionally returns false.
-        $action = isset($_REQUEST['action']) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only Divi preview detection.
+        $action = isset($_REQUEST['action'])
             ? sanitize_key(wp_unslash((string) $_REQUEST['action']))
             : '';
 
@@ -241,18 +247,28 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
     private function groupControlFields(string $name, array $control): array
     {
         $group = strtolower((string) ($control['group_type'] ?? ''));
+        // Las etiquetas se traducen aquí, en la propia tabla. Antes se guardaban
+        // como texto plano y se envolvían con esc_html__($label) más abajo: el
+        // extractor de traducciones no lee variables, así que ninguna de estas
+        // cadenas llegaba a los .po.
         $definitions = str_contains($group, 'typography') ? [
-            'font_family' => ['Fuente', 'text'], 'font_size' => ['Tamaño', 'text'],
-            'font_weight' => ['Peso', 'text'], 'text_transform' => ['Transformación', 'text'],
-            'font_style' => ['Estilo', 'text'], 'text_decoration' => ['Decoración', 'text'],
-            'line_height' => ['Altura de línea', 'text'], 'letter_spacing' => ['Espaciado', 'text'],
+            'font_family' => [esc_html__('Fuente', 'homlity-real-estate'), 'text'],
+            'font_size' => [esc_html__('Tamaño', 'homlity-real-estate'), 'text'],
+            'font_weight' => [esc_html__('Peso', 'homlity-real-estate'), 'text'],
+            'text_transform' => [esc_html__('Transformación', 'homlity-real-estate'), 'text'],
+            'font_style' => [esc_html__('Estilo', 'homlity-real-estate'), 'text'],
+            'text_decoration' => [esc_html__('Decoración', 'homlity-real-estate'), 'text'],
+            'line_height' => [esc_html__('Altura de línea', 'homlity-real-estate'), 'text'],
+            'letter_spacing' => [esc_html__('Espaciado', 'homlity-real-estate'), 'text'],
         ] : (str_contains($group, 'border') ? [
-            'border_type' => ['Tipo de borde', 'text'], 'border_width' => ['Ancho de borde', 'text'],
-            'border_color' => ['Color de borde', 'color-alpha'], 'border_radius' => ['Radio', 'text'],
+            'border_type' => [esc_html__('Tipo de borde', 'homlity-real-estate'), 'text'],
+            'border_width' => [esc_html__('Ancho de borde', 'homlity-real-estate'), 'text'],
+            'border_color' => [esc_html__('Color de borde', 'homlity-real-estate'), 'color-alpha'],
+            'border_radius' => [esc_html__('Radio', 'homlity-real-estate'), 'text'],
         ] : (str_contains($group, 'background') ? [
-            'background_color' => ['Color de fondo', 'color-alpha'],
+            'background_color' => [esc_html__('Color de fondo', 'homlity-real-estate'), 'color-alpha'],
         ] : (str_contains($group, 'shadow') ? [
-            'shadow' => ['Sombra CSS', 'text'],
+            'shadow' => [esc_html__('Sombra CSS', 'homlity-real-estate'), 'text'],
         ] : [])));
 
         $fields = [];
@@ -260,7 +276,7 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
         $toggle = sanitize_key((string) ($control['section'] ?? 'main_content')) ?: 'main_content';
         foreach ($definitions as $suffix => [$label, $type]) {
             $fields[$name . '_' . $suffix] = [
-                'label' => esc_html__($label, 'homlity-real-estate'),
+                'label' => $label,
                 'type' => $type,
                 'default' => '',
                 'tab_slug' => $tab,

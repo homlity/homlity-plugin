@@ -107,11 +107,17 @@ class SocialShareMessageService
 
         $summaryParts = array_filter([
             $title,
+            /* translators: %s: código del inmueble. */
             sprintf(__('código: %s', 'homlity-real-estate'), $code),
+            /* translators: %s: número de alcobas. */
             $bedrooms !== '' ? sprintf(__('alcobas: %s', 'homlity-real-estate'), $bedrooms) : '',
+            /* translators: %s: número de baños. */
             $bathrooms !== '' ? sprintf(__('baños: %s', 'homlity-real-estate'), $bathrooms) : '',
+            /* translators: %s: número de parqueaderos. */
             $parking !== '' ? sprintf(__('parqueaderos: %s', 'homlity-real-estate'), $parking) : '',
+            /* translators: %s: área construida en metros cuadrados. */
             $area !== '' ? sprintf(__('área: %sm2', 'homlity-real-estate'), $area) : '',
+            /* translators: %s: precio ya formateado con su moneda. */
             $price !== '' ? sprintf(__('valor: %s', 'homlity-real-estate'), $price) : '',
         ], static fn(string $value): bool => $value !== '');
 

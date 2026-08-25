@@ -48,7 +48,10 @@ $items = PaginationWindow::items($currentPage, $totalPages);
             <button type="button"
                     class="property-listing__page-btn<?php echo $item === $currentPage ? ' is-active' : ''; ?>"
                     data-page="<?php echo esc_attr($item); ?>"
-                    aria-label="<?php echo esc_attr(sprintf(__('Página %d', 'homlity-real-estate'), $item)); ?>"
+                    aria-label="<?php
+                        /* translators: %d: número de página. */
+                        echo esc_attr(sprintf(__('Página %d', 'homlity-real-estate'), $item));
+                    ?>"
                     <?php echo $item === $currentPage ? 'aria-current="page"' : ''; ?>>
                 <?php echo esc_html($item); ?>
             </button>

@@ -193,7 +193,12 @@ class SimulatorWidget extends Widget_Base
                     <?php echo esc_html((string) $settings['title_text']); ?>
                 </<?php echo esc_attr($tag); ?>>
             <?php endif; ?>
-            <?php echo SimulatorService::renderSimulator($mode); ?>
+            <?php
+            // El simulador devuelve markup propio (custom element + <script> con
+            // JSON ya codificado). wp_kses_post() lo vaciaría.
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo SimulatorService::renderSimulator($mode);
+            ?>
         </div>
         <?php
     }

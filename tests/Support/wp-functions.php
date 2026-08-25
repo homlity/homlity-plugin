@@ -96,6 +96,33 @@ if (!class_exists('WP_Query')) {
         {
             return $this->query_vars[$var] ?? $default;
         }
+
+        /** Posición dentro del bucle, como la de WP_Query. */
+        public int $current_post = -1;
+
+        public function have_posts(): bool
+        {
+            return $this->current_post + 1 < $this->post_count;
+        }
+
+        /**
+         * Avanza el bucle y deja el post actual donde lo buscan get_the_ID() y
+         * compañía, que es lo que leen las plantillas del plugin.
+         */
+        public function the_post(): void
+        {
+            $this->current_post++;
+            $post = $this->posts[$this->current_post] ?? null;
+
+            WpStubs::$currentPostId = is_object($post)
+                ? (int) ($post->ID ?? 0)
+                : (int) $post;
+        }
+
+        public function rewind_posts(): void
+        {
+            $this->current_post = -1;
+        }
     }
 }
 
@@ -252,9 +279,12 @@ if (!class_exists('HomlityTestWpdb')) {
         /** @return list<mixed> */
         public function get_col(string $query, int $x = 0): array
         {
+            // Como get_results()/get_var(): honra las respuestas preparadas en
+            // WpStubs::$sqlResults. Sin esto, una prueba que sólo quiere evitar
+            // una consulta ajena al caso no tenía forma de hacerlo por get_col().
             return array_map(
                 static fn(array $row) => array_values($row)[$x] ?? null,
-                $this->engine->select($query)
+                $this->cannedRows($query) ?? $this->engine->select($query)
             );
         }
     }
@@ -2070,5 +2100,67 @@ if (!function_exists('sanitize_html_class')) {
         $sanitized = (string) preg_replace('/[^A-Za-z0-9_\- ]/', '', $class);
 
         return $sanitized !== '' ? $sanitized : $fallback;
+    }
+}
+
+if (!function_exists('get_the_excerpt')) {
+    function get_the_excerpt(int $postId = 0): string
+    {
+        return WpStubs::$postExcerpts[$postId] ?? '';
+    }
+}
+
+if (!function_exists('wp_trim_words')) {
+    function wp_trim_words(string $text, int $numWords = 55, ?string $more = null): string
+    {
+        $words = preg_split('/\s+/', trim($text)) ?: [];
+        if (count($words) <= $numWords) {
+            return trim($text);
+        }
+
+        return implode(' ', array_slice($words, 0, $numWords)) . ($more ?? '…');
+    }
+}
+
+if (!function_exists('wp_unique_id')) {
+    function wp_unique_id(string $prefix = ''): string
+    {
+        static $id = 0;
+
+        return $prefix . (string) ++$id;
+    }
+}
+
+if (!function_exists('wp_enqueue_style')) {
+    function wp_enqueue_style(...$args): void
+    {
+    }
+}
+
+if (!function_exists('wp_reset_postdata')) {
+    function wp_reset_postdata(): void
+    {
+        WpStubs::$currentPostId = 0;
+    }
+}
+
+if (!function_exists('get_post_class')) {
+    /**
+     * @param string|array<int,string> $class
+     * @return array<int,string>
+     */
+    function get_post_class($class = '', int $postId = 0): array
+    {
+        $classes = is_array($class) ? $class : preg_split('/\s+/', trim((string) $class));
+
+        return array_values(array_filter((array) $classes));
+    }
+}
+
+if (!function_exists('post_class')) {
+    /** @param string|array<int,string> $class */
+    function post_class($class = '', int $postId = 0): void
+    {
+        echo 'class="' . esc_attr(implode(' ', get_post_class($class, $postId))) . '"';
     }
 }

@@ -33,6 +33,7 @@ final class WP_Error
 
 function __(string $value): string { return $value; }
 function apply_filters(string $name, $value, ...$args) { return $value; }
+function wp_unslash($value) { return is_string($value) ? stripslashes($value) : $value; }
 function sanitize_key(string $value): string { return strtolower(preg_replace('/[^a-zA-Z0-9_-]/', '', $value) ?? ''); }
 function sanitize_text_field(string $value): string { return trim(strip_tags($value)); }
 function esc_url_raw(string $value): string { return filter_var($value, FILTER_VALIDATE_URL) ? $value : ''; }

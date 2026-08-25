@@ -296,7 +296,7 @@ class SeoIntegrationService implements ServiceInterface
     private function requestedRelativePath(): string
     {
         $requestUri = isset($_SERVER['REQUEST_URI'])
-            ? wp_unslash((string) $_SERVER['REQUEST_URI'])
+            ? esc_url_raw(wp_unslash((string) $_SERVER['REQUEST_URI']))
             : '';
         $requestPath = (string) wp_parse_url($requestUri, PHP_URL_PATH);
         $homePath = (string) wp_parse_url(home_url('/'), PHP_URL_PATH);

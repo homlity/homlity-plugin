@@ -20,3 +20,6 @@ npm-debug.log*
 
 # Sistema
 .DS_Store
+
+# Documentación empaquetada (se regenera; Plugin Check rechaza los .zip)
+docs.zip

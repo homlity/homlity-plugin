@@ -38,7 +38,7 @@ class AdminMenuService implements ServiceInterface
             $slugs
         ));
 
-        echo '<style>' . $selectors . '{width:20px!important;height:20px!important;object-fit:contain;}</style>';
+        echo '<style>' . esc_html($selectors) . '{width:20px!important;height:20px!important;object-fit:contain;}</style>';
     }
 
     public function registerMenus(): void

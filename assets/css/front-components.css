@@ -1570,3 +1570,38 @@
     padding: 16px;
   }
 }
+
+/* Descripción del inmueble.
+   ------------------------------------------------------------------
+   El texto llega del editor con su formato: negritas, cursivas, listas,
+   títulos. El widget ya no lo pisa con su tipografía, pero algunos temas
+   quitan de raíz los marcadores de lista o el peso de <strong>, y para eso
+   no hay control en el widget. Esto sólo devuelve el comportamiento por
+   defecto del navegador, y sólo dentro de la descripción. */
+.property-content-widget strong,
+.property-content-widget b {
+    font-weight: bolder;
+}
+
+.property-content-widget em,
+.property-content-widget i {
+    font-style: italic;
+}
+
+.property-content-widget ul,
+.property-content-widget ol {
+    margin: 0 0 1em;
+    padding-left: 1.5em;
+}
+
+.property-content-widget ul {
+    list-style: disc outside;
+}
+
+.property-content-widget ol {
+    list-style: decimal outside;
+}
+
+.property-content-widget li {
+    list-style: inherit;
+}

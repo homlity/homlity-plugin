@@ -1,4 +1,10 @@
 <?php
+// Los superglobales que se leen en este archivo sirven sólo para saber en qué
+// contexto del maquetador se está pintando (vista previa, pestaña activa,
+// petición AJAX del editor). No procesan formularios: van saneados con
+// absint()/sanitize_key() y toda rama que cambia estado exige current_user_can(),
+// así que un nonce no aplica.
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
 /**
  * Base widget helpers.
  */

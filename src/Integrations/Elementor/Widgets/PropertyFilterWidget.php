@@ -105,6 +105,14 @@ class PropertyFilterWidget extends Widget_Base
             ]);
         }
 
+        $this->add_control('ignore_default_location', [
+            'label' => __('Ignorar ubicación por defecto', 'homlity-real-estate'),
+            'type' => Controls_Manager::SWITCHER,
+            'default' => '',
+            'separator' => 'before',
+            'description' => __('En Ajustes → Ubicación base puedes hacer que el buscador aparezca con tu ciudad o barrio ya elegidos. Actívalo aquí si este buscador en concreto debe empezar vacío.', 'homlity-real-estate'),
+        ]);
+
         $this->add_control('multiple_operation', [
             'label' => __('Gestión múltiple', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,

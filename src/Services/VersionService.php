@@ -59,6 +59,10 @@ class VersionService implements ServiceInterface
         $totalUpdated = 0;
 
         do {
+            // Migración por lotes que corre una sola vez al actualizar el plugin.
+            // Es una escritura masiva sobre postmeta: no existe API de WordPress
+            // equivalente y no hay nada que cachear.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $affected = $wpdb->query($wpdb->prepare(
                 "UPDATE {$wpdb->postmeta}
                  SET meta_value = REPLACE(meta_value, %s, %s)

@@ -92,8 +92,9 @@ body.homlity-react-editor-active .postbox[class*="rank-math"] {
 }
 
 .hpe-card-stack {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   gap: 16px;
   min-width: 0;
 }
@@ -238,6 +239,7 @@ body.homlity-react-editor-active .postbox[class*="rank-math"] {
 @media (max-width: 782px) {
   #homlity-property-editor-react-root { margin-right: 10px; }
   .hpe-grid { grid-template-columns: 1fr; }
+  .hpe-card-stack { grid-template-columns: 1fr; }
   .hpe-span-2 { grid-column: auto; }
   .hpe-span-3 { grid-column: auto; }
   .hpe-prices { grid-template-columns: 1fr; }
@@ -607,6 +609,7 @@ body.homlity-react-editor-active #wpbody-content {
 }
 
 .hpe-grid > section.hpe-card--overview,
+.hpe-grid > section.hpe-card--location-full,
 .hpe-grid > section.hpe-card--features-full,
 .hpe-grid > section.hpe-card--media-full {
   grid-column: 1 / -1;
@@ -616,10 +619,9 @@ body.homlity-react-editor-active #wpbody-content {
   width: auto;
 }
 
-/* Lateral cards use one-column inner grids */
-.hpe-grid > section:nth-of-type(2) .hpe-prices,
-.hpe-grid > section:nth-of-type(3) .hpe-prices {
-  grid-template-columns: 1fr;
+/* La pila de Etiquetas y Lugares cercanos ocupa la fila entera */
+.hpe-grid > .hpe-card-stack {
+  grid-column: 1 / -1;
 }
 
 @media (max-width: 1500px) {

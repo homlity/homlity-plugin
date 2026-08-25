@@ -185,7 +185,7 @@ final class ErrorEventFactory
                 'multisite' => is_multisite(),
             ],
             'request' => [
-                'method' => strtoupper(sanitize_key((string) ($_SERVER['REQUEST_METHOD'] ?? 'CLI'))),
+                'method' => strtoupper(sanitize_key(wp_unslash((string) ($_SERVER['REQUEST_METHOD'] ?? 'CLI')))),
                 'path' => $this->sanitizer->requestPath((string) ($_SERVER['REQUEST_URI'] ?? '/')),
                 'request_id' => $this->requestId(),
             ],
@@ -255,14 +255,18 @@ final class ErrorEventFactory
 
     private function requestId(): string
     {
-        $candidate = (string) ($_SERVER['HTTP_X_REQUEST_ID'] ?? '');
+        $candidate = sanitize_text_field(wp_unslash((string) ($_SERVER['HTTP_X_REQUEST_ID'] ?? '')));
         return preg_match('/^[A-Za-z0-9._-]{8,128}$/', $candidate) ? $candidate : '';
     }
 
     private function isClearlyInvalidAutomatedRequest(): bool
     {
-        $uri = strtolower((string) ($_SERVER['REQUEST_URI'] ?? ''));
-        $agent = strtolower((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''));
+        // La URI va sin sanitizar a propósito: este método busca justamente los
+        // bytes que un sanitizador borraría (%2e%2e, ../, NUL). Limpiarla antes
+        // de comparar dejaría pasar el escaneo que se quiere detectar.
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $uri = strtolower(wp_unslash((string) ($_SERVER['REQUEST_URI'] ?? '')));
+        $agent = strtolower(sanitize_text_field(wp_unslash((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''))));
         $invalidPaths = ['/.env', '/.git/', '/wp-config.php', '/vendor/phpunit/', '../', '%2e%2e', "\0"];
         $scannerAgents = ['sqlmap', 'nikto', 'masscan', 'zgrab', 'nuclei'];
         foreach ($invalidPaths as $needle) {

@@ -35,6 +35,10 @@ class PropertyContentWidget extends BasePropertyWidget
     protected function register_controls(): void
     {
         $contentSelector = '{{WRAPPER}} .property-content-widget';
+        // Sólo lo usa el control de color: `color` se hereda, pero los enlaces
+        // traen el suyo del tema, así que hay que nombrarlos. El resto de
+        // etiquetas siguen en la lista para no cambiarle el color del texto a
+        // los sitios que ya lo tenían configurado.
         $contentTextSelector = '{{WRAPPER}} .property-content-widget, {{WRAPPER}} .property-content-widget p, {{WRAPPER}} .property-content-widget li, {{WRAPPER}} .property-content-widget span, {{WRAPPER}} .property-content-widget a, {{WRAPPER}} .property-content-widget strong, {{WRAPPER}} .property-content-widget em, {{WRAPPER}} .property-content-widget h1, {{WRAPPER}} .property-content-widget h2, {{WRAPPER}} .property-content-widget h3, {{WRAPPER}} .property-content-widget h4, {{WRAPPER}} .property-content-widget h5, {{WRAPPER}} .property-content-widget h6, {{WRAPPER}} .property-content-widget blockquote';
 
         $this->start_controls_section('content', ['label' => __('Contenido', 'homlity-real-estate')]);
@@ -109,25 +113,31 @@ class PropertyContentWidget extends BasePropertyWidget
             ],
             'selectors' => [$contentSelector => 'text-align: {{VALUE}};'],
         ]);
+        // La tipografía va sólo al contenedor y se hereda. Cuando se escribía
+        // encima de cada etiqueta —strong, em, h1..h6, a— el peso, la cursiva
+        // y el tamaño elegidos aquí pisaban el formato que el redactor le puso
+        // al texto: la negrita salía normal, la cursiva recta y los títulos
+        // con el cuerpo de un párrafo. Lo mismo vale para la sombra y el
+        // trazo, que también se heredan.
         $this->add_group_control(Group_Control_Typography::get_type(), [
             'name' => 'content_typography',
-            'selector' => $contentTextSelector,
+            'selector' => $contentSelector,
         ]);
         $this->add_group_control(Group_Control_Text_Shadow::get_type(), [
             'name' => 'content_text_shadow',
-            'selector' => $contentTextSelector,
+            'selector' => $contentSelector,
         ]);
         $this->add_control('content_stroke_width', [
             'label' => __('Trazo ancho (px)', 'homlity-real-estate'),
             'type' => Controls_Manager::SLIDER,
             'size_units' => ['px'],
             'range' => ['px' => ['min' => 0, 'max' => 4]],
-            'selectors' => [$contentTextSelector => '-webkit-text-stroke-width: {{SIZE}}{{UNIT}};'],
+            'selectors' => [$contentSelector => '-webkit-text-stroke-width: {{SIZE}}{{UNIT}};'],
         ]);
         $this->add_control('content_stroke_color', [
             'label' => __('Trazo color', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
-            'selectors' => [$contentTextSelector => '-webkit-text-stroke-color: {{VALUE}};'],
+            'selectors' => [$contentSelector => '-webkit-text-stroke-color: {{VALUE}};'],
         ]);
         $this->start_controls_tabs('content_states');
         $this->start_controls_tab('content_normal', ['label' => __('Normal', 'homlity-real-estate')]);
@@ -146,7 +156,7 @@ class PropertyContentWidget extends BasePropertyWidget
         $this->add_control('content_stroke_color_hover', [
             'label' => __('Trazo color (hover)', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
-            'selectors' => [$contentSelector . ':hover, ' . $contentSelector . ':hover p, ' . $contentSelector . ':hover li, ' . $contentSelector . ':hover span, ' . $contentSelector . ':hover a, ' . $contentSelector . ':hover strong, ' . $contentSelector . ':hover em, ' . $contentSelector . ':hover h1, ' . $contentSelector . ':hover h2, ' . $contentSelector . ':hover h3, ' . $contentSelector . ':hover h4, ' . $contentSelector . ':hover h5, ' . $contentSelector . ':hover h6, ' . $contentSelector . ':hover blockquote' => '-webkit-text-stroke-color: {{VALUE}};'],
+            'selectors' => [$contentSelector . ':hover' => '-webkit-text-stroke-color: {{VALUE}};'],
         ]);
         $this->end_controls_tab();
         $this->end_controls_tabs();

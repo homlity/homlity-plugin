@@ -3,7 +3,11 @@
  * Tiny early bootstrap: only observes the final PHP error at shutdown.
  */
 
-if (!defined('ABSPATH') || defined('HOMLITY_ERROR_FATAL_HANDLER_REGISTERED')) {
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+if (defined('HOMLITY_ERROR_FATAL_HANDLER_REGISTERED')) {
     return;
 }
 

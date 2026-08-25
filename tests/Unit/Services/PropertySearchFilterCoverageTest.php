@@ -65,6 +65,16 @@ final class PropertySearchFilterCoverageTest extends TestCase
     /** Filters handled outside buildQueryArgs' plain parameter list. */
     private const LOCALITY_FILTERS = ['locality', 'preset_locality'];
 
+    /**
+     * Form fields that are not filters and must stay unknown to the search.
+     *
+     * `homlity_search` marks a submitted form so the base location configured
+     * in the settings is not re-applied over a field the visitor cleared — an
+     * unselected multiple select sends nothing at all. It never narrows the
+     * catalogue, so teaching it to PropertySearchService would be dead code.
+     */
+    private const NON_FILTER_FIELDS = ['homlity_search'];
+
     private function source(string $relativePath): string
     {
         $path = dirname(__DIR__, 3) . '/' . $relativePath;
@@ -261,7 +271,10 @@ final class PropertySearchFilterCoverageTest extends TestCase
 
         $service = $this->source('src/Services/PropertySearchService.php');
 
-        foreach (array_unique($matches[1]) as $field) {
+        $fields = array_diff(array_unique($matches[1]), self::NON_FILTER_FIELDS);
+        self::assertNotEmpty($fields, 'El formulario dejó de enviar campos de filtro.');
+
+        foreach ($fields as $field) {
             self::assertStringContainsString(
                 "'" . $field . "'",
                 $service,

@@ -1,4 +1,8 @@
 <?php
+// Los nombres de hook de este archivo salen de constantes de Homlity\Developer\Support\Hooks
+// (o los recibe el método como argumento ya prefijado). Todas valen 'homlity/...',
+// pero el sniff sólo sabe leer literales y las marca como dinámicas.
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 
 declare(strict_types=1);
 

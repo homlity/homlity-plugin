@@ -321,7 +321,7 @@ class TemplateService implements ServiceInterface
             return;
         }
 
-        $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+        $method = strtoupper(sanitize_key(wp_unslash((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'))));
         if ($method !== 'GET' && $method !== 'HEAD') {
             return;
         }
@@ -626,15 +626,25 @@ class TemplateService implements ServiceInterface
             }
 
             if ($order === 'price_desc' || $order === 'price_asc') {
-                $query->set('meta_key', '_property_price_sale');
-                $query->set('orderby', 'meta_value_num');
-                $query->set('order', $order === 'price_asc' ? 'ASC' : 'DESC');
+                // El archivo tenía el mismo fallo que el listado: ordenaba
+                // todo por el precio de venta, y los arriendos lo tienen en 0.
+                // PropertySearchService::applyPriceOrder() resuelve el precio
+                // de cada inmueble en SQL.
+                $query->set(PropertySearchService::PRICE_ORDER_QUERY_VAR, $order === 'price_asc' ? 'ASC' : 'DESC');
+                // Base neutra: el filtro sustituye el ORDER BY entero.
+                $query->set('orderby', ['date' => 'DESC', 'ID' => 'DESC']);
+                $query->set('order', 'DESC');
             } elseif ($order === 'modified_desc' || $order === 'modified_asc') {
-                $query->set('orderby', 'modified');
-                $query->set('order', $order === 'modified_asc' ? 'ASC' : 'DESC');
+                $direction = $order === 'modified_asc' ? 'ASC' : 'DESC';
+                // El ID desempata: la sincronización toca los inmuebles por
+                // lotes y decenas comparten el mismo segundo, así que sin esto
+                // el orden dentro de cada lote lo decide MySQL.
+                $query->set('orderby', ['modified' => $direction, 'ID' => 'DESC']);
+                $query->set('order', $direction);
             } else {
-                $query->set('orderby', 'date');
-                $query->set('order', $order === 'created_asc' ? 'ASC' : 'DESC');
+                $direction = $order === 'created_asc' ? 'ASC' : 'DESC';
+                $query->set('orderby', ['date' => $direction, 'ID' => 'DESC']);
+                $query->set('order', $direction);
             }
         }
     }

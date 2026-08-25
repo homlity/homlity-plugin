@@ -17,39 +17,39 @@ if (!defined('ABSPATH')) {
 
 get_header();
 
-$sheetPropertyId = TechnicalSheetService::currentPropertyId();
+$homlitySheetPropertyId = TechnicalSheetService::currentPropertyId();
 
-if ($sheetPropertyId <= 0) {
+if ($homlitySheetPropertyId <= 0) {
     echo '<main class="homlity-tech-sheet"><p>' . esc_html__('Inmueble no encontrado.', 'homlity-real-estate') . '</p></main>';
     get_footer();
     return;
 }
 
-$sheetBuilderPageId = TechnicalSheetService::pageId();
-$sheetRendered = false;
+$homlitySheetBuilderPageId = TechnicalSheetService::pageId();
+$homlitySheetRendered = false;
 
 // Builder page configured but the request did not resolve to it (stale rewrite
 // rules, or a theme template override). Render its content inline so the
 // configured layout is still honoured.
-if ($sheetBuilderPageId > 0 && class_exists('\Elementor\Plugin')) {
-    $sheetContent = \Elementor\Plugin::instance()->frontend->get_builder_content_for_display($sheetBuilderPageId, true);
-    if (is_string($sheetContent) && trim($sheetContent) !== '') {
-        echo $sheetContent; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        $sheetRendered = true;
+if ($homlitySheetBuilderPageId > 0 && class_exists('\Elementor\Plugin')) {
+    $homlitySheetContent = \Elementor\Plugin::instance()->frontend->get_builder_content_for_display($homlitySheetBuilderPageId, true);
+    if (is_string($homlitySheetContent) && trim($homlitySheetContent) !== '') {
+        echo $homlitySheetContent; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        $homlitySheetRendered = true;
     }
 }
 
-if (!$sheetRendered && $sheetBuilderPageId > 0 && get_post_meta($sheetBuilderPageId, '_homlity_seeded_builder', true) !== '') {
-    $sheetBuilderPage = get_post($sheetBuilderPageId);
-    if ($sheetBuilderPage instanceof \WP_Post) {
-        echo apply_filters('the_content', $sheetBuilderPage->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        $sheetRendered = true;
+if (!$homlitySheetRendered && $homlitySheetBuilderPageId > 0 && get_post_meta($homlitySheetBuilderPageId, '_homlity_seeded_builder', true) !== '') {
+    $homlitySheetBuilderPage = get_post($homlitySheetBuilderPageId);
+    if ($homlitySheetBuilderPage instanceof \WP_Post) {
+        echo apply_filters('the_content', $homlitySheetBuilderPage->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- 'the_content' es un filtro del núcleo; aplicarlo es justo lo que se quiere.
+        $homlitySheetRendered = true;
     }
 }
 
-if (!$sheetRendered) {
+if (!$homlitySheetRendered) {
     TemplateService::includeComponent('property-technical-sheet.php', [
-        'post_id' => $sheetPropertyId,
+        'post_id' => $homlitySheetPropertyId,
     ]);
 }
 

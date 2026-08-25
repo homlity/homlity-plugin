@@ -402,7 +402,7 @@ class PropertyUnavailableService implements ServiceInterface
         }
         setup_postdata($post);
         get_header();
-        echo apply_filters('the_content', $post->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo apply_filters('the_content', $post->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- 'the_content' es un filtro del núcleo; aplicarlo es justo lo que se quiere.
         get_footer();
         wp_reset_postdata();
         $post = $previousPost;

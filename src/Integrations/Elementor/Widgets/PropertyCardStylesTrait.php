@@ -17,9 +17,9 @@ if (!defined('ABSPATH')) {
  */
 trait PropertyCardStylesTrait
 {
-    protected function registerCardContentControls(): void
+    protected function registerCardContentControls(array $sectionArgs = []): void
     {
-        $this->start_controls_section('card_content', ['label' => __('Contenido de la tarjeta', 'homlity-real-estate')]);
+        $this->start_controls_section('card_content', array_merge(['label' => __('Contenido de la tarjeta', 'homlity-real-estate')], $sectionArgs));
 
         $this->add_control('card_media_mode', [
             'label' => __('Galería de fotos', 'homlity-real-estate'),
@@ -163,14 +163,14 @@ trait PropertyCardStylesTrait
 
         $this->end_controls_section();
 
-        $this->registerCardWhatsappContentControls();
+        $this->registerCardWhatsappContentControls($sectionArgs);
     }
 
-    private function registerCardWhatsappContentControls(): void
+    private function registerCardWhatsappContentControls(array $sectionArgs = []): void
     {
-        $this->start_controls_section('card_whatsapp_content', [
+        $this->start_controls_section('card_whatsapp_content', array_merge([
             'label' => __('Botón WhatsApp', 'homlity-real-estate'),
-        ]);
+        ], $sectionArgs));
 
         $this->add_control('card_show_whatsapp', [
             'label'        => __('Mostrar botón de WhatsApp', 'homlity-real-estate'),
@@ -222,13 +222,13 @@ trait PropertyCardStylesTrait
         $this->end_controls_section();
     }
 
-    protected function registerCardStyleControls(): void
+    protected function registerCardStyleControls(array $sectionArgs = []): void
     {
         // ── Tarjeta ───────────────────────────────────────────────────────────
-        $this->start_controls_section('style_card', [
+        $this->start_controls_section('style_card', array_merge([
             'label' => __('Tarjeta', 'homlity-real-estate'),
             'tab'   => Controls_Manager::TAB_STYLE,
-        ]);
+        ], $sectionArgs));
 
         $this->add_control('card_bg_color', [
             'label'     => __('Fondo', 'homlity-real-estate'),
@@ -287,10 +287,10 @@ trait PropertyCardStylesTrait
         $this->end_controls_section();
 
         // ── Imagen ────────────────────────────────────────────────────────────
-        $this->start_controls_section('style_card_image', [
+        $this->start_controls_section('style_card_image', array_merge([
             'label' => __('Imagen', 'homlity-real-estate'),
             'tab'   => Controls_Manager::TAB_STYLE,
-        ]);
+        ], $sectionArgs));
 
         $this->add_responsive_control('card_image_height', [
             'label'      => __('Altura', 'homlity-real-estate'),
@@ -329,10 +329,10 @@ trait PropertyCardStylesTrait
         $this->end_controls_section();
 
         // ── Título y Texto ────────────────────────────────────────────────────
-        $this->start_controls_section('style_card_text', [
+        $this->start_controls_section('style_card_text', array_merge([
             'label' => __('Título y Texto', 'homlity-real-estate'),
             'tab'   => Controls_Manager::TAB_STYLE,
-        ]);
+        ], $sectionArgs));
 
         $this->add_group_control(Group_Control_Typography::get_type(), [
             'name'     => 'card_title_typography',
@@ -427,10 +427,10 @@ trait PropertyCardStylesTrait
         $this->end_controls_section();
 
         // ── Precio y Características ──────────────────────────────────────────
-        $this->start_controls_section('style_card_meta', [
+        $this->start_controls_section('style_card_meta', array_merge([
             'label' => __('Precio y Características', 'homlity-real-estate'),
             'tab'   => Controls_Manager::TAB_STYLE,
-        ]);
+        ], $sectionArgs));
 
         $this->add_group_control(Group_Control_Typography::get_type(), [
             'name'     => 'card_price_typography',
@@ -550,10 +550,10 @@ trait PropertyCardStylesTrait
 
         $this->end_controls_section();
 
-        $this->start_controls_section('style_card_badges', [
+        $this->start_controls_section('style_card_badges', array_merge([
             'label' => __('Badges', 'homlity-real-estate'),
             'tab'   => Controls_Manager::TAB_STYLE,
-        ]);
+        ], $sectionArgs));
 
         $this->add_control('card_badges_featured_heading', [
             'label' => __('Badge Destacado', 'homlity-real-estate'),
@@ -655,10 +655,10 @@ trait PropertyCardStylesTrait
         $this->end_controls_section();
 
         // ── Botón WhatsApp ────────────────────────────────────────────────────
-        $this->start_controls_section('style_card_whatsapp', [
+        $this->start_controls_section('style_card_whatsapp', array_merge([
             'label' => __('Botón WhatsApp', 'homlity-real-estate'),
             'tab'   => Controls_Manager::TAB_STYLE,
-        ]);
+        ], $sectionArgs));
 
         $this->add_group_control(Group_Control_Typography::get_type(), [
             'name'     => 'card_whatsapp_typography',

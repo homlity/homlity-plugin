@@ -79,7 +79,10 @@ class Homlity_Consignment_Admin
                         <?php echo !empty($opts['enabled']) ? esc_html__('Formulario activo', 'homlity-real-estate') : esc_html__('Formulario inactivo', 'homlity-real-estate'); ?>
                     </span>
                     <span class="homlity-consignment-admin__badge">
-                        <?php printf(esc_html__('Máx. %d imágenes', 'homlity-real-estate'), (int) ($opts['max_images'] ?? 0)); ?>
+                        <?php
+                        /* translators: %d: número máximo de imágenes que acepta el formulario. */
+                        printf(esc_html__('Máx. %d imágenes', 'homlity-real-estate'), (int) ($opts['max_images'] ?? 0));
+                        ?>
                     </span>
                     <span class="homlity-consignment-admin__badge">
                         <?php echo !empty($opts['enable_logs']) ? esc_html__('Logs activos', 'homlity-real-estate') : esc_html__('Logs desactivados', 'homlity-real-estate'); ?>

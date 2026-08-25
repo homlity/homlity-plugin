@@ -353,6 +353,7 @@ class CF7IntegrationService implements ServiceInterface
             <p class="description mail-tag">
                 <?php
                 printf(
+                    /* translators: %s: etiqueta de correo (mail tag) lista para pegar en la plantilla. */
                     esc_html__('Para usar en el correo: %s', 'homlity-real-estate'),
                     '<strong>[<span class="mail-tag"></span>]</strong>'
                 );
@@ -419,7 +420,9 @@ class CF7IntegrationService implements ServiceInterface
                 continue;
             }
 
-            $postId = $this->findPostIdByPropertyCode((string) wp_unslash($_GET[$param]));
+            $postId = $this->findPostIdByPropertyCode(
+                sanitize_text_field(wp_unslash((string) $_GET[$param]))
+            );
             if ($postId > 0) {
                 return $postId;
             }
@@ -466,6 +469,7 @@ class CF7IntegrationService implements ServiceInterface
             'posts_per_page' => 1,
             'fields' => 'ids',
             'no_found_rows' => true,
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Buscar un inmueble por su código sólo es posible por postmeta.
             'meta_query' => [
                 [
                     'key' => '_property_code',

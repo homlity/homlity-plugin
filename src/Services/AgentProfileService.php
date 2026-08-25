@@ -582,6 +582,10 @@ class AgentProfileService implements ServiceInterface
         if ($cache === null) {
             global $wpdb;
 
+            // Sin caché persistente a propósito: es el desplegable de asesores del
+            // admin y un asesor recién creado tiene que aparecer al instante. El
+            // `static $cache` de arriba ya evita repetirla dentro de la petición.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $ids = $wpdb->get_col(
                 $wpdb->prepare(
                     "SELECT DISTINCT CAST(pm.meta_value AS UNSIGNED)

@@ -98,6 +98,9 @@ final class WpStubs
     /** @var array<int,string> postId => título */
     public static array $postTitles = [];
 
+    /** @var array<int,string> */
+    public static array $postExcerpts = [];
+
     /** @var array<int,string> postId => permalink */
     public static array $permalinks = [];
 
@@ -259,6 +262,7 @@ final class WpStubs
         self::$redirects = [];
         self::$postMeta = [];
         self::$postTitles = [];
+        self::$postExcerpts = [];
         self::$permalinks = [];
         self::$postTypes = [];
         self::$postStatuses = [];

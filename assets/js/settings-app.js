@@ -38,6 +38,7 @@
         merged.listing_fields = Array.isArray(merged.listing_fields) ? merged.listing_fields.slice() : [];
         merged.listing_fields = optionOrder.filter((value) => merged.listing_fields.includes(value));
         merged.enable_analytics = !!merged.enable_analytics;
+        merged.preselect_location_in_search = !!merged.preselect_location_in_search;
         merged.share_messages = Object.assign(
             {},
             defaults.share_messages || {},
@@ -901,7 +902,7 @@
                             },
                             el(
                                 'div',
-                                { className: 'homlity-settings__field-grid homlity-settings__field-grid--four' },
+                                { key: 'levels', className: 'homlity-settings__field-grid homlity-settings__field-grid--four' },
                                 [
                                     el(LocationSelect, {
                                         key: 'country',
@@ -939,6 +940,17 @@
                                         onChange: (event) => updateLocationField('neighborhood', event.target.value),
                                     }),
                                 ]
+                            ),
+                            el(
+                                'div',
+                                { key: 'preselect', className: 'homlity-settings__field-grid homlity-settings__field-grid--one' },
+                                el(Toggle, {
+                                    key: 'preselect_location_in_search',
+                                    label: __('Preseleccionar esta ubicación en el buscador', 'homlity-real-estate'),
+                                    hint: __('El buscador de inmuebles aparecerá con la ubicación de arriba ya elegida. El visitante puede cambiarla o quitarla, y si llega con una búsqueda propia se respeta la suya.', 'homlity-real-estate'),
+                                    checked: normalized.preselect_location_in_search,
+                                    onChange: (event) => updateField('preselect_location_in_search', event.target.checked),
+                                })
                             )
                         ) : null,
 

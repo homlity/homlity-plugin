@@ -1,4 +1,8 @@
 <?php
+// Los nombres de hook de este archivo salen de constantes de Homlity\Developer\Support\Hooks
+// (o los recibe el método como argumento ya prefijado). Todas valen 'homlity/...',
+// pero el sniff sólo sabe leer literales y las marca como dinámicas.
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 
 declare(strict_types=1);
 
@@ -84,7 +88,7 @@ final class Deprecated
     public static function fn(string $function, string $version, string $replacement = ''): void
     {
         if (function_exists('_deprecated_function')) {
-            _deprecated_function($function, $version, $replacement);
+            _deprecated_function(esc_html($function), esc_html($version), esc_html($replacement));
         }
     }
 
@@ -100,7 +104,7 @@ final class Deprecated
     public static function argument(string $function, string $version, string $message = ''): void
     {
         if (function_exists('_deprecated_argument')) {
-            _deprecated_argument($function, $version, $message);
+            _deprecated_argument(esc_html($function), esc_html($version), esc_html($message));
         }
     }
 

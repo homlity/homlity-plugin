@@ -90,6 +90,26 @@ final class PropertyDescriptionTest extends TestCase
         self::assertStringContainsString('después', $description);
     }
 
+    /**
+     * El editor guarda el formato como HTML —negritas, cursivas, títulos,
+     * listas y enlaces—. Si el saneado se lo comiera, la ficha pública saldría
+     * en texto plano por mucho que el redactor lo hubiera marcado.
+     */
+    public function testElFormatoDelEditorLlegaIntactoALaVistaPublica(): void
+    {
+        $postId = $this->givenProperty();
+        WpStubs::$postContent[$postId] = '<h2>El sector</h2>'
+            . '<p><strong>A dos cuadras del metro</strong> y <em>frente al parque</em>.</p>'
+            . '<ul><li>Piscina</li><li>Portería 24 h</li></ul>'
+            . '<p><a href="https://inmobiliaria.test/barrio">Ver el barrio</a></p>';
+
+        $description = PropertyDescription::text($postId);
+
+        foreach (['<h2>', '<strong>', '<em>', '<ul>', '<li>', '<a href="https://inmobiliaria.test/barrio">'] as $marca) {
+            self::assertStringContainsString($marca, $description, "Se perdió {$marca} por el camino.");
+        }
+    }
+
     /** Los párrafos del texto plano se conservan. */
     public function testElTextoPlanoConservaSusParrafos(): void
     {

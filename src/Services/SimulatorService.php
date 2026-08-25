@@ -104,8 +104,13 @@ class SimulatorService implements ServiceInterface
         ];
 
         $elementId = wp_unique_id('homlity-simulator-');
+        // wp_json_encode() devuelve false si la codificación falla (UTF-8 inválido
+        // en un texto de ajustes, por ejemplo). Sin este respaldo el <script> de
+        // abajo saldría como `var config = ;` y rompería toda la página.
         $configJson = wp_json_encode($config);
+        $configJson = is_string($configJson) ? $configJson : '{}';
         $modeJson = wp_json_encode($mode);
+        $modeJson = is_string($modeJson) ? $modeJson : '"venta"';
         $intro = trim((string) ($settings[$mode]['introConceptos'] ?? ''));
 
         ob_start();
@@ -119,9 +124,9 @@ class SimulatorService implements ServiceInterface
         </div>
         <script>
             (function () {
-                var config = <?php echo $configJson ?: '{}'; ?>;
+                var config = <?php echo $configJson; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON ya codificado con wp_json_encode(). ?>;
                 var elementId = <?php echo wp_json_encode($elementId); ?>;
-                var mode = <?php echo $modeJson ?: '"venta"'; ?>;
+                var mode = <?php echo $modeJson; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON ya codificado con wp_json_encode(). ?>;
 
                 var applyConfig = function () {
                     var el = document.getElementById(elementId);

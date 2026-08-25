@@ -154,6 +154,7 @@ if ($source === 'current_agent') {
 
     if (($s['show_cta_whatsapp'] ?? 'yes') === 'yes' && $whatsAppUrl) {
         $ctas[] = [
+            'key'    => 'whatsapp',
             'text'   => $s['cta_whatsapp_label'] ?? __('Contactar por WhatsApp', 'homlity-real-estate'),
             'url'    => $whatsAppUrl,
             'target' => '_blank',
@@ -168,6 +169,7 @@ if ($source === 'current_agent') {
 
     if (($s['show_cta_whatsapp'] ?? 'yes') === 'yes' && $whatsAppUrl) {
         $ctas[] = [
+            'key'    => 'whatsapp',
             'text'   => $s['cta_whatsapp_label'] ?? __('Contactar por WhatsApp', 'homlity-real-estate'),
             'url'    => $whatsAppUrl,
             'target' => '_blank',
@@ -175,6 +177,7 @@ if ($source === 'current_agent') {
     }
     if (($s['show_cta_profile'] ?? 'yes') === 'yes' && $profileUrl) {
         $ctas[] = [
+            'key'    => 'profile',
             'text'   => $s['cta_profile_label'] ?? __('Ver perfil del asesor', 'homlity-real-estate'),
             'url'    => $profileUrl,
             'target' => '_self',
@@ -186,14 +189,14 @@ if ($source === 'current_agent') {
         $cta1Url    = $s['cta1_url']['url'] ?? '';
         $cta1Target = !empty($s['cta1_url']['is_external']) ? '_blank' : '_self';
         if ($cta1Url) {
-            $ctas[] = ['text' => $s['cta1_text'], 'url' => $cta1Url, 'target' => $cta1Target];
+            $ctas[] = ['key' => 'custom-1', 'text' => $s['cta1_text'], 'url' => $cta1Url, 'target' => $cta1Target];
         }
     }
     if (($s['cta2_show'] ?? '') === 'yes' && !empty($s['cta2_text'])) {
         $cta2Url    = $s['cta2_url']['url'] ?? '';
         $cta2Target = !empty($s['cta2_url']['is_external']) ? '_blank' : '_self';
         if ($cta2Url) {
-            $ctas[] = ['text' => $s['cta2_text'], 'url' => $cta2Url, 'target' => $cta2Target];
+            $ctas[] = ['key' => 'custom-2', 'text' => $s['cta2_text'], 'url' => $cta2Url, 'target' => $cta2Target];
         }
     }
 }
@@ -283,9 +286,22 @@ if (!$name && !$avatarHtml) {
 
             <?php if ($ctas): ?>
                 <div class="property-agent-block__actions">
-                    <?php foreach ($ctas as $cta): ?>
+                    <?php foreach ($ctas as $ctaIndex => $cta): ?>
+                        <?php
+                        // La clase posicional (--1, --2) es la que gobiernan los
+                        // controles «Botón 1» y «Botón 2»: es la que corresponde a
+                        // lo que se ve en el editor. La semántica (--whatsapp,
+                        // --profile…) se añade para CSS a medida.
+                        $ctaClasses = [
+                            'property-agent-block__cta',
+                            'property-agent-block__cta--' . ($ctaIndex + 1),
+                        ];
+                        if (!empty($cta['key'])) {
+                            $ctaClasses[] = 'property-agent-block__cta--' . $cta['key'];
+                        }
+                        ?>
                         <a
-                            class="property-agent-block__cta"
+                            class="<?php echo esc_attr(implode(' ', $ctaClasses)); ?>"
                             href="<?php echo esc_url($cta['url']); ?>"
                             target="<?php echo esc_attr($cta['target']); ?>"
                             data-homlity-contact-type="<?php echo (strpos((string) ($cta['url'] ?? ''), 'wa.me/') !== false || strpos((string) ($cta['url'] ?? ''), 'whatsapp.com/') !== false) ? 'whatsapp' : ''; ?>"

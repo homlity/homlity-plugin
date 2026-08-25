@@ -148,6 +148,8 @@ if (!class_exists(Icons_Manager::class)) {
             foreach ($attributes as $name => $attributeValue) {
                 $attrs .= ' ' . esc_attr((string) $name) . '="' . esc_attr((string) $attributeValue) . '"';
             }
+            // $attrs se compone arriba atributo a atributo con esc_attr().
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo '<i class="' . esc_attr($value) . '"' . $attrs . '></i>';
         }
     }

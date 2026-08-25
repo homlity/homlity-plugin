@@ -10,6 +10,7 @@
 
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 use Homlity\PluginInmobiliario\Services\LocalityPostType;
+use Homlity\PluginInmobiliario\Services\SearchLocationDefaults;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -75,6 +76,48 @@ $current = static function ($keys) {
     }
 
     return '';
+};
+
+/**
+ * Whether the visitor's request carries this field at all.
+ *
+ * Submitting the form sends every enabled field, empty ones included, so a
+ * present-but-empty parameter means the visitor deliberately cleared it. Only
+ * a request that never mentions the field can take the configured default.
+ */
+$searchSubmitted = isset($_GET['homlity_search']);
+
+$requestHas = static function ($keys) use ($searchSubmitted): bool {
+    // A submitted form speaks for every field at once. An unselected multiple
+    // select sends nothing at all, so without this marker clearing the city
+    // would look identical to arriving with a clean URL, and the configured
+    // default would keep coming back.
+    if ($searchSubmitted) {
+        return true;
+    }
+
+    foreach ((array) $keys as $key) {
+        if (isset($_GET[$key])) {
+            return true;
+        }
+
+        $queryValue = get_query_var($key, null);
+        if ($queryValue !== null && $queryValue !== '') {
+            return true;
+        }
+    }
+
+    return false;
+};
+
+// The agency's base location, pre-selected only when the administrator asked
+// for it and the widget has not opted out.
+$locationDefaults = empty($settings['ignore_default_location'])
+    ? SearchLocationDefaults::slugs()
+    : [];
+
+$currentLocation = static function ($keys, string $level) use ($current, $requestHas, $locationDefaults) {
+    return SearchLocationDefaults::pick($locationDefaults, $level, $requestHas($keys), $current($keys));
 };
 
 $termSelect = static function (string $name, string $taxonomy, string $label, $currentValue, bool $multiple = false, bool $usePlaceholders = false, bool $selectUsesLabelOption = false): void {
@@ -180,6 +223,9 @@ $localitySelect = static function ($currentValue, bool $usePlaceholders, bool $s
 
     <div class="property-listing__mobile-sidebar-overlay" data-mobile-filter-overlay hidden></div>
     <form class="property-listing__filters<?php echo $mobileSidebarEnabled ? ' property-listing__filters--mobile-sidebar' : ''; ?>" id="<?php echo esc_attr($instanceId); ?>-sidebar" action="<?php echo esc_url($action); ?>" method="get" data-mobile-filter-sidebar>
+        <?php if ($locationDefaults): ?>
+            <input type="hidden" name="homlity_search" value="1">
+        <?php endif; ?>
         <?php if ($mobileSidebarEnabled): ?>
             <div class="property-listing__mobile-sidebar-header">
                 <strong><?php esc_html_e('Filtros', 'homlity-real-estate'); ?></strong>
@@ -210,19 +256,19 @@ $localitySelect = static function ($currentValue, bool $usePlaceholders, bool $s
                 $termSelect('etiquetas', PropertyTaxonomies::TAXONOMY_TAG, __('Etiqueta', 'homlity-real-estate'), $current(['etiquetas', 'property_tag']), !empty($settings['multiple_tag']), $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_country'])) {
-                $termSelect('pais', PropertyTaxonomies::TAXONOMY_COUNTRY, __('País', 'homlity-real-estate'), $current(['pais', 'property_country']), false, $usePlaceholders, $selectUsesLabelOption);
+                $termSelect('pais', PropertyTaxonomies::TAXONOMY_COUNTRY, __('País', 'homlity-real-estate'), $currentLocation(['pais', 'property_country'], 'country'), false, $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_state'])) {
-                $termSelect('departamento', PropertyTaxonomies::TAXONOMY_STATE, __('Departamento', 'homlity-real-estate'), $current(['departamento', 'property_state']), false, $usePlaceholders, $selectUsesLabelOption);
+                $termSelect('departamento', PropertyTaxonomies::TAXONOMY_STATE, __('Departamento', 'homlity-real-estate'), $currentLocation(['departamento', 'property_state'], 'state'), false, $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_city'])) {
-                $termSelect('ciudad', PropertyTaxonomies::TAXONOMY_CITY, __('Ciudad', 'homlity-real-estate'), $current(['ciudad', 'property_city']), true, $usePlaceholders, $selectUsesLabelOption);
+                $termSelect('ciudad', PropertyTaxonomies::TAXONOMY_CITY, __('Ciudad', 'homlity-real-estate'), $currentLocation(['ciudad', 'property_city'], 'city'), true, $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_locality'])) {
                 $localitySelect($current(['localidades', 'property_locality']), $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_neighborhood'])) {
-                $termSelect('barrios', PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD, __('Barrio', 'homlity-real-estate'), $current(['barrios', 'property_neighborhood']), true, $usePlaceholders, $selectUsesLabelOption);
+                $termSelect('barrios', PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD, __('Barrio', 'homlity-real-estate'), $currentLocation(['barrios', 'property_neighborhood'], 'neighborhood'), true, $usePlaceholders, $selectUsesLabelOption);
             }
             if (!empty($settings['show_nearby'])) {
                 $termSelect('cercanias', PropertyTaxonomies::TAXONOMY_NEARBY, __('Lugar cercano', 'homlity-real-estate'), $current(['cercanias', 'property_nearby']), false, $usePlaceholders, $selectUsesLabelOption);

@@ -427,49 +427,29 @@ final class PropertySearchFiltersTest extends TestCase
     // ── Ordering and pagination ──────────────────────────────────────────────
 
     /**
-     * Ordering by price goes through a *named* meta clause.
+     * Ordering by price no longer touches `meta_query`.
      *
-     * `meta_key` + `orderby => meta_value_num` looks equivalent but is not:
-     * WP_Query resolves it against `reset($meta_clauses)`, which for this
-     * query is the availability guard, so every row tied on 0 and the sort
-     * silently did nothing.
+     * It used to add a clause pinned to one meta key for the whole listing,
+     * chosen from the operation filter. Rentals store 0 in the sale price, so
+     * a mixed listing sorted them all as ties. The price is now resolved per
+     * row in SQL — see PropertySearchOrderingTest for the generated clauses.
      */
-    public function testElOrdenPorPrecioUsaUnaClausulaConNombre(): void
-    {
-        $ascending = $this->args(['orderby' => 'price_asc']);
-
-        self::assertSame(['homlity_price_order' => 'ASC'], $ascending['orderby']);
-        self::assertArrayNotHasKey('meta_key', $ascending);
-        self::assertSame('_property_price_sale', $ascending['meta_query']['homlity_price_order']['key']);
-        self::assertSame('NUMERIC', $ascending['meta_query']['homlity_price_order']['type']);
-
-        self::assertSame(['homlity_price_order' => 'DESC'], $this->args(['orderby' => 'price_desc'])['orderby']);
-    }
-
-    /**
-     * The clause the sort points at must be the first meta clause of the
-     * query, otherwise WordPress would still order by the availability guard.
-     */
-    public function testLaClausulaDeOrdenNoQuedaTapadaPorLosFiltrosDeDisponibilidad(): void
-    {
-        $args = $this->args(['orderby' => 'price_asc']);
-
-        self::assertArrayHasKey('homlity_price_order', $args['meta_query']);
-        self::assertSame(
-            'homlity_price_order',
-            array_key_first(array_diff_key($args['orderby'], [])),
-            'El orden debe apuntar a la cláusula de precio por nombre.'
-        );
-    }
-
-    /** Ordering a rent search by price must use the rent meta. */
-    public function testElOrdenPorPrecioEnArriendoUsaElCanon(): void
+    public function testElOrdenPorPrecioSeDelegaAlSqlYNoAlMetaQuery(): void
     {
         WpStubs::setTerm(3, PropertyTaxonomies::TAXONOMY_OPERATION, 'arriendo', 'Arriendo');
 
-        $args = $this->args(['orderby' => 'price_asc', 'operation' => 3]);
+        foreach ([[], ['operation' => 3]] as $extra) {
+            $args = $this->args(['orderby' => 'price_asc'] + $extra);
 
-        self::assertSame('_property_price_rent', $args['meta_query']['homlity_price_order']['key']);
+            self::assertSame('ASC', $args[PropertySearchService::PRICE_ORDER_QUERY_VAR]);
+            self::assertArrayNotHasKey('meta_key', $args);
+            self::assertArrayNotHasKey(PropertySearchService::PRICE_ORDER_QUERY_VAR, $args['meta_query']);
+        }
+
+        self::assertSame(
+            'DESC',
+            $this->args(['orderby' => 'price_desc'])[PropertySearchService::PRICE_ORDER_QUERY_VAR]
+        );
     }
 
     public function testElOrdenPorTituloRespetaLaDireccionPedida(): void
@@ -482,7 +462,7 @@ final class PropertySearchFiltersTest extends TestCase
     {
         $args = $this->args(['orderby' => 'cualquier-cosa']);
 
-        self::assertSame('date', $args['orderby']);
+        self::assertSame('DESC', $args['orderby']['date']);
         self::assertSame('DESC', $args['order']);
     }
 

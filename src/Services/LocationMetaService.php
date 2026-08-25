@@ -125,12 +125,16 @@ class LocationMetaService implements ServiceInterface
         <?php
         $field = (string) ob_get_clean();
 
+        // $field es el buffer del <select> y el <script> que este mismo método
+        // acaba de imprimir arriba, ya escapados pieza a pieza.
         if ($tableRow) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo '<tr class="form-field"><th scope="row"><label for="parent_locality">'
                 . esc_html__('Localidad', 'homlity-real-estate')
                 . '</label></th><td>' . $field . '</td></tr>';
             return;
         }
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo '<div class="form-field"><label for="parent_locality">'
             . esc_html__('Localidad', 'homlity-real-estate')
             . '</label>' . $field . '</div>';

@@ -1,4 +1,10 @@
 <?php
+// Los superglobales que se leen en este archivo sirven sólo para saber en qué
+// contexto del maquetador se está pintando (vista previa, pestaña activa,
+// petición AJAX del editor). No procesan formularios: van saneados con
+// absint()/sanitize_key() y toda rama que cambia estado exige current_user_can(),
+// así que un nonce no aplica.
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
 /**
  * Divi Builder integration for the property listing.
  *
@@ -58,6 +64,7 @@ class DiviIntegrationService implements ServiceInterface
                 do_action('homlity_divi_widget_registration_error', $widgetClass, $exception);
 
                 if (defined('WP_DEBUG') && WP_DEBUG) {
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Diagnóstico sólo con WP_DEBUG; en producción no se ejecuta.
                     error_log(sprintf(
                         'Homlity Divi: no se pudo registrar %s: %s',
                         $widgetClass,
@@ -356,6 +363,7 @@ class DiviIntegrationService implements ServiceInterface
         if (class_exists('ET_Core_PageResource')) {
             \ET_Core_PageResource::remove_static_resources('all', 'all');
         } else {
+            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Hook propio de Divi; el prefijo Homlity no aplica.
             do_action('et_core_page_resource_auto_clear');
         }
 

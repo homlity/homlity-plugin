@@ -48,7 +48,7 @@ if ($builderPageId > 0) {
     if (!$rendered) {
         $builderPage = get_post($builderPageId);
         if ($builderPage instanceof \WP_Post && trim((string) $builderPage->post_content) !== '') {
-            echo apply_filters('the_content', $builderPage->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo apply_filters('the_content', $builderPage->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- 'the_content' es un filtro del núcleo; aplicarlo es justo lo que se quiere.
             $rendered = true;
         }
     }

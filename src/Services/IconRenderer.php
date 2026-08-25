@@ -39,6 +39,7 @@ final class IconRenderer
         }
 
         $attributes['class'] = trim(implode(' ', $classes) . ' ' . (string) ($attributes['class'] ?? ''));
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- htmlAttributes() escapa nombre y valor con esc_attr().
         echo '<i' . self::htmlAttributes($attributes) . '></i>';
     }
 
@@ -84,6 +85,7 @@ final class IconRenderer
         );
         $attributes['style'] = $iconStyle . (string) ($attributes['style'] ?? '');
 
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- htmlAttributes() escapa nombre y valor con esc_attr().
         echo '<span' . self::htmlAttributes($attributes) . '>' . esc_html($glyph) . '</span>';
     }
 

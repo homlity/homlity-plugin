@@ -1,4 +1,13 @@
 <?php
+// Un plugin inmobiliario consulta inevitablemente por postmeta y term meta: el
+// precio, el área o la localidad de un inmueble viven ahí, no en columnas
+// propias. Los avisos de «consulta lenta» describen ese diseño, no un defecto.
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
+// phpcs:disable WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 /**
  * Administrative CRUD for localities/communes between cities and neighborhoods.
  */
