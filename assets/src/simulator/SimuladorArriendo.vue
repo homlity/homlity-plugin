@@ -408,8 +408,16 @@ export default {
       const retencionIca = this.calcularReteIca();
       const retencionIva = this.calcularReteIva(ivaCanon);
       const otrosDescuentos = this.calcularOtrosDescuentos();
-      const totalIngresos = safeMoney(this.form.canon + ivaCanon);
-      const descuentosSinBancarios = comision + ivaComision + seguro + retencionFuente + retencionIca + retencionIva + otrosDescuentos;
+
+      // La administración la recauda la inmobiliaria junto con el canon y se la
+      // gira a la copropiedad, así que entra por ingresos y sale por descuentos.
+      // Faltaba de los dos lados: la comisión y el seguro sí se cobraban sobre
+      // ella —así está configurado por defecto— pero se restaban de un total de
+      // ingresos donde esa plata nunca había entrado, y el neto del propietario
+      // salía corto por la comisión y el seguro de la administración.
+      const administracion = this.form.tieneAdministracion ? safeMoney(this.form.valorAdministracion) : 0;
+      const totalIngresos = safeMoney(this.form.canon + administracion + ivaCanon);
+      const descuentosSinBancarios = administracion + comision + ivaComision + seguro + retencionFuente + retencionIca + retencionIva + otrosDescuentos;
       const subtotalAntesGastosBancarios = Math.max(0, safeMoney(totalIngresos - descuentosSinBancarios));
       const gastosBancarios = this.calcularGastosBancarios(subtotalAntesGastosBancarios);
       const totalDescuentos = safeMoney(descuentosSinBancarios);
@@ -426,7 +434,7 @@ export default {
 
       return {
         canon: safeMoney(this.form.canon),
-        administracion: this.form.tieneAdministracion ? safeMoney(this.form.valorAdministracion) : 0,
+        administracion,
         ivaCanon,
         totalIngresos,
         subtotalAntesGastosBancarios,
@@ -446,6 +454,9 @@ export default {
 
     ingresosRows() {
       const rows = [{ label: 'Canon de arrendamiento', value: this.calc.canon }];
+      if (this.calc.administracion > 0) {
+        rows.push({ label: 'Cuota de administración', value: this.calc.administracion });
+      }
       if (this.ivaCanonActivo) {
         const pct = this.normalizedConfig.porcentajeIva;
         rows.push({ label: `IVA ${pct}% sobre canon (inmueble comercial / régimen común)`, value: this.calc.ivaCanon });
@@ -456,6 +467,9 @@ export default {
     descuentosRows() {
       const rows = [];
       const pct = this.normalizedConfig.porcentajeIva;
+      if (this.calc.administracion > 0) {
+        rows.push({ label: 'Administración girada a la copropiedad', value: this.calc.administracion });
+      }
       if (this.form.comision.activa && this.calc.valorComision > 0) {
         rows.push({ label: 'Comisión inmobiliaria', value: this.calc.valorComision });
         if (this.form.comision.aplicaIva && this.calc.ivaComision > 0) {

@@ -91,6 +91,21 @@ La Developer API se versiona por separado. Ver
 
 ### Fixed
 
+#### Simulador de arriendo
+
+- **La cuota de administración no aparecía por ningún lado de la tabla.** La
+  comisión y el seguro sí se cobraban sobre ella —viene así configurado por
+  defecto—, pero se restaban de un total de ingresos donde esa plata nunca
+  había entrado. El asesor le enseñaba al propietario una tabla que no cuadraba
+  consigo misma: una comisión del 10 % sobre un canon de $1.000.000 salía de
+  $130.000 sin explicación a la vista.
+- Ahora la administración entra por **ingresos** —el arrendatario la paga junto
+  con el canon— y sale por **descuentos**, girada a la copropiedad. Cada columna
+  suma exactamente lo que enseña.
+- **El neto a recibir por el propietario no cambia**, ni con IVA, ni con
+  retenciones, ni con gastos bancarios: la administración entra y sale por el
+  mismo valor. Ningún simulador ya publicado da un resultado distinto.
+
 #### Descripción del inmueble
 
 - **El formato del texto se perdía en la vista pública.** El widget
