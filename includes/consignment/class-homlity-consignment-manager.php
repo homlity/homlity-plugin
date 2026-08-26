@@ -88,7 +88,10 @@ class Homlity_Consignment_Manager
     {
         $asset_file = HOMLITY_PLUGIN_PATH . 'assets/dist/index.asset.php';
         $asset_meta = file_exists($asset_file) ? require $asset_file : [
-            'dependencies' => ['wp-element'],
+            // Keep this fallback aligned with the bundle metadata. If a
+            // damaged/incomplete installation loses index.asset.php, the
+            // compiled JSX must still have its runtime before index.js runs.
+            'dependencies' => ['react-jsx-runtime', 'wp-element'],
             'version'      => HOMLITY_PLUGIN_VERSION,
         ];
 

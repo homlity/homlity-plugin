@@ -28,6 +28,11 @@ class SimulatorService implements ServiceInterface
         add_shortcode('homlity_simulador', [$this, 'renderShortcode']);
         add_shortcode('homlity_simulador_venta', [$this, 'renderShortcodeSale']);
         add_shortcode('homlity_simulador_arriendo', [$this, 'renderShortcodeRent']);
+
+        // Compatibilidad con las páginas creadas por VisualInmueble antes de
+        // que los simuladores pasaran a Homlity. Esas páginas siguen guardando
+        // este shortcode en Elementor y no deben editarse sitio por sitio.
+        add_shortcode('visualinmu_simulador_shortcode', [$this, 'renderLegacyShortcode']);
     }
 
     public static function registerAssets(): void
@@ -92,7 +97,7 @@ class SimulatorService implements ServiceInterface
         wp_enqueue_style(self::STYLE_HANDLE);
         wp_enqueue_script(self::SCRIPT_HANDLE);
 
-        $mode = $mode === 'arriendo' ? 'arriendo' : 'venta';
+        $mode = self::normalizeMode($mode);
         $settings = self::settings();
         $config = [
             'arriendo' => $settings['arriendo'],
@@ -162,5 +167,34 @@ class SimulatorService implements ServiceInterface
     public function renderShortcodeRent(): string
     {
         return self::renderSimulator('arriendo');
+    }
+
+    /**
+     * Renders the shortcode used by the retired VisualInmueble integration.
+     *
+     * Some Elementor pages contain typographic quotes in the attribute value
+     * (tipo=”arriendo”), so the mode is normalized before rendering.
+     */
+    public function renderLegacyShortcode(array $atts = []): string
+    {
+        $atts = shortcode_atts([
+            'tipo' => 'venta',
+            'modo' => '',
+        ], $atts, 'visualinmu_simulador_shortcode');
+
+        $mode = (string) ($atts['modo'] !== '' ? $atts['modo'] : $atts['tipo']);
+
+        return self::renderSimulator($mode);
+    }
+
+    /** @internal Normalizes both current and legacy shortcode values. */
+    public static function normalizeMode(string $mode): string
+    {
+        $mode = trim(str_replace(['"', "'", '“', '”', '‘', '’'], '', $mode));
+        $mode = strtolower($mode);
+
+        return in_array($mode, ['arriendo', 'arrendamiento', 'renta', 'rent'], true)
+            ? 'arriendo'
+            : 'venta';
     }
 }

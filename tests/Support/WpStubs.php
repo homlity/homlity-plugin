@@ -160,6 +160,15 @@ final class WpStubs
     /** @var array<string,array<string,mixed>> Lo que se pasó a wp_enqueue_script(). */
     public static array $enqueuedScripts = [];
 
+    /** @var array<string,array<string,mixed>> Scripts registrados antes de encolarlos. */
+    public static array $registeredScripts = [];
+
+    /** @var array<string,array<string,mixed>> Estilos registrados antes de encolarlos. */
+    public static array $registeredStyles = [];
+
+    /** @var array<string,true> Handles de estilos encolados. */
+    public static array $enqueuedStyles = [];
+
     /**
      * Filas fijadas para consultas que el motor en memoria no sabe leer,
      * indexadas por una subcadena de la consulta.
@@ -217,6 +226,9 @@ final class WpStubs
 
     /** @var array<string,array<int,callable>> hook => callbacks */
     public static array $filters = [];
+
+    /** @var array<string,callable> shortcode => callback */
+    public static array $shortcodes = [];
 
     /** @var array<string,array<int,array<string,mixed>>> hook => llamadas a do_action() */
     public static array $actions = [];
@@ -283,6 +295,9 @@ final class WpStubs
         self::$is404 = false;
         self::$statusHeaders = [];
         self::$enqueuedScripts = [];
+        self::$registeredScripts = [];
+        self::$registeredStyles = [];
+        self::$enqueuedStyles = [];
         self::$sqlResults = [];
         self::$stylesheetDirectory = '/tmp/homlity-tema-inexistente';
         self::$isAdminScreen = false;
@@ -299,6 +314,7 @@ final class WpStubs
         self::$posts = [];
         self::$getPostsCalls = [];
         self::$filters = [];
+        self::$shortcodes = [];
         self::$actions = [];
         self::$scheduledActions = [];
         self::$cronEvents = [];

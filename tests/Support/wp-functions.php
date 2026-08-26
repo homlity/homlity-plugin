@@ -2075,6 +2075,60 @@ if (!function_exists('wp_enqueue_script')) {
     }
 }
 
+if (!function_exists('wp_register_script')) {
+    function wp_register_script(
+        string $handle,
+        string $src = '',
+        array $deps = [],
+        $ver = false,
+        $args = []
+    ): bool {
+        WpStubs::$registeredScripts[$handle] = [
+            'src' => $src,
+            'deps' => $deps,
+            'ver' => $ver,
+            'args' => $args,
+        ];
+
+        return true;
+    }
+}
+
+if (!function_exists('wp_register_style')) {
+    function wp_register_style(
+        string $handle,
+        string $src = '',
+        array $deps = [],
+        $ver = false,
+        string $media = 'all'
+    ): bool {
+        WpStubs::$registeredStyles[$handle] = [
+            'src' => $src,
+            'deps' => $deps,
+            'ver' => $ver,
+            'media' => $media,
+        ];
+
+        return true;
+    }
+}
+
+if (!function_exists('add_shortcode')) {
+    function add_shortcode(string $tag, callable $callback): void
+    {
+        WpStubs::$shortcodes[$tag] = $callback;
+    }
+}
+
+if (!function_exists('shortcode_atts')) {
+    function shortcode_atts(array $pairs, $atts, string $shortcode = ''): array
+    {
+        $atts = is_array($atts) ? $atts : [];
+
+        return array_merge($pairs, array_intersect_key($atts, $pairs));
+    }
+}
+
 if (!function_exists('checked')) {
     function checked(mixed $checked, mixed $current = true, bool $display = true): string
     {
@@ -2132,8 +2186,9 @@ if (!function_exists('wp_unique_id')) {
 }
 
 if (!function_exists('wp_enqueue_style')) {
-    function wp_enqueue_style(...$args): void
+    function wp_enqueue_style(string $handle, ...$args): void
     {
+        WpStubs::$enqueuedStyles[$handle] = true;
     }
 }
 
