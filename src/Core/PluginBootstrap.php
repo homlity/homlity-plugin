@@ -40,6 +40,7 @@ use Homlity\PluginInmobiliario\Services\DashboardNewsService;
 use Homlity\PluginInmobiliario\Services\I18nService;
 use Homlity\PluginInmobiliario\Services\LocationMetaService;
 use Homlity\PluginInmobiliario\Services\LocalityPostType;
+use Homlity\PluginInmobiliario\Services\MediaFilenameService;
 use Homlity\PluginInmobiliario\Services\NinjaWhatsAppPropertyOverrideService;
 use Homlity\PluginInmobiliario\Services\PropertyAjaxService;
 use Homlity\PluginInmobiliario\Services\PropertyAnalyticsService;
@@ -102,6 +103,7 @@ class PluginBootstrap
             new LocationMetaService(),
             new UserMetaService(),
             new CurrencyService(),
+            new MediaFilenameService(),
             new SeoService(),
             new SeoIntegrationService(),
             new SeoGeoSettingsService(),

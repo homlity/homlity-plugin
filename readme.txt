@@ -4,7 +4,7 @@ Tags: real estate, property, listings, agents, property management
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 2.8.4
+Stable tag: 2.8.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,9 @@ Developed and maintained by **Ecosistema Inmobiliario Homlity**, a team speciali
 5. Public property listing on the WordPress site.
 
 == Changelog ==
+
+= 2.8.5 =
+* Corregido: al subir en el mismo mes imágenes con igual nombre base pero extensiones diferentes —por ejemplo `1.webp` y `1.jpg`—, los optimizadores WebP/AVIF podían generar la misma ruta y sobrescribir la foto de otro inmueble. Los nombres ahora son únicos entre todos los formatos de imagen.
 
 = 2.8.0 =
 * Homlity Real Estate incorpora una **Developer API** pública y estable: doce acciones, cuatro filtros, once clases, tres interfaces y siete funciones globales bajo el namespace `Homlity\Developer\`. A partir de ahora un desarrollador externo puede construir integraciones con CRMs, portales, ERP, analítica o IA como plugins independientes, sin modificar ni un archivo del plugin. Documentación en https://homlity.com/desarrolladores/

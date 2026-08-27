@@ -10,6 +10,32 @@ use Homlity\PluginInmobiliario\Tests\Support\WpStubs;
 
 final class SimulatorServiceTest extends TestCase
 {
+    public function testLaConfiguracionPublicaConservaLosCheckboxesPorDefectoSiNoHayAjustesGuardados(): void
+    {
+        WpStubs::$options[HOMLITY_PLUGIN_SETTINGS_OPTION] = [];
+
+        $settings = SimulatorService::settings();
+
+        self::assertSame('1', $settings['arriendo']['comisionActiva']);
+        self::assertSame('1', $settings['arriendo']['comisionAplicaIva']);
+        self::assertSame('1', $settings['arriendo']['seguroActivo']);
+        self::assertSame('1', $settings['arriendo']['gastosBancariosActivos']);
+    }
+
+    public function testLaConfiguracionPublicaCompletaUnBloqueParcialSinApagarLaComision(): void
+    {
+        WpStubs::$options[HOMLITY_PLUGIN_SETTINGS_OPTION] = [
+            'simulators' => [
+                'arriendo' => ['comisionTotalInmobiliaria' => '12'],
+            ],
+        ];
+
+        $settings = SimulatorService::settings();
+
+        self::assertSame('12', $settings['arriendo']['comisionTotalInmobiliaria']);
+        self::assertSame('1', $settings['arriendo']['comisionActiva']);
+    }
+
     public function testRegistraElShortcodeHistoricoDeVisualInmueble(): void
     {
         $service = new SimulatorService();

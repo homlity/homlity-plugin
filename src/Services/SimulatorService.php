@@ -88,7 +88,12 @@ class SimulatorService implements ServiceInterface
         $stored = is_array($stored) ? $stored : [];
         $simulators = is_array($stored['simulators'] ?? null) ? $stored['simulators'] : [];
 
-        return SimulatorSettings::merge(SimulatorSettings::sanitize($simulators));
+        // Completa primero la configuración parcial y sanea después. Si se
+        // sanea un bloque vacío/parcial, los checkboxes ausentes se interpretan
+        // como desmarcados y se convierten en "0". Eso hacía que el frontend
+        // apagara comisión, póliza, retenciones y gastos bancarios aunque el
+        // administrador mostrara sus valores por defecto activados.
+        return SimulatorSettings::sanitize(SimulatorSettings::merge($simulators));
     }
 
     public static function renderSimulator(string $mode): string

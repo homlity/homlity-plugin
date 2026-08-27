@@ -91,6 +91,15 @@ La Developer API se versiona por separado. Ver
 
 ### Fixed
 
+#### Biblioteca multimedia
+
+- Las imágenes con el mismo nombre base y distinta extensión ya no comparten
+  los archivos WebP/AVIF producidos por plugins de optimización. Antes,
+  `1.webp` y `1.jpg` eran nombres válidos para WordPress, pero ambos podían
+  terminar en `1.avif` o `1.webp`; la segunda carga sobrescribía la foto del
+  primer inmueble. La unicidad ahora se comprueba entre todos los formatos de
+  imagen antes de guardar el archivo.
+
 #### Simulador de arriendo
 
 - **La cuota de administración no aparecía por ningún lado de la tabla.** La

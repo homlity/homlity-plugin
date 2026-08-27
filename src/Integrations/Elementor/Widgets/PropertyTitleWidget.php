@@ -41,6 +41,11 @@ class PropertyTitleWidget extends BasePropertyWidget
                 'p' => 'P', 'span' => 'SPAN', 'div' => 'DIV',
             ],
         ]);
+        $this->add_control('show_code', [
+            'label' => __('Mostrar código del inmueble', 'homlity-real-estate'),
+            'type' => Controls_Manager::SWITCHER,
+            'default' => '',
+        ]);
         $this->end_controls_section();
 
         $this->start_controls_section('style_title', [
@@ -109,6 +114,7 @@ class PropertyTitleWidget extends BasePropertyWidget
         TemplateService::includeComponent('property-title.php', [
             'post_id' => $this->current_property_id(),
             'title_tag' => $settings['title_tag'] ?? 'h1',
+            'show_code' => ($settings['show_code'] ?? '') === 'yes',
         ]);
     }
 }
