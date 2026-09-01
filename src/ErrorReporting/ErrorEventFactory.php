@@ -14,6 +14,46 @@ final class ErrorEventFactory
     public const SCHEMA_VERSION = '1.0';
     private const MAX_PAYLOAD_BYTES = 250000;
 
+    /**
+     * Estados que describen una instalación sin terminar de configurar, no un
+     * fallo del código.
+     */
+    private const CONFIGURATION_STATUSES = [
+        'not_configured', 'unconfigured', 'config_missing', 'configuration_missing',
+        'missing_configuration', 'credentials_missing', 'missing_credentials',
+        'invalid_credentials', 'invalid_token', 'token_missing', 'unauthorized',
+        'forbidden', 'license_invalid', 'license_expired', 'license_missing',
+    ];
+
+    /**
+     * Fragmentos (en minúsculas y sin acentos) que identifican un mensaje de
+     * configuración pendiente o credenciales rechazadas por el CRM remoto.
+     */
+    private const CONFIGURATION_MESSAGE_PATTERNS = [
+        'no configurado', 'no configurada', 'no configurados', 'no configuradas',
+        'sin configurar', 'falta configurar', 'debes configurar', 'not configured',
+        'is not set', 'no esta configurado', 'no esta configurada',
+        'token invalido', 'token es invalido', 'invalid token', 'token expirado',
+        'credencial', 'credential', 'api key', 'apikey', 'api_key', 'clave api',
+        'unauthorized', 'forbidden', 'no autorizado', 'acceso denegado', 'access denied',
+        'authentication failed', 'autenticacion fallida',
+        'licencia invalida', 'licencia expirada', 'licencia inactiva', 'sin licencia',
+        'requiere una licencia', 'license expired', 'license invalid', 'invalid license',
+    ];
+
+    /**
+     * Contabilidad interna de Action Scheduler. Estos mensajes se lanzan cuando
+     * la librería no consigue actualizar la fila de una acción, algo que ocurre
+     * DESPUÉS de que el trabajo ya se ejecutó: otro runner concurrente completó
+     * la misma acción o la limpieza periódica borró la fila. No hay defecto que
+     * corregir en el plugin y el trabajo no se perdió.
+     */
+    private const SCHEDULER_NOISE_MESSAGE_PATTERNS = [
+        'unidentified action',
+        'deleted by another process',
+        'invalid action id. no status found',
+    ];
+
     private OfficialPluginRegistry $registry;
     private ErrorSanitizer $sanitizer;
 
@@ -115,11 +155,11 @@ final class ErrorEventFactory
     {
         $status = sanitize_key((string) ($context['status'] ?? ''));
         $reason = sanitize_key((string) ($context['reason'] ?? ''));
-        $excluded = [
+        $excluded = array_merge([
             'success', 'completed', 'empty', 'no_changes', 'not_found', 'validation_error',
             'invalid_request', 'invalid_payload', 'provider_disabled', 'license_blocked',
             'locked', 'skipped', 'unavailable', 'incomplete_or_unstable_snapshot',
-        ];
+        ], self::CONFIGURATION_STATUSES);
         if (in_array($status, $excluded, true) || in_array($reason, $excluded, true)) {
             return false;
         }
@@ -127,11 +167,118 @@ final class ErrorEventFactory
         if ($httpStatus >= 400 && $httpStatus < 500 && !in_array($httpStatus, [408, 429], true)) {
             return false;
         }
+        if ($this->isConfigurationFailure($error, $context)) {
+            return false;
+        }
+        if ($this->isSchedulerNoise($error, $context)) {
+            return false;
+        }
         if ($error instanceof \WP_Error) {
-            $expectedCodes = ['not_found', 'invalid_request', 'validation_error', 'provider_disabled', 'license_invalid', 'sync_locked'];
+            $expectedCodes = array_merge(
+                ['not_found', 'invalid_request', 'validation_error', 'provider_disabled', 'license_invalid', 'sync_locked'],
+                self::CONFIGURATION_STATUSES
+            );
             return !in_array(sanitize_key((string) $error->get_error_code()), $expectedCodes, true);
         }
         return $error instanceof \Throwable || (is_string($error) && trim($error) !== '');
+    }
+
+    /**
+     * Un fallo por configuración ausente o credenciales rechazadas no es un
+     * defecto del plugin: sólo el dueño del sitio puede resolverlo, y se repite
+     * en cada ejecución programada hasta que lo hace. Reportarlo convertiría el
+     * panel de incidencias en un registro de instalaciones a medio configurar,
+     * así que se descarta aquí. Los fatales de PHP no pasan por este filtro.
+     *
+     * @param mixed $error
+     * @param array<string, mixed> $context
+     */
+    public function isConfigurationFailure($error, array $context = []): bool
+    {
+        $normalized = $this->normalizeForMatching($this->collectMessages($error, $context));
+        $isConfiguration = false;
+        if (trim($normalized) !== '') {
+            foreach (self::CONFIGURATION_MESSAGE_PATTERNS as $pattern) {
+                if (strpos($normalized, $pattern) !== false) {
+                    $isConfiguration = true;
+                    break;
+                }
+            }
+        }
+
+        return (bool) apply_filters(
+            'homlity_error_reporter_is_configuration_failure',
+            $isConfiguration,
+            $normalized,
+            $context
+        );
+    }
+
+    /**
+     * Fallo de la contabilidad de la cola, no del trabajo encolado. Action
+     * Scheduler marca la acción como fallida cuando no logra escribir su propio
+     * cambio de estado, aunque el callback ya se haya ejecutado con éxito, así
+     * que reportarlo describiría una carrera de la librería y no un defecto
+     * nuestro. Los fatales de PHP no pasan por este filtro.
+     *
+     * @param mixed $error
+     * @param array<string, mixed> $context
+     */
+    public function isSchedulerNoise($error, array $context = []): bool
+    {
+        $normalized = $this->normalizeForMatching($this->collectMessages($error, $context));
+        $isNoise = false;
+        if (trim($normalized) !== '') {
+            foreach (self::SCHEDULER_NOISE_MESSAGE_PATTERNS as $pattern) {
+                if (strpos($normalized, $pattern) !== false) {
+                    $isNoise = true;
+                    break;
+                }
+            }
+        }
+
+        return (bool) apply_filters(
+            'homlity_error_reporter_is_scheduler_noise',
+            $isNoise,
+            $normalized,
+            $context
+        );
+    }
+
+    /**
+     * Concatena el mensaje del error con toda su cadena de causas: Action
+     * Scheduler envuelve la excepción original, así que el motivo real sólo
+     * aparece recorriendo getPrevious().
+     *
+     * @param mixed $error
+     * @param array<string, mixed> $context
+     */
+    private function collectMessages($error, array $context): string
+    {
+        $message = '';
+        if ($error instanceof \Throwable) {
+            for ($current = $error; $current !== null; $current = $current->getPrevious()) {
+                $message .= ' ' . $current->getMessage();
+            }
+        } elseif ($error instanceof \WP_Error) {
+            $message = $error->get_error_code() . ' ' . $error->get_error_message();
+        } elseif (is_scalar($error)) {
+            $message = (string) $error;
+        }
+
+        return $message . ' ' . (string) ($context['message'] ?? '');
+    }
+
+    /**
+     * Minúsculas y sin acentos: los plugins escriben los mismos mensajes con y
+     * sin tilde ("token inválido" / "token invalido") y ambos deben coincidir.
+     */
+    private function normalizeForMatching(string $value): string
+    {
+        $value = strtolower($value);
+        return strtr($value, [
+            'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u', 'ü' => 'u', 'ñ' => 'n',
+        ]);
     }
 
     /** @return array<string, mixed> */

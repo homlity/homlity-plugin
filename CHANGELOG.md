@@ -11,7 +11,7 @@ La Developer API se versiona por separado. Ver
 
 ---
 
-## [No publicado]
+## [2.9.0] - 2026-08-31
 
 ### Added
 
@@ -88,6 +88,24 @@ La Developer API se versiona por separado. Ver
 - Las tarjetas **«Etiquetas»** y **«Lugares cercanos»** pasan a compartir su
   propia fila en dos columnas, para que la columna que dejó libre «Ubicación»
   no quede vacía.
+
+#### Reporte de errores
+
+- Los fallos causados por la configuración del sitio dejan de notificarse como
+  incidencias. Una instalación sin token del CRM, con credenciales rechazadas o
+  con la licencia vencida generaba un error en el panel en cada ejecución
+  programada —decenas al día— aunque no hubiera nada que corregir en el código.
+  Ahora esos casos se descartan antes de encolarse y solo se reportan defectos
+  del plugin: fatales de PHP y fallos de ejecución imprevistos. Los plugins
+  pueden afinar la clasificación con el filtro
+  `homlity_error_reporter_is_configuration_failure`.
+- Los fallos de la contabilidad interna de Action Scheduler tampoco se notifican.
+  La librería marca una acción como fallida cuando no logra escribir su cambio de
+  estado («Unidentified action …: we were unable to mark this action as having
+  completed»), algo que sucede después de ejecutar el trabajo, cuando otro runner
+  concurrente ya lo completó o la limpieza borró la fila: el trabajo no se pierde
+  y no hay defecto que corregir. Los errores de base de datos reales de la cola
+  se siguen reportando. Filtro: `homlity_error_reporter_is_scheduler_noise`.
 
 ### Fixed
 

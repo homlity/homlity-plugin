@@ -207,6 +207,68 @@ check($factory->fromSync('homlity-wasi', new WP_Error('validation_error', 'bad i
 check($factory->fromSync('homlity-wasi', new WP_Error('remote_server_error', 'server failed'), ['status' => 'failed']) !== null, 'final WP_Error accepted');
 check($factory->fromSync('woocommerce', 'failure', ['status' => 'failed']) === null, 'unknown plugin rejected');
 
+// Fallos de configuración del sitio: nunca son incidencias del plugin.
+$tokenMissing = new RuntimeException('SIMI full sweep page failed: Token SIMI no configurado.');
+check($factory->fromSync('homlity-simi', new RuntimeException('boom'), ['status' => 'failed']) !== null, 'simi origin resolvable (control)');
+check($factory->fromSync('homlity-simi', $tokenMissing, ['status' => 'failed']) === null, 'missing token rejected');
+check(
+    $factory->fromScheduledAction('homlity-simi', new RuntimeException('action failed', 0, $tokenMissing), [
+        'operation' => 'action_scheduler',
+        'status' => 'failed',
+        'hook' => 'simi_sync/run_provider',
+    ]) === null,
+    'missing token rejected through scheduled action'
+);
+check($factory->fromSync('homlity-wasi', new RuntimeException('Token inválido'), ['status' => 'failed']) === null, 'invalid token rejected');
+check($factory->fromSync('homlity-wasi', new RuntimeException('HTTP 401 Unauthorized'), ['status' => 'failed']) === null, 'unauthorized rejected');
+check($factory->fromSync('homlity-wasi', new RuntimeException('Credenciales rechazadas'), ['status' => 'failed']) === null, 'rejected credentials not reported');
+check($factory->fromSync('homlity-wasi', new RuntimeException('sync stopped'), ['status' => 'not_configured']) === null, 'not_configured status rejected');
+check($factory->fromSync('homlity-wasi', new WP_Error('invalid_credentials', 'bad key'), ['status' => 'failed']) === null, 'credential WP_Error rejected');
+check(
+    $factory->fromSync('homlity-wasi', new RuntimeException('Call to a member function id() on null'), ['status' => 'failed']) !== null,
+    'programming error still reported'
+);
+check(
+    $factory->fromSync('homlity-wasi', new RuntimeException('SIMI devolvió 503 Service Unavailable'), ['status' => 'failed']) !== null,
+    'remote outage still reported'
+);
+$configFatal = $fatal;
+$configFatal['message'] = 'Uncaught TypeError in token no configurado handler';
+check($factory->fromFatal($configFatal) !== null, 'fatal reported even with configuration wording');
+
+// Contabilidad interna de Action Scheduler: la accion ya se ejecuto, solo fallo
+// el registro de su estado. Llega envuelta en Exception por el queue runner.
+$unidentified = new InvalidArgumentException(
+    'Unidentified action 33131: we were unable to mark this action as having completed. It may may have been deleted by another process.'
+);
+$schedulerContext = [
+    'operation' => 'action_scheduler',
+    'status' => 'failed',
+    'hook' => 'softinm_sync/process_property',
+    'action_group' => 'softinm-sync',
+];
+check($factory->fromScheduledAction('homlity-softinm', new RuntimeException('boom'), $schedulerContext) !== null, 'softinm origin resolvable (control)');
+check($factory->fromScheduledAction('homlity-softinm', $unidentified, $schedulerContext) === null, 'unidentified action rejected');
+check(
+    $factory->fromScheduledAction('homlity-softinm', new Exception($unidentified->getMessage(), 0, $unidentified), $schedulerContext) === null,
+    'unidentified action rejected when wrapped by the queue runner'
+);
+check(
+    $factory->fromScheduledAction('homlity-softinm', new InvalidArgumentException('Invalid action ID. No status found.'), $schedulerContext) === null,
+    'vanished action row rejected'
+);
+check(
+    $factory->fromScheduledAction('homlity-softinm', new RuntimeException('Unable to claim actions. Database error: deadlock.'), $schedulerContext) !== null,
+    'scheduler database error still reported'
+);
+check(
+    $factory->fromSync('homlity-softinm', new RuntimeException('Undefined property $price on null'), ['status' => 'failed']) !== null,
+    'programming error inside a job still reported'
+);
+$noiseFatal = $fatal;
+$noiseFatal['message'] = 'Uncaught Error while handling unidentified action cleanup';
+check($factory->fromFatal($noiseFatal) !== null, 'fatal reported even with scheduler wording');
+
 $GLOBALS['test_options'] = [];
 $service = new ErrorReporterService();
 $workerError = new RuntimeException('worker failure');

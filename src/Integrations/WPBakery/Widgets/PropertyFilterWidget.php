@@ -105,6 +105,13 @@ class PropertyFilterWidget extends Widget_Base
             ]);
         }
 
+        $this->add_control('keyword_placeholder', [
+            'label' => __('Placeholder de palabra clave', 'homlity-real-estate'),
+            'type' => Controls_Manager::TEXT,
+            'default' => __('Buscar', 'homlity-real-estate'),
+            'condition' => ['show_keyword' => 'yes'],
+        ]);
+
         $this->add_control('multiple_operation', [
             'label' => __('Gestión múltiple', 'homlity-real-estate'),
             'type' => Controls_Manager::SWITCHER,

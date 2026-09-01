@@ -41,6 +41,21 @@ do_action('homlity_report_sync_error', 'homlity-wasi', $exception, $safeContext)
 
 Debe invocarse al terminar definitivamente una operación, no en cada intento. Para trabajos por inmueble, `homlity_sync_job_failed` debe entregar un contexto mínimo con `status=dead`, `attempt` y `max_attempts`; los estados `retry_scheduled` se ignoran. No deben incluirse payloads del proveedor, contactos, credenciales ni datos personales. El colector aplica una segunda lista blanca antes de persistir.
 
+## Qué no se reporta
+
+Solo son incidencias los defectos del código: fatales de PHP y fallos de ejecución imprevistos. Los fallos causados por el propio sitio se descartan en `ErrorEventFactory::isReportableSyncFailure()` y nunca llegan al panel:
+
+- Estados de contexto que describen una instalación incompleta: `not_configured`, `credentials_missing`, `invalid_token`, `unauthorized`, `license_invalid`, `license_expired`, entre otros.
+- Mensajes que indican configuración pendiente o credenciales rechazadas por el CRM remoto: «token no configurado», «token inválido», «unauthorized», «credenciales…», «licencia expirada». La comparación ignora mayúsculas y acentos y recorre toda la cadena de `getPrevious()`, así que también aplica a las excepciones que Action Scheduler envuelve.
+- Respuestas `4xx` del proveedor (salvo `408` y `429`), que indican una petición o unas credenciales incorrectas, no un fallo del plugin.
+- Fallos de la contabilidad interna de Action Scheduler: «Unidentified action …», «… deleted by another process», «Invalid action ID. No status found.». La librería los lanza cuando no consigue escribir el estado de una acción porque otro runner concurrente ya la completó o la limpieza borró la fila. Ocurren *después* de ejecutar el callback, así que el trabajo no se perdió y no hay defecto que corregir.
+
+Un plugin puede afinar cada clasificación con los filtros `homlity_error_reporter_is_configuration_failure` y `homlity_error_reporter_is_scheduler_noise`, ambos con la firma (`bool $coincide, string $mensajeNormalizado, array $context`).
+
+Estos filtros **no** afectan a los fatales: `fromFatal()` no los atraviesa, así que un `TypeError` sigue reportándose aunque su mensaje mencione la configuración o la cola.
+
+Un error de base de datos real de la cola (por ejemplo «Unable to claim actions. Database error: …») sí se reporta: describe un problema del servidor, no una carrera benigna.
+
 ## Entrega y autenticación
 
 Cada evento se envía a:

@@ -25,6 +25,9 @@ $targetPageId = absint($settings['target_page_id'] ?? 0) ?: (int) get_option('ho
 $action = $targetPageId ? get_permalink($targetPageId) : home_url('/inmuebles/');
 $submitLabel = $settings['submit_label'] ?? __('Buscar', 'homlity-real-estate');
 $resetLabel = $settings['reset_label'] ?? __('Limpiar', 'homlity-real-estate');
+$keywordPlaceholder = isset($settings['keyword_placeholder']) && is_scalar($settings['keyword_placeholder'])
+    ? (string) $settings['keyword_placeholder']
+    : __('Buscar', 'homlity-real-estate');
 $mobileSidebarEnabled = !empty($settings['mobile_sidebar_enabled']);
 $mobileButtonLabel = $settings['mobile_filter_button_label'] ?? __('Filtrar inmuebles', 'homlity-real-estate');
 $fieldLabelMode = 'placeholder';
@@ -238,7 +241,7 @@ $localitySelect = static function ($currentValue, bool $usePlaceholders, bool $s
                     <?php if (!$usePlaceholders): ?>
                         <label class="property-listing__filter-label" for="homlity-filter-s"><?php esc_html_e('Buscar', 'homlity-real-estate'); ?></label>
                     <?php endif; ?>
-                    <input id="homlity-filter-s" class="property-listing__filter-input" type="search" name="q" value="<?php echo esc_attr($current(['q', 's'])); ?>" placeholder="<?php echo esc_attr($usePlaceholders ? __('Buscar', 'homlity-real-estate') : ''); ?>">
+                    <input id="homlity-filter-s" class="property-listing__filter-input" type="search" name="q" value="<?php echo esc_attr($current(['q', 's'])); ?>" placeholder="<?php echo esc_attr($usePlaceholders ? $keywordPlaceholder : ''); ?>">
                 </div>
             <?php endif; ?>
 
