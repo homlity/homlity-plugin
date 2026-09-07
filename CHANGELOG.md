@@ -11,6 +11,34 @@ La Developer API se versiona por separado. Ver
 
 ---
 
+## [Sin publicar]
+
+### Added
+
+#### Constructores de páginas
+
+- Widget nuevo en Elementor, **Código del inmueble**: pinta el código con un
+  texto antes y otro después —«Código: HOM-880 (ref.)»— y cada parte se
+  tipografía por separado. Los espacios que se escriben en «Código: » se
+  respetan tal cual; el conjunto acepta fondo, borde y radio para usarlo como
+  etiqueta.
+- Ese código puede llevar enlace. La opción de WhatsApp arma el mensaje con el
+  número que ya atiende al inmueble —la cuenta de la agencia si existe, y si no
+  la del asesor— o con uno fijo para ese widget, y el texto del mensaje admite
+  los mismos marcadores que los mensajes para compartir ({code}, {title},
+  {url}, {price}...). Se puede enlazar todo el texto o solo el código.
+- Cuando el inmueble no tiene código se puede escribir un texto de respaldo; si
+  se deja vacío, el widget no se pinta en vez de dejar un «Código:» suelto.
+
+### Changed
+
+- `WhatsAppLinkService` gana `buildPropertyLinkWithTemplate()` para armar el
+  enlace del inmueble con un mensaje propio, y `advisorPhoneForProperty()` para
+  resolver el teléfono del asesor asignado. `buildPropertyLink()` se comporta
+  igual que siempre; su tercer parámetro sigue sin usarse y ahora lo dice.
+
+---
+
 ## [2.9.0] - 2026-08-31
 
 ### Added

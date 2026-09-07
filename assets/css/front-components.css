@@ -1605,3 +1605,26 @@
 .property-content-widget li {
     list-style: inherit;
 }
+
+/* ── Código del inmueble ──────────────────────────────────────────────────
+   Las partes van en línea para que el conjunto se comporte como una frase:
+   si el texto de antes es largo, envuelve sin partir el código. */
+.homlity-property-code {
+  display: block;
+}
+
+.homlity-property-code__before,
+.homlity-property-code__value,
+.homlity-property-code__after {
+  display: inline;
+}
+
+.homlity-property-code__value {
+  white-space: nowrap;
+}
+
+.homlity-property-code__link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}

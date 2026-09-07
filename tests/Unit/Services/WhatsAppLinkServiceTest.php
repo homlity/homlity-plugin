@@ -82,4 +82,58 @@ final class WhatsAppLinkServiceTest extends TestCase
             WhatsAppLinkService::buildPropertyLink(self::POST_ID, '3015554433')
         );
     }
+
+    /**
+     * Una plantilla propia sirve para que cada sitio donde se pone el enlace
+     * diga a qué viene, sin cambiar el mensaje del resto de la web.
+     */
+    public function testLaPlantillaPropiaSustituyeAlMensajeDeLosAjustes(): void
+    {
+        $link = WhatsAppLinkService::buildPropertyLinkWithTemplate(
+            self::POST_ID,
+            '3015554433',
+            'Quiero ver el inmueble {code}'
+        );
+
+        self::assertStringContainsString('&text=' . rawurlencode('Quiero ver el inmueble CS-12'), $link);
+    }
+
+    public function testSinPlantillaPropiaSeUsaElMensajeDeLosAjustes(): void
+    {
+        self::assertSame(
+            WhatsAppLinkService::buildPropertyLink(self::POST_ID, '3015554433'),
+            WhatsAppLinkService::buildPropertyLinkWithTemplate(self::POST_ID, '3015554433')
+        );
+    }
+
+    public function testLaPlantillaPropiaNoInventaUnNumero(): void
+    {
+        self::assertSame('', WhatsAppLinkService::buildPropertyLinkWithTemplate(self::POST_ID, '', 'Hola'));
+    }
+
+    public function testElTelefonoDelInmuebleSaleDeSuPropiaMeta(): void
+    {
+        WpStubs::setPostMeta(self::POST_ID, ['_property_agent_phone' => '+57 300 444 5566']);
+
+        self::assertSame('+57 300 444 5566', WhatsAppLinkService::advisorPhoneForProperty(self::POST_ID));
+    }
+
+    /**
+     * Cuando el CRM no manda el teléfono en el inmueble solo queda el usuario
+     * del asesor, y cada integración lo guardó con un nombre distinto.
+     */
+    public function testSinTelefonoEnElInmuebleSeBuscaEnElPerfilDelAsesor(): void
+    {
+        WpStubs::setPostMeta(self::POST_ID, ['_property_agent_id' => 77]);
+        WpStubs::setUser(77, 'asesor', [], ['author'], ['billing_phone' => '3009998877']);
+
+        self::assertSame('3009998877', WhatsAppLinkService::advisorPhoneForProperty(self::POST_ID));
+    }
+
+    public function testSinAsesorNiTelefonoDevuelveCadenaVacia(): void
+    {
+        WpStubs::setPostMeta(self::POST_ID, []);
+
+        self::assertSame('', WhatsAppLinkService::advisorPhoneForProperty(self::POST_ID));
+    }
 }
