@@ -73,6 +73,9 @@ final class WpStubs
     /** @var array<int,string> post id => URL de la imagen destacada */
     public static array $thumbnails = [];
 
+    /** @var array<int,int> Id del adjunto usado como imagen destacada. */
+    public static array $thumbnailIds = [];
+
     /** @var array<int,array{0:int,1:int}> adjunto => [ancho, alto] */
     public static array $attachmentSizes = [];
 
@@ -267,6 +270,7 @@ final class WpStubs
         self::$postContent = [];
         self::$postExcerpt = [];
         self::$thumbnails = [];
+        self::$thumbnailIds = [];
         self::$attachmentSizes = [];
         self::$avatarsDisabled = false;
         self::$currentTaxonomy = '';
@@ -369,6 +373,21 @@ final class WpStubs
             static fn(int $id): object => self::setTerm($id, $taxonomy),
             $termIds
         );
+    }
+
+    /**
+     * Normaliza lo que WordPress acepta indistintamente —un id o un WP_Post—
+     * a un id, para que los stubs no sean más estrictos que el original.
+     *
+     * @param int|\WP_Post|object $post
+     */
+    public static function postId($post): int
+    {
+        if (is_object($post) && isset($post->ID)) {
+            return (int) $post->ID;
+        }
+
+        return (int) $post;
     }
 
     /** @param array<string,mixed> $meta */

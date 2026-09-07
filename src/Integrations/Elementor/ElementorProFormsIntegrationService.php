@@ -7,6 +7,10 @@ use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\AgentImageTag;
 use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\AgentTextTag;
 use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\AgentUrlTag;
 use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\PropertyCodeTag;
+use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\PropertyGalleryTag;
+use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\PropertyImageTag;
+use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\PropertyTextTag;
+use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\PropertyUrlTag;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -45,6 +49,12 @@ class ElementorProFormsIntegrationService implements ServiceInterface
 
         $dynamicTags->register(new PropertyCodeTag());
 
+        // «Inmueble: dato» expone el catálogo entero —precios, áreas, ubicación,
+        // características, asesor— tras un desplegable, en vez de una etiqueta
+        // por campo: sesenta entradas sueltas en el menú de Elementor no hay
+        // quien las recorra.
+        $dynamicTags->register(new PropertyTextTag());
+
         // Las etiquetas del asesor sirven tanto en su perfil —/author/{slug}/—
         // como en la ficha de un inmueble: resuelven al asesor de la página en
         // la que estén. Data_Tag solo existe en Elementor 3, de ahí la
@@ -53,6 +63,9 @@ class ElementorProFormsIntegrationService implements ServiceInterface
             $dynamicTags->register(new AgentTextTag());
             $dynamicTags->register(new AgentUrlTag());
             $dynamicTags->register(new AgentImageTag());
+            $dynamicTags->register(new PropertyUrlTag());
+            $dynamicTags->register(new PropertyImageTag());
+            $dynamicTags->register(new PropertyGalleryTag());
         }
     }
 

@@ -14,10 +14,62 @@ if (!defined('ABSPATH')) {
 
 class SeoService implements ServiceInterface
 {
+    /**
+     * True once the active SEO plugin has emitted its own Open Graph block for
+     * this request, so the plugin does not print a second, conflicting one.
+     */
+    private bool $seoPluginOwnsOpenGraph = false;
+
     public function register(): void
     {
         add_action('wp_head', [$this, 'renderOpenGraphTags'], 4);
         add_action('wp_head', [$this, 'renderStructuredData'], 5);
+
+        // Los inmuebles sincronizados desde el CRM no tienen imagen destacada
+        // en la biblioteca de medios: sus fotos son URLs externas guardadas en
+        // post meta. Sin estos filtros el plugin SEO no encuentra imagen y cae
+        // en la imagen por defecto del sitio, que es la que acaban mostrando
+        // WhatsApp y las redes al compartir la ficha.
+        add_filter('rank_math/opengraph/facebook/image', [$this, 'filterSeoPluginImage'], 20);
+        add_filter('rank_math/opengraph/twitter/image', [$this, 'filterSeoPluginImage'], 20);
+        add_filter('wpseo_opengraph_image', [$this, 'filterSeoPluginImage'], 20);
+        add_filter('wpseo_twitter_image', [$this, 'filterSeoPluginImage'], 20);
+    }
+
+    /**
+     * Feeds the property photo to Yoast/Rank Math when WordPress has no
+     * featured image for it.
+     *
+     * @param mixed $image
+     * @return mixed
+     */
+    public function filterSeoPluginImage($image)
+    {
+        // Estos filtros corren durante el head del plugin SEO (wp_head:1), antes
+        // de que este servicio imprima nada: sirven además como señal de que las
+        // etiquetas Open Graph ya tienen dueño en esta petición.
+        $this->seoPluginOwnsOpenGraph = true;
+
+        if (!empty($GLOBALS['homlity_property_recovery_context'])) {
+            return $image;
+        }
+        if (!is_singular(PropertyPostType::POST_TYPE)) {
+            return $image;
+        }
+
+        $post = get_post();
+        if (!$post instanceof \WP_Post) {
+            return $image;
+        }
+
+        // Una imagen elegida a mano en el plugin SEO manda sobre la galería.
+        if ($this->hasSeoPluginImageOverride($post->ID)) {
+            return $image;
+        }
+
+        $resolved = self::propertyImageUrl($post->ID);
+
+        return $resolved !== '' ? $resolved : $image;
     }
 
     public function renderOpenGraphTags(): void
@@ -28,6 +80,13 @@ class SeoService implements ServiceInterface
 
         // Recovery pages must not output property OG tags — the property is not available.
         if (!empty($GLOBALS['homlity_property_recovery_context'])) {
+            return;
+        }
+
+        // Yoast/Rank Math ya imprimieron su bloque Open Graph (con la imagen del
+        // inmueble gracias a filterSeoPluginImage). Duplicar og:image y og:title
+        // deja a los crawlers eligiendo entre dos juegos de etiquetas.
+        if ($this->seoPluginOwnsOpenGraph) {
             return;
         }
 
@@ -74,7 +133,7 @@ class SeoService implements ServiceInterface
         $bathrooms = get_post_meta($post->ID, $meta['bathrooms'], true);
         $lat = get_post_meta($post->ID, $meta['latitude'], true);
         $lng = get_post_meta($post->ID, $meta['longitude'], true);
-        $image = get_the_post_thumbnail_url($post, 'full');
+        $image = self::propertyImageUrl($post->ID);
 
         $schema = [
             '@context' => 'https://schema.org',
@@ -117,6 +176,44 @@ class SeoService implements ServiceInterface
         echo '<script type="application/ld+json">' . wp_json_encode($schema) . '</script>';
     }
 
+    /**
+     * Resolves the image that represents a property when shared or indexed.
+     *
+     * Only a fraction of the catalogue has a real WordPress featured image:
+     * properties imported from a CRM keep their photos as external URLs, so
+     * falling back to the gallery is what keeps the share preview from going
+     * blank. [PropertyMedia] knows every shape that meta can take.
+     */
+    public static function propertyImageUrl(int $postId): string
+    {
+        return PropertyMedia::mainImageUrl($postId);
+    }
+
+    /**
+     * Whether the editor picked a social image for this property inside the SEO
+     * plugin; that choice must win over the gallery fallback.
+     */
+    private function hasSeoPluginImageOverride(int $postId): bool
+    {
+        foreach ([
+            'rank_math_facebook_image_id',
+            'rank_math_facebook_image',
+            'rank_math_twitter_image_id',
+            'rank_math_twitter_image',
+            '_yoast_wpseo_opengraph-image-id',
+            '_yoast_wpseo_opengraph-image',
+            '_yoast_wpseo_twitter-image-id',
+            '_yoast_wpseo_twitter-image',
+        ] as $metaKey) {
+            $value = get_post_meta($postId, $metaKey, true);
+            if (!empty($value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function primaryPrice(int $postId, array $meta)
     {
         $order = ['price_sale', 'price_rent', 'price_admin'];
@@ -151,7 +248,7 @@ class SeoService implements ServiceInterface
         $title = get_the_title($post);
         $description = wp_strip_all_tags(get_the_excerpt($post) ?: get_post_field('post_content', $post->ID));
         $url = get_permalink($post);
-        $image = get_the_post_thumbnail_url($post, 'large') ?: get_site_icon_url(512);
+        $image = self::propertyImageUrl($post->ID) ?: get_site_icon_url(512);
 
         $this->printOg([
             'og:type' => 'product',

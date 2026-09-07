@@ -603,17 +603,21 @@ if (!function_exists('update_post_meta')) {
 }
 
 if (!function_exists('get_the_title')) {
-    function get_the_title(int $postId = 0): string
+    /** @param int|\WP_Post $postId WordPress acepta el id o el propio post. */
+    function get_the_title($postId = 0): string
     {
-        return WpStubs::$postTitles[$postId] ?? '';
+        return WpStubs::$postTitles[WpStubs::postId($postId)] ?? '';
     }
 }
 
 if (!function_exists('get_permalink')) {
-    /** @return string|false */
-    function get_permalink(int $postId = 0)
+    /**
+     * @param int|\WP_Post $postId WordPress acepta el id o el propio post.
+     * @return string|false
+     */
+    function get_permalink($postId = 0)
     {
-        return WpStubs::$permalinks[$postId] ?? false;
+        return WpStubs::$permalinks[WpStubs::postId($postId)] ?? false;
     }
 }
 
@@ -1521,6 +1525,14 @@ if (!function_exists('get_the_modified_date')) {
     }
 }
 
+if (!function_exists('get_post_thumbnail_id')) {
+    /** @param int|\WP_Post $postId */
+    function get_post_thumbnail_id($postId = 0): int
+    {
+        return (int) (WpStubs::$thumbnailIds[WpStubs::postId($postId)] ?? 0);
+    }
+}
+
 if (!function_exists('get_the_post_thumbnail_url')) {
     /** @return string|false */
     function get_the_post_thumbnail_url(int $postId = 0, $size = 'post-thumbnail')
@@ -2158,9 +2170,10 @@ if (!function_exists('sanitize_html_class')) {
 }
 
 if (!function_exists('get_the_excerpt')) {
-    function get_the_excerpt(int $postId = 0): string
+    /** @param int|\WP_Post $postId WordPress acepta el id o el propio post. */
+    function get_the_excerpt($postId = 0): string
     {
-        return WpStubs::$postExcerpts[$postId] ?? '';
+        return WpStubs::$postExcerpts[WpStubs::postId($postId)] ?? '';
     }
 }
 

@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use Homlity\PluginInmobiliario\Services\PropertyMedia;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 
 class Homlity_Schema_Helpers
@@ -329,35 +330,17 @@ class Homlity_Schema_Helpers
 
     // ── Images ────────────────────────────────────────────────────────────────
 
-    /** Returns an array of public image URLs (thumbnail first, then gallery). */
+    /**
+     * Returns an array of public image URLs (thumbnail first, then gallery).
+     *
+     * La galería puede venir como ids de adjunto (alta manual desde el editor)
+     * o como URLs externas (inmuebles sincronizados desde un CRM, que no pasan
+     * por la biblioteca de medios). Leer sólo los ids dejaba `image` vacío en
+     * el JSON-LD de la mayor parte del catálogo.
+     */
     public static function images(int $post_id): array
     {
-        $urls    = [];
-        $thumb   = (int) get_post_thumbnail_id($post_id);
-        if ($thumb > 0) {
-            $src = wp_get_attachment_image_url($thumb, 'large');
-            if ($src) {
-                $urls[$thumb] = $src;
-            }
-        }
-
-        $gallery_raw = get_post_meta($post_id, self::meta_key('gallery'), true);
-        if (is_array($gallery_raw)) {
-            $ids = array_filter(array_map('absint', $gallery_raw));
-        } else {
-            $ids = array_filter(array_map('absint', explode(',', (string) $gallery_raw)));
-        }
-        foreach ($ids as $att_id) {
-            if ($att_id === $thumb || isset($urls[$att_id])) {
-                continue;
-            }
-            $src = wp_get_attachment_image_url($att_id, 'large');
-            if ($src) {
-                $urls[$att_id] = $src;
-            }
-        }
-
-        return array_values($urls);
+        return PropertyMedia::imageUrls($post_id);
     }
 
     // ── Amenity features (LocationFeatureSpecification) ───────────────────────
