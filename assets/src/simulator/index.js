@@ -48,7 +48,10 @@ const SimuladorRoot = defineComponent({
       if (props.modo === 'venta') {
         return h(SimuladorVenta, { configuracion: modeConfig, logo: systemLogo });
       }
-      return h(SimuladorArriendo, { configuracion: modeConfig, logo: systemLogo });
+      return h(SimuladorArriendo, {
+        configuracion: { ...modeConfig, system: config.system || {} },
+        logo: systemLogo,
+      });
     };
   },
 });

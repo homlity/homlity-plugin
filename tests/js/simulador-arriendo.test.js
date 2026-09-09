@@ -176,3 +176,91 @@ describe('la tabla de resultados', () => {
     expect(conAdministracion.calc.valorRentaRecibir).toBe(sinAdministracion.calc.valorRentaRecibir);
   });
 });
+
+/** Reproduce los valores enviados por los ajustes de WordPress, sin forzarlos en el formulario. */
+function desdeAjustes(ajustes = {}) {
+  const configuracion = {
+    porcentajeIva: '19', comisionActiva: '1', comisionModalidad: 'porcentaje',
+    comisionTotalInmobiliaria: '10', comisionAplicaIva: '1',
+    incluirAdministracionEnBaseComision: '1', incluirAdministracionEnBaseSeguro: '1',
+    seguroActivo: '1', seguroCanonArrendamiento: '2.5',
+    seguroBase: 'canon_mas_administracion_mas_iva',
+    retencionFuenteActiva: '0', retencionIcaActiva: '0', gastosBancariosActivos: '0',
+    ...ajustes,
+  };
+  const vm = instanciar(configuracion, null);
+  vm.form = vm.buildInitialForm(vm.normalizedConfig);
+  Object.assign(vm.form, { canon: 1000000, tieneAdministracion: true, valorAdministracion: 300000 });
+  return vm;
+}
+
+describe('ajustes de administración e IVA', () => {
+  for (const comision of ['0', '1']) {
+    for (const seguro of ['0', '1']) {
+      for (const iva of ['0', '1']) {
+        it(`respeta administración comisión=${comision}, póliza=${seguro} e IVA=${iva}`, () => {
+          const vm = desdeAjustes({
+            incluirAdministracionEnBaseComision: comision,
+            incluirAdministracionEnBaseSeguro: seguro,
+            comisionAplicaIva: iva,
+          });
+          expect(vm.calc.valorComision).toBe(comision === '1' ? 130000 : 100000);
+          expect(vm.calc.valorSeguro).toBe(seguro === '1' ? 32500 : 25000);
+          expect(vm.calc.ivaComision).toBe(iva === '1' ? (comision === '1' ? 24700 : 19000) : 0);
+          expect(vm.calc.totalIngresos).toBe(1300000);
+          expect(vm.calc.valorRentaRecibir).toBe(1000000 - vm.calc.valorComision - vm.calc.valorSeguro - vm.calc.ivaComision);
+        });
+      }
+    }
+  }
+
+  it.each(['canon', 'canon_mas_iva'])('excluye administración cuando la base de póliza es %s', (base) => {
+    const vm = desdeAjustes({ seguroBase: base });
+    expect(vm.calc.valorSeguro).toBe(25000);
+  });
+
+  it('ignora la cuota almacenada si el inmueble no tiene administración', () => {
+    const vm = desdeAjustes();
+    vm.form.tieneAdministracion = false;
+    expect(vm.calc.valorComision).toBe(100000);
+    expect(vm.calc.valorSeguro).toBe(25000);
+    expect(vm.calc.ivaComision).toBe(19000);
+  });
+
+  it('aplica IVA sobre el mínimo y respeta los valores fijos', () => {
+    const vm = desdeAjustes({ comisionModalidad: 'porcentaje_con_minimo', comisionMinimaInmobiliaria: '150000', seguroModalidad: 'valor_fijo', seguroValorFijo: '40000' });
+    expect(vm.calc.valorComision).toBe(150000);
+    expect(vm.calc.ivaComision).toBe(28500);
+    expect(vm.calc.valorSeguro).toBe(40000);
+    vm.form.comision.modalidad = 'valor_fijo';
+    vm.form.canon = 5000000;
+    expect(vm.calc.valorComision).toBe(150000);
+    expect(vm.calc.ivaComision).toBe(28500);
+  });
+
+  it('acepta booleanos y no interpreta la cadena cero como verdadero', () => {
+    const vm = desdeAjustes({
+      incluirAdministracionEnBaseComision: true, comisionAplicaIva: true,
+      administracion: { incluirEnBaseSeguro: '0' },
+      comision: { aplicaIva: '0' },
+    });
+    expect(vm.calc.valorComision).toBe(130000);
+    expect(vm.calc.valorSeguro).toBe(25000);
+    expect(vm.calc.ivaComision).toBe(0);
+    expect(desdeAjustes({ comisionAplicaIva: true }).calc.ivaComision).toBe(24700);
+  });
+
+  it('carga todos los ajustes tardíos sin borrar el canon ni la cuota', () => {
+    const vm = desdeAjustes();
+    vm.configuracion = { ...vm.configuracion, comisionTotalInmobiliaria: '8',
+      incluirAdministracionEnBaseComision: '0', incluirAdministracionEnBaseSeguro: '0',
+      comisionAplicaIva: '0', seguroCanonArrendamiento: '3', seguroBase: 'canon' };
+    opciones.watch.configuracion.handler.call(vm);
+    expect(vm.form.canon).toBe(1000000);
+    expect(vm.form.valorAdministracion).toBe(300000);
+    expect(vm.form.tieneAdministracion).toBe(true);
+    expect(vm.calc.valorComision).toBe(80000);
+    expect(vm.calc.valorSeguro).toBe(30000);
+    expect(vm.calc.ivaComision).toBe(0);
+  });
+});

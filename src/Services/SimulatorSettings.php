@@ -185,16 +185,19 @@ final class SimulatorSettings
                         'label' => __('IVA sobre comisión', 'homlity-real-estate'),
                         'type' => 'checkbox',
                         'checkboxLabel' => __('Aplicar IVA sobre el valor de la comisión', 'homlity-real-estate'),
+                        'help' => __('Se calcula sobre la comisión resultante, incluido el mínimo o valor fijo, usando el IVA (%) configurado. No depende del IVA del canon.', 'homlity-real-estate'),
                     ],
                     'incluirAdministracionEnBaseComision' => [
                         'label' => __('Administración en base de comisión', 'homlity-real-estate'),
                         'type' => 'checkbox',
                         'checkboxLabel' => __('Incluir administración en la base de la comisión', 'homlity-real-estate'),
+                        'help' => __('Suma la cuota al canon para calcular la comisión porcentual cuando el inmueble tiene administración. No modifica una comisión de valor fijo.', 'homlity-real-estate'),
                     ],
                     'incluirAdministracionEnBaseSeguro' => [
                         'label' => __('Administración en base del seguro', 'homlity-real-estate'),
                         'type' => 'checkbox',
                         'checkboxLabel' => __('Incluir administración en la base del seguro / póliza', 'homlity-real-estate'),
+                        'help' => __('Requiere que la base de cálculo del seguro también incluya administración y que el inmueble tenga una cuota. Al desmarcarlo se excluye la cuota. No modifica una póliza de valor fijo.', 'homlity-real-estate'),
                     ],
                     'seguroCanonArrendamiento' => [
                         'label' => __('Seguro / póliza (%)', 'homlity-real-estate'),

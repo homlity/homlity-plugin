@@ -91,7 +91,7 @@ class WebHomlityAdapter implements CrmAdapterInterface
                 PropertyTaxonomies::TAXONOMY_TYPE         => $this->asList($record['type'] ?? $record['tipo'] ?? null),
                 PropertyTaxonomies::TAXONOMY_CATEGORY     => $this->asList($record['category'] ?? $record['categories'] ?? $record['categorias'] ?? []),
                 PropertyTaxonomies::TAXONOMY_TAG          => $this->asList($record['tags'] ?? $record['etiquetas'] ?? []),
-                PropertyTaxonomies::TAXONOMY_FEATURE      => $this->asList($record['features'] ?? $record['caracteristicas'] ?? []),
+                PropertyTaxonomies::TAXONOMY_FEATURE      => $this->featureNames($record['features'] ?? $record['caracteristicas'] ?? []),
                 PropertyTaxonomies::TAXONOMY_COUNTRY      => $this->asList($record['country'] ?? $record['pais'] ?? []),
                 PropertyTaxonomies::TAXONOMY_STATE        => $this->asList($record['state'] ?? $record['departamento'] ?? []),
                 PropertyTaxonomies::TAXONOMY_CITY         => $this->asList($record['city'] ?? $record['ciudad'] ?? []),
@@ -116,6 +116,71 @@ class WebHomlityAdapter implements CrmAdapterInterface
                 'user_id'     => 0,
             ],
         ];
+    }
+
+    /**
+     * La API entrega listas planas o grupos con metadatos y características.
+     * No importar el nombre de una categoría ni las opciones desmarcadas.
+     * Este adaptador también funciona sin el plugin opcional Homlity Sync.
+     *
+     * @return string[]
+     */
+    private function featureNames(mixed $value, int $depth = 0): array
+    {
+        if ($depth > 8 || $value === null) {
+            return [];
+        }
+        if (!is_array($value)) {
+            if (!is_string($value)) {
+                return [];
+            }
+            return array_values(array_filter($this->asList($value), fn ($name) =>
+                !is_numeric($name) && !$this->isFeatureFlag($name)
+            ));
+        }
+        foreach (['features', 'caracteristicas', 'characteristics'] as $key) {
+            if (isset($value[$key]) && is_array($value[$key])) {
+                return $this->featureNames($value[$key], $depth + 1);
+            }
+        }
+        foreach (['value', 'valor', 'value_raw', 'active', 'activo', 'enabled', 'estado'] as $key) {
+            if (array_key_exists($key, $value) && $this->isFeatureFlag($value[$key], false)) {
+                return [];
+            }
+        }
+        foreach (['name', 'nombre', 'label', 'title', 'descripcion', 'description'] as $key) {
+            if (isset($value[$key]) && is_string($value[$key]) && trim($value[$key]) !== '') {
+                return $this->featureNames($value[$key], $depth + 1);
+            }
+        }
+        foreach (['feature', 'characteristic', 'caracteristica', 'attribute'] as $key) {
+            if (isset($value[$key])) {
+                return $this->featureNames($value[$key], $depth + 1);
+            }
+        }
+        $names = [];
+        foreach ($value as $key => $child) {
+            if (in_array($key, ['id', 'category', 'value_type', 'valueType', 'value_raw'], true)) {
+                continue;
+            }
+            foreach ($this->featureNames($child, $depth + 1) as $name) {
+                $names[strtolower(remove_accents($name))] = $name;
+            }
+        }
+        return array_values($names);
+    }
+
+    private function isFeatureFlag(mixed $value, bool $includeTrue = true): bool
+    {
+        if (is_array($value)) {
+            return $value === [];
+        }
+        $value = strtolower(remove_accents(trim((string) $value)));
+        $flags = ['', '0', 'no', 'false', 'n', 'na', 'n/a', 'none', 'null', 'ninguno', 'ninguna'];
+        if ($includeTrue) {
+            $flags = array_merge($flags, ['1', 'si', 'true', 'yes']);
+        }
+        return in_array($value, $flags, true);
     }
 
     /**

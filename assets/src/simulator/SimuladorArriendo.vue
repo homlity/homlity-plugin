@@ -566,7 +566,10 @@ export default {
 
     normalizarConfiguracion(cfg) {
       const c = cfg || {};
-      const bool = (key, override, def) => override != null ? !!override : c[key] !== undefined ? String(c[key]) === '1' : def;
+      const bool = (key, override, def) => {
+        const value = override ?? c[key];
+        return value == null ? def : value === true || value === 1 || value === '1' || value === 'true';
+      };
 
       const porcentajeIva = this.normalizarNumero(c.porcentajeIva ?? c.valoresTributarios?.porcentajeIvaGeneral, 19);
       const comisionPct = this.normalizarNumero(c.comision?.porcentaje ?? c.comisionTotalInmobiliaria, 9.5);
@@ -673,9 +676,22 @@ export default {
     },
 
     syncFormWithConfig(cfg) {
-      this.form.incluirAdministracionEnBaseComision = !!cfg.administracion.incluirEnBaseComision;
-      this.form.incluirAdministracionEnBaseSeguro = !!cfg.administracion.incluirEnBaseSeguro;
-      this.form.comision.aplicaIva = !!cfg.comision.aplicaIva;
+      const defaults = this.buildInitialForm(cfg);
+      // La configuración puede llegar después de montar el custom element.
+      // Actualiza los ajustes completos sin borrar canon, administración ni
+      // las condiciones del inmueble introducidas por el visitante.
+      for (const key of [
+        'incluirAdministracionEnBaseComision', 'incluirAdministracionEnBaseSeguro',
+        'comision', 'seguro', 'aplicarSeguro', 'gastosBancarios', 'aplicarGastosBancarios',
+        'retenciones',
+      ]) {
+        this.form[key] = defaults[key];
+      }
+      this.form.condicionesTributarias.aplicarRetencionIva = defaults.condicionesTributarias.aplicarRetencionIva;
+      if (!this.form.regimenArrendatario) {
+        this.form.condicionesTributarias.aplicarRetencionFuente = defaults.condicionesTributarias.aplicarRetencionFuente;
+        this.form.condicionesTributarias.aplicarRetencionIca = defaults.condicionesTributarias.aplicarRetencionIca;
+      }
     },
 
     resolverGrupoTributarioInmueble() {
