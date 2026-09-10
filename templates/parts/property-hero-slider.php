@@ -123,6 +123,7 @@ $options = array_merge([
     'effect'            => 'slide',  // 'slide' | 'fade'
     'speed'             => 600,
     'show_arrows'       => true,
+    'arrows_position'   => 'inside',
     'show_pagination'   => true,
     'pagination_type'   => 'bullets', // 'bullets' | 'fraction' | 'progressbar'
     'kenburns'          => false,
@@ -187,6 +188,9 @@ if (!empty($options['effect']) && $options['effect'] === 'fade') {
 }
 if (!empty($options['kenburns']) && !$isCardsLayout) {
     $wrapperClasses[] = 'hml-hero-slider--kenburns';
+}
+if (!empty($options['show_arrows']) && $options['arrows_position'] === 'outside') {
+    $wrapperClasses[] = 'hml-hero-slider--arrows-outside';
 }
 ?>
 <div id="<?php echo esc_attr($sliderId); ?>"

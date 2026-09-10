@@ -59,7 +59,7 @@ final class SimulatorServiceTest extends TestCase
 
         self::assertStringContainsString('homlity-simulator--arriendo', $html);
         self::assertStringContainsString('<codwelt-simulador', $html);
-        self::assertStringContainsString('var mode = "arriendo";', $html);
+        self::assertStringContainsString('modo="arriendo"', $html);
         self::assertArrayHasKey(SimulatorService::SCRIPT_HANDLE, WpStubs::$registeredScripts);
         self::assertArrayHasKey(SimulatorService::STYLE_HANDLE, WpStubs::$registeredStyles);
         self::assertArrayHasKey(SimulatorService::SCRIPT_HANDLE, WpStubs::$enqueuedScripts);
@@ -81,7 +81,7 @@ final class SimulatorServiceTest extends TestCase
         $html = $service->renderLegacyShortcode(['tipo' => '“venta”']);
 
         self::assertStringContainsString('homlity-simulator--venta', $html);
-        self::assertStringContainsString('var mode = "venta";', $html);
+        self::assertStringContainsString('modo="venta"', $html);
     }
 
     /** @dataProvider modosHistoricos */

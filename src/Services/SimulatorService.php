@@ -114,13 +114,9 @@ class SimulatorService implements ServiceInterface
         ];
 
         $elementId = wp_unique_id('homlity-simulator-');
-        // wp_json_encode() devuelve false si la codificación falla (UTF-8 inválido
-        // en un texto de ajustes, por ejemplo). Sin este respaldo el <script> de
-        // abajo saldría como `var config = ;` y rompería toda la página.
+        // Conserva un JSON válido incluso si hay ajustes con UTF-8 inválido.
         $configJson = wp_json_encode($config);
         $configJson = is_string($configJson) ? $configJson : '{}';
-        $modeJson = wp_json_encode($mode);
-        $modeJson = is_string($modeJson) ? $modeJson : '"venta"';
         $intro = trim((string) ($settings[$mode]['introConceptos'] ?? ''));
 
         ob_start();
@@ -130,28 +126,13 @@ class SimulatorService implements ServiceInterface
             </div>
         <?php endif; ?>
         <div class="homlity-simulator homlity-simulator--<?php echo esc_attr($mode); ?>">
-            <codwelt-simulador id="<?php echo esc_attr($elementId); ?>"></codwelt-simulador>
+            <?php // Los atributos inicializan Vue también cuando el editor no ejecuta scripts inline. ?>
+            <codwelt-simulador
+                id="<?php echo esc_attr($elementId); ?>"
+                modo="<?php echo esc_attr($mode); ?>"
+                configuracion="<?php echo esc_attr($configJson); ?>"
+            ></codwelt-simulador>
         </div>
-        <script>
-            (function () {
-                var config = <?php echo $configJson; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON ya codificado con wp_json_encode(). ?>;
-                var elementId = <?php echo wp_json_encode($elementId); ?>;
-                var mode = <?php echo $modeJson; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON ya codificado con wp_json_encode(). ?>;
-
-                var applyConfig = function () {
-                    var el = document.getElementById(elementId);
-                    if (!el) return;
-                    el.modo = mode;
-                    el.configuracion = config;
-                };
-
-                applyConfig();
-
-                if (window.customElements && window.customElements.whenDefined) {
-                    window.customElements.whenDefined('codwelt-simulador').then(applyConfig);
-                }
-            }());
-        </script>
         <?php
 
         return (string) ob_get_clean();

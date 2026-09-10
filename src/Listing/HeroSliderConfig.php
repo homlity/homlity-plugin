@@ -102,6 +102,7 @@ final class HeroSliderConfig
             'effect'            => $this->choice('effect', self::EFFECTS, 'slide'),
             'speed'             => max(100, $this->int('speed', 600)),
             'show_arrows'       => $this->flag('show_arrows', true),
+            'arrows_position'   => $this->choice('arrows_position', ['inside', 'outside'], 'inside'),
             'show_pagination'   => $this->flag('show_pagination', true),
             'pagination_type'   => $this->choice('pagination_type', self::PAGINATION_TYPES, 'bullets'),
             'kenburns'          => $this->kenBurnsEnabled(),

@@ -88,7 +88,7 @@
     }
 
     if (showPagination) {
-      var paginationEl = node.querySelector('.swiper-pagination');
+      var paginationEl = node.querySelector('.hml-hero-slider__pagination');
       if (paginationEl) {
         config.pagination = {
           el: paginationEl,
@@ -101,8 +101,8 @@
     }
 
     if (showArrows) {
-      var nextEl = node.querySelector('.swiper-button-next');
-      var prevEl = node.querySelector('.swiper-button-prev');
+      var nextEl = node.querySelector('.hml-hero-slider__arrow--next');
+      var prevEl = node.querySelector('.hml-hero-slider__arrow--prev');
       if (nextEl && prevEl) {
         config.navigation = { nextEl: nextEl, prevEl: prevEl };
       }

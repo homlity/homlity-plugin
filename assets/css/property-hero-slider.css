@@ -284,6 +284,31 @@
     z-index: 5;
 }
 
+/* Reserve side gutters so external arrows remain visible on narrow screens
+   and inside sections that clip overflow. The slide viewport stays clipped. */
+.hml-hero-slider--arrows-outside {
+    --hml-hero-arrow-color: #111827;
+    box-sizing: border-box;
+    padding-inline: calc(var(--hml-hero-arrow-size) * 1.9 + 12px);
+}
+
+.hml-hero-slider--arrows-outside > .hml-hero-slider__arrow {
+    width: calc(var(--hml-hero-arrow-size) * 1.9);
+    height: calc(var(--hml-hero-arrow-size) * 1.9);
+    margin-top: 0;
+    transform: translateY(-50%);
+}
+
+.hml-hero-slider--arrows-outside > .hml-hero-slider__arrow--prev {
+    left: 0;
+    right: auto;
+}
+
+.hml-hero-slider--arrows-outside > .hml-hero-slider__arrow--next {
+    right: 0;
+    left: auto;
+}
+
 .hml-hero-slider .swiper-pagination-bullet {
     background: var(--hml-hero-bullet);
     opacity: 1;

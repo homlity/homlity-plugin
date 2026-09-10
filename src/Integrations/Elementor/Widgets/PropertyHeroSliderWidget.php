@@ -623,6 +623,17 @@ class PropertyHeroSliderWidget extends BasePropertyWidget
             'separator' => 'before',
         ]);
 
+        $this->add_control('arrows_position', [
+            'label'     => __('Posición de las flechas', 'homlity-real-estate'),
+            'type'      => Controls_Manager::SELECT,
+            'options'   => [
+                'inside'  => __('Dentro del slider', 'homlity-real-estate'),
+                'outside' => __('Fuera del slider', 'homlity-real-estate'),
+            ],
+            'default'   => 'inside',
+            'condition' => ['show_arrows' => 'yes'],
+        ]);
+
         $this->add_control('show_pagination', [
             'label'   => __('Mostrar paginación', 'homlity-real-estate'),
             'type'    => Controls_Manager::SWITCHER,
