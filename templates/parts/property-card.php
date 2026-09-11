@@ -249,14 +249,6 @@ $condition = get_post_meta($post_id, $meta['condition'], true);
 $age = get_post_meta($post_id, $meta['age'], true);
 $code = PropertyCodeResolver::forDisplay((int) $post_id);
 $featured = (bool) get_post_meta($post_id, $meta['featured'], true);
-$agentPhone = get_post_meta($post_id, $meta['agent_phone'], true);
-$agentId = (int) get_post_meta($post_id, $meta['agent_id'], true);
-if (!$agentPhone && $agentId > 0) {
-    $agentPhone = (string) get_user_meta($agentId, 'homlity_plugin_phone', true);
-    if (!$agentPhone) {
-        $agentPhone = (string) get_user_meta($agentId, 'billing_phone', true);
-    }
-}
 $operationTerms = wp_get_post_terms($post_id, \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_OPERATION, ['fields' => 'names']);
 $operationLabel = (!is_wp_error($operationTerms) && !empty($operationTerms)) ? (string) $operationTerms[0] : '';
 $tagTerms = wp_get_post_terms($post_id, \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_TAG, ['fields' => 'names']);
@@ -327,7 +319,7 @@ if ($cardOptions['media_mode'] === 'slider' || empty($images)) {
 
 $whatsAppLink = '';
 if (!empty($cardOptions['show_whatsapp'])) {
-    $whatsAppLink = WhatsAppLinkService::buildPropertyLink((int) $post_id, (string) $agentPhone);
+    $whatsAppLink = WhatsAppLinkService::buildListingPropertyLink((int) $post_id);
 }
 $showWhatsappIcon = !empty($cardOptions['whatsapp_show_icon']);
 $whatsappIconPosition = ($cardOptions['whatsapp_icon_position'] ?? 'left') === 'right' ? 'right' : 'left';

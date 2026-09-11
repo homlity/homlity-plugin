@@ -378,10 +378,6 @@ class PropertyCodeWidget extends BasePropertyWidget
                 );
         }
 
-        return WhatsAppLinkService::buildPropertyLinkWithTemplate(
-            $postId,
-            WhatsAppLinkService::advisorPhoneForProperty($postId),
-            $message
-        );
+        return WhatsAppLinkService::buildListingPropertyLink($postId, $message);
     }
 }

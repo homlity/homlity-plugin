@@ -218,4 +218,19 @@ final class HeroSliderTemplateTest extends TestCase
         self::assertStringContainsString('No hay inmuebles publicados.', $html);
         self::assertStringNotContainsString('swiper-wrapper', $html);
     }
+    public function testWhatsappUsaElPerfilDelAsesorDelInmueble(): void
+    {
+        $this->givenProperty(['_property_agent_id' => 77]);
+        WpStubs::setUser(77, 'asesor', [], ['author'], ['_homlity_advisor_phone' => '+57 301 555 4433']);
+        WpStubs::$postTypes[] = 'whatsapp-accounts';
+        WpStubs::$posts[] = [WpStubs::makePost(900, [
+            'nta_wa_account_info' => ['number' => '573001112233'],
+        ])];
+
+        $html = $this->render(['show_whatsapp' => 'yes']);
+
+        self::assertStringContainsString('phone=573015554433', $html);
+        self::assertStringNotContainsString('phone=573001112233', $html);
+    }
+
 }

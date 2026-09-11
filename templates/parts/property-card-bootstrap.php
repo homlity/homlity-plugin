@@ -231,15 +231,6 @@ $condition = get_post_meta($post_id, $meta['condition'], true);
 $age       = get_post_meta($post_id, $meta['age'], true);
 $code      = PropertyCodeResolver::forDisplay((int) $post_id);
 
-// Agent / contact
-$agentId       = (int) get_post_meta($post_id, $meta['agent_id'], true);
-$agentPhone    = get_post_meta($post_id, $meta['agent_phone'], true);
-if (!$agentPhone && $agentId > 0) {
-    $agentPhone = (string) get_user_meta($agentId, 'homlity_plugin_phone', true);
-    if (!$agentPhone) {
-        $agentPhone = (string) get_user_meta($agentId, 'billing_phone', true);
-    }
-}
 $featured      = (bool) get_post_meta($post_id, $meta['featured'], true);
 
 // Taxonomy labels
@@ -289,7 +280,7 @@ if ($cardOptions['media_mode'] === 'slider' || empty($galleryImages)) {
 // WhatsApp link
 $whatsAppLink = '';
 if (!empty($cardOptions['show_whatsapp'])) {
-    $whatsAppLink = WhatsAppLinkService::buildPropertyLink((int) $post_id, (string) $agentPhone);
+    $whatsAppLink = WhatsAppLinkService::buildListingPropertyLink((int) $post_id);
 }
 $showWhatsappIcon = !empty($cardOptions['whatsapp_show_icon']);
 $whatsappIconPosition = ($cardOptions['whatsapp_icon_position'] ?? 'left') === 'right' ? 'right' : 'left';

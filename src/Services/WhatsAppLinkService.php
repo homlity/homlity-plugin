@@ -56,6 +56,20 @@ class WhatsAppLinkService
     }
 
     /**
+     * Contacto de las tarjetas y sliders: el asesor del inmueble tiene
+     * prioridad; la cuenta general solo se usa si no tiene teléfono.
+     */
+    public static function buildListingPropertyLink(int $postId, string $messageTemplate = ''): string
+    {
+        $link = self::buildAgentLink(
+            self::advisorPhoneForProperty($postId),
+            SocialShareMessageService::messageFor('whatsapp', $postId, $messageTemplate)
+        );
+
+        return $link !== '' ? $link : self::buildPropertyLinkWithTemplate($postId, '', $messageTemplate);
+    }
+
+    /**
      * Teléfono del asesor asignado al inmueble.
      *
      * La ficha guarda el teléfono al sincronizar, pero cuando el CRM no lo

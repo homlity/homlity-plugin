@@ -277,8 +277,7 @@ if (!empty($options['show_arrows']) && $options['arrows_position'] === 'outside'
 
                         $whatsAppLink = '';
                         if (!empty($options['show_whatsapp'])) {
-                            $agentPhone = (string) get_post_meta($postId, $meta['agent_phone'], true);
-                            $whatsAppLink = WhatsAppLinkService::buildPropertyLink((int) $postId, $agentPhone);
+                            $whatsAppLink = WhatsAppLinkService::buildListingPropertyLink((int) $postId);
                         }
                         ?>
                         <div class="hml-hero-slider__media">

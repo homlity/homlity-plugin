@@ -297,7 +297,7 @@ final class PropertyFields
 
         return match ($link) {
             'permalink' => (string) get_permalink($postId),
-            'whatsapp' => WhatsAppLinkService::buildPropertyLink($postId),
+            'whatsapp' => WhatsAppLinkService::buildListingPropertyLink($postId),
             'maps' => self::mapsUrl($postId),
             'brochure' => self::firstUrl(self::meta($postId, 'brochure')),
             'tour_360' => self::firstUrl(self::rawMeta($postId, 'tour_360')),

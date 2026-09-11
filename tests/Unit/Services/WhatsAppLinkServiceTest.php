@@ -136,4 +136,55 @@ final class WhatsAppLinkServiceTest extends TestCase
 
         self::assertSame('', WhatsAppLinkService::advisorPhoneForProperty(self::POST_ID));
     }
+    public function testElListadoPrefiereElAsesorAunqueHayaCuentaGeneral(): void
+    {
+        WpStubs::$postTypes[] = 'whatsapp-accounts';
+        WpStubs::$posts[] = [WpStubs::makePost(500, [
+            'nta_wa_account_info' => ['number' => '573001112233'],
+        ])];
+        WpStubs::setPostMeta(self::POST_ID, ['_property_agent_phone' => '+57 301 555 4433']);
+
+        $link = WhatsAppLinkService::buildListingPropertyLink(self::POST_ID);
+
+        self::assertStringStartsWith('https://api.whatsapp.com/send?phone=573015554433&', $link);
+        self::assertStringContainsString(rawurlencode('CS-12'), $link);
+        self::assertSame([], WpStubs::$getPostsCalls);
+    }
+
+    public function testCadaInmuebleDelListadoUsaSuAsesor(): void
+    {
+        WpStubs::setPostMeta(self::POST_ID, ['_property_agent_id' => 77]);
+        WpStubs::setUser(77, 'asesor', [], ['author'], ['_homlity_advisor_phone' => '+57 300 999 8877']);
+        WpStubs::setPost(22, 'Otro inmueble', 'https://inmobiliaria.test/otro/', ['_property_agent_id' => 78]);
+        WpStubs::setUser(78, 'otro-asesor', [], ['author'], ['phone' => '+57 300 888 7766']);
+
+        self::assertStringContainsString('phone=573009998877&', WhatsAppLinkService::buildListingPropertyLink(self::POST_ID));
+        self::assertStringContainsString('phone=573008887766&', WhatsAppLinkService::buildListingPropertyLink(22));
+    }
+
+    public function testElListadoUsaLaCuentaGeneralSinTelefonoDeAsesor(): void
+    {
+        WpStubs::$postTypes[] = 'whatsapp-accounts';
+        WpStubs::$posts[] = [WpStubs::makePost(500, [
+            'nta_wa_account_info' => ['number' => '573001112233'],
+        ])];
+
+        self::assertStringContainsString('phone=573001112233&', WhatsAppLinkService::buildListingPropertyLink(self::POST_ID));
+    }
+
+    public function testElListadoSinNingunTelefonoNoGeneraEnlace(): void
+    {
+        self::assertSame('', WhatsAppLinkService::buildListingPropertyLink(self::POST_ID));
+    }
+
+    public function testElListadoConMensajePropioConservaElAsesor(): void
+    {
+        WpStubs::setPostMeta(self::POST_ID, ['_property_agent_phone' => '573015554433']);
+
+        $link = WhatsAppLinkService::buildListingPropertyLink(self::POST_ID, 'Me interesa {code}');
+
+        self::assertStringContainsString('phone=573015554433&', $link);
+        self::assertStringContainsString('text=' . rawurlencode('Me interesa CS-12'), $link);
+    }
+
 }

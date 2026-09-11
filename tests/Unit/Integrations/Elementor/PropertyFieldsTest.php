@@ -310,4 +310,23 @@ final class PropertyFieldsTest extends TestCase
         self::assertSame(['id' => 0, 'url' => ''], PropertyFields::image(888, 'featured'));
         self::assertSame([], PropertyFields::gallery(888));
     }
+    public function testWhatsappDinamicoUsaElAsesorDeCadaInmuebleDelBucle(): void
+    {
+        $first = $this->givenProperty(['_property_agent_id' => 77]);
+        $second = $this->givenProperty(['_property_agent_id' => 78], 501);
+        WpStubs::setUser(77, 'asesor', [], ['author'], ['_homlity_advisor_phone' => '+57 301 555 4433']);
+        WpStubs::setUser(78, 'otro-asesor', [], ['author'], ['phone' => '+57 302 555 4433']);
+        WpStubs::$postTypes[] = 'whatsapp-accounts';
+        WpStubs::$posts[] = [WpStubs::makePost(900, [
+            'nta_wa_account_info' => ['number' => '573001112233'],
+        ])];
+
+        foreach ([$first => '573015554433', $second => '573025554433'] as $postId => $phone) {
+            WpStubs::$currentPostId = $postId;
+            $url = PropertyFields::url(PropertyFields::resolvePropertyId(), 'whatsapp');
+            self::assertStringContainsString('phone=' . $phone, $url);
+            self::assertStringNotContainsString('phone=573001112233', $url);
+        }
+    }
+
 }
