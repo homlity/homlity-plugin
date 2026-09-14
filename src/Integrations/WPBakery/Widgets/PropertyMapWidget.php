@@ -101,40 +101,6 @@ class PropertyMapWidget extends BasePropertyWidget
             'label_off' => __('No', 'homlity-real-estate'),
             'default' => 'yes',
         ]);
-        $this->add_control('street_mode', [
-            'label' => __('Modo Street View', 'homlity-real-estate'),
-            'type' => Controls_Manager::SELECT,
-            'default' => 'google_js',
-            'options' => [
-                'google_js' => __('Google Maps JS API', 'homlity-real-estate'),
-                'iframe' => __('Iframe fallback', 'homlity-real-estate'),
-            ],
-            'condition' => ['enable_street_view' => 'yes'],
-        ]);
-        $this->add_control('google_maps_api_key', [
-            'label' => __('Google Maps API Key (opcional)', 'homlity-real-estate'),
-            'type' => Controls_Manager::TEXT,
-            'condition' => ['street_mode' => 'google_js', 'enable_street_view' => 'yes'],
-        ]);
-        $this->add_control('street_radius', [
-            'label' => __('Radio búsqueda Street View (m)', 'homlity-real-estate'),
-            'type' => Controls_Manager::SELECT,
-            'default' => '100',
-            'options' => ['25' => '25', '50' => '50', '100' => '100', '150' => '150', '250' => '250', '500' => '500'],
-            'condition' => ['street_mode' => 'google_js', 'enable_street_view' => 'yes'],
-        ]);
-        $this->add_control('street_unavailable_behavior', [
-            'label' => __('Si no hay Street View', 'homlity-real-estate'),
-            'type' => Controls_Manager::SELECT,
-            'default' => 'disabled',
-            'options' => [
-                'hide' => __('Ocultar tab', 'homlity-real-estate'),
-                'disabled' => __('Mostrar tab deshabilitado', 'homlity-real-estate'),
-                'message' => __('Mostrar mensaje', 'homlity-real-estate'),
-                'external' => __('Abrir externo en Google Maps', 'homlity-real-estate'),
-            ],
-            'condition' => ['enable_street_view' => 'yes'],
-        ]);
         $this->add_control('initial_tab', [
             'label' => __('Pestaña inicial', 'homlity-real-estate'),
             'type' => Controls_Manager::SELECT,

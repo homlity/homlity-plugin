@@ -149,6 +149,10 @@ $termSelect = static function (string $name, string $taxonomy, string $label, $c
             name="<?php echo esc_attr($inputName); ?>"
             id="<?php echo esc_attr($name); ?>"
             class="property-listing__filter-select<?php echo $multiple ? ' property-filter-multiselect' : ''; ?>"
+            <?php if ($taxonomy === PropertyTaxonomies::TAXONOMY_CITY): ?>
+                data-search-placeholder="<?php esc_attr_e('Buscar ciudad…', 'homlity-real-estate'); ?>"
+                data-search-empty="<?php esc_attr_e('No se encontraron ciudades', 'homlity-real-estate'); ?>"
+            <?php endif; ?>
             <?php
             if ($multiple) {
                 $multiPlaceholder = ($usePlaceholders || $selectUsesLabelOption) ? $label : __('Selecciona opciones', 'homlity-real-estate');
@@ -209,7 +213,7 @@ $localitySelect = static function ($currentValue, bool $usePlaceholders, bool $s
     <?php
 };
 ?>
-<div class="property-listing property-filter-widget<?php echo $mobileSidebarEnabled ? ' property-filter-widget--mobile-sidebar' : ''; ?>" data-filter-instance="<?php echo esc_attr($instanceId); ?>">
+<div class="property-listing property-filter-widget<?php echo $mobileSidebarEnabled ? ' property-filter-widget--mobile-sidebar' : ''; ?>" data-filter-instance="<?php echo esc_attr($instanceId); ?>" data-search-placeholder="<?php esc_attr_e('Buscar opciones…', 'homlity-real-estate'); ?>" data-search-empty="<?php esc_attr_e('No se encontraron opciones', 'homlity-real-estate'); ?>">
     <?php if ($mobileSidebarEnabled): ?>
         <button
             type="button"

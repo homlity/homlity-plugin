@@ -993,6 +993,39 @@
     display: block;
 }
 
+.hpf-multi__search-box {
+    background: #fff;
+    padding: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.property-filter-widget .hpf-multi__search {
+    background: #fff;
+    border: 1px solid var(--homlity-border);
+    border-radius: 6px;
+    box-sizing: border-box;
+    color: var(--homlity-text);
+    font-family: inherit;
+    font-size: 16px;
+    min-width: 0;
+    padding: 8px 10px;
+    width: 100%;
+}
+
+.property-filter-widget .hpf-multi__search:focus {
+    border-color: var(--homlity-primary-color);
+    outline: 2px solid var(--homlity-primary-color);
+    outline-offset: 1px;
+}
+
+.hpf-multi__empty {
+    color: var(--homlity-text-soft);
+    font-size: 0.9rem;
+    padding: 12px 14px;
+}
+
 .hpf-multi__item {
     background: #fff;
     border: none;

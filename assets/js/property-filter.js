@@ -1,9 +1,15 @@
 (function () {
     'use strict';
 
-    function createMultiSelect(select) {
+    function createSearchableSelect(select) {
         if (!select || select.dataset.enhanced === '1') return;
         select.dataset.enhanced = '1';
+        var multiple = select.multiple;
+        var label = select.dataset.placeholder || select.getAttribute('aria-label')
+            || (select.labels && select.labels[0] ? select.labels[0].textContent : '')
+            || (select.options[0] ? select.options[0].text : 'Selecciona opciones');
+        var widget = select.closest('.property-filter-widget');
+        var messages = widget ? widget.dataset : {};
 
         var wrapper = document.createElement('div');
         wrapper.className = 'hpf-multi';
@@ -28,12 +34,47 @@
 
         var menu = document.createElement('div');
         menu.className = 'hpf-multi__menu';
-        menu.id = menuId;
-        menu.setAttribute('role', 'listbox');
-        menu.setAttribute('aria-multiselectable', 'true');
+        var list = document.createElement('div');
+        list.id = menuId;
+        list.setAttribute('role', 'listbox');
+        list.setAttribute('aria-label', label);
+        list.setAttribute('aria-multiselectable', multiple ? 'true' : 'false');
+
+        var searchBox = document.createElement('div');
+        searchBox.className = 'hpf-multi__search-box';
+        var search = document.createElement('input');
+        search.type = 'search';
+        search.className = 'hpf-multi__search';
+        search.placeholder = select.dataset.searchPlaceholder || messages.searchPlaceholder || 'Buscar opciones…';
+        search.setAttribute('aria-label', search.placeholder + ' ' + label);
+        search.setAttribute('aria-controls', menuId);
+        search.autocomplete = 'off';
+        search.addEventListener('input', renderMenu);
+        search.addEventListener('keydown', function (e) {
+            // Enter must not submit the property search while filtering options.
+            if (e.key === 'Enter') e.preventDefault();
+            if (e.key === 'ArrowDown') {
+                var first = list.querySelector('button:not(:disabled)');
+                if (first) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+        });
+        searchBox.appendChild(search);
+        menu.appendChild(searchBox);
+        var empty = document.createElement('div');
+        empty.className = 'hpf-multi__empty';
+        empty.setAttribute('role', 'status');
+        menu.appendChild(list);
+        if (empty) menu.appendChild(empty);
+
+        function normalize(value) {
+            return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+        }
 
         var options = Array.prototype.slice.call(select.options).filter(function (opt) {
-            return opt.value !== '';
+            return !multiple || opt.value !== '';
         });
 
         function renderSelection() {
@@ -43,7 +84,7 @@
             if (!selected.length) {
                 var placeholder = document.createElement('span');
                 placeholder.className = 'hpf-multi__placeholder';
-                placeholder.textContent = select.dataset.placeholder || 'Selecciona opciones';
+                placeholder.textContent = label;
                 chips.appendChild(placeholder);
                 return;
             }
@@ -57,32 +98,51 @@
         }
 
         function renderMenu() {
-            menu.innerHTML = '';
+            list.innerHTML = '';
+            var query = search ? normalize(search.value) : '';
             options.forEach(function (opt) {
-                if (opt.hidden) return;
+                if (opt.hidden || (query && normalize(opt.text).indexOf(query) === -1)) return;
                 var item = document.createElement('button');
                 item.type = 'button';
                 item.className = 'hpf-multi__item' + (opt.selected ? ' is-selected' : '');
                 item.setAttribute('role', 'option');
                 item.setAttribute('aria-selected', opt.selected ? 'true' : 'false');
                 item.textContent = opt.text;
+                item.disabled = select.disabled || opt.disabled || (opt.parentElement.tagName === 'OPTGROUP' && opt.parentElement.disabled);
                 item.addEventListener('click', function (e) {
                     e.preventDefault();
-                    opt.selected = !opt.selected;
+                    opt.selected = multiple ? !opt.selected : true;
                     notifyChange();
+                    if (multiple) {
+                        search.focus();
+                    } else {
+                        closeMenu();
+                        trigger.focus();
+                    }
                 });
-                menu.appendChild(item);
+                list.appendChild(item);
             });
+            if (empty) {
+                empty.hidden = list.children.length > 0;
+                empty.textContent = empty.hidden ? '' : (select.dataset.searchEmpty || messages.searchEmpty || 'No se encontraron opciones');
+            }
         }
 
         function openMenu() {
+            if (select.disabled) return;
+            renderMenu();
             wrapper.classList.add('is-open');
             trigger.setAttribute('aria-expanded', 'true');
+            if (search) search.focus();
         }
 
         function closeMenu() {
             wrapper.classList.remove('is-open');
             trigger.setAttribute('aria-expanded', 'false');
+            if (search && search.value) {
+                search.value = '';
+                renderMenu();
+            }
         }
 
         trigger.addEventListener('click', function () {
@@ -116,6 +176,12 @@
             renderMenu();
         });
 
+        select.addEventListener('hpf:refresh', function () {
+            renderSelection();
+            renderMenu();
+        });
+
+        trigger.disabled = select.disabled;
         select.style.display = 'none';
         select.parentNode.insertBefore(wrapper, select);
         wrapper.appendChild(select);
@@ -176,6 +242,8 @@
                 });
             }
 
+            if (locality) locality.dispatchEvent(new Event('hpf:refresh'));
+            if (neighborhood) neighborhood.dispatchEvent(new Event('hpf:refresh'));
             if (localityChanged) locality.dispatchEvent(new Event('change', { bubbles: true }));
             if (neighborhoodChanged) neighborhood.dispatchEvent(new Event('change', { bubbles: true }));
         }
@@ -256,7 +324,7 @@
 
         root.querySelectorAll('.property-filter-widget').forEach(bindGeoDependencies);
 
-        root.querySelectorAll('.property-filter-multiselect').forEach(createMultiSelect);
+        root.querySelectorAll('.property-filter-widget select, .property-filter-multiselect').forEach(createSearchableSelect);
 
         root.querySelectorAll('.property-filter-widget form').forEach(bindFormSubmit);
 

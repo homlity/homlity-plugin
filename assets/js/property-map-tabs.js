@@ -104,14 +104,8 @@
     this.panels = Array.prototype.slice.call(root.querySelectorAll('.property-map__panel[data-map-panel]'));
     this.state = {
       mapInitialized: false,
-      streetViewChecked: false,
-      streetViewAvailable: false,
-      streetViewInitialized: false,
       iframeLoaded: false
     };
-    this.streetData = null;
-    this.panorama = null;
-    this.mapApiPromise = null;
   }
 
   HomlityPropertyMap.prototype.init = function () {
@@ -190,134 +184,8 @@
     this.state.mapInitialized = true;
   };
 
-  HomlityPropertyMap.prototype.ensureGoogleMapsApi = function () {
-    var self = this;
-    if (window.google && window.google.maps) {
-      return Promise.resolve();
-    }
-    if (this.mapApiPromise) return this.mapApiPromise;
-
-    var key = this.settings.google_maps_api_key || '';
-    if (!key) return Promise.reject(new Error('Google Maps API key missing'));
-
-    this.mapApiPromise = new Promise(function (resolve, reject) {
-      var cb = 'homlityMapInit_' + self.root.getAttribute('data-map-id');
-      window[cb] = function () {
-        resolve();
-        try { delete window[cb]; } catch (e) {}
-      };
-      var script = document.createElement('script');
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key) + '&libraries=maps&callback=' + cb;
-      script.async = true;
-      script.defer = true;
-      script.onerror = function () { reject(new Error('Google Maps API load failed')); };
-      document.head.appendChild(script);
-    });
-
-    return this.mapApiPromise;
-  };
-
-  HomlityPropertyMap.prototype.checkStreetViewAvailability = function () {
-    var self = this;
-    if (this.state.streetViewChecked) {
-      return Promise.resolve(this.state.streetViewAvailable);
-    }
-
-    this.state.streetViewChecked = true;
-    if (!isValidLatLng(this.lat, this.lng)) {
-      this.state.streetViewAvailable = false;
-      return Promise.resolve(false);
-    }
-
-    return this.ensureGoogleMapsApi().then(function () {
-      return new Promise(function (resolve) {
-        var service = new window.google.maps.StreetViewService();
-        service.getPanorama({
-          location: { lat: self.lat, lng: self.lng },
-          radius: toNumber(self.settings.street_radius, 100),
-          source: window.google.maps.StreetViewSource.OUTDOOR
-        }, function (data, status) {
-          self.state.streetViewAvailable = status === window.google.maps.StreetViewStatus.OK;
-          self.streetData = self.state.streetViewAvailable ? data : null;
-          self.toggleStreetTabAvailability();
-          resolve(self.state.streetViewAvailable);
-        });
-      });
-    }).catch(function () {
-      self.state.streetViewAvailable = false;
-      self.toggleStreetTabAvailability();
-      return false;
-    });
-  };
-
-  HomlityPropertyMap.prototype.toggleStreetTabAvailability = function () {
-    var tab = this.root.querySelector('.property-map__tab[data-map-tab="street"]');
-    if (!tab) return;
-
-    if (this.state.streetViewAvailable) {
-      tab.hidden = false;
-      tab.classList.remove('is-disabled');
-      tab.setAttribute('aria-disabled', 'false');
-      return;
-    }
-
-    var behavior = this.settings.street_unavailable_behavior || 'disabled';
-    if (behavior === 'hide') {
-      tab.hidden = true;
-      if (tab.classList.contains('is-active')) {
-        this.showPanel('map', true);
-      }
-    } else {
-      tab.hidden = false;
-      tab.classList.add('is-disabled');
-      tab.setAttribute('aria-disabled', 'true');
-    }
-  };
-
-  HomlityPropertyMap.prototype.activateStreetView = function (force) {
-    var self = this;
-    var mode = this.settings.street_mode || 'google_js';
-
-    if (mode === 'iframe') {
-      this.loadStreetIframe();
-      return;
-    }
-
-    this.checkStreetViewAvailability().then(function (ok) {
-      if (!ok) {
-        self.showStreetFallback();
-        if (!force && self.settings.street_unavailable_behavior === 'external') {
-          var fallbackUrl = self.root.getAttribute('data-street-external-url') || '';
-          if (fallbackUrl) window.open(fallbackUrl, self.settings.open_new_tab ? '_blank' : '_self', 'noopener,noreferrer');
-        }
-        return;
-      }
-      self.initStreetView();
-    });
-  };
-
-  HomlityPropertyMap.prototype.initStreetView = function () {
-    if (this.state.streetViewInitialized || !this.streetData || !(window.google && window.google.maps)) return;
-
-    var canvas = this.root.querySelector('.property-map__street-canvas');
-    if (!canvas) return;
-
-    this.panorama = new window.google.maps.StreetViewPanorama(canvas, {
-      pano: this.streetData.location && this.streetData.location.pano ? this.streetData.location.pano : undefined,
-      position: { lat: this.lat, lng: this.lng },
-      pov: {
-        heading: toNumber(this.settings.street_heading, 0),
-        pitch: toNumber(this.settings.street_pitch, 0)
-      },
-      zoom: toNumber(this.settings.street_zoom, 1),
-      addressControl: true,
-      fullscreenControl: this.settings.street_controls === true,
-      motionTracking: false,
-      zoomControl: this.settings.street_controls === true
-    });
-
-    this.state.streetViewInitialized = true;
-    this.hideStreetFallback();
+  HomlityPropertyMap.prototype.activateStreetView = function () {
+    this.loadStreetIframe();
   };
 
   HomlityPropertyMap.prototype.loadStreetIframe = function () {
@@ -330,34 +198,26 @@
       return;
     }
 
-    // Show the iframe immediately so the user sees it loading
+    var src = iframe.getAttribute('data-map-src') || '';
+    if (!src) {
+      this.showStreetFallback('error');
+      return;
+    }
+    // Cross-origin iframe load does not prove coverage. Let Google render its response.
     iframe.hidden = false;
-    iframe.src = iframe.getAttribute('data-map-src') || '';
+    iframe.src = src;
     this.state.iframeLoaded = true;
-
-    var self = this;
-    // Give the iframe enough time to load before showing the fallback
-    var timeout = setTimeout(function () {
-      // Only show fallback if the iframe hasn't loaded yet
-      if (iframe.hidden === false && !self.state.iframeReady) {
-        self.showStreetFallback();
-      }
-    }, 10000);
-
-    iframe.addEventListener('load', function () {
-      clearTimeout(timeout);
-      self.state.iframeReady = true;
-      // Ensure fallback is hidden and iframe is visible
-      var fallback = self.root.querySelector('[data-map-street-fallback]');
-      if (fallback) fallback.hidden = true;
-      iframe.hidden = false;
-    }, { once: true });
+    this.hideStreetFallback();
   };
 
-  HomlityPropertyMap.prototype.showStreetFallback = function () {
+  HomlityPropertyMap.prototype.showStreetFallback = function (reason) {
     var fallback = this.root.querySelector('[data-map-street-fallback]');
-    if (fallback) fallback.hidden = false;
-    // Hide both canvas and iframe when showing the fallback
+    if (fallback) {
+      fallback.hidden = false;
+      var message = fallback.querySelector('[data-map-street-message]');
+      if (message) message.textContent = reason === 'error'
+        ? this.settings.street_error_message : this.settings.street_unavailable_message;
+    }
     var canvas = this.root.querySelector('.property-map__street-canvas');
     if (canvas) canvas.hidden = true;
     var panel = this.root.querySelector('.property-map__panel[data-map-panel="street"]');
@@ -370,18 +230,8 @@
   HomlityPropertyMap.prototype.hideStreetFallback = function () {
     var fallback = this.root.querySelector('[data-map-street-fallback]');
     if (fallback) fallback.hidden = true;
-    // Show the appropriate element based on the mode
-    var mode = (this.settings || {}).street_mode || 'google_js';
-    if (mode === 'iframe') {
-      var panel = this.root.querySelector('.property-map__panel[data-map-panel="street"]');
-      if (panel) {
-        var iframe = panel.querySelector('iframe[data-map-src]');
-        if (iframe) iframe.hidden = false;
-      }
-    } else {
-      var canvas = this.root.querySelector('.property-map__street-canvas');
-      if (canvas) canvas.hidden = false;
-    }
+    var iframe = this.root.querySelector('.property-map__panel[data-map-panel="street"] iframe');
+    if (iframe) iframe.hidden = false;
   };
 
   HomlityPropertyMap.prototype.resizeActiveMap = function () {
@@ -391,10 +241,7 @@
       leaf.__homlityLeafletMap.invalidateSize();
     }
 
-    if (this.panorama && typeof this.panorama.setPov === 'function') {
-      var pov = this.panorama.getPov();
-      this.panorama.setPov(pov);
-    }
+
   };
 
   HomlityPropertyMap.prototype.copyCoordinates = function (event) {

@@ -75,9 +75,9 @@ $googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=' . rawurlenco
 $googleDirectionsUrl = 'https://www.google.com/maps/dir/?api=1&destination=' . rawurlencode($latLng) . '&travelmode=' . rawurlencode($travelMode);
 $wazeUrl = 'https://waze.com/ul?ll=' . rawurlencode($latLng) . '&navigate=yes&zoom=17';
 $appleMapsUrl = 'https://maps.apple.com/?daddr=' . rawurlencode($latLng);
-$streetViewUrl = 'https://maps.google.com/?cbll=' . rawurlencode($latLng) . '&layer=c';
-$streetViewEmbedUrl = 'https://www.google.com/maps/embed?pb='
-    . rawurlencode('!4v' . time() . '!6m8!1m7!1tstreetview!2m2!1d' . $lat . '!2d' . $lng . '!3f90!4f0!5f0.7820865974627469');
+$streetViewUrl = 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=' . rawurlencode($latLng);
+$streetViewEmbedUrl = 'https://www.google.com/maps/embed?pb=!4v1638990616651!6m8!1m7!1toZz0mw!2m2!1d'
+    . $lat . '!2d' . $lng . '!3f90!4f0!5f0.7820865974627469';
 
 $fallbackIconUrl = HOMLITY_PLUGIN_URL . 'assets/img/FAVICON.ico';
 $markerIconUrl = get_site_icon_url(32) ?: $fallbackIconUrl;
@@ -139,21 +139,12 @@ if ($relatedEnabled && $relatedLimit > 0) {
 $showStreetView = !isset($widgetSettings['enable_street_view']) || $widgetSettings['enable_street_view'] === 'yes';
 $showTabs = !isset($widgetSettings['show_tabs']) || $widgetSettings['show_tabs'] === 'yes';
 $showActions = !isset($widgetSettings['show_route_actions']) || $widgetSettings['show_route_actions'] === 'yes';
-$streetMode = isset($widgetSettings['street_mode']) && in_array($widgetSettings['street_mode'], ['google_js', 'iframe'], true)
-    ? $widgetSettings['street_mode']
-    : 'google_js';
-
 $mapId = wp_unique_id('hml-map-');
 $settingsPayload = [
     'initial_tab' => isset($widgetSettings['initial_tab']) ? sanitize_key((string) $widgetSettings['initial_tab']) : 'map',
-    'street_mode' => $streetMode,
-    'street_radius' => isset($widgetSettings['street_radius']) ? (int) $widgetSettings['street_radius'] : 100,
-    'street_unavailable_behavior' => isset($widgetSettings['street_unavailable_behavior']) ? sanitize_key((string) $widgetSettings['street_unavailable_behavior']) : 'disabled',
-    'street_heading' => isset($widgetSettings['street_heading']) ? (float) $widgetSettings['street_heading'] : 0,
-    'street_pitch' => isset($widgetSettings['street_pitch']) ? (float) $widgetSettings['street_pitch'] : 0,
-    'street_zoom' => isset($widgetSettings['street_zoom']) ? (int) $widgetSettings['street_zoom'] : 1,
-    'street_controls' => !isset($widgetSettings['street_controls']) || $widgetSettings['street_controls'] === 'yes',
-    'google_maps_api_key' => isset($widgetSettings['google_maps_api_key']) ? sanitize_text_field((string) $widgetSettings['google_maps_api_key']) : '',
+    'street_mode' => 'iframe',
+    'street_error_message' => __('No se pudo cargar Street View. Puedes abrirlo en Google Maps.', 'homlity-real-estate'),
+    'street_unavailable_message' => $widgetSettings['street_unavailable_message'] ?? __('Street View no está disponible para esta ubicación. Puedes abrir la ubicación en Google Maps.', 'homlity-real-estate'),
     'open_new_tab' => $openNewTab,
 ];
 
@@ -232,18 +223,18 @@ wp_enqueue_script(
 
         <?php if ($showStreetView) : ?>
         <div class="property-map__panel" data-map-panel="street" id="<?php echo esc_attr($mapId . '-panel-street'); ?>" role="tabpanel" aria-labelledby="<?php echo esc_attr($mapId . '-tab-street'); ?>" hidden>
-            <!-- Canvas: only shown when Google Maps JS API renders a panorama into it -->
-            <div class="property-map__street-canvas" aria-label="<?php esc_attr_e('Street View de la propiedad', 'homlity-real-estate'); ?>" hidden></div>
             <!-- Iframe: src is set by JS on demand to avoid loading while hidden -->
             <iframe
                 data-map-src="<?php echo esc_url($streetViewEmbedUrl); ?>"
-                style="border:0; width:100%;"
+                style="border:0; width:100%; height:60vh;"
+                loading="lazy"
                 allowfullscreen
+                referrerpolicy="strict-origin-when-cross-origin"
                 title="<?php esc_attr_e('Street View embebido', 'homlity-real-estate'); ?>"
                 hidden
             ></iframe>
             <p class="property-map__street-fallback" data-map-street-fallback hidden>
-                <?php echo esc_html($widgetSettings['street_unavailable_message'] ?? __('Street View no está disponible para esta ubicación. Puedes abrir la ubicación en Google Maps.', 'homlity-real-estate')); ?>
+                <span data-map-street-message><?php echo esc_html($settingsPayload['street_unavailable_message']); ?></span>
                 <a href="<?php echo esc_url($streetViewUrl); ?>" target="<?php echo esc_attr($target); ?>" rel="<?php echo esc_attr($rel); ?>"><?php esc_html_e('Abrir Street View', 'homlity-real-estate'); ?></a>
             </p>
         </div>
