@@ -477,6 +477,7 @@
 .property-card__gallery > img {
     display: block;
     width: 100%;
+    max-width: none;
     height: 210px;
     object-fit: cover;
 }
@@ -742,13 +743,26 @@
 }
 
 .property-card__gallery-slider {
+    display: block;
+    width: 100%;
     position: relative;
+    overflow: hidden;
+}
+
+.property-card__gallery-slider,
+.property-card__gallery-slider .swiper-wrapper,
+.property-card__gallery-slider .swiper-slide {
+    height: 100%;
+}
+
+.property-card__gallery-slider .swiper-slide {
     overflow: hidden;
 }
 
 .property-card__gallery-slider .swiper-slide img {
     display: block;
     width: 100%;
+    max-width: none;
     height: 210px;
     object-fit: cover;
 }

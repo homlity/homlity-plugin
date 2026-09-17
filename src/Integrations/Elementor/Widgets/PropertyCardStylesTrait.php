@@ -298,7 +298,7 @@ trait PropertyCardStylesTrait
             'size_units' => ['px'],
             'range'      => ['px' => ['min' => 120, 'max' => 520]],
             'selectors'  => [
-                '{{WRAPPER}} .property-card__gallery > img, {{WRAPPER}} .property-card__gallery-slider .swiper-slide img, {{WRAPPER}} .property-card-bs .card-img-top' => 'height: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-card__gallery > img, {{WRAPPER}} .property-card__gallery-slider, {{WRAPPER}} .property-card__gallery-slider .swiper-wrapper, {{WRAPPER}} .property-card__gallery-slider .swiper-slide, {{WRAPPER}} .property-card__gallery-slider .swiper-slide img, {{WRAPPER}} .property-card-bs .card-img-top' => 'height: {{SIZE}}{{UNIT}};',
             ],
         ]);
 

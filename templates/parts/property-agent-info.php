@@ -165,7 +165,7 @@ if ($source === 'current_agent') {
     $profileUrl = '';
 
 } elseif ($source === 'dynamic') {
-    $whatsAppUrl = WhatsAppLinkService::buildPropertyLink((int) $post_id, (string) $phone);
+    $whatsAppUrl = WhatsAppLinkService::buildListingPropertyLink((int) $post_id);
 
     if (($s['show_cta_whatsapp'] ?? 'yes') === 'yes' && $whatsAppUrl) {
         $ctas[] = [
