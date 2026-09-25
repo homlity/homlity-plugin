@@ -46,6 +46,11 @@ class PropertyTitleWidget extends BasePropertyWidget
             'type' => Controls_Manager::SWITCHER,
             'default' => '',
         ]);
+        $this->add_control('show_operation', [
+            'label' => __('Mostrar gestión del inmueble', 'homlity-real-estate'),
+            'type' => Controls_Manager::SWITCHER,
+            'default' => '',
+        ]);
         $this->end_controls_section();
 
         $this->start_controls_section('style_title', [
@@ -115,6 +120,7 @@ class PropertyTitleWidget extends BasePropertyWidget
             'post_id' => $this->current_property_id(),
             'title_tag' => $settings['title_tag'] ?? 'h1',
             'show_code' => ($settings['show_code'] ?? '') === 'yes',
+            'show_operation' => ($settings['show_operation'] ?? '') === 'yes',
         ]);
     }
 }

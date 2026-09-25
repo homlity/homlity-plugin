@@ -232,6 +232,7 @@ class Homlity_Consignment_Manager
             'enable_rate_limit'    => true,
             'rate_limit_per_hour'  => 5,
             // Features
+            'create_property'      => true,
             'enable_logs'          => true,
             'allow_advisors'       => true,
             'allow_agencies'       => true,

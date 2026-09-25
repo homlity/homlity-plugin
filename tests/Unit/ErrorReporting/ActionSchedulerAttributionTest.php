@@ -54,6 +54,22 @@ final class ActionSchedulerAttributionTest extends TestCase
         );
     }
 
+    public function testAccionDeTerceroSinCallbackSeDescartaAunqueNoExistaLaFilaDeActionScheduler(): void
+    {
+        $this->service->captureActionSchedulerFailure(99999, $this->orphanHookFailure('hcap_update_maxmind_db'), 'WP Cron');
+
+        self::assertSame([], $this->queued());
+    }
+
+    public function testAccionPropiaSinCallbackSeAtribuyePorElHookDelMensajeSiLaFilaYaNoExiste(): void
+    {
+        $this->service->captureActionSchedulerFailure(99999, $this->orphanHookFailure('simi_sync/run_provider'), 'WP Cron');
+
+        $event = $this->firstEvent();
+        self::assertSame('homlity-simi', $event['tags']['origin_plugin']);
+        self::assertSame('simi_sync/run_provider', $event['context']['hook']);
+    }
+
     public function testElFalloSeAtribuyeAlPropietarioDelHookNoAlPluginQueHospedaActionScheduler(): void
     {
         WpStubs::setScheduledAction(908, 'wasi_sync/run_provider', 'wasi-sync');
@@ -76,6 +92,73 @@ final class ActionSchedulerAttributionTest extends TestCase
         self::assertSame('homlity-simi@2.2.8', $event['release']);
         self::assertSame('action_scheduler', $event['tags']['operation']);
         self::assertSame(4212, $event['context']['action_id']);
+    }
+
+    public function testSnapshotPageFailedNoSeReportaComoFalloActionScheduler(): void
+    {
+        WpStubs::setScheduledAction(91189, 'simi_sync/process_full_reconciliation_batch', 'simi-sync');
+
+        $this->service->captureActionSchedulerFailure(91189, new \RuntimeException('Snapshot page 9 failed'), 'WP Cron');
+
+        self::assertSame([], $this->queued());
+    }
+
+    public function testDetalleSimiNoEncontradoNoSeReportaComoFalloActionScheduler(): void
+    {
+        WpStubs::setScheduledAction(120961, 'simi_sync/run_provider', 'simi-sync');
+
+        $this->service->captureActionSchedulerFailure(
+            120961,
+            new \RuntimeException('detail_fetch_failed:718-5586:No se encontró el inmueble en SIMI.'),
+            'WP Cron'
+        );
+
+        self::assertSame([], $this->queued());
+    }
+
+    public function testSoftinmUnidentifiedActionNoSeReportaComoFalloActionScheduler(): void
+    {
+        WpStubs::setScheduledAction(40093, 'softinm_sync/process_property', 'softinm-sync');
+
+        $this->service->captureActionSchedulerFailure(
+            40093,
+            new \RuntimeException(
+                'Unidentified action 40093: we were unable to mark this action as having completed. '
+                . 'It may may have been deleted by another process.'
+            ),
+            'Async Request'
+        );
+
+        self::assertSame([], $this->queued());
+    }
+
+    public function testSoftinmRespuestaIncompatibleNoSeReportaComoFalloActionScheduler(): void
+    {
+        WpStubs::setScheduledAction(44779, 'softinm_sync/run_provider', 'softinm-sync');
+
+        $this->service->captureActionSchedulerFailure(
+            44779,
+            new \RuntimeException(
+                'Softinm no respondió durante la sincronización incremental: '
+                . 'Softinm devolvió un error o un payload incompatible.'
+            ),
+            'WP Cron'
+        );
+
+        self::assertSame([], $this->queued());
+    }
+
+    public function testWasiSnapshotConDriftNoSeReportaComoFalloActionScheduler(): void
+    {
+        WpStubs::setScheduledAction(75086, 'wasi_sync/process_full_reconciliation_batch', 'wasi-sync');
+
+        $this->service->captureActionSchedulerFailure(
+            75086,
+            new \RuntimeException('WASI inventory changed or scope drifted during the snapshot.'),
+            'WP Cron'
+        );
+
+        self::assertSame([], $this->queued());
     }
 
     public function testElEventoConservaLaExcepcionOriginalYNoLaDelQueueRunner(): void

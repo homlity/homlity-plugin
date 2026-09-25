@@ -50,6 +50,7 @@ final class ErrorEventFactory
      */
     private const SCHEDULER_NOISE_MESSAGE_PATTERNS = [
         'unidentified action',
+        'unable to mark this action as having completed',
         'deleted by another process',
         'invalid action id. no status found',
     ];
@@ -234,6 +235,44 @@ final class ErrorEventFactory
                     $isNoise = true;
                     break;
                 }
+            }
+            if (!$isNoise
+                && sanitize_key((string) ($context['operation'] ?? '')) === 'action_scheduler'
+                && preg_match('/\bsnapshot page \d+ failed\b/', $normalized) === 1
+            ) {
+                $isNoise = true;
+            }
+            if (!$isNoise
+                && sanitize_key((string) ($context['operation'] ?? '')) === 'action_scheduler'
+                && str_contains($normalized, 'detail_fetch_failed:')
+                && (
+                    str_contains($normalized, 'no se encontro el inmueble')
+                    || str_contains($normalized, 'inmueble no encontrado')
+                    || str_contains($normalized, 'property not found')
+                )
+            ) {
+                $isNoise = true;
+            }
+            if (!$isNoise
+                && sanitize_key((string) ($context['operation'] ?? '')) === 'action_scheduler'
+                && str_contains($normalized, 'softinm no respondio durante la sincronizacion incremental:')
+                && (
+                    str_contains($normalized, 'payload incompatible')
+                    || str_contains($normalized, 'devolvio un error')
+                    || str_contains($normalized, 'respuesta invalida')
+                    || str_contains($normalized, 'invalid response')
+                )
+            ) {
+                $isNoise = true;
+            }
+            if (!$isNoise
+                && sanitize_key((string) ($context['operation'] ?? '')) === 'action_scheduler'
+                && (
+                    str_contains($normalized, 'wasi inventory changed')
+                    || str_contains($normalized, 'scope drifted during the snapshot')
+                )
+            ) {
+                $isNoise = true;
             }
         }
 

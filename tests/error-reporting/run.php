@@ -261,6 +261,61 @@ check(
     $factory->fromScheduledAction('homlity-softinm', new RuntimeException('Unable to claim actions. Database error: deadlock.'), $schedulerContext) !== null,
     'scheduler database error still reported'
 );
+$softinmRunProviderContext = [
+    'operation' => 'action_scheduler',
+    'status' => 'failed',
+    'hook' => 'softinm_sync/run_provider',
+    'action_group' => 'softinm-sync',
+];
+check(
+    $factory->fromScheduledAction(
+        'homlity-softinm',
+        new RuntimeException(
+            'Softinm no respondió durante la sincronización incremental: '
+            . 'Softinm devolvió un error o un payload incompatible.'
+        ),
+        $softinmRunProviderContext
+    ) === null,
+    'recoverable Softinm invalid incremental payload rejected as scheduler noise'
+);
+$simiSchedulerContext = [
+    'operation' => 'action_scheduler',
+    'status' => 'failed',
+    'hook' => 'simi_sync/process_full_reconciliation_batch',
+    'action_group' => 'simi-sync',
+];
+check(
+    $factory->fromScheduledAction('homlity-simi', new RuntimeException('Snapshot page 9 failed'), $simiSchedulerContext) === null,
+    'recoverable SIMI snapshot page failure rejected as scheduler noise'
+);
+$wasiSchedulerContext = [
+    'operation' => 'action_scheduler',
+    'status' => 'failed',
+    'hook' => 'wasi_sync/process_full_reconciliation_batch',
+    'action_group' => 'wasi-sync',
+];
+check(
+    $factory->fromScheduledAction(
+        'homlity-wasi',
+        new RuntimeException('WASI inventory changed or scope drifted during the snapshot.'),
+        $wasiSchedulerContext
+    ) === null,
+    'recoverable WASI inventory drift rejected as scheduler noise'
+);
+$simiRunProviderContext = [
+    'operation' => 'action_scheduler',
+    'status' => 'failed',
+    'hook' => 'simi_sync/run_provider',
+    'action_group' => 'simi-sync',
+];
+check(
+    $factory->fromScheduledAction(
+        'homlity-simi',
+        new RuntimeException('detail_fetch_failed:718-5586:No se encontró el inmueble en SIMI.'),
+        $simiRunProviderContext
+    ) === null,
+    'missing SIMI detail in delta sync rejected as scheduler noise'
+);
 check(
     $factory->fromSync('homlity-softinm', new RuntimeException('Undefined property $price on null'), ['status' => 'failed']) !== null,
     'programming error inside a job still reported'

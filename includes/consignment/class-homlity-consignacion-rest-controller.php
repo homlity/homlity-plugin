@@ -497,26 +497,39 @@ class Homlity_Consignacion_Rest_Controller {
 		$payload = self::build_payload( $data, $opts );
 		$payload = apply_filters( 'homlity_consignacion_payload', $payload, $data );
 
-		// Create the property
-		$post_id = self::create_property( $payload, $opts );
+		$should_create_property = ! empty( $opts['create_property'] );
+		$should_notify_admin    = ! empty( $opts['notify_admin'] );
 
-		if ( $post_id <= 0 ) {
-			return new WP_REST_Response( [ 'ok' => false, 'message' => $opts['error_message'] ], 500 );
+		if ( ! $should_create_property && ! $should_notify_admin ) {
+			return new WP_REST_Response( [
+				'ok'      => false,
+				'message' => 'El formulario no tiene ningún destino activo. Activa la creación del inmueble o el envío por correo.',
+			], 500 );
 		}
 
-		// Store extra meta fields specific to the Vue format
-		update_post_meta( $post_id, '_property_stratum', (int) ( $data['estrato'] ?? 0 ) );
-		update_post_meta( $post_id, '_property_age', (int) ( $data['edad'] ?? 0 ) );
-		update_post_meta( $post_id, '_consignment_source', 'homlity-consignacion-form' );
+		$post_id = 0;
+		if ( $should_create_property ) {
+			// Create the property
+			$post_id = self::create_property( $payload, $opts );
 
-		/**
-		 * Fires after a property is successfully created via the public consignment form.
-		 *
-		 * @param int   $post_id  The WordPress post ID of the created property.
-		 * @param array $data     Raw InmuebleNuevo payload sent by the Vue form.
-		 * @param array $payload  Normalized Homlity payload used to create the post.
-		 */
-		do_action( 'homlity_consignacion_property_created', $post_id, $data, $payload );
+			if ( $post_id <= 0 ) {
+				return new WP_REST_Response( [ 'ok' => false, 'message' => $opts['error_message'] ], 500 );
+			}
+
+			// Store extra meta fields specific to the Vue format
+			update_post_meta( $post_id, '_property_stratum', (int) ( $data['estrato'] ?? 0 ) );
+			update_post_meta( $post_id, '_property_age', (int) ( $data['edad'] ?? 0 ) );
+			update_post_meta( $post_id, '_consignment_source', 'homlity-consignacion-form' );
+
+			/**
+			 * Fires after a property is successfully created via the public consignment form.
+			 *
+			 * @param int   $post_id  The WordPress post ID of the created property.
+			 * @param array $data     Raw InmuebleNuevo payload sent by the Vue form.
+			 * @param array $payload  Normalized Homlity payload used to create the post.
+			 */
+			do_action( 'homlity_consignacion_property_created', $post_id, $data, $payload );
+		}
 
 		// Rate limit increment
 		if ( $opts['enable_rate_limit'] ) {
@@ -529,12 +542,12 @@ class Homlity_Consignacion_Rest_Controller {
 		}
 
 		// Notifications
-		if ( $opts['notify_admin'] ) {
+		if ( $should_notify_admin ) {
 			Homlity_Consignment_Notifications::notifyAdmin( $post_id, $data, $payload );
 		}
 
 		// Generate a property code (use post_id as fallback)
-		$code = get_post_meta( $post_id, '_property_code', true ) ?: (string) $post_id;
+		$code = $post_id > 0 ? ( get_post_meta( $post_id, '_property_code', true ) ?: (string) $post_id ) : '';
 
 		return new WP_REST_Response( [
 			'ok'      => true,
@@ -1042,7 +1055,7 @@ class Homlity_Consignacion_Rest_Controller {
 			'post_id' => $post_id,
 			'source'  => 'homlity-consignacion-form',
 			'email'   => sanitize_email( $propietario['email'] ?? '' ),
-			'result'  => 'success',
+			'result'  => $post_id > 0 ? 'created' : 'emailed',
 			'ip_hash' => hash( 'sha256', sanitize_text_field( wp_unslash( (string) ( $_SERVER['REMOTE_ADDR'] ?? 'unknown' ) ) ) ),
 		];
 
@@ -1052,7 +1065,9 @@ class Homlity_Consignacion_Rest_Controller {
 			$logs = array_slice( $logs, -500 );
 		}
 		update_option( 'homlity_consignment_logs', $logs, false );
-		update_post_meta( $post_id, '_consignment_audit', $entry );
+		if ( $post_id > 0 ) {
+			update_post_meta( $post_id, '_consignment_audit', $entry );
+		}
 	}
 
 	// ── Default fallback data ─────────────────────────────────────────────

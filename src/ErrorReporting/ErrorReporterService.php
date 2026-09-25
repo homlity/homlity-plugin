@@ -132,16 +132,26 @@ final class ErrorReporterService implements ServiceInterface
         }
 
         [$hook, $group] = $this->scheduledActionIdentity($actionId);
-        $origin = $this->registry->originForHook($hook) ?? $this->registry->originForActionGroup($group);
+        $orphanHook = $this->orphanHookFromNoCallbackFailure($error);
+        if ($orphanHook !== '') {
+            $hook = $hook !== '' ? $hook : $orphanHook;
+            $orphanOrigin = $this->registry->originForHook($orphanHook);
+            if ($orphanOrigin === null) {
+                return;
+            }
+            $origin = $orphanOrigin;
+        } else {
+            $origin = $this->registry->originForHook($hook) ?? $this->registry->originForActionGroup($group);
 
-        if ($origin === null) {
-            // El hook no es nuestro (o no se pudo resolver la acción). La excepción
-            // apunta a nuestro árbol vendor/ únicamente porque hospedamos la copia
-            // activa de Action Scheduler, así que sólo la aceptamos si la cadena de
-            // causas pasa por código propio fuera de vendor/. Eso descarta las
-            // acciones huérfanas de terceros sin silenciar un fallo real nuestro
-            // ejecutado bajo un hook todavía no declarado.
-            $origin = $this->registry->originForThrowable($error, true);
+            if ($origin === null) {
+                // El hook no es nuestro (o no se pudo resolver la acción). La excepción
+                // apunta a nuestro árbol vendor/ únicamente porque hospedamos la copia
+                // activa de Action Scheduler, así que sólo la aceptamos si la cadena de
+                // causas pasa por código propio fuera de vendor/. Eso descarta las
+                // acciones huérfanas de terceros sin silenciar un fallo real nuestro
+                // ejecutado bajo un hook todavía no declarado.
+                $origin = $this->registry->originForThrowable($error, true);
+            }
         }
 
         if ($origin === null) {
@@ -156,6 +166,21 @@ final class ErrorReporterService implements ServiceInterface
             'hook' => $hook,
             'action_group' => $group,
         ]);
+    }
+
+    private function orphanHookFromNoCallbackFailure(\Throwable $error): string
+    {
+        for ($current = $error; $current !== null; $current = $current->getPrevious()) {
+            if (preg_match(
+                '/Scheduled action for\s+([A-Za-z0-9_\/.\-:]+)\s+will not be executed as no callbacks are registered\./',
+                $current->getMessage(),
+                $matches
+            )) {
+                return trim((string) ($matches[1] ?? ''));
+            }
+        }
+
+        return '';
     }
 
     /** @param array<string, mixed> $context */

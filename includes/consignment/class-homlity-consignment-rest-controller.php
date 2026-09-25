@@ -213,19 +213,32 @@ class Homlity_Consignment_Rest_Controller
         $payload = apply_filters('homlity_consignment_payload', $payload, $body);
         $payload = apply_filters('homlity_consignment_payload_before_create', $payload, $body);
 
-        do_action('homlity_consignment_before_create_property', $payload);
+        $shouldCreateProperty = !empty($opts['create_property']);
+        $shouldNotifyAdmin = !empty($opts['notify_admin']);
 
-        // Create property using existing upsert service
-        $result  = self::createProperty($payload, $opts);
-        $post_id = is_int($result) ? $result : 0;
-
-        if ($post_id <= 0) {
-            return new WP_REST_Response(['ok' => false, 'message' => $opts['error_message']], 500);
+        if (!$shouldCreateProperty && !$shouldNotifyAdmin) {
+            return new WP_REST_Response([
+                'ok'      => false,
+                'message' => 'El formulario no tiene ningún destino activo. Activa la creación del inmueble o el envío por correo.',
+            ], 500);
         }
 
-        $post_id = (int) apply_filters('homlity_consignment_created_post_id', $post_id, $payload);
+        $post_id = 0;
+        if ($shouldCreateProperty) {
+            do_action('homlity_consignment_before_create_property', $payload);
 
-        do_action('homlity_consignment_after_create_property', $post_id, $payload);
+            // Create property using existing upsert service
+            $result  = self::createProperty($payload, $opts);
+            $post_id = is_int($result) ? $result : 0;
+
+            if ($post_id <= 0) {
+                return new WP_REST_Response(['ok' => false, 'message' => $opts['error_message']], 500);
+            }
+
+            $post_id = (int) apply_filters('homlity_consignment_created_post_id', $post_id, $payload);
+
+            do_action('homlity_consignment_after_create_property', $post_id, $payload);
+        }
 
         // Increment rate limit
         if ($opts['enable_rate_limit']) {
@@ -238,7 +251,7 @@ class Homlity_Consignment_Rest_Controller
         }
 
         // Notifications
-        if ($opts['notify_admin']) {
+        if ($shouldNotifyAdmin) {
             Homlity_Consignment_Notifications::notifyAdmin($post_id, $body, $payload);
         }
         if ($opts['notify_consignant']) {
@@ -499,7 +512,7 @@ class Homlity_Consignment_Rest_Controller
             'source'          => $opts['provider'] ?? 'public-consignment',
             'consignant_type' => sanitize_key($data['contact']['consignant_type'] ?? ''),
             'email'           => sanitize_email($data['contact']['email'] ?? ''),
-            'result'          => 'success',
+            'result'          => $post_id > 0 ? 'created' : 'emailed',
             'ip_hash'         => hash('sha256', sanitize_text_field(wp_unslash((string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown')))),
         ];
 
@@ -510,6 +523,8 @@ class Homlity_Consignment_Rest_Controller
         }
         update_option('homlity_consignment_logs', $logs, false);
 
-        update_post_meta($post_id, '_consignment_audit', $entry);
+        if ($post_id > 0) {
+            update_post_meta($post_id, '_consignment_audit', $entry);
+        }
     }
 }

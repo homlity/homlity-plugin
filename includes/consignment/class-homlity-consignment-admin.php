@@ -119,6 +119,7 @@ class Homlity_Consignment_Admin
                     <table class="form-table" role="presentation">
                         <?php
                         self::checkbox('enabled', $opts, __('Activar formulario público', 'homlity-real-estate'));
+                        self::checkbox('create_property', $opts, __('Crear el inmueble en la página', 'homlity-real-estate'));
                         self::select('default_status', $opts, __('Estado por defecto del inmueble', 'homlity-real-estate'), [
                             'pending' => __('Pendiente de revisión (recomendado)', 'homlity-real-estate'),
                             'draft'   => __('Borrador', 'homlity-real-estate'),
@@ -169,7 +170,7 @@ class Homlity_Consignment_Admin
                     <p class="description"><?php esc_html_e('Ajusta los mensajes visibles y los correos asociados al flujo de consignación.', 'homlity-real-estate'); ?></p>
                     <table class="form-table" role="presentation">
                         <?php
-                        self::checkbox('notify_admin', $opts, __('Notificar al administrador al recibir una consignación', 'homlity-real-estate'));
+                        self::checkbox('notify_admin', $opts, __('Enviar toda la información al correo configurado', 'homlity-real-estate'));
                         self::checkbox('notify_consignant', $opts, __('Enviar confirmación al consignante', 'homlity-real-estate'));
                         self::text('form_title', $opts, __('Título del formulario', 'homlity-real-estate'));
                         self::text('form_subtitle', $opts, __('Subtítulo', 'homlity-real-estate'));
@@ -274,7 +275,7 @@ class Homlity_Consignment_Admin
         $save = [];
 
         // Booleans
-        $bool_keys = ['enabled', 'require_coordinates', 'require_image', 'require_gallery',
+        $bool_keys = ['enabled', 'create_property', 'require_coordinates', 'require_image', 'require_gallery',
                       'allow_advisors', 'allow_agencies', 'allow_owners', 'enable_honeypot',
                       'enable_rate_limit', 'enable_logs', 'notify_admin', 'notify_consignant'];
         foreach ($bool_keys as $k) {
