@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Homlity\PluginInmobiliario\Tests\Unit\Services;
 
+use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 use Homlity\PluginInmobiliario\Services\TemplateService;
 use Homlity\PluginInmobiliario\Tests\Support\TestCase;
 use Homlity\PluginInmobiliario\Tests\Support\WpStubs;
@@ -23,12 +24,13 @@ final class PropertyTitleTemplateTest extends TestCase
         ]);
     }
 
-    private function render(bool $showCode = false): string
+    private function render(bool $showCode = false, bool $showOperation = false): string
     {
         ob_start();
         TemplateService::includeComponent('property-title.php', [
             'post_id' => self::POST_ID,
             'show_code' => $showCode,
+            'show_operation' => $showOperation,
         ]);
 
         return (string) ob_get_clean();
@@ -60,5 +62,29 @@ final class PropertyTitleTemplateTest extends TestCase
         self::assertStringContainsString('Apartamento en Belén', $html);
         self::assertStringNotContainsString('property-title-widget__code', $html);
         self::assertStringNotContainsString('Código:', $html);
+    }
+
+    public function testIntegraLaGestionEnLaFraseDelTitulo(): void
+    {
+        WpStubs::$postTerms[self::POST_ID][PropertyTaxonomies::TAXONOMY_OPERATION] = [
+            WpStubs::setTerm(3, PropertyTaxonomies::TAXONOMY_OPERATION, 'venta', 'Venta'),
+        ];
+
+        $text = trim((string) preg_replace('/\s+/', ' ', strip_tags($this->render(true, true))));
+
+        self::assertSame('Apartamento en venta en Belén Código: 718-5526', $text);
+        self::assertStringContainsString('<span class="property-title-widget__operation">en venta</span>', $this->render(false, true));
+    }
+
+    public function testSinActivarLaGestionElTituloNoCambia(): void
+    {
+        WpStubs::$postTerms[self::POST_ID][PropertyTaxonomies::TAXONOMY_OPERATION] = [
+            WpStubs::setTerm(3, PropertyTaxonomies::TAXONOMY_OPERATION, 'venta', 'Venta'),
+        ];
+
+        $html = $this->render();
+
+        self::assertStringContainsString('Apartamento en Belén', $html);
+        self::assertStringNotContainsString('venta', $html);
     }
 }
