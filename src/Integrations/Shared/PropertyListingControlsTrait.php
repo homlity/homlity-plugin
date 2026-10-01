@@ -527,7 +527,7 @@ trait PropertyListingControlsTrait
 
         $this->end_controls_tabs();
 
-        $this->add_group_control('box_shadow', [
+        $this->add_group_control(GroupControlType::resolve($this, 'box_shadow'), [
             'name'     => 'view_toggle_shadow',
             'selector' => '{{WRAPPER}} .property-listing__view-btn',
         ]);
@@ -601,7 +601,7 @@ trait PropertyListingControlsTrait
             'selectors'  => ['{{WRAPPER}} .property-listing__page-btn' => 'border-radius: {{SIZE}}{{UNIT}};'],
         ]);
 
-        $this->add_group_control('box_shadow', [
+        $this->add_group_control(GroupControlType::resolve($this, 'box_shadow'), [
             'name'     => 'pagination_btn_shadow',
             'selector' => '{{WRAPPER}} .property-listing__page-btn',
         ]);

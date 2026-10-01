@@ -79,7 +79,7 @@ trait PropertyListingStylesTrait
         $selector = '{{WRAPPER}} .property-listing .property-listing__map-container';
         $this->listingSize('map_radius', __('Radio del mapa', 'homlity-real-estate'), $selector, 'border-radius');
         $this->add_group_control('border', ['name' => 'map_border', 'label' => __('Borde del mapa', 'homlity-real-estate'), 'selector' => $selector]);
-        $this->add_group_control('box_shadow', ['name' => 'map_shadow', 'label' => __('Sombra del mapa', 'homlity-real-estate'), 'selector' => $selector]);
+        $this->add_group_control(GroupControlType::resolve($this, 'box_shadow'), ['name' => 'map_shadow', 'label' => __('Sombra del mapa', 'homlity-real-estate'), 'selector' => $selector]);
         $this->end_controls_section();
     }
 

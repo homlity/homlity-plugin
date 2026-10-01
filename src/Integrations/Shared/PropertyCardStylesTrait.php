@@ -15,7 +15,7 @@ trait PropertyCardStylesTrait
 {
     private function addCardGroupControl(string $type, array $args): void
     {
-        $this->add_group_control($type, CardGroupControls::options($type, $args));
+        $this->add_group_control(GroupControlType::resolve($this, $type), CardGroupControls::options($type, $args));
     }
 
     protected function registerCardContentControls(array $sectionArgs = []): void

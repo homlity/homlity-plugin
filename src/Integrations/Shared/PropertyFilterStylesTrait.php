@@ -719,7 +719,7 @@ trait PropertyFilterStylesTrait
 
     private function filterShadow(string $id, string $label, string $selector): void
     {
-        $this->add_group_control('box_shadow', [
+        $this->add_group_control(GroupControlType::resolve($this, 'box_shadow'), [
             'name' => $id,
             'label' => $label,
             'selector' => $selector,
