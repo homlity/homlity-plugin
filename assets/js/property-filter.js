@@ -18,6 +18,10 @@
         var trigger = document.createElement('button');
         trigger.type = 'button';
         trigger.className = 'hpf-multi__trigger';
+        trigger.id = menuId + '-trigger';
+        Array.prototype.slice.call(select.labels || []).forEach(function (fieldLabel) {
+            fieldLabel.htmlFor = trigger.id;
+        });
         trigger.setAttribute('aria-haspopup', 'listbox');
         trigger.setAttribute('aria-expanded', 'false');
         trigger.setAttribute('aria-controls', menuId);

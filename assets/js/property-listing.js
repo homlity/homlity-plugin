@@ -9,6 +9,18 @@
         this.ajaxUrl          = el.dataset.ajaxUrl;
         this.nonce            = el.dataset.nonce;
         this.perPage          = parseInt(el.dataset.perPage, 10) || 12;
+        if (window.ResizeObserver) {
+            var listing = this;
+            this.mapResizeObserver = new ResizeObserver(function () {
+                if (listing.mapInstance && listing.mapInstance.invalidateSize) {
+                    listing.mapInstance.invalidateSize();
+                } else if (listing.mapInstance && window.google && window.google.maps) {
+                    window.google.maps.event.trigger(listing.mapInstance, 'resize');
+                }
+            });
+            var mapElement = el.querySelector('.property-listing__map');
+            if (mapElement) this.mapResizeObserver.observe(mapElement);
+        }
         this.columns          = parseInt(el.dataset.columns, 10) || 3;
         this.mapZoom          = parseInt(el.dataset.mapZoom, 10) || 12;
         this.template         = el.dataset.template || 'default';
@@ -389,8 +401,13 @@
                 var d = res.data;
 
                 if (self.grid) {
-                    self.grid.innerHTML = d.html ||
-                        '<p class="property-listing__empty">' + (i18n.noResults || 'No se han encontrado inmuebles para esta consulta.') + '</p>';
+                    self.grid.innerHTML = d.html || '';
+                    if (!d.html) {
+                        var empty = document.createElement('p');
+                        empty.className = 'property-listing__empty';
+                        empty.textContent = self.el.dataset.emptyMessage || i18n.noResults || 'No se han encontrado inmuebles para esta consulta.';
+                        self.grid.appendChild(empty);
+                    }
                     self._initCardSwipers();
                 }
 

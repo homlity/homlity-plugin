@@ -379,7 +379,9 @@ class PropertyTaxonomies implements ServiceInterface
                 continue;
             }
 
-            if ($term->slug !== $definition['slug']) {
+            // The canonical slug is only applied while adopting a legacy term.
+            // Once the identity lives in term meta the slug belongs to the admin.
+            if (!self::hasStoredBaseOperationIdentity((int) $term->term_id) && $term->slug !== $definition['slug']) {
                 $updated = wp_update_term((int) $term->term_id, self::TAXONOMY_OPERATION, [
                     'slug' => $definition['slug'],
                 ]);
@@ -388,12 +390,7 @@ class PropertyTaxonomies implements ServiceInterface
                 }
             }
 
-            if (get_term_meta((int) $term->term_id, self::OPERATION_BASE_KEY_META, true) !== $definition['key']) {
-                update_term_meta((int) $term->term_id, self::OPERATION_BASE_KEY_META, $definition['key']);
-            }
-            if ((int) get_term_meta((int) $term->term_id, self::OPERATION_BASE_ID_META, true) !== $baseId) {
-                update_term_meta((int) $term->term_id, self::OPERATION_BASE_ID_META, $baseId);
-            }
+            self::storeBaseOperationIdentity((int) $term->term_id, $baseId);
         }
     }
 
@@ -424,12 +421,49 @@ class PropertyTaxonomies implements ServiceInterface
             if ($storedKey === $definition['key']) {
                 return $baseId;
             }
-            if ($term->slug === $definition['slug']) {
+            // A renamed base term keeps its identity in meta, so a custom term
+            // that later takes the free slug must not impersonate it.
+            if ($term->slug === $definition['slug'] && !self::baseOperationIdentityTakenByOtherTerm($baseId, (int) $term->term_id)) {
                 return $baseId;
             }
         }
 
         return 0;
+    }
+
+    private static function hasStoredBaseOperationIdentity(int $termId): bool
+    {
+        return (string) get_term_meta($termId, self::OPERATION_BASE_KEY_META, true) !== ''
+            && (int) get_term_meta($termId, self::OPERATION_BASE_ID_META, true) > 0;
+    }
+
+    private static function baseOperationIdentityTakenByOtherTerm(int $baseId, int $termId): bool
+    {
+        $terms = get_terms([
+            'taxonomy' => self::TAXONOMY_OPERATION,
+            'hide_empty' => false,
+            'number' => 1,
+            'meta_key' => self::OPERATION_BASE_ID_META,
+            'meta_value' => (string) $baseId,
+            'exclude' => [$termId],
+        ]);
+
+        return !is_wp_error($terms) && isset($terms[0]) && $terms[0] instanceof \WP_Term;
+    }
+
+    private static function storeBaseOperationIdentity(int $termId, int $baseId): void
+    {
+        $definitions = self::baseOperations();
+        if (!isset($definitions[$baseId])) {
+            return;
+        }
+
+        if (get_term_meta($termId, self::OPERATION_BASE_KEY_META, true) !== $definitions[$baseId]['key']) {
+            update_term_meta($termId, self::OPERATION_BASE_KEY_META, $definitions[$baseId]['key']);
+        }
+        if ((int) get_term_meta($termId, self::OPERATION_BASE_ID_META, true) !== $baseId) {
+            update_term_meta($termId, self::OPERATION_BASE_ID_META, $baseId);
+        }
     }
 
     public static function baseOperationTermById(int $baseId): ?\WP_Term
@@ -497,7 +531,7 @@ class PropertyTaxonomies implements ServiceInterface
             return;
         }
 
-        $message = __('Este tipo de gestión es un registro base de Homlity. Puedes cambiar su nombre, pero no eliminarlo ni cambiar su identidad.', 'homlity-real-estate');
+        $message = __('Este tipo de gestión es un registro base de Homlity. Puedes cambiar su nombre y su slug, pero no eliminarlo.', 'homlity-real-estate');
 
         if (wp_doing_ajax()) {
             wp_send_json_error(['message' => $message], 409);
@@ -516,10 +550,11 @@ class PropertyTaxonomies implements ServiceInterface
             return $data;
         }
 
+        // Name and slug are editable; the identity is pinned in term meta
+        // before the slug changes so the term is still recognised afterwards.
         $baseId = self::baseOperationIdForTerm($termId);
-        $definitions = self::baseOperations();
-        if ($baseId > 0 && isset($definitions[$baseId])) {
-            $data['slug'] = $definitions[$baseId]['slug'];
+        if ($baseId > 0) {
+            self::storeBaseOperationIdentity($termId, $baseId);
         }
 
         return $data;
@@ -564,7 +599,7 @@ class PropertyTaxonomies implements ServiceInterface
             <td>
                 <code><?php echo esc_html((string) $baseId); ?></code>
                 <p class="description">
-                    <?php esc_html_e('El nombre visible es editable. El ID base, el ID interno y el slug técnico están protegidos.', 'homlity-real-estate'); ?>
+                    <?php esc_html_e('El nombre y el slug son editables. El ID base y el ID interno están protegidos, así que la gestión se sigue reconociendo aunque los cambies.', 'homlity-real-estate'); ?>
                 </p>
             </td>
         </tr>
@@ -579,7 +614,7 @@ class PropertyTaxonomies implements ServiceInterface
         }
         ?>
         <div class="notice notice-info">
-            <p><?php esc_html_e('Arriendo, Venta, Arriendo/Venta y Permuta son tipos de gestión base. Puedes cambiar sus nombres, pero sus IDs y slugs técnicos permanecen protegidos y no se pueden eliminar.', 'homlity-real-estate'); ?></p>
+            <p><?php esc_html_e('Arriendo, Venta, Arriendo/Venta y Permuta son tipos de gestión base. Puedes cambiar sus nombres y slugs, pero sus IDs permanecen protegidos y no se pueden eliminar.', 'homlity-real-estate'); ?></p>
         </div>
         <?php
     }
@@ -612,20 +647,6 @@ class PropertyTaxonomies implements ServiceInterface
                     checkbox.title = <?php echo wp_json_encode(__('Este tipo de gestión base no se puede eliminar.', 'homlity-real-estate')); ?>;
                 }
             });
-
-            var currentTermId = parseInt(new URLSearchParams(window.location.search).get('tag_ID') || '0', 10);
-            if (protectedIds.indexOf(currentTermId) !== -1) {
-                var slugInput = document.getElementById('slug');
-                if (slugInput) {
-                    slugInput.readOnly = true;
-                    slugInput.setAttribute('aria-describedby', 'homlity-protected-operation-slug');
-                    var note = document.createElement('p');
-                    note.id = 'homlity-protected-operation-slug';
-                    note.className = 'description';
-                    note.textContent = <?php echo wp_json_encode(__('El slug técnico está protegido para conservar la identidad de esta gestión.', 'homlity-real-estate')); ?>;
-                    slugInput.insertAdjacentElement('afterend', note);
-                }
-            }
         });
         </script>
         <?php
@@ -1193,6 +1214,14 @@ class PropertyTaxonomies implements ServiceInterface
      */
     private static function operationFamiliesForTerm(\WP_Term $term): array
     {
+        // Base terms are classified by identity so renaming them (e.g. "Venta"
+        // to "Comprar") keeps "Venta" searches matching "Arriendo/Venta".
+        $baseFamilies = [1 => ['rent'], 2 => ['sale'], 3 => ['rent', 'sale'], 4 => []];
+        $baseId = self::baseOperationIdForTerm($term);
+        if (isset($baseFamilies[$baseId])) {
+            return $baseFamilies[$baseId];
+        }
+
         return self::operationFamiliesFromText($term->slug . ' ' . $term->name);
     }
 

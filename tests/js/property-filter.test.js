@@ -19,7 +19,8 @@ beforeEach(() => {
             <option value="medellin">Medellín</option>
             <option value="cali">Cali</option>
         </select>
-        <select name="tipo">
+        <label for="filter-type">Tipo de inmueble</label>
+        <select id="filter-type" name="tipo">
             <option value="">Tipo</option>
             <option value="casa">Casa</option>
             <option value="apartamento">Apartamento</option>
@@ -135,4 +136,15 @@ test('neighborhood results refresh when the city changes even without a selected
     input.dispatchEvent(new dom.window.Event('input'));
     expect(neighborhood.querySelectorAll('[role="option"]')).toHaveLength(0);
     expect(neighborhood.querySelector('[role="status"]').textContent).toBe('No se encontraron opciones');
+});
+
+
+test('visible labels activate the enhanced trigger', () => {
+    const label = document.querySelector('label');
+    const select = document.querySelector('[name="tipo"]');
+    const button = select.parentNode.querySelector('.hpf-multi__trigger');
+    expect(label.control).toBe(button);
+    label.click();
+    expect(button.getAttribute('aria-expanded')).toBe('true');
+    expect(document.activeElement).toBe(select.parentNode.querySelector('.hpf-multi__search'));
 });

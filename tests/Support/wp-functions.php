@@ -750,13 +750,26 @@ if (!function_exists('get_terms')) {
                 static fn(\WP_Term $t): bool => $t->parent === (int) $args['parent']
             ));
         }
+        if (isset($args['meta_key'])) {
+            $terms = array_values(array_filter(
+                $terms,
+                static fn(\WP_Term $t): bool => (string) (WpStubs::$termMeta[$t->term_id][$args['meta_key']] ?? '') === (string) ($args['meta_value'] ?? '')
+            ));
+        }
+        if (!empty($args['exclude'])) {
+            $excluded = array_map('intval', (array) $args['exclude']);
+            $terms = array_values(array_filter(
+                $terms,
+                static fn(\WP_Term $t): bool => !in_array($t->term_id, $excluded, true)
+            ));
+        }
         if (isset($args['number']) && (int) $args['number'] > 0) {
             $terms = array_slice($terms, 0, (int) $args['number']);
         }
 
-        // Sin `name` ni `parent` la llamada es un listado: se conserva la forma
-        // antigua —sólo ids— porque es lo que esperan quienes ya la usaban.
-        if (!isset($args['name']) && !array_key_exists('parent', $args)) {
+        // Sin `name`, `parent` ni `meta_key` la llamada es un listado: se conserva
+        // la forma antigua —sólo ids— porque es lo que esperan quienes ya la usaban.
+        if (!isset($args['name']) && !array_key_exists('parent', $args) && !isset($args['meta_key'])) {
             return array_map(static fn(\WP_Term $t): int => $t->term_id, $terms);
         }
 
@@ -807,6 +820,33 @@ if (!function_exists('wp_set_object_terms')) {
         WpStubs::$objectTerms[$objectId][$taxonomy] = array_values(array_unique(array_merge($existing, $ids)));
 
         return WpStubs::$objectTerms[$objectId][$taxonomy];
+    }
+}
+
+if (!function_exists('wp_update_term')) {
+    /**
+     * Aplica el filtro `wp_update_term_data` como WordPress, para poder probar
+     * a quien lo engancha.
+     *
+     * @param array<string,mixed> $args
+     * @return array<string,int>|\WP_Error
+     */
+    function wp_update_term(int $termId, string $taxonomy, array $args = [])
+    {
+        $term = WpStubs::$terms[$taxonomy][$termId] ?? null;
+        if (!$term instanceof \WP_Term) {
+            return new \WP_Error('invalid_term', 'El término no existe');
+        }
+
+        $data = [
+            'name' => (string) ($args['name'] ?? $term->name),
+            'slug' => sanitize_title((string) ($args['slug'] ?? $term->slug)),
+        ];
+        $data = apply_filters('wp_update_term_data', $data, $termId, $taxonomy, $args);
+        $term->name = $data['name'];
+        $term->slug = $data['slug'];
+
+        return ['term_id' => $termId, 'term_taxonomy_id' => $termId];
     }
 }
 
@@ -2153,6 +2193,18 @@ if (!function_exists('checked')) {
     }
 }
 
+if (!function_exists('selected')) {
+    function selected(mixed $selected, mixed $current = true, bool $display = true): string
+    {
+        $html = (string) $selected === (string) $current ? " selected='selected'" : '';
+        if ($display) {
+            echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        }
+
+        return $html;
+    }
+}
+
 if (!function_exists('_n')) {
     function _n(string $single, string $plural, int $number, string $domain = 'default'): string
     {
@@ -2230,5 +2282,23 @@ if (!function_exists('post_class')) {
     function post_class($class = '', int $postId = 0): void
     {
         echo 'class="' . esc_attr(implode(' ', get_post_class($class, $postId))) . '"';
+    }
+}
+
+if (!function_exists('wp_create_nonce')) {
+    function wp_create_nonce($action = -1): string
+    {
+        return 'test-nonce-' . (string) $action;
+    }
+}
+
+if (!function_exists('disabled')) {
+    function disabled($disabled, $current = true, $display = true): string
+    {
+        $result = (string) $disabled === (string) $current ? ' disabled="disabled"' : '';
+        if ($display) {
+            echo $result;
+        }
+        return $result;
     }
 }

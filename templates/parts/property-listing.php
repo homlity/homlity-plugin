@@ -41,19 +41,15 @@ $viewToggleStyle = implode('', array_map(
     array_keys($viewToggleCssVariables),
     array_values($viewToggleCssVariables)
 ));
-$sortOptions = [
-    'date'       => __('Más recientes',        'homlity-real-estate'),
-    'price_asc'  => __('Precio: menor a mayor','homlity-real-estate'),
-    'price_desc' => __('Precio: mayor a menor','homlity-real-estate'),
-    'title'      => __('Nombre A–Z',           'homlity-real-estate'),
-];
+$sortOptions = ListingConfig::sortOptions();
 ?>
 <div id="<?php echo esc_attr($uniqueId); ?>"
-     class="property-listing"
+     class="property-listing<?php echo $config->responsiveColumns() ? ' property-listing--responsive-columns' : ''; ?>"
      style="<?php echo esc_attr($viewToggleStyle); ?>"
      data-default-order="<?php echo esc_attr($config->orderby()); ?>"
      data-view="<?php echo esc_attr($config->defaultView()); ?>"
      data-per-page="<?php echo esc_attr($config->postsPerPage()); ?>"
+     data-empty-message="<?php echo esc_attr($config->emptyMessage()); ?>"
      data-columns="<?php echo esc_attr($config->columns()); ?>"
      data-map-zoom="<?php echo esc_attr($config->mapZoom()); ?>"
      data-template="<?php echo esc_attr($config->template()); ?>"
@@ -141,13 +137,13 @@ $sortOptions = [
         <?php endif; ?>
         <div class="property-listing__toolbar-right">
             <?php if ($config->showSort()) : ?>
-            <select class="property-listing__sort" aria-label="<?php esc_attr_e('Ordenar por', 'homlity-real-estate'); ?>">
+            <span class="property-listing__sort-wrap"><select class="property-listing__sort" aria-label="<?php esc_attr_e('Ordenar por', 'homlity-real-estate'); ?>">
                 <?php foreach ($sortOptions as $value => $label) : ?>
                     <option value="<?php echo esc_attr($value); ?>" <?php selected($currentOrder, $value); ?>>
                         <?php echo esc_html($label); ?>
                     </option>
                 <?php endforeach; ?>
-            </select>
+            </select></span>
             <?php endif; ?>
 
             <?php if ($config->showViewToggle()) : ?>
@@ -205,7 +201,7 @@ $sortOptions = [
                 }
                 wp_reset_postdata();
             } else {
-                echo '<p class="property-listing__empty">' . esc_html__('No se han encontrado inmuebles para esta consulta.', 'homlity-real-estate') . '</p>';
+                echo '<p class="property-listing__empty">' . esc_html($config->emptyMessage()) . '</p>';
             }
             ?>
         </div>
@@ -215,7 +211,7 @@ $sortOptions = [
         <div class="property-listing__map-container" <?php echo $config->defaultView() === 'grid' ? 'hidden' : ''; ?>>
             <div id="<?php echo esc_attr($uniqueId); ?>-map"
                  class="property-listing__map"
-                 style="height:<?php echo esc_attr($config->mapHeight()); ?>px;"></div>
+                 <?php if (!$config->builderStyles()) : ?>style="height:<?php echo esc_attr($config->mapHeight()); ?>px;"<?php endif; ?>></div>
         </div>
         <?php endif; ?>
     </div>

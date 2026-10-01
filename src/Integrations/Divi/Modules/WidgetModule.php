@@ -50,7 +50,7 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
     public function get_fields(): array
     {
         $fields = [];
-        foreach ($this->widget()->get_controls() as $name => $control) {
+        foreach (\Homlity\PluginInmobiliario\Integrations\Shared\ListingControlSections::forCompatibilityPanel($this->widget()->get_controls()) as $name => $control) {
             if (($control['type'] ?? '') === 'homlity_group') {
                 $fields += $this->groupControlFields((string) $name, (array) $control);
                 continue;
@@ -66,7 +66,7 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
     public function get_settings_modal_toggles(): array
     {
         $toggles = ['general' => ['toggles' => []], 'advanced' => ['toggles' => []]];
-        foreach ($this->widget()->get_controls() as $control) {
+        foreach (\Homlity\PluginInmobiliario\Integrations\Shared\ListingControlSections::forCompatibilityPanel($this->widget()->get_controls()) as $control) {
             $tab = (($control['tab'] ?? '') === Controls_Manager::TAB_STYLE) ? 'advanced' : 'general';
             $section = sanitize_key((string) ($control['section'] ?? 'main_content')) ?: 'main_content';
             $label = trim((string) ($control['section_label'] ?? ''));
@@ -271,17 +271,52 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
             'shadow' => [esc_html__('Sombra CSS', 'homlity-real-estate'), 'text'],
         ] : [])));
 
+        if ($group === 'box_shadow' && preg_match('/\.property-(?:filter-widget|listing|card)/', (string) ($control['selector'] ?? ''))) {
+            $definitions = [
+                'shadow_color' => [esc_html__('Color de sombra', 'homlity-real-estate'), 'color-alpha'],
+                'shadow_horizontal' => [esc_html__('Desplazamiento horizontal', 'homlity-real-estate'), 'text'],
+                'shadow_vertical' => [esc_html__('Desplazamiento vertical', 'homlity-real-estate'), 'text'],
+                'shadow_blur' => [esc_html__('Desenfoque', 'homlity-real-estate'), 'text'],
+                'shadow_spread' => [esc_html__('Extensión', 'homlity-real-estate'), 'text'],
+                'shadow_position' => [esc_html__('Posición de sombra', 'homlity-real-estate'), 'select'],
+            ];
+        }
+
+        if ($group === 'box_shadow' && !str_contains((string) ($control['selector'] ?? ''), '.property-filter-widget') && preg_match('/\.property-(?:listing|card)/', (string) ($control['selector'] ?? ''))) {
+            $definitions['shadow'] = [esc_html__('Sombra anterior', 'homlity-real-estate'), 'text'];
+        }
+
         $fields = [];
         $tab = (($control['tab'] ?? '') === Controls_Manager::TAB_STYLE) ? 'advanced' : 'general';
         $toggle = sanitize_key((string) ($control['section'] ?? 'main_content')) ?: 'main_content';
         foreach ($definitions as $suffix => [$label, $type]) {
             $fields[$name . '_' . $suffix] = [
-                'label' => $label,
+                'label' => isset($control['label']) ? $control['label'] . ' · ' . $label : $label,
                 'type' => $type,
                 'default' => '',
                 'tab_slug' => $tab,
                 'toggle_slug' => $toggle,
             ];
+            if ($suffix === 'shadow' && preg_match('/\.property-(?:listing|card)/', (string) ($control['selector'] ?? ''))) {
+                $fields[$name . '_' . $suffix]['show_if'] = ['__homlity_legacy_style' => 'yes'];
+            }
+            if ($suffix === 'shadow_position') {
+                $fields[$name . '_' . $suffix]['options'] = [
+                    '' => esc_html__('Exterior', 'homlity-real-estate'),
+                    'inset' => esc_html__('Interior', 'homlity-real-estate'),
+                ];
+            }
+            if ($suffix === 'border_type' && preg_match('/\.property-(?:filter-widget|listing|card)/', (string) ($control['selector'] ?? ''))) {
+                $fields[$name . '_' . $suffix]['type'] = 'select';
+                $fields[$name . '_' . $suffix]['options'] = [
+                    '' => esc_html__('Predeterminado', 'homlity-real-estate'),
+                    'none' => esc_html__('Ninguno', 'homlity-real-estate'),
+                    'solid' => esc_html__('Sólido', 'homlity-real-estate'),
+                    'double' => esc_html__('Doble', 'homlity-real-estate'),
+                    'dotted' => esc_html__('Punteado', 'homlity-real-estate'),
+                    'dashed' => esc_html__('Discontinuo', 'homlity-real-estate'),
+                ];
+            }
             if (in_array($suffix, ['font_size', 'line_height', 'letter_spacing', 'border_width', 'border_radius'], true)) {
                 $fields[$name . '_' . $suffix]['mobile_options'] = true;
             }
@@ -343,23 +378,26 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
         $rules = [];
         $responsiveRules = ['tablet' => [], 'phone' => []];
         foreach ($controls as $name => $control) {
+            if (!$this->conditionsMatch((array) ($control['condition'] ?? []), $settings)) {
+                continue;
+            }
             if (($control['type'] ?? '') === 'homlity_group') {
                 $this->appendGroupCss($rules, (string) $name, (array) $control, $settings, $wrapper);
                 continue;
             }
             $value = $settings[$name] ?? ($control['default'] ?? null);
             if (($control['type'] ?? '') === Controls_Manager::HIDDEN
+                && !$this->hasCssValue($value, $control)
                 && $this->conditionsMatch((array) ($control['condition'] ?? []), $settings)) {
                 $value = '1';
             }
-            if (!$this->hasCssValue($value, $control)) {
-                continue;
-            }
-            foreach ((array) ($control['selectors'] ?? []) as $selector => $declaration) {
-                $selector = str_replace('{{WRAPPER}}', $wrapper, (string) $selector);
-                $declaration = $this->selectorDeclaration((string) $declaration, $value, $control);
-                if ($selector !== '' && $declaration !== '' && !str_contains($declaration, '{{')) {
-                    $rules[$selector][] = $declaration;
+            if ($this->hasCssValue($value, $control)) {
+                foreach ((array) ($control['selectors'] ?? []) as $selector => $declaration) {
+                    $selector = str_replace('{{WRAPPER}}', $wrapper, (string) $selector);
+                    $declaration = $this->selectorDeclaration((string) $declaration, $value, $control);
+                    if ($selector !== '' && $declaration !== '' && !str_contains($declaration, '{{')) {
+                        $rules[$selector][] = $declaration;
+                    }
                 }
             }
 
@@ -502,12 +540,33 @@ class Homlity_Divi_Widget_Module extends ET_Builder_Module
             }
         }
         if (str_contains($group, 'shadow')) {
-            $value = trim((string) ($settings[$name . '_shadow'] ?? ''));
+            $value = \Homlity\PluginInmobiliario\Integrations\Shared\FilterShadow::css(
+                ($settings[$name . '_shadow'] ?? '') ?: ($settings[$name . '_box_shadow'] ?? ''),
+                (string) ($settings[$name . '_box_shadow_position'] ?? '')
+            );
+            if ($value === '' && $group === 'box_shadow') {
+                $parts = [];
+                foreach (['horizontal', 'vertical', 'blur', 'spread'] as $part) {
+                    $partValue = $settings[$name . '_shadow_' . $part] ?? '';
+                    if ($partValue !== '') {
+                        $parts[$part] = $partValue;
+                    }
+                }
+                if ($parts !== []) {
+                    $value = \Homlity\PluginInmobiliario\Integrations\Shared\FilterShadow::css(
+                        array_replace(['horizontal' => 0, 'vertical' => 0, 'blur' => 0, 'spread' => 0], $parts, [
+                            'color' => $settings[$name . '_shadow_color'] ?? 'rgba(0,0,0,.25)',
+                        ]),
+                        (string) ($settings[$name . '_shadow_position'] ?? '')
+                    );
+                }
+            }
             if ($value !== '') {
                 $property = str_contains($group, 'text') ? 'text-shadow' : 'box-shadow';
                 $rules[$selector][] = $property . ':' . $value . ';';
             }
         }
+        \Homlity\PluginInmobiliario\Integrations\Shared\CardGroupControls::appendUtilityCss($rules, $control, $wrapper, $selector);
     }
 
     private function replaceTokens(string $css, mixed $value): string

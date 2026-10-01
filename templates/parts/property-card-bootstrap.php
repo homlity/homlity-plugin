@@ -304,7 +304,7 @@ $hoverClass = ' property-card--hover-' . sanitize_html_class($hoverEffect);
     <article class="card h-100 shadow-sm border-0 property-card-bs<?php echo esc_attr($presetClass . $hoverClass); ?>"
              itemscope itemtype="https://schema.org/Product"
              data-property-id="<?php echo esc_attr($post_id); ?>"
-             style="border-radius:16px;overflow:hidden;">
+             style="border-radius:var(--hpl-card-radius,16px);overflow:var(--hpl-card-overflow,hidden);">
 
         <meta itemprop="url" content="<?php echo esc_url(get_permalink($post_id)); ?>"/>
         <?php if ($featured && empty($tagTerms)) : ?>
@@ -330,7 +330,7 @@ $hoverClass = ' property-card--hover-' . sanitize_html_class($hoverEffect);
                                      alt="<?php echo esc_attr(get_the_title($post_id)); ?>"
                                      itemprop="image"
                                      class="card-img-top"
-                                     style="height:220px;object-fit:cover;">
+                                     style="height:var(--hpl-card-image-height,220px);object-fit:cover;">
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -343,7 +343,7 @@ $hoverClass = ' property-card--hover-' . sanitize_html_class($hoverEffect);
                      alt="<?php echo esc_attr(get_the_title($post_id)); ?>"
                      itemprop="image"
                      class="card-img-top"
-                     style="height:220px;object-fit:cover;"
+                     style="height:var(--hpl-card-image-height,220px);object-fit:cover;"
                      onerror="this.style.display='none'">
             <?php endif; ?>
 

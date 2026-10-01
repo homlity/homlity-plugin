@@ -10,6 +10,8 @@
 
 namespace Homlity\PluginInmobiliario\Listing;
 
+use Homlity\PluginInmobiliario\Services\AgentProfileService;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -34,6 +36,10 @@ class ListingConfig
         'view_toggle_text_color_active' => '',
         'view_toggle_icon_color_active' => '',
         'view_toggle_bg_color_active' => '',
+        'builder_styles'         => false,
+        'columns_configured'     => false,
+        'responsive_columns'     => false,
+        'empty_message'          => '',
         'columns'                => 3,
         'posts_per_page'         => 12,
         'orderby'                => 'date',   // 'date'|'price_asc'|'price_desc'|'title'
@@ -142,7 +148,31 @@ class ListingConfig
      */
     public static function fromBuilderSettings(array $settings): self
     {
+        if (empty($settings['preset_tag_ids']) && !empty($settings['preset_tag'])) {
+            $settings['preset_tag_ids'] = [absint($settings['preset_tag'])];
+        }
+        $hasPresets = false;
+        foreach ($settings as $key => $value) {
+            if ((str_starts_with($key, 'preset_') || in_array($key, ['search_keyword', 'featured_only', 'use_current_property_tags', 'geo_latitude', 'geo_longitude', 'geo_radius_km'], true)) && !empty($value)) {
+                $hasPresets = true;
+            }
+        }
+        // Sin asesor en la página, related_agent vaciaría el listado; el
+        // comportamiento heredado era mostrar todo el catálogo.
+        if (
+            ($settings['query_mode'] ?? 'custom') === 'custom'
+            && !empty($settings['use_current_agent'])
+            && !$hasPresets
+            && AgentProfileService::currentAgentId() > 0
+        ) {
+            $settings['query_mode'] = 'related_agent';
+            $settings['related_agent_id'] = 0;
+        }
         return self::fromArray([
+            'builder_styles' => true,
+            'responsive_columns' => $settings['_hpl_responsive_columns'] ?? (!empty($settings['columns_tablet']) || !empty($settings['columns_mobile']) || !empty($settings['columns_phone']) || !empty($settings['columns__tablet']) || !empty($settings['columns__phone'])),
+            'columns_configured' => !empty($settings['custom_columns']),
+            'empty_message' => sanitize_text_field($settings['empty_message'] ?? ''),
             'default_view'          => sanitize_key($settings['default_view'] ?? 'grid'),
             'show_grid_view'        => !array_key_exists('show_grid_view', $settings) || !empty($settings['show_grid_view']),
             'show_map_view'         => !array_key_exists('show_map_view', $settings) || !empty($settings['show_map_view']),
@@ -263,6 +293,8 @@ class ListingConfig
         };
 
         return self::fromArray([
+            'columns_configured' => isset($atts['columns']),
+            'empty_message' => sanitize_text_field($atts['empty_message'] ?? ''),
             'default_view'          => sanitize_key($atts['view'] ?? 'grid'),
             'show_grid_view'        => $bool($atts['show_grid_view'] ?? $atts['cards'] ?? null, true),
             'show_map_view'         => $bool($atts['show_map_view'] ?? $atts['map'] ?? null, true),
@@ -298,7 +330,7 @@ class ListingConfig
             'preset_neighborhood'   => absint($atts['neighborhood'] ?? 0),
             'preset_nearby'         => absint($atts['nearby'] ?? 0),
             'preset_agent'          => absint($atts['agent'] ?? 0),
-            'use_current_agent'     => $bool($atts['current_agent'] ?? null, false),
+            'use_current_agent'     => $bool($atts['current_agent'] ?? $atts['use_current_agent'] ?? null, false),
             'geo_latitude'          => sanitize_text_field($atts['lat'] ?? ''),
             'geo_longitude'         => sanitize_text_field($atts['lng'] ?? ''),
             'geo_radius_km'         => max(0, (float) ($atts['radius_km'] ?? 0)),
@@ -381,6 +413,9 @@ class ListingConfig
     }
     public function viewToggleCssVariables(): array
     {
+        if ($this->builderStyles()) {
+            return [];
+        }
         $map = [
             '--homlity-view-toggle-text' => 'view_toggle_text_color',
             '--homlity-view-toggle-icon' => 'view_toggle_icon_color',
@@ -407,6 +442,24 @@ class ListingConfig
             && $this->showGridView()
             && $this->showMapView();
     }
+    public static function sortOptions(): array
+    {
+        return [
+            'date' => __('Más recientes', 'homlity-real-estate'),
+            'price_asc' => __('Precio: menor a mayor', 'homlity-real-estate'),
+            'price_desc' => __('Precio: mayor a menor', 'homlity-real-estate'),
+            'title' => __('Nombre A–Z', 'homlity-real-estate'),
+        ];
+    }
+
+    public function builderStyles(): bool { return (bool) $this->data['builder_styles']; }
+    public function responsiveColumns(): bool { return (bool) $this->data['responsive_columns']; }
+    public function columnsConfigured(): bool { return (bool) $this->data['columns_configured']; }
+    public function emptyMessage(): string
+    {
+        return (string) ($this->data['empty_message'] ?: __('No se han encontrado inmuebles para esta consulta.', 'homlity-real-estate'));
+    }
+
     public function columns(): int         { return (int)    $this->data['columns']; }
     public function postsPerPage(): int    { return (int)    $this->data['posts_per_page']; }
     public function orderby(): string      { return (string) $this->data['orderby']; }
@@ -417,7 +470,7 @@ class ListingConfig
     public function presetOperation(): int { return (int)    $this->data['preset_operation']; }
     public function presetType(): int      { return (int)    $this->data['preset_type']; }
     public function presetTag(): int       { return (int)    $this->data['preset_tag']; }
-    public function presetTagIds(): array  { return array_values(array_filter(array_map('absint', (array) $this->data['preset_tag_ids']))); }
+    public function presetTagIds(): array  { return array_values(array_filter(array_map('absint', (array) ($this->data['preset_tag_ids'] ?: [$this->presetTag()])))); }
     public function useCurrentPropertyTags(): bool { return (bool) $this->data['use_current_property_tags']; }
     public function presetFeature(): int   { return (int)    $this->data['preset_feature']; }
     public function presetCountry(): int   { return (int)    $this->data['preset_country']; }

@@ -874,6 +874,9 @@ class WPBakeryIntegrationService implements ServiceInterface
         $responsiveRules = ['tablet' => [], 'phone' => []];
 
         foreach ($controls as $name => $control) {
+            if (!$this->conditionsMatch((array) ($control['condition'] ?? []), $settings)) {
+                continue;
+            }
             if (($control['type'] ?? '') === 'homlity_group') {
                 $this->appendGroupCss($rules, (string) $name, (array) $control, $settings, $wrapper);
                 continue;
@@ -886,18 +889,17 @@ class WPBakeryIntegrationService implements ServiceInterface
 
             $value = $settings[$name] ?? ($control['default'] ?? null);
             if (($control['type'] ?? '') === Controls_Manager::HIDDEN
+                && !$this->hasCssValue($value, $control)
                 && $this->conditionsMatch((array) ($control['condition'] ?? []), $settings)) {
                 $value = '1';
             }
-            if (!$this->hasCssValue($value, (array) $control)) {
-                continue;
-            }
-
-            foreach ($selectors as $selector => $declaration) {
-                $selector = str_replace('{{WRAPPER}}', $wrapper, (string) $selector);
-                $declaration = $this->selectorDeclaration((string) $declaration, $value, (array) $control, $settings);
-                if ($declaration !== '' && !str_contains($declaration, '{{')) {
-                    $rules[$selector][] = $declaration;
+            if ($this->hasCssValue($value, $control)) {
+                foreach ($selectors as $selector => $declaration) {
+                    $selector = str_replace('{{WRAPPER}}', $wrapper, (string) $selector);
+                    $declaration = $this->selectorDeclaration((string) $declaration, $value, (array) $control, $settings);
+                    if ($declaration !== '' && !str_contains($declaration, '{{')) {
+                        $rules[$selector][] = $declaration;
+                    }
                 }
             }
 
@@ -941,10 +943,10 @@ class WPBakeryIntegrationService implements ServiceInterface
     {
         $css = '';
         foreach ($rules as $selector => $declarations) {
-            $declarations = array_map(
-                [$this, 'prioritizeDeclaration'],
-                array_unique((array) $declarations)
-            );
+            $declarations = array_unique((array) $declarations);
+            if (!preg_match('/\.property-(?:filter-widget|listing|card)/', $selector)) {
+                $declarations = array_map([$this, 'prioritizeDeclaration'], $declarations);
+            }
             $css .= $selector . '{' . implode('', $declarations) . '}';
         }
         return $css;
@@ -1032,7 +1034,10 @@ class WPBakeryIntegrationService implements ServiceInterface
         }
 
         if (str_contains($group, 'shadow')) {
-            $value = trim((string) ($settings[$name . '_shadow'] ?? ''));
+            $value = \Homlity\PluginInmobiliario\Integrations\Shared\FilterShadow::css(
+                ($settings[$name . '_shadow'] ?? '') ?: ($settings[$name . '_box_shadow'] ?? ''),
+                (string) ($settings[$name . '_box_shadow_position'] ?? '')
+            );
             if ($value === '') {
                 $color = trim((string) ($settings[$name . '_shadow_color'] ?? 'rgba(0,0,0,.25)'));
                 $horizontal = trim((string) ($settings[$name . '_shadow_horizontal'] ?? ''));
@@ -1076,6 +1081,7 @@ class WPBakeryIntegrationService implements ServiceInterface
                 }
             }
         }
+        \Homlity\PluginInmobiliario\Integrations\Shared\CardGroupControls::appendUtilityCss($rules, $control, $wrapper, $selector);
     }
 
     private function groupCssValue(string $suffix, string $value): string
@@ -1175,7 +1181,7 @@ class WPBakeryIntegrationService implements ServiceInterface
         $params = [];
         $group = __('Contenido', 'homlity-real-estate');
 
-        foreach ($widget->get_controls() as $name => $control) {
+        foreach (\Homlity\PluginInmobiliario\Integrations\Shared\ListingControlSections::forCompatibilityPanel($widget->get_controls()) as $name => $control) {
             $type = (string) ($control['type'] ?? '');
             $controlGroup = trim((string) ($control['section_label'] ?? ''));
             if ($controlGroup !== '') {
@@ -1365,7 +1371,7 @@ class WPBakeryIntegrationService implements ServiceInterface
             [$label, $type, $responsive] = $definition;
             $param = [
                 'type' => $type,
-                'heading' => $label,
+                'heading' => isset($control['label']) ? $control['label'] . ' · ' . $label : $label,
                 'param_name' => $name . '_' . $suffix,
                 'group' => $section,
                 'value' => $definition[3] ?? '',

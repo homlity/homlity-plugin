@@ -41,12 +41,7 @@ $viewToggleStyle = implode('', array_map(
     array_keys($viewToggleCssVariables),
     array_values($viewToggleCssVariables)
 ));
-$sortOptions = [
-    'date'       => __('Más recientes',         'homlity-real-estate'),
-    'price_asc'  => __('Precio: menor a mayor', 'homlity-real-estate'),
-    'price_desc' => __('Precio: mayor a menor', 'homlity-real-estate'),
-    'title'      => __('Nombre A–Z',            'homlity-real-estate'),
-];
+$sortOptions = ListingConfig::sortOptions();
 
 // Default view: map tab starts active if configured
 $listActive = $config->showGridView() && $config->defaultView() === 'grid';
@@ -62,11 +57,12 @@ $paramToAttr = static function ($value): string {
 };
 ?>
 <div id="<?php echo esc_attr($uid); ?>"
-     class="homlity-real-estate-search property-listing property-listing--bootstrap"
+     class="homlity-real-estate-search property-listing property-listing--bootstrap<?php echo $config->responsiveColumns() ? ' property-listing--responsive-columns' : ''; ?><?php echo $config->columnsConfigured() ? ' property-listing--custom-columns' : ''; ?>"
      style="<?php echo esc_attr($viewToggleStyle); ?>"
      data-default-order="<?php echo esc_attr($config->orderby()); ?>"
      data-view="<?php echo esc_attr($config->defaultView()); ?>"
      data-per-page="<?php echo esc_attr($config->postsPerPage()); ?>"
+     data-empty-message="<?php echo esc_attr($config->emptyMessage()); ?>"
      data-columns="<?php echo esc_attr($config->columns()); ?>"
      data-map-zoom="<?php echo esc_attr($config->mapZoom()); ?>"
      data-template="bootstrap"
@@ -243,7 +239,7 @@ $paramToAttr = static function ($value): string {
                  role="tabpanel"
                  aria-labelledby="<?php echo esc_attr($uid); ?>-list-tab">
                 <div class="cuerpo-grilla-inmuebles">
-                    <div class="property-listing__grid row d-flex align-items-stretch flex-wrap g-3"
+                    <div style="--columns:<?php echo esc_attr($config->columns()); ?>;" class="property-listing__grid row d-flex align-items-stretch flex-wrap g-3"
                          itemscope itemtype="https://schema.org/ItemList">
                         <meta itemprop="numberOfItems" content="<?php echo esc_attr($query->found_posts); ?>"/>
                         <meta itemprop="itemListOrder" content="https://schema.org/ItemListOrderDescending"/>
@@ -265,7 +261,7 @@ $paramToAttr = static function ($value): string {
                         } else {
                             echo '<div class="col-12 text-center py-5">'
                                 . '<p class="text-muted property-listing__empty">'
-                                . esc_html__('No se han encontrado inmuebles para esta consulta.', 'homlity-real-estate')
+                                . esc_html($config->emptyMessage())
                                 . '</p></div>';
                         }
                         ?>
@@ -283,7 +279,7 @@ $paramToAttr = static function ($value): string {
                 <div class="mapa-inmueble property-listing__map-container">
                     <div id="<?php echo esc_attr($uid); ?>-map"
                          class="property-listing__map w-100"
-                         style="height:<?php echo esc_attr($config->mapHeight()); ?>px;"></div>
+                         <?php if (!$config->builderStyles()) : ?>style="height:<?php echo esc_attr($config->mapHeight()); ?>px;"<?php endif; ?>></div>
                 </div>
             </div><!-- /maptab -->
             <?php endif; ?>
@@ -304,7 +300,7 @@ $paramToAttr = static function ($value): string {
 
     <!-- ── Loading overlay ──────────────────────────────────────────────── -->
     <div class="property-listing__overlay" aria-hidden="true">
-        <div class="spinner-border text-primary" role="status" style="width:2.5rem;height:2.5rem;">
+        <div class="spinner-border text-primary property-listing__bootstrap-spinner" role="status" style="width:var(--hpl-spinner-size,2.5rem);height:var(--hpl-spinner-size,2.5rem);">
             <span class="visually-hidden"><?php esc_html_e('Cargando…', 'homlity-real-estate'); ?></span>
         </div>
     </div>
