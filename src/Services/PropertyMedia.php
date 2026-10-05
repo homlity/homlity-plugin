@@ -37,6 +37,11 @@ final class PropertyMedia
         $images = [];
 
         $thumbId = (int) get_post_thumbnail_id($postId);
+        if (class_exists(\HomlitySync\Sync\PropertyGallery::class)
+            && \HomlitySync\Sync\PropertyGallery::isManaged($postId)
+            && !\HomlitySync\Sync\ImageMode::importsAll()) {
+            $thumbId = 0;
+        }
         if ($thumbId > 0) {
             $url = wp_get_attachment_image_url($thumbId, 'full');
             if (is_string($url) && $url !== '') {
@@ -92,6 +97,14 @@ final class PropertyMedia
     {
         if ($postId <= 0) {
             return [];
+        }
+
+        if (class_exists(\HomlitySync\Sync\PropertyGallery::class)
+            && \HomlitySync\Sync\PropertyGallery::isManaged($postId)) {
+            return array_map(static function (string $url): array {
+                $id = \HomlitySync\Sync\ImageMode::importsAll() ? attachment_url_to_postid($url) : 0;
+                return ['id' => $id, 'url' => $url];
+            }, \HomlitySync\Sync\PropertyGallery::urls($postId, 'full'));
         }
 
         $metaKeys = (new PropertyPostType())->metaKeys();

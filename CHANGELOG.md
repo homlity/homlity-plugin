@@ -13,6 +13,11 @@ La Developer API se versiona por separado. Ver
 
 ## [Sin publicar]
 
+### Fixed
+
+- Fix: las cards de inmuebles en Arriendo/Venta muestran ambos precios y la administración asociada al arriendo.
+- Las galerías, fichas técnicas y lectores compartidos respetan el modo CDN de Homlity Sync y sus URLs separadas de los IDs de adjuntos.
+
 ### Added
 
 #### Constructores de páginas

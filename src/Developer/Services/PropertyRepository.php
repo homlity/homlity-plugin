@@ -292,6 +292,10 @@ final class PropertyRepository
     {
         $images  = [];
         $gallery = $meta['_property_gallery'] ?? '';
+        if (class_exists(\HomlitySync\Sync\PropertyGallery::class)
+            && \HomlitySync\Sync\PropertyGallery::isManaged($postId)) {
+            $gallery = \HomlitySync\Sync\PropertyGallery::urls($postId, 'full');
+        }
         $altBase = (string) get_the_title($postId);
 
         // Shape 1 — a CSV of attachment IDs (wp-admin editor).

@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *   $card_options (array)      card options, used only by the 'cards' layout
  */
 
+use Homlity\PluginInmobiliario\Services\CardPriceResolver;
 use Homlity\PluginInmobiliario\Services\IconRenderer;
 use Homlity\PluginInmobiliario\Services\PropertyCodeResolver;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
@@ -238,19 +239,7 @@ if (!empty($options['show_arrows']) && $options['arrows_position'] === 'outside'
 
                         $locationLabel = homlity_hero_slider_location($postId);
 
-                        $price     = get_post_meta($postId, $meta['price_sale'], true);
-                        $priceRent = get_post_meta($postId, $meta['price_rent'], true);
-                        $currency  = get_post_meta($postId, $meta['currency_sale'], true);
-                        $currencyRent = get_post_meta($postId, $meta['currency_rent'], true);
-
-                        $displayPrice = '';
-                        if (!empty($options['show_price'])) {
-                            if ($price) {
-                                $displayPrice = homlity_plugin_apply_filters('homlity_plugin_format_price', null, $price, $currency);
-                            } elseif ($priceRent) {
-                                $displayPrice = homlity_plugin_apply_filters('homlity_plugin_format_price', null, $priceRent, $currencyRent);
-                            }
-                        }
+                        $priceLines = !empty($options['show_price']) ? CardPriceResolver::forPost((int) $postId) : [];
 
                         $features = [];
                         if (!empty($options['show_features'])) {
@@ -328,8 +317,14 @@ if (!empty($options['show_arrows']) && $options['arrows_position'] === 'outside'
                                 </ul>
                             <?php endif; ?>
 
-                            <?php if ($displayPrice) : ?>
-                                <p class="hml-hero-slider__price"><?php echo esc_html($displayPrice); ?></p>
+                            <?php if (!empty($priceLines)) : ?>
+                                <p class="hml-hero-slider__price<?php echo count($priceLines) > 1 ? ' hml-hero-slider__price--multi' : ''; ?>">
+                                    <?php TemplateService::includeComponent('property-price-lines.php', [
+                                        'post_id' => $postId,
+                                        'price_lines' => $priceLines,
+                                        'price_class_prefix' => 'hml-hero-slider',
+                                    ]); ?>
+                                </p>
                             <?php endif; ?>
 
                             <?php if (!empty($options['show_code'])) : ?>

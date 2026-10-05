@@ -370,6 +370,10 @@ $widget_uid = sanitize_key((string) ($widget_uid ?? 'hml-' . $post_id . '-' . wp
 $images = [];
 $galleryIds = [];
 $metaGallery = get_post_meta($post_id, '_property_gallery', true);
+if (class_exists(\HomlitySync\Sync\PropertyGallery::class)
+    && \HomlitySync\Sync\PropertyGallery::isManaged((int) $post_id)) {
+    $metaGallery = \HomlitySync\Sync\PropertyGallery::urls((int) $post_id, 'large');
+}
 
 if (is_array($metaGallery) && !empty($metaGallery)) {
     $firstItem = reset($metaGallery);

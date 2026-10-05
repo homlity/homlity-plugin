@@ -435,6 +435,10 @@ final class TechnicalSheetData
     private static function media(int $postId, array $metaKeys): array
     {
         $images = self::urls(get_post_meta($postId, $metaKeys['gallery'], true));
+        if (class_exists(\HomlitySync\Sync\PropertyGallery::class)
+            && \HomlitySync\Sync\PropertyGallery::isManaged($postId)) {
+            $images = \HomlitySync\Sync\PropertyGallery::urls($postId, 'large');
+        }
         if (!$images) {
             $featured = (string) get_the_post_thumbnail_url($postId, 'large');
             if ($featured !== '') {

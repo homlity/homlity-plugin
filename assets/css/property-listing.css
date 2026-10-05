@@ -869,6 +869,34 @@
     color: #fff;
 }
 
+.property-card__price--multi {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.property-card__price-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+}
+
+.property-card__price-label {
+    font-size: .75em;
+    font-weight: 500;
+    opacity: .75;
+    text-transform: uppercase;
+}
+
+.property-card__price-amount {
+    overflow-wrap: anywhere;
+}
+
 .property-listing .property-card__content .property-card__operation,
 .property-listing .property-card-bs .property-card__operation {
     padding-left: 20px;

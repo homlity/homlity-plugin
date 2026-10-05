@@ -11,9 +11,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Expected args: $post_id (int)
  */
 
-use Homlity\PluginInmobiliario\Services\CurrencyService;
+use Homlity\PluginInmobiliario\Services\CardPriceResolver;
 use Homlity\PluginInmobiliario\Services\PropertyCodeResolver;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\TemplateService;
 use Homlity\PluginInmobiliario\Services\WhatsAppLinkService;
 
 if (!isset($post_id)) {
@@ -187,7 +188,6 @@ if (!function_exists('homlity_card_format_area')) {
 }
 
 $meta = (new PropertyPostType())->metaKeys();
-$currencyService = new CurrencyService();
 
 $cardOptions = isset($card_options) && is_array($card_options) ? $card_options : [];
 $cardOptions = array_merge([
@@ -232,12 +232,6 @@ $settings = get_option(HOMLITY_PLUGIN_SETTINGS_OPTION, [
 ]);
 $listingFields = $settings['listing_fields'] ?? ['price', 'excerpt', 'features', 'whatsapp'];
 
-$price = get_post_meta($post_id, $meta['price_sale'], true);
-$priceRent = get_post_meta($post_id, $meta['price_rent'], true);
-$currency = get_post_meta($post_id, $meta['currency_sale'], true) ?: $currencyService->baseCurrency();
-$currencyRent = get_post_meta($post_id, $meta['currency_rent'], true) ?: $currencyService->baseCurrency();
-$priceAdmin = get_post_meta($post_id, $meta['price_admin'], true);
-$adminIncluded = (bool) get_post_meta($post_id, $meta['admin_included'], true);
 $area = get_post_meta($post_id, $meta['area'], true);
 $areaLot = get_post_meta($post_id, $meta['area_lot'], true);
 $areaPrivate = get_post_meta($post_id, $meta['area_private'], true);
@@ -331,18 +325,7 @@ $isCoverOverlayPreset = ($visualPreset === 'cover_overlay');
 $presetClass = $visualPreset !== 'default' ? ' property-card--preset-' . sanitize_html_class(str_replace('_', '-', $visualPreset)) : '';
 $hoverEffect = (string) ($cardOptions['hover_effect'] ?? 'lift');
 $hoverClass = ' property-card--hover-' . sanitize_html_class($hoverEffect);
-$displayPrice = '';
-$displayPriceAdmin = '';
-if ($showPrice) {
-    if ($price) {
-        $displayPrice = homlity_plugin_apply_filters('homlity_plugin_format_price', null, $price, $currency);
-    } elseif ($priceRent) {
-        $displayPrice = homlity_plugin_apply_filters('homlity_plugin_format_price', null, $priceRent, $currencyRent);
-    }
-    if ($priceRent && $priceAdmin && !$adminIncluded) {
-        $displayPriceAdmin = homlity_plugin_apply_filters('homlity_plugin_format_price', null, $priceAdmin, $currencyRent);
-    }
-}
+$priceLines = $showPrice ? CardPriceResolver::forPost((int) $post_id) : [];
 ?>
 <article <?php post_class('property-card' . $presetClass . $hoverClass, $post_id); ?> data-property-id="<?php echo esc_attr($post_id); ?>">
     <a href="<?php echo esc_url(get_permalink($post_id)); ?>"<?php if (!empty($cardOptions['link_new_tab'])): ?> target="_blank" rel="noopener noreferrer"<?php endif; ?>>
@@ -376,13 +359,18 @@ if ($showPrice) {
 
             <?php if ($isCoverOverlayPreset): ?>
                 <div class="property-card__overlay">
-                    <?php if ((!empty($cardOptions['show_operation']) && $operationLabel) || ($displayPrice && $showPrice)): ?>
+                    <?php if ((!empty($cardOptions['show_operation']) && $operationLabel) || !empty($priceLines)): ?>
                         <p class="property-card__operation property-card__overlay-operation">
                             <?php if (!empty($cardOptions['show_operation']) && $operationLabel): ?>
                                 <span class="property-card__operation-label"><?php echo esc_html($operationLabel); ?></span>
                             <?php endif; ?>
-                            <?php if ($displayPrice && $showPrice): ?>
-                                <span class="property-card__operation-price property-card__overlay-price"><?php echo esc_html($displayPrice); ?></span>
+                            <?php if (!empty($priceLines)): ?>
+                                <span class="property-card__operation-price property-card__overlay-price<?php echo count($priceLines) > 1 ? ' property-card__price--multi' : ''; ?>">
+                                    <?php TemplateService::includeComponent('property-price-lines.php', [
+                                        'post_id' => $post_id,
+                                        'price_lines' => $priceLines,
+                                    ]); ?>
+                                </span>
                             <?php endif; ?>
                         </p>
                     <?php endif; ?>
@@ -426,17 +414,17 @@ if ($showPrice) {
         <?php if (!empty($cardOptions['show_title'])): ?>
             <p class="property-card__title"><?php echo esc_html(get_the_title($post_id)); ?></p>
         <?php endif; ?>
-        <?php if ((!empty($cardOptions['show_operation']) && $operationLabel) || ($displayPrice && $showPrice)): ?>
+        <?php if ((!empty($cardOptions['show_operation']) && $operationLabel) || !empty($priceLines)): ?>
             <p class="property-card__operation">
                 <?php if (!empty($cardOptions['show_operation']) && $operationLabel): ?>
                     <span class="property-card__operation-label"><?php echo esc_html($operationLabel); ?></span>
                 <?php endif; ?>
-                <?php if ($displayPrice && $showPrice): ?>
-                    <span class="property-card__operation-price property-card__price">
-                        <?php echo esc_html($displayPrice); ?>
-                        <?php if ($displayPriceAdmin): ?>
-                            <small> + <?php echo esc_html($displayPriceAdmin); ?> <?php esc_html_e('adm.', 'homlity-real-estate'); ?></small>
-                        <?php endif; ?>
+                <?php if (!empty($priceLines)): ?>
+                    <span class="property-card__operation-price property-card__price<?php echo count($priceLines) > 1 ? ' property-card__price--multi' : ''; ?>">
+                        <?php TemplateService::includeComponent('property-price-lines.php', [
+                            'post_id' => $post_id,
+                            'price_lines' => $priceLines,
+                        ]); ?>
                     </span>
                 <?php endif; ?>
             </p>

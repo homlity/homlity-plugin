@@ -14,10 +14,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * items when injected into a Bootstrap `.row` container via AJAX.
  */
 
-use Homlity\PluginInmobiliario\Services\CurrencyService;
+use Homlity\PluginInmobiliario\Services\CardPriceResolver;
 use Homlity\PluginInmobiliario\Services\PropertyCodeResolver;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
+use Homlity\PluginInmobiliario\Services\TemplateService;
 use Homlity\PluginInmobiliario\Services\WhatsAppLinkService;
 
 if (!isset($post_id)) {
@@ -174,7 +175,6 @@ if (!function_exists('homlity_card_format_area')) {
 }
 
 $meta            = (new PropertyPostType())->metaKeys();
-$currencyService = new CurrencyService();
 $settings        = get_option(HOMLITY_PLUGIN_SETTINGS_OPTION, []);
 $listingFields   = $settings['listing_fields'] ?? ['price', 'excerpt', 'features', 'whatsapp'];
 $cardOptions = isset($card_options) && is_array($card_options) ? $card_options : [];
@@ -210,14 +210,6 @@ $cardOptions = array_merge([
     'feature_icon_code' => ['value' => 'fas fa-hashtag', 'library' => 'fa-solid'],
     'link_new_tab' => false,
 ], $cardOptions);
-
-// Pricing
-$priceSale     = get_post_meta($post_id, $meta['price_sale'], true);
-$priceRent     = get_post_meta($post_id, $meta['price_rent'], true);
-$currencySale  = get_post_meta($post_id, $meta['currency_sale'], true) ?: $currencyService->baseCurrency();
-$currencyRent  = get_post_meta($post_id, $meta['currency_rent'], true) ?: $currencyService->baseCurrency();
-$priceAdmin    = get_post_meta($post_id, $meta['price_admin'], true);
-$adminIncluded = (bool) get_post_meta($post_id, $meta['admin_included'], true);
 
 // Physical features
 $area      = get_post_meta($post_id, $meta['area'], true);
@@ -286,14 +278,8 @@ $showWhatsappIcon = !empty($cardOptions['whatsapp_show_icon']);
 $whatsappIconPosition = ($cardOptions['whatsapp_icon_position'] ?? 'left') === 'right' ? 'right' : 'left';
 $whatsappIcon = is_array($cardOptions['whatsapp_icon'] ?? null) ? $cardOptions['whatsapp_icon'] : [];
 
-// Formatted price display
-$displayPrice = '';
-if ($priceSale) {
-    $displayPrice = homlity_plugin_apply_filters('homlity_plugin_format_price', null, $priceSale, $currencySale);
-} elseif ($priceRent) {
-    $displayPrice = homlity_plugin_apply_filters('homlity_plugin_format_price', null, $priceRent, $currencyRent);
-}
 $showPrice = !empty($cardOptions['show_price']) && in_array('price', $listingFields, true);
+$priceLines = $showPrice ? CardPriceResolver::forPost((int) $post_id) : [];
 $visualPreset = (string) ($cardOptions['visual_preset'] ?? 'default');
 $isCoverOverlayPreset = ($visualPreset === 'cover_overlay');
 $presetClass = $visualPreset !== 'default' ? ' property-card--preset-' . sanitize_html_class(str_replace('_', '-', $visualPreset)) : '';
@@ -349,15 +335,21 @@ $hoverClass = ' property-card--hover-' . sanitize_html_class($hoverEffect);
 
             <?php if ($isCoverOverlayPreset): ?>
                 <div class="property-card__overlay">
-                    <?php if ((!empty($cardOptions['show_operation']) && ($typeLabel || $operationLabel)) || ($displayPrice && $showPrice)) : ?>
+                    <?php if ((!empty($cardOptions['show_operation']) && ($typeLabel || $operationLabel)) || !empty($priceLines)) : ?>
                         <p class="property-card__operation property-card__overlay-operation">
                             <?php if (!empty($cardOptions['show_operation']) && ($typeLabel || $operationLabel)) : ?>
                                 <span class="property-card__operation-label">
                                     <?php echo esc_html(implode(' ', array_filter([$typeLabel, $operationLabel ? __('en', 'homlity-real-estate') . ' ' . $operationLabel : '']))); ?>
                                 </span>
                             <?php endif; ?>
-                            <?php if ($displayPrice && $showPrice) : ?>
-                                <span class="property-card__operation-price property-card__overlay-price" itemprop="price"><?php echo esc_html($displayPrice); ?></span>
+                            <?php if (!empty($priceLines)) : ?>
+                                <span class="property-card__operation-price property-card__overlay-price<?php echo count($priceLines) > 1 ? ' property-card__price--multi' : ''; ?>" itemprop="price">
+                                    <?php TemplateService::includeComponent('property-price-lines.php', [
+                                        'post_id' => $post_id,
+                                        'price_lines' => $priceLines,
+                                        'price_bootstrap' => true,
+                                    ]); ?>
+                                </span>
                             <?php endif; ?>
                         </p>
                     <?php endif; ?>
@@ -406,22 +398,20 @@ $hoverClass = ' property-card--hover-' . sanitize_html_class($hoverEffect);
                 </a>
             <?php endif; ?>
 
-            <?php if (!$isCoverOverlayPreset && ((!empty($cardOptions['show_operation']) && ($typeLabel || $operationLabel)) || ($displayPrice && $showPrice))) : ?>
+            <?php if (!$isCoverOverlayPreset && ((!empty($cardOptions['show_operation']) && ($typeLabel || $operationLabel)) || !empty($priceLines))) : ?>
             <p class="mb-0 small text-muted property-card__operation">
                 <?php if (!empty($cardOptions['show_operation']) && ($typeLabel || $operationLabel)) : ?>
                     <span class="property-card__operation-label">
                         <?php echo esc_html(implode(' ', array_filter([$typeLabel, $operationLabel ? __('en', 'homlity-real-estate') . ' ' . $operationLabel : '']))); ?>
                     </span>
                 <?php endif; ?>
-                <?php if ($displayPrice && $showPrice) : ?>
-                    <span class="property-card__operation-price property-card__price fw-bold fs-5 text-primary" itemprop="price">
-                        <?php echo esc_html($displayPrice); ?>
-                        <?php if ($priceRent && $priceAdmin && !$adminIncluded) : ?>
-                            <small class="fs-6 fw-normal text-muted">
-                                + <?php echo esc_html(homlity_plugin_apply_filters('homlity_plugin_format_price', null, $priceAdmin, $currencyRent)); ?>
-                                <?php esc_html_e('adm.', 'homlity-real-estate'); ?>
-                            </small>
-                        <?php endif; ?>
+                <?php if (!empty($priceLines)) : ?>
+                    <span class="property-card__operation-price property-card__price fw-bold fs-5 text-primary<?php echo count($priceLines) > 1 ? ' property-card__price--multi' : ''; ?>" itemprop="price">
+                        <?php TemplateService::includeComponent('property-price-lines.php', [
+                            'post_id' => $post_id,
+                            'price_lines' => $priceLines,
+                            'price_bootstrap' => true,
+                        ]); ?>
                     </span>
                 <?php endif; ?>
             </p>

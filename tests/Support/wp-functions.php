@@ -1733,6 +1733,24 @@ if (!function_exists('wp_get_post_terms')) {
     }
 }
 
+if (!function_exists('wp_get_object_terms')) {
+    /** Returns the assigned terms used by the Bootstrap card template. */
+    function wp_get_object_terms($objectIds, $taxonomies, array $args = [])
+    {
+        $result = [];
+        foreach ((array) $objectIds as $objectId) {
+            foreach ((array) $taxonomies as $taxonomy) {
+                $terms = wp_get_post_terms((int) $objectId, (string) $taxonomy, $args);
+                if (is_wp_error($terms)) {
+                    return $terms;
+                }
+                $result = array_merge($result, $terms);
+            }
+        }
+        return $result;
+    }
+}
+
 if (!function_exists('wp_list_pluck')) {
     /**
      * @param array<int,mixed> $list

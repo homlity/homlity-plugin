@@ -206,6 +206,33 @@
     line-height: 1.2;
 }
 
+.hml-hero-slider__price--multi {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.hml-hero-slider__price-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+}
+
+.hml-hero-slider__price-label {
+    font-size: .75em;
+    font-weight: 500;
+    opacity: .75;
+    text-transform: uppercase;
+}
+
+.hml-hero-slider__price-amount {
+    overflow-wrap: anywhere;
+}
+
 .hml-hero-slider__code {
     margin: 0;
     font-size: 13px;
