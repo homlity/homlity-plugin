@@ -497,6 +497,9 @@ class SeoIntegrationService implements ServiceInterface
             );
             // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             foreach ((array) $slugs as $slug) {
+                if ($taxonomy === $taxOp) {
+                    $slug = PropertyTaxonomies::canonicalOperationSlug((string) $slug);
+                }
                 $urls[] = home_url('/inmuebles/' . $prefix . '/' . rawurlencode((string) $slug) . '/');
             }
         }
@@ -529,6 +532,10 @@ class SeoIntegrationService implements ServiceInterface
             );
             // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             foreach ((array) $rows as $row) {
+                if ($taxA === $taxOp) {
+                    $row = clone $row;
+                    $row->slug_a = PropertyTaxonomies::canonicalOperationSlug((string) $row->slug_a);
+                }
                 $urls[] = home_url(
                     '/inmuebles/' . $prefA . '/' . rawurlencode((string) $row->slug_a)
                     . '/' . $prefB . '/' . rawurlencode((string) $row->slug_b) . '/'
@@ -558,8 +565,9 @@ class SeoIntegrationService implements ServiceInterface
         );
         // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         foreach ((array) $rows as $row) {
+            $operationSlug = PropertyTaxonomies::canonicalOperationSlug((string) $row->g);
             $urls[] = home_url(
-                '/inmuebles/gestion/' . rawurlencode((string) $row->g)
+                '/inmuebles/gestion/' . rawurlencode($operationSlug)
                 . '/tipo/' . rawurlencode((string) $row->t)
                 . '/ciudad/' . rawurlencode((string) $row->c) . '/'
             );

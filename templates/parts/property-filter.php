@@ -141,11 +141,16 @@ $termSelect = static function (string $name, string $taxonomy, string $label, $c
     $terms = get_terms([
         'taxonomy' => $taxonomy,
         'hide_empty' => in_array($taxonomy, $onlyPublishedOptions, true),
+        'fields' => 'all',
     ]);
     if (is_wp_error($terms) || !$terms) {
         return;
     }
     $currentValues = is_array($currentValue) ? $currentValue : [$currentValue];
+    if ($taxonomy === PropertyTaxonomies::TAXONOMY_OPERATION) {
+        $terms = PropertyTaxonomies::publicOperationTerms($terms);
+        $currentValues = array_map([PropertyTaxonomies::class, 'canonicalOperationSlug'], $currentValues);
+    }
     $inputName = $multiple ? $name . '[]' : $name;
     ?>
     <div class="property-listing__filter-group">

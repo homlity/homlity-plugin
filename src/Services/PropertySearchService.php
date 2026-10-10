@@ -162,6 +162,9 @@ class PropertySearchService implements ServiceInterface
                 $taxonomy
             );
             if ($termIds) {
+                if ($taxonomy === PropertyTaxonomies::TAXONOMY_OPERATION) {
+                    $termIds = PropertyTaxonomies::expandOperationTermIds($termIds);
+                }
                 $args['tax_query'][] = [
                     'taxonomy' => $taxonomy,
                     'field'    => 'term_id',
@@ -184,7 +187,9 @@ class PropertySearchService implements ServiceInterface
                 $args['tax_query'][] = [
                     'taxonomy' => $taxonomy,
                     'field'    => 'term_id',
-                    'terms'    => [$presetId],
+                    'terms'    => $taxonomy === PropertyTaxonomies::TAXONOMY_OPERATION
+                        ? PropertyTaxonomies::expandOperationTermIds([$presetId])
+                        : [$presetId],
                 ];
             }
         }
@@ -865,11 +870,7 @@ class PropertySearchService implements ServiceInterface
             if (!($term instanceof \WP_Term)) {
                 continue;
             }
-            $text = strtolower(remove_accents($term->slug . ' ' . $term->name));
-            if (
-                strpos($text, 'arriendo') !== false || strpos($text, 'alquil') !== false
-                || strpos($text, 'renta') !== false  || strpos($text, 'rent') !== false
-            ) {
+            if (in_array('rent', PropertyTaxonomies::operationFamiliesForTerm($term), true)) {
                 return '_property_price_rent';
             }
         }

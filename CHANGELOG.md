@@ -15,6 +15,7 @@ La Developer API se versiona por separado. Ver
 
 ### Fixed
 
+- Las etiquetas de precios respetan los nombres configurados de gestión (por ejemplo, «Alquiler»); las cards y el componente de gestión/precios reconocen también alquiler y renta sin mostrar precios de venta residuales.
 - Fix: las cards de inmuebles en Arriendo/Venta muestran ambos precios y la administración asociada al arriendo.
 - Las galerías, fichas técnicas y lectores compartidos respetan el modo CDN de Homlity Sync y sus URLs separadas de los IDs de adjuntos.
 

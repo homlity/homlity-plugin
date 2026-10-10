@@ -60,9 +60,12 @@ final class CardPriceResolverTest extends TestCase
             'venta' => [2, '', ['sale']],
             'desconocida' => [0, 'permuta', ['rent', 'sale']],
             'slug arriendo' => [0, 'arriendo Alquiler', ['rent']],
+            'alquiler sin identidad base' => [0, 'alquiler Alquiler', ['rent']],
+            'renta sin identidad base' => [0, 'renta Renta', ['rent']],
+            'alquiler y venta' => [0, 'alquiler-venta Alquiler/Venta', ['rent', 'sale']],
             'nombre venta' => [0, 'custom VENTA', ['sale']],
             'slug y nombre mixto' => [0, 'arriendo-venta Arriendo/Venta', ['rent', 'sale']],
-            'base y nombre se combinan' => [1, 'venta', ['rent', 'sale']],
+            'identidad base prevalece sobre el nombre' => [1, 'venta', ['rent']],
         ];
     }
 
@@ -135,6 +138,32 @@ final class CardPriceResolverTest extends TestCase
         update_term_meta($term->term_id, '_homlity_base_operation_key', 'rent');
 
         self::assertSame(['rent'], array_column(CardPriceResolver::forPost(501), 'type'));
+        self::assertSame('Alquiler', CardPriceResolver::forPost(501)[0]['label']);
+    }
+
+    public function testAlquilerSinIdentidadBaseOmiteLaVentaResidualYRespetaSuNombre(): void
+    {
+        $this->givenPost('alquiler', 'Alquiler');
+        $lines = CardPriceResolver::forPost(501);
+
+        self::assertCount(1, $lines);
+        self::assertSame('Alquiler', $lines[0]['label']);
+        self::assertSame('CRC 2500', $lines[0]['amount']);
+        self::assertSame('EUR 100', $lines[0]['admin']);
+    }
+
+    public function testGestionMixtaUsaLosNombresConfiguradosDeCadaPrecio(): void
+    {
+        $this->givenPost();
+        WpStubs::$registeredTaxonomies[] = PropertyTaxonomies::TAXONOMY_OPERATION;
+        $rent = WpStubs::setTerm(78, PropertyTaxonomies::TAXONOMY_OPERATION, 'alquiler', 'Alquiler');
+        update_term_meta($rent->term_id, '_homlity_base_operation_id', 1);
+        update_term_meta($rent->term_id, '_homlity_base_operation_key', 'rent');
+        $sale = WpStubs::setTerm(79, PropertyTaxonomies::TAXONOMY_OPERATION, 'comprar', 'Comprar');
+        update_term_meta($sale->term_id, '_homlity_base_operation_id', 2);
+        update_term_meta($sale->term_id, '_homlity_base_operation_key', 'sale');
+
+        self::assertSame(['Alquiler', 'Comprar'], array_column(CardPriceResolver::forPost(501), 'label'));
     }
 
     public function testForPostToleraTerminosAusentesYErrores(): void

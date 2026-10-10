@@ -25,6 +25,7 @@ class TemplateService implements ServiceInterface
         add_filter('template_include', [$this, 'maybeLoadTemplate']);
         add_action('pre_get_posts', [$this, 'filterArchiveQuery']);
         add_action('template_redirect', [$this, 'redirectLegacyFilteredArchiveUrl'], 1);
+        add_action('template_redirect', [$this, 'redirectOperationAliasArchiveUrl'], 1);
         add_action('template_redirect', [$this, 'maybeRenderTechnicalSheetPdf'], 1);
         add_action('template_redirect', [$this, 'redirectLegacyEnglishUrls']);
         add_action('wp_enqueue_scripts', [$this, 'enqueuePublicAssets']);
@@ -300,6 +301,9 @@ class TemplateService implements ServiceInterface
             if ($value === '') {
                 continue;
             }
+            if ($routeKey === 'gestion') {
+                $value = PropertyTaxonomies::canonicalOperationSlug($value);
+            }
             $segments[] = $routeKey;
             $segments[] = rawurlencode($value);
         }
@@ -310,6 +314,44 @@ class TemplateService implements ServiceInterface
         }
 
         return home_url($path);
+    }
+
+    /** Return a redirect only for an exact operation alias on an archive route. */
+    public static function operationAliasArchiveRedirect(string $url): string
+    {
+        $path = (string) wp_parse_url($url, PHP_URL_PATH);
+        $archivePath = (string) wp_parse_url(home_url('/inmuebles/'), PHP_URL_PATH);
+        if (!str_starts_with($path, $archivePath . 'gestion/')) {
+            return '';
+        }
+        $suffix = substr($path, strlen($archivePath));
+        if (!preg_match('~^gestion/([^/]+)(?=/|$)~', $suffix, $matches)) {
+            return '';
+        }
+        $slug = rawurldecode($matches[1]);
+        $canonical = PropertyTaxonomies::canonicalOperationSlug($slug);
+        if ($canonical === $slug) {
+            return '';
+        }
+        $suffix = 'gestion/' . rawurlencode($canonical) . substr($suffix, strlen($matches[0]));
+        $query = (string) wp_parse_url($url, PHP_URL_QUERY);
+        return home_url('/inmuebles/' . $suffix) . ($query !== '' ? '?' . $query : '');
+    }
+
+    public function redirectOperationAliasArchiveUrl(): void
+    {
+        if (is_admin() || wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
+            return;
+        }
+        $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+        if (!in_array($method, ['GET', 'HEAD'], true)) {
+            return;
+        }
+        $target = self::operationAliasArchiveRedirect(wp_unslash((string) ($_SERVER['REQUEST_URI'] ?? '')));
+        if ($target !== '') {
+            wp_safe_redirect($target, 301, 'Homlity Real Estate');
+            exit;
+        }
     }
 
     /**
@@ -336,6 +378,10 @@ class TemplateService implements ServiceInterface
         }
 
         $legacyKeys = [
+            'gestion',
+            'tipo',
+            'ciudad',
+            'barrios',
             'property_operation',
             'property_type',
             'property_city',
@@ -513,6 +559,9 @@ class TemplateService implements ServiceInterface
             foreach ($taxMap as $param => $taxonomy) {
                 if (!empty($_GET[$param])) {
                     $terms = array_map('sanitize_text_field', (array) wp_unslash($_GET[$param]));
+                    if ($taxonomy === PropertyTaxonomies::TAXONOMY_OPERATION) {
+                        $terms = PropertyTaxonomies::expandOperationTermSlugs($terms);
+                    }
                     $taxQuery[] = [
                         'taxonomy' => $taxonomy,
                         'field' => 'slug',
@@ -533,6 +582,9 @@ class TemplateService implements ServiceInterface
                     continue;
                 }
                 $terms = [sanitize_title($qvValue)];
+                if ($taxonomy === PropertyTaxonomies::TAXONOMY_OPERATION) {
+                    $terms = PropertyTaxonomies::expandOperationTermSlugs($terms);
+                }
                 $taxQuery[] = [
                     'taxonomy' => $taxonomy,
                     'field' => 'slug',

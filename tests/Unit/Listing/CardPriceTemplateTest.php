@@ -145,6 +145,53 @@ final class CardPriceTemplateTest extends TestCase
     }
 
     /** @dataProvider templates */
+    public function testAlquilerSinIdentidadBaseNoAnunciaUnaVentaResidual(string $template, string $preset, string $prefix): void
+    {
+        $term = WpStubs::setTerm(77, PropertyTaxonomies::TAXONOMY_OPERATION, 'alquiler', 'Alquiler');
+        WpStubs::$postTerms[self::POST_ID][PropertyTaxonomies::TAXONOMY_OPERATION] = [$term];
+        $html = $this->render($template, $preset);
+
+        self::assertStringContainsString('Alquiler', $html);
+        self::assertStringContainsString('CRC 2500', $html);
+        self::assertStringContainsString('EUR 100', $html);
+        self::assertStringNotContainsString('USD 900000', $html);
+        self::assertStringNotContainsString('Arriendo', $html);
+    }
+
+    /** @dataProvider templates */
+    public function testGestionMixtaMuestraElNombreConfiguradoDelAlquiler(string $template, string $preset, string $prefix): void
+    {
+        WpStubs::$registeredTaxonomies[] = PropertyTaxonomies::TAXONOMY_OPERATION;
+        $term = WpStubs::setTerm(78, PropertyTaxonomies::TAXONOMY_OPERATION, 'alquiler', 'Alquiler');
+        update_term_meta($term->term_id, '_homlity_base_operation_id', 1);
+        update_term_meta($term->term_id, '_homlity_base_operation_key', 'rent');
+        $html = $this->render($template, $preset);
+        $lines = $this->xpath($html)->query('//span[contains(@class, "' . $prefix . '__price-line--")]');
+
+        self::assertCount(2, $lines);
+        self::assertStringContainsString('Alquiler', $lines[0]->textContent);
+        self::assertStringNotContainsString('Arriendo', $lines[0]->textContent);
+        self::assertStringContainsString('Venta', $lines[1]->textContent);
+    }
+
+    public function testComponenteDeFichaRespetaAlquilerYOmiteLaVentaResidual(): void
+    {
+        $term = WpStubs::setTerm(77, PropertyTaxonomies::TAXONOMY_OPERATION, 'alquiler', 'Alquiler');
+        WpStubs::$postTerms[self::POST_ID][PropertyTaxonomies::TAXONOMY_OPERATION] = [$term];
+        ob_start();
+        try {
+            TemplateService::includeComponent('property-operation-price.php', ['post_id' => self::POST_ID]);
+        } finally {
+            $html = (string) ob_get_clean();
+        }
+
+        self::assertStringContainsString('Alquiler', $html);
+        self::assertStringContainsString('CRC 2500', $html);
+        self::assertStringNotContainsString('Arriendo', $html);
+        self::assertStringNotContainsString('USD 900000', $html);
+    }
+
+    /** @dataProvider templates */
     public function testPrecioOcultoNoLlamaAlResolver(string $template, string $preset, string $prefix): void
     {
         WpStubs::addFilter('homlity_plugin_card_price_lines', static function (): array {

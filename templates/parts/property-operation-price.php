@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 use Homlity\PluginInmobiliario\Services\CurrencyService;
+use Homlity\PluginInmobiliario\Services\CardPriceResolver;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 
@@ -33,8 +34,10 @@ $baseOperationId = $operationTerm instanceof \WP_Term
 $opSlug     = $operationTerm instanceof \WP_Term
     ? mb_strtolower($operationTerm->slug . ' ' . $operationTerm->name)
     : '';
-$isVenta    = in_array($baseOperationId, [2, 3], true) || strpos($opSlug, 'venta') !== false;
-$isArriendo = in_array($baseOperationId, [1, 3], true) || strpos($opSlug, 'arriendo') !== false;
+$operationTypes = CardPriceResolver::operationTypes($baseOperationId, $opSlug);
+$priceLabels = CardPriceResolver::operationLabelsForTerm($operationTerm instanceof \WP_Term ? $operationTerm : null);
+$isVenta    = $operationTypes['sale'];
+$isArriendo = $operationTypes['rent'];
 $hideZero   = ($s['hide_zero_values'] ?? 'no') === 'yes';
 
 // Price keys visible for this operation type; if unknown, show all
@@ -65,13 +68,13 @@ $items = [
         'value' => $operationName,
     ],
     'price_sale'  => [
-        'label' => __('Venta',          'homlity-real-estate'),
+        'label' => $priceLabels['sale'],
         'value' => ($priceSale !== '' && $priceSale !== null)
             ? homlity_plugin_apply_filters('homlity_plugin_format_price', null, $priceSale, $currencySale)
             : '',
     ],
     'price_rent'  => [
-        'label' => __('Arriendo',       'homlity-real-estate'),
+        'label' => $priceLabels['rent'],
         'value' => ($priceRent !== '' && $priceRent !== null)
             ? homlity_plugin_apply_filters('homlity_plugin_format_price', null, $priceRent, $currencyRent)
             : '',

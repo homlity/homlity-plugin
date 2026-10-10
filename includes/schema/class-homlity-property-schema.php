@@ -25,10 +25,11 @@ class Homlity_Property_Schema
             return [];
         }
 
+        $offers = $this->offer_nodes($post_id, $url);
         $nodes = array_filter([
-            $this->listing_node($post_id, $url),
+            $this->listing_node($post_id, $url, $offers),
             $this->property_node($post_id, $url),
-            $this->offer_node($post_id, $url),
+            ...$offers,
             $this->agent_node(),
             $this->breadcrumb_node($post_id, $url),
         ]);
@@ -38,7 +39,7 @@ class Homlity_Property_Schema
 
     // ── RealEstateListing ─────────────────────────────────────────────────────
 
-    private function listing_node(int $post_id, string $url): array
+    private function listing_node(int $post_id, string $url, array $offers): array
     {
         $images = Homlity_Schema_Helpers::images($post_id);
         $code   = Homlity_Schema_Helpers::get_meta($post_id, 'code');
@@ -54,7 +55,9 @@ class Homlity_Property_Schema
             'dateModified' => get_the_modified_date('c', $post_id),
             'identifier'   => $code !== '' ? $code : null,
             'mainEntity'   => ['@id' => $url . '#property'],
-            'offers'       => ['@id' => $url . '#offer'],
+            'offers'       => count($offers) === 1
+                ? ['@id' => $offers[0]['@id']]
+                : (array_map(static fn(array $offer): array => ['@id' => $offer['@id']], $offers) ?: null),
         ];
 
         $node = Homlity_Schema_Helpers::drop_empty($node);
@@ -111,17 +114,34 @@ class Homlity_Property_Schema
 
     // ── Offer ─────────────────────────────────────────────────────────────────
 
-    private function offer_node(int $post_id, string $url): array
+    private function offer_nodes(int $post_id, string $url): array
     {
-        $op          = Homlity_Schema_Helpers::operation($post_id);
-        $price       = Homlity_Schema_Helpers::price($post_id);
-        $currency    = Homlity_Schema_Helpers::currency($post_id);
+        if (Homlity_Schema_Helpers::operation($post_id) !== 'both') {
+            return [$this->offer_node($post_id, $url)];
+        }
+        $offers = [];
+        foreach (['rent', 'sale'] as $type) {
+            // An absent second price must not reuse the other operation's price.
+            if ((float) Homlity_Schema_Helpers::get_meta($post_id, 'price_' . $type) > 0) {
+                $offers[] = $this->offer_node($post_id, $url, $type);
+            }
+        }
+        return $offers;
+    }
+
+    private function offer_node(int $post_id, string $url, string $type = ''): array
+    {
+        $op          = $type !== '' ? $type : Homlity_Schema_Helpers::operation($post_id);
+        $price       = $type !== '' ? Homlity_Schema_Helpers::get_meta($post_id, 'price_' . $type) : Homlity_Schema_Helpers::price($post_id);
+        $currency    = $type !== ''
+            ? (Homlity_Schema_Helpers::get_meta($post_id, 'currency_' . $type) ?: (new \Homlity\PluginInmobiliario\Services\CurrencyService())->baseCurrency())
+            : Homlity_Schema_Helpers::currency($post_id);
         $valid_until = Homlity_Schema_Helpers::price_valid_until($post_id);
         $agent_id    = home_url('/') . '#realestateagent';
 
         $node = [
             '@type'            => 'Offer',
-            '@id'              => $url . '#offer',
+            '@id'              => $url . '#offer' . ($type !== '' ? '-' . $type : ''),
             'url'              => $url,
             'price'            => $price !== '' ? $price : null,
             'priceCurrency'    => $price !== '' ? $currency : null,

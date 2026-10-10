@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function matchBlocks(slug, baseId) {
         const wantsPermuta = baseId === 4 || slug.includes('permuta') || slug.includes('swap');
-        const wantsRent = baseId === 1 || baseId === 3 || slug.includes('arriendo') || slug.includes('rent');
+        const wantsRent = baseId === 1 || baseId === 3 || slug.includes('arriendo') || slug.includes('alquil') || slug.includes('rent');
         const wantsSale = baseId === 2 || baseId === 3 || slug.includes('venta') || slug.includes('sale');
         const wantsAdmin = wantsRent || wantsSale || slug.includes('admin') || slug.includes('adm');
 

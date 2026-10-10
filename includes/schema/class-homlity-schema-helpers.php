@@ -153,6 +153,13 @@ class Homlity_Schema_Helpers
 
         $is_sale = preg_match('/\b(venta|sale|sell|compra|compraventa)\b/', $haystack) === 1;
         $is_rent = preg_match('/\b(arriendo|alquiler|rent|lease|arrendamiento)\b/', $haystack) === 1;
+        foreach ($terms as $term) {
+            if ($term instanceof \WP_Term && $term->taxonomy === \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_OPERATION) {
+                $families = \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::operationFamiliesForTerm($term);
+                $is_sale = $is_sale || in_array('sale', $families, true);
+                $is_rent = $is_rent || in_array('rent', $families, true);
+            }
+        }
 
         if ($is_sale && $is_rent) {
             return 'both';

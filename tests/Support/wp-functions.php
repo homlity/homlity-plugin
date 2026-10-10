@@ -769,7 +769,7 @@ if (!function_exists('get_terms')) {
 
         // Sin `name`, `parent` ni `meta_key` la llamada es un listado: se conserva
         // la forma antigua —sólo ids— porque es lo que esperan quienes ya la usaban.
-        if (!isset($args['name']) && !array_key_exists('parent', $args) && !isset($args['meta_key'])) {
+        if (($args['fields'] ?? '') !== 'all' && !isset($args['name']) && !array_key_exists('parent', $args) && !isset($args['meta_key'])) {
             return array_map(static fn(\WP_Term $t): int => $t->term_id, $terms);
         }
 

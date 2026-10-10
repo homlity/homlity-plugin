@@ -2283,43 +2283,17 @@ class PropertyPostType implements ServiceInterface
         }
 
         if ($column === 'property_operation_value') {
-            $operation = '';
-            $operationTerms = wp_get_post_terms($postId, PropertyTaxonomies::TAXONOMY_OPERATION);
-            if (!is_wp_error($operationTerms) && !empty($operationTerms)) {
-                $operation = strtolower(sanitize_title($operationTerms[0]->name));
-            }
-
-            $currencyService = new CurrencyService();
-            $currency = (string) get_post_meta($postId, '_property_currency_sale', true);
-            if ($currency === '') {
-                $currency = (string) get_post_meta($postId, '_property_currency_rent', true);
-            }
-            if ($currency === '') {
-                $currency = (string) $currencyService->baseCurrency();
-            }
-
-            $priceSale = (string) get_post_meta($postId, '_property_price_sale', true);
-            $priceRent = (string) get_post_meta($postId, '_property_price_rent', true);
-            $priceAdmin = (string) get_post_meta($postId, '_property_price_admin', true);
-
-            $value = '';
-            if (strpos($operation, 'arriendo') !== false || strpos($operation, 'rent') !== false) {
-                $value = $priceRent !== '' ? $priceRent : $priceSale;
-            } else {
-                $value = $priceSale !== '' ? $priceSale : $priceRent;
-            }
-
-            if ($value === '' && $priceAdmin !== '') {
-                $value = $priceAdmin;
-            }
-
-            if ($value === '') {
+            $lines = CardPriceResolver::forPost($postId);
+            if ($lines === []) {
                 echo '—';
                 return;
             }
-
-            $formatted = \homlity_plugin_apply_filters('homlity_plugin_format_price', null, $value, $currency);
-            echo esc_html((string) ($formatted !== null ? $formatted : $value));
+            foreach ($lines as $index => $line) {
+                if ($index > 0) {
+                    echo '<br>';
+                }
+                echo esc_html($line['label'] . ': ' . $line['amount']);
+            }
             return;
         }
 

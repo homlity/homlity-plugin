@@ -22,6 +22,11 @@ class PropertyTaxonomies implements ServiceInterface
     private const FEATURE_VISIBILITY_META_KEY = '_homlity_feature_visible';
     private const OPERATION_BASE_KEY_META = '_homlity_base_operation_key';
     private const OPERATION_BASE_ID_META = '_homlity_base_operation_id';
+    private const OPERATION_ALIAS_SLUGS = [
+        1 => ['alquiler', 'renta', 'arriendo', 'arrendamiento', 'rent'],
+        2 => ['venta', 'sale'],
+        3 => ['alquiler-venta', 'alquiler-y-venta', 'venta-alquiler', 'arriendo-venta', 'arriendo-y-venta', 'venta-arriendo', 'ambos'],
+    ];
     private const PROPERTY_TYPE_BASE_KEY_META = '_homlity_base_property_type_key';
     private const PROPERTY_TYPE_BASE_ID_META = '_homlity_base_property_type_id';
 
@@ -1143,6 +1148,7 @@ class PropertyTaxonomies implements ServiceInterface
         $allTerms = get_terms([
             'taxonomy' => self::TAXONOMY_OPERATION,
             'hide_empty' => false,
+            'fields' => 'all',
         ]);
         if (is_wp_error($allTerms) || empty($allTerms)) {
             return $termIds;
@@ -1150,6 +1156,9 @@ class PropertyTaxonomies implements ServiceInterface
 
         $expanded = $termIds;
         foreach ($selectedTerms as $selectedTerm) {
+            if (self::operationAliasBaseId($selectedTerm) === 0) {
+                continue;
+            }
             $selectedFamilies = self::operationFamiliesForTerm($selectedTerm);
             if (empty($selectedFamilies)) {
                 continue;
@@ -1212,17 +1221,81 @@ class PropertyTaxonomies implements ServiceInterface
     /**
      * @return string[]
      */
-    private static function operationFamiliesForTerm(\WP_Term $term): array
+    public static function operationFamiliesForTerm(\WP_Term $term): array
     {
         // Base terms are classified by identity so renaming them (e.g. "Venta"
         // to "Comprar") keeps "Venta" searches matching "Arriendo/Venta".
         $baseFamilies = [1 => ['rent'], 2 => ['sale'], 3 => ['rent', 'sale'], 4 => []];
-        $baseId = self::baseOperationIdForTerm($term);
+        $baseId = self::operationAliasBaseId($term);
         if (isset($baseFamilies[$baseId])) {
             return $baseFamilies[$baseId];
         }
 
         return self::operationFamiliesFromText($term->slug . ' ' . $term->name);
+    }
+
+    /**
+     * Resolve only exact synonyms; specialized operations keep their own URLs.
+     * A renamed base term wins over historical aliases.
+     */
+    public static function canonicalOperationTerm(\WP_Term $term): \WP_Term
+    {
+        $definitions = self::baseOperations();
+        $baseId = self::operationAliasBaseId($term);
+        if (!isset(self::OPERATION_ALIAS_SLUGS[$baseId])) {
+            return $term;
+        }
+
+        $baseTerm = self::baseOperationTermById($baseId);
+        if ($baseTerm instanceof \WP_Term
+            && ($baseTerm->slug !== $definitions[$baseId]['slug'] || $baseTerm->name !== $definitions[$baseId]['name'])) {
+            return $baseTerm;
+        }
+        foreach (self::OPERATION_ALIAS_SLUGS[$baseId] as $slug) {
+            $candidate = get_term_by('slug', $slug, self::TAXONOMY_OPERATION);
+            if ($candidate instanceof \WP_Term
+                && self::operationFamiliesForTerm($candidate) === self::operationFamiliesForTerm($term)) {
+                return $candidate;
+            }
+        }
+
+        return $baseTerm ?? $term;
+    }
+
+    private static function operationAliasBaseId(\WP_Term $term): int
+    {
+        if ($term->taxonomy !== self::TAXONOMY_OPERATION) {
+            return 0;
+        }
+        $baseId = self::baseOperationIdForTerm($term);
+        if ($baseId === 0) {
+            foreach (self::OPERATION_ALIAS_SLUGS as $id => $slugs) {
+                if (in_array($term->slug, $slugs, true)) {
+                    $baseId = $id;
+                    break;
+                }
+            }
+        }
+        return $baseId;
+    }
+
+    public static function canonicalOperationSlug(string $slug): string
+    {
+        $term = get_term_by('slug', $slug, self::TAXONOMY_OPERATION);
+        return $term instanceof \WP_Term ? self::canonicalOperationTerm($term)->slug : $slug;
+    }
+
+    /** @param \WP_Term[] $terms @return \WP_Term[] */
+    public static function publicOperationTerms(array $terms): array
+    {
+        $canonical = [];
+        foreach ($terms as $term) {
+            if ($term instanceof \WP_Term) {
+                $representative = self::canonicalOperationTerm($term);
+                $canonical[$representative->term_id] = $representative;
+            }
+        }
+        return array_values($canonical);
     }
 
     /**
