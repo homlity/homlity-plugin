@@ -254,3 +254,26 @@ Homlity tiene además ~75 filtros con guion bajo:
 
 Funcionan y no están deprecados, pero no están cubiertos por la garantía de
 estabilidad. Ver la [nota sobre hooks heredados](actions.md#hooks-heredados).
+
+
+### `homlity_property_type_keywords`
+
+Desde 2.9.16, el detector compara el tipo estructurado con las palabras del
+extracto y contenido usando un mapa `array<string,string[]>`.
+Recibe y devuelve el mapa completo: claves como `casa`, `apartamento` u
+`oficina`, y listas de palabras o sinónimos. La comparación ignora tildes y
+mayúsculas y respeta los límites de palabra. Un conflicto se informa solo si
+el texto menciona otro tipo y nunca menciona uno de los asignados. El título
+no interviene, porque suele derivarse del tipo estructurado; sin extracto ni
+contenido no se informa un conflicto.
+
+```php
+add_filter('homlity_property_type_keywords', static function (array $keywords): array {
+    $keywords['casa'][] = 'vivienda unifamiliar';
+    return $keywords;
+});
+```
+
+Este filtro ajusta el diagnóstico; no modifica el CRM ni las taxonomías. El
+resultado afecta a los avisos y a la omisión de textos contradictorios en
+`llms.txt` y `llms-full.txt`.

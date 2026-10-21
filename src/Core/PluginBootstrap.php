@@ -57,6 +57,9 @@ use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 use Homlity\PluginInmobiliario\Services\SeoGeoSchemaService;
 use Homlity\PluginInmobiliario\Services\SeoGeoSettingsService;
 use Homlity\PluginInmobiliario\Services\SeoIntegrationService;
+use Homlity\PluginInmobiliario\Services\SearchRobotsService;
+use Homlity\PluginInmobiliario\Services\PropertyDuplicateService;
+use Homlity\PluginInmobiliario\Services\PropertySummaryService;
 use Homlity\PluginInmobiliario\Services\SeoService;
 use Homlity\PluginInmobiliario\Services\HomlityPlansService;
 use Homlity\PluginInmobiliario\Services\HomlityPluginVersionsService;
@@ -106,6 +109,9 @@ class PluginBootstrap
             new MediaFilenameService(),
             new SeoService(),
             new SeoIntegrationService(),
+            new SearchRobotsService(),
+            new PropertyDuplicateService(),
+            new PropertySummaryService(),
             new SeoGeoSettingsService(),
             new SeoGeoSchemaService(),
             new CrmInfrastructureService(),

@@ -41,7 +41,7 @@ if (!defined('ABSPATH')) {
  * Title/description filters are applied for WordPress native title as well as
  * Yoast SEO and Rank Math so any of the three outputs a contextual title.
  *
- * Logged-in users with edit_posts capability are always skipped so editors
+ * Logged-in users with edit_posts capability are skipped unless previewing, so editors
  * can still preview drafts and inactive properties via the admin.
  *
  * Admin options
@@ -58,8 +58,6 @@ if (!defined('ABSPATH')) {
 class PropertyUnavailableService implements ServiceInterface
 {
     private const REWRITE_SLUG              = 'inmueble';
-    private const OPTION_UNAVAILABLE_TEMPLATE = 'homlity_plugin_unavailable_template_id';
-    private const OPTION_UNAVAILABLE_LAYOUT   = 'homlity_plugin_unavailable_page_layout';
 
     public function register(): void
     {
@@ -89,20 +87,24 @@ class PropertyUnavailableService implements ServiceInterface
 
     public function maybeShowUnavailable(): void
     {
+        $previewId = $this->previewPropertyId();
+        $isPreview = $previewId > 0;
         $isUnavailableSingle = is_singular(PropertyPostType::POST_TYPE)
             && $this->isCurrentPropertyUnavailable();
 
-        if (!is_404() && !$isUnavailableSingle) {
+        if (!$isPreview && !is_404() && !$isUnavailableSingle) {
             return;
         }
 
         // Let admins/editors preview drafts and inactive properties.
-        if (current_user_can('edit_posts')) {
+        if (current_user_can('edit_posts') && !$isPreview) {
             return;
         }
 
         // Resolve the property ID.
-        if ($isUnavailableSingle) {
+        if ($isPreview) {
+            $propertyId = $previewId;
+        } elseif ($isUnavailableSingle) {
             $propertyId = (int) get_queried_object_id();
         } else {
             // is_404 path: try to match the URL to an unpublished property post.
@@ -117,6 +119,21 @@ class PropertyUnavailableService implements ServiceInterface
             $propertyId = (int) $post->ID;
         }
 
+        $this->renderProperty($propertyId, $isPreview);
+        exit;
+    }
+
+    /** Solo los editores pueden activar una vista previa. @since 2.9.17 */
+    private function previewPropertyId(): int
+    {
+        $id = current_user_can('edit_posts') ? absint($_GET['homlity_preview_unavailable'] ?? 0) : 0;
+        $post = $id > 0 ? get_post($id) : null;
+        return $post instanceof WP_Post && $post->post_type === PropertyPostType::POST_TYPE ? $id : 0;
+    }
+
+    /** Renderiza el inmueble resuelto sin alterar la política pública de recuperación. */
+    private function renderProperty(int $propertyId, bool $isPreview): void
+    {
         // ── Populate context registry (used by shortcodes in any template) ───
         UnavailablePropertyContext::setPropertyId($propertyId);
 
@@ -131,9 +148,14 @@ class PropertyUnavailableService implements ServiceInterface
             $context = (new RetiredPropertyRecoveryService())->buildRecoveryContext($propertyId);
 
             // CASE D: explicit replacement → 301 redirect.
-            if ($context['status_code'] === 301 && !empty($context['redirect_url'])) {
+            if (!$isPreview && $context['status_code'] === 301 && !empty($context['redirect_url'])) {
                 wp_safe_redirect(esc_url_raw((string) $context['redirect_url']), 301);
                 exit;
+            }
+
+            if ($isPreview) {
+                $context['status_code'] = 200;
+                $context['robots'] = 'noindex,follow';
             }
 
             // Publish context in both the global (for property-recovery.php) and
@@ -150,11 +172,11 @@ class PropertyUnavailableService implements ServiceInterface
             $wp_query->is_404 = false;
 
             $this->renderRecoveryTemplate($context);
-            exit;
+            return;
         }
 
         // ── Legacy mode ───────────────────────────────────────────────────────
-        status_header(410);
+        status_header($isPreview ? 200 : 410);
         header('X-Robots-Tag: noindex, follow', true);
         nocache_headers();
 
@@ -162,7 +184,6 @@ class PropertyUnavailableService implements ServiceInterface
         $wp_query->is_404 = false;
 
         $this->renderUnavailableTemplate();
-        exit;
     }
 
     // ── wp_head hooks ─────────────────────────────────────────────────────────
@@ -327,84 +348,15 @@ class PropertyUnavailableService implements ServiceInterface
      */
     private function renderRecoveryTemplate(array $context): void
     {
-        $templateId = (int) get_option(self::OPTION_UNAVAILABLE_TEMPLATE, 0);
-        $layout     = (string) get_option(self::OPTION_UNAVAILABLE_LAYOUT, 'default');
-
-        // Elementor custom template (backward compat): the designer has full control.
-        if (
-            $templateId > 0
-            && get_post_status($templateId)
-            && class_exists('\Elementor\Plugin')
-        ) {
-            $isCanvas = ($layout === 'elementor_canvas');
-            if (!$isCanvas) {
-                get_header();
-            }
-            echo wp_kses_post(
-                \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($templateId)
-            );
-            if (!$isCanvas) {
-                get_footer();
-            }
-            return;
+        if (!(new UnavailablePageRenderer())->renderConfiguredTemplate()) {
+            include $this->locateTemplate('property-recovery.php');
         }
-
-        if ($templateId > 0 && get_post_status($templateId) && get_post_meta($templateId, '_homlity_seeded_builder', true) !== '') {
-            $this->renderBuilderPage($templateId);
-            return;
-        }
-
-        // New rich recovery template.
-        include $this->locateTemplate('property-recovery.php');
     }
 
-    /**
-     * Legacy unavailable template rendering (used when recovery is disabled).
-     */
     private function renderUnavailableTemplate(): void
     {
-        $templateId = (int) get_option(self::OPTION_UNAVAILABLE_TEMPLATE, 0);
-        $layout     = (string) get_option(self::OPTION_UNAVAILABLE_LAYOUT, 'default');
-        $isCanvas   = ($layout === 'elementor_canvas');
-
-        if (
-            $templateId > 0
-            && get_post_status($templateId)
-            && class_exists('\Elementor\Plugin')
-        ) {
-            if (!$isCanvas) {
-                get_header();
-            }
-            echo wp_kses_post(
-                \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($templateId)
-            );
-            if (!$isCanvas) {
-                get_footer();
-            }
-            return;
+        if (!(new UnavailablePageRenderer())->renderConfiguredTemplate()) {
+            include $this->locateTemplate('property-unavailable.php');
         }
-
-        if ($templateId > 0 && get_post_status($templateId) && get_post_meta($templateId, '_homlity_seeded_builder', true) !== '') {
-            $this->renderBuilderPage($templateId);
-            return;
-        }
-
-        include $this->locateTemplate('property-unavailable.php');
-    }
-
-    private function renderBuilderPage(int $pageId): void
-    {
-        global $post;
-        $previousPost = $post ?? null;
-        $post = get_post($pageId);
-        if (!$post instanceof \WP_Post) {
-            return;
-        }
-        setup_postdata($post);
-        get_header();
-        echo apply_filters('the_content', $post->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- 'the_content' es un filtro del núcleo; aplicarlo es justo lo que se quiere.
-        get_footer();
-        wp_reset_postdata();
-        $post = $previousPost;
     }
 }

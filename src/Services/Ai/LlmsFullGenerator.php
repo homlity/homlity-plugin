@@ -13,6 +13,7 @@
 namespace Homlity\PluginInmobiliario\Services\Ai;
 
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\PropertyDuplicateDetector;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 
 if (!defined('ABSPATH')) {
@@ -240,14 +241,14 @@ class LlmsFullGenerator
 
         // ── Prices ────────────────────────────────────────────────────────
         if ($priceSale !== '' && (float) $priceSale > 0) {
-            $lines[] = '- **Precio venta:** ' . $this->formatPrice($priceSale, $currSale);
+            $lines[] = '- **Precio venta:** ' . self::formatPrice($priceSale, $currSale);
         }
         if ($priceRent !== '' && (float) $priceRent > 0) {
             $adminNote = $adminIncl ? ' (administración incluida)' : '';
-            $lines[] = '- **Precio arriendo:** ' . $this->formatPrice($priceRent, $currRent) . $adminNote;
+            $lines[] = '- **Precio arriendo:** ' . self::formatPrice($priceRent, $currRent) . $adminNote;
         }
         if ($priceAdmin !== '' && (float) $priceAdmin > 0 && !$adminIncl) {
-            $lines[] = '- **Administración:** ' . $this->formatPrice($priceAdmin, $currAdmin);
+            $lines[] = '- **Administración:** ' . self::formatPrice($priceAdmin, $currAdmin);
         }
 
         // ── Physical specs ────────────────────────────────────────────────
@@ -290,8 +291,19 @@ class LlmsFullGenerator
 
         // ── Description ───────────────────────────────────────────────────
         $excerpt = trim(wp_strip_all_tags($post->post_excerpt));
-        if ($excerpt !== '') {
+        $detector = new PropertyDuplicateDetector();
+        if ($excerpt !== '' && $detector->typeMismatch($id) === null) {
             $lines[] = '- **Descripción:** ' . $excerpt;
+        }
+
+        $group = $detector->groupFor($id);
+        if ($group !== null && $group['classification'] === 'same_listing') {
+            foreach (array_diff($group['ids'], [$id]) as $siblingId) {
+                $url = get_permalink($siblingId);
+                if ($url) {
+                    $lines[] = '- **Ver también:** ' . esc_url_raw($url);
+                }
+            }
         }
 
         // ── Link (critical for AI citations) ─────────────────────────────
@@ -457,7 +469,8 @@ class LlmsFullGenerator
         return array_map(static fn($t) => sanitize_text_field($t->name), $terms);
     }
 
-    private function formatPrice(string $value, string $currency): string
+    /** Formato compartido con los resúmenes estructurados. @since 2.9.16 */
+    public static function formatPrice(string $value, string $currency): string
     {
         $num = (float) $value;
         if ($num <= 0) {

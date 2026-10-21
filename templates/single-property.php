@@ -14,87 +14,49 @@ use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\TemplateService;
 
 $singleLayout = (string) get_option('homlity_plugin_single_page_layout', 'default');
-$isCanvasLayout = ($singleLayout === 'elementor_canvas');
 $homlityBuilderTemplateId = (int) get_option('homlity_plugin_single_template_id', 0);
 $homlityBuilderTemplate = $homlityBuilderTemplateId > 0 ? get_post($homlityBuilderTemplateId) : null;
-$homlityTemplateBuilder = '';
+$homlityTemplateBuilder = TemplateService::detectTemplateBuilder($homlityBuilderTemplateId);
 
-if ($homlityBuilderTemplate instanceof \WP_Post) {
-    // Detect the renderer from the template itself. Elementor can be active on
-    // a Divi site, so class_exists('Elementor\\Plugin') alone is not enough and
-    // previously caused valid Divi layouts to be rendered as empty Elementor
-    // documents on property detail pages.
+$content = static function () use ($homlityBuilderTemplateId, $homlityBuilderTemplate, $homlityTemplateBuilder): void {
     if (
-        get_post_meta($homlityBuilderTemplateId, '_elementor_edit_mode', true) === 'builder'
-        || get_post_meta($homlityBuilderTemplateId, '_homlity_seeded_builder', true) === 'elementor'
+        $homlityTemplateBuilder === 'elementor' &&
+        class_exists('\Elementor\Plugin')
     ) {
-        $homlityTemplateBuilder = 'elementor';
-    } elseif (
-        get_post_meta($homlityBuilderTemplateId, '_et_pb_use_builder', true) === 'on'
-        || get_post_meta($homlityBuilderTemplateId, '_homlity_seeded_builder', true) === 'divi'
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Elementor sanitises its own widget output internally
+        echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($homlityBuilderTemplateId, true);
+        return;
+    }
+
+    if (
+        $homlityBuilderTemplate instanceof \WP_Post
+        && $homlityTemplateBuilder !== 'elementor'
     ) {
-        $homlityTemplateBuilder = 'divi';
-    } elseif (
-        get_post_meta($homlityBuilderTemplateId, '_wpb_vc_js_status', true) === 'true'
-        || get_post_meta($homlityBuilderTemplateId, '_homlity_seeded_builder', true) === 'wpbakery'
-    ) {
-        $homlityTemplateBuilder = 'wpbakery';
-    } else {
-        $homlityTemplateBuilder = 'native';
+        // Keep the queried property as the global post so dynamic modules and
+        // shortcodes resolve its data, while rendering the template page content.
+        echo apply_filters('the_content', $homlityBuilderTemplate->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- 'the_content' es un filtro del núcleo; aplicarlo es justo lo que se quiere.
+        return;
     }
-}
 
-if (!$isCanvasLayout) {
-    get_header();
-}
-
-if (
-    $homlityTemplateBuilder === 'elementor' &&
-    class_exists('\Elementor\Plugin')
-) {
-    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Elementor sanitises its own widget output internally
-    echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($homlityBuilderTemplateId, true);
-    if (!$isCanvasLayout) {
-        get_footer();
+    // Elementor Theme Builder remains available as a fallback when no explicit
+    // Homlity detail template can be rendered.
+    if (function_exists('elementor_theme_do_location') && elementor_theme_do_location('single')) {
+        return;
     }
-    return;
-}
 
-if (
-    $homlityBuilderTemplate instanceof \WP_Post
-    && $homlityTemplateBuilder !== 'elementor'
-) {
-    // Keep the queried property as the global post so dynamic modules and
-    // shortcodes resolve its data, while rendering the template page content.
-    echo apply_filters('the_content', $homlityBuilderTemplate->post_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- 'the_content' es un filtro del núcleo; aplicarlo es justo lo que se quiere.
-    if (!$isCanvasLayout) {
-        get_footer();
-    }
-    return;
-}
+    $metaKeys = (new PropertyPostType())->metaKeys();
+    $currencyService = new CurrencyService();
 
-// Elementor Theme Builder remains available as a fallback when no explicit
-// Homlity detail template can be rendered.
-if (function_exists('elementor_theme_do_location') && elementor_theme_do_location('single')) {
-    if (!$isCanvasLayout) {
-        get_footer();
-    }
-    return;
-}
+    $priceFields = [
+        'price_sale' => __('Precio venta', 'homlity-real-estate'),
+        'price_rent' => __('Precio arriendo', 'homlity-real-estate'),
+        'price_admin' => __('Precio administración', 'homlity-real-estate'),
+    ];
 
-$metaKeys = (new PropertyPostType())->metaKeys();
-$currencyService = new CurrencyService();
-
-$priceFields = [
-    'price_sale' => __('Precio venta', 'homlity-real-estate'),
-    'price_rent' => __('Precio arriendo', 'homlity-real-estate'),
-    'price_admin' => __('Precio administración', 'homlity-real-estate'),
-];
-
-$agentId = (int) get_post_meta(get_the_ID(), $metaKeys['agent_id'], true);
-$agentPhone = get_post_meta(get_the_ID(), $metaKeys['agent_phone'], true);
-$agentEmail = get_post_meta(get_the_ID(), $metaKeys['agent_email'], true);
-$agentUser = $agentId ? get_user_by('id', $agentId) : null;
+    $agentId = (int) get_post_meta(get_the_ID(), $metaKeys['agent_id'], true);
+    $agentPhone = get_post_meta(get_the_ID(), $metaKeys['agent_phone'], true);
+    $agentEmail = get_post_meta(get_the_ID(), $metaKeys['agent_email'], true);
+    $agentUser = $agentId ? get_user_by('id', $agentId) : null;
 ?>
 <main <?php post_class('property-single'); ?>>
     <?php if (have_posts()) : while (have_posts()) : the_post(); ?>
@@ -148,6 +110,5 @@ $agentUser = $agentId ? get_user_by('id', $agentId) : null;
 </main>
 
 <?php
-if (!$isCanvasLayout) {
-    get_footer();
-}
+};
+\Homlity\PluginInmobiliario\Services\UnavailablePageRenderer::renderDocument($content, $singleLayout);

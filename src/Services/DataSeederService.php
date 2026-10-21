@@ -18,9 +18,11 @@ class DataSeederService
     private const WPBAKERY_ARCHIVE_TEMPLATE_VERSION = '2';
     private const AGENT_PROFILE_TEMPLATE_VERSION = '2';
     private const TECHNICAL_SHEET_TEMPLATE_VERSION = '1';
+    private const UNAVAILABLE_TEMPLATE_VERSION = '2';
 
     public function seed(): void
     {
+        $this->repairUnavailableElementorPage();
         $this->seedPages();
         $this->seedTaxonomy(PropertyTaxonomies::TAXONOMY_TYPE, [
             'Apartamento',
@@ -815,61 +817,106 @@ class DataSeederService
 
     private function seedUnavailableElementorPage(): void
     {
-        $optionKey = 'homlity_plugin_unavailable_template_id';
-        $pageId = (int) get_option($optionKey, 0);
-
-        if (
-            $pageId > 0
-            && in_array(get_post_status($pageId), ['publish', 'draft', 'pending'], true)
-            && get_post_meta($pageId, '_elementor_edit_mode', true) === 'builder'
-        ) {
+        $option = 'homlity_plugin_unavailable_template_id';
+        $id = (int) get_option($option, 0);
+        if ($id > 0 && get_post_status($id)) {
+            $this->repairUnavailableElementorPage();
             return;
         }
-
         $existing = get_posts([
-            'name' => 'inmueble-no-disponible',
-            'post_type' => 'page',
+            'name' => 'inmueble-no-disponible', 'post_type' => 'page',
             'post_status' => ['publish', 'draft', 'pending'],
-            'posts_per_page' => 1,
-            'no_found_rows' => true,
-            'fields' => 'ids',
+            'posts_per_page' => 1, 'fields' => 'ids', 'no_found_rows' => true,
         ]);
-
-        if (!empty($existing)) {
-            $pageId = (int) $existing[0];
-            update_option($optionKey, $pageId);
-        } else {
-            $pageId = wp_insert_post([
-                'post_title' => __('Inmueble no disponible', 'homlity-real-estate'),
-                'post_name' => 'inmueble-no-disponible',
-                'post_content' => '',
-                'post_status' => 'publish',
-                'post_type' => 'page',
-                'comment_status' => 'closed',
-                'ping_status' => 'closed',
-            ]);
-            if (is_wp_error($pageId) || !$pageId) {
-                return;
-            }
-            update_option($optionKey, (int) $pageId);
-        }
-
-        if ((string) get_option('homlity_plugin_unavailable_page_layout', '') === '') {
-            update_option('homlity_plugin_unavailable_page_layout', 'elementor_canvas');
-        }
-
-        if (
-            (int) get_option('homlity_plugin_unavailable_elementor_page_id', 0) === (int) $pageId &&
-            get_post_meta((int) $pageId, '_elementor_edit_mode', true) === 'builder'
-        ) {
+        $id = $existing ? (int) $existing[0] : wp_insert_post([
+            'post_title' => __('Inmueble no disponible', 'homlity-real-estate'),
+            'post_name' => 'inmueble-no-disponible', 'post_content' => '',
+            'post_status' => 'publish', 'post_type' => 'page',
+            'comment_status' => 'closed', 'ping_status' => 'closed',
+        ]);
+        if (is_wp_error($id) || !$id) {
             return;
         }
+        update_option($option, (int) $id);
+        if (get_post_meta((int) $id, '_elementor_data', true) !== '') {
+            $this->repairUnavailableElementorPage();
+            return;
+        }
+        $this->saveUnavailableElementorData((int) $id);
+        if ((string) get_option('homlity_plugin_unavailable_page_layout', '') === '') {
+            update_option('homlity_plugin_unavailable_page_layout', 'default');
+        }
+    }
 
+    /** Repara únicamente la semilla intacta, también al actualizar. @since 2.9.17 */
+    public function repairUnavailableElementorPage(): void
+    {
+        $id = (int) get_option('homlity_plugin_unavailable_template_id', 0);
+        if ($id <= 0 || TemplateService::detectTemplateBuilder($id) !== 'elementor') {
+            return;
+        }
+        $raw = (string) get_post_meta($id, '_elementor_data', true);
+        $data = json_decode($raw, true);
+        if (!is_array($data)) {
+            return;
+        }
+        $unchanged = $this->normalizeUnavailableElementorData($data) === $this->normalizeUnavailableElementorData($this->legacyUnavailableElementorData());
+        if ($unchanged) {
+            $this->saveUnavailableElementorData($id);
+        }
+        if (!get_option('homlity_unavailable_layout_migrated', false)) {
+            if ($unchanged && get_option('homlity_plugin_unavailable_page_layout', 'default') === 'elementor_canvas') {
+                update_option('homlity_plugin_unavailable_page_layout', 'default');
+                update_post_meta($id, '_wp_page_template', 'default');
+            }
+            update_option('homlity_unavailable_layout_migrated', '1');
+        }
+    }
+
+    /** Ignora los IDs aleatorios y la URL del botón, que depende del archivo y del dominio. */
+    private function normalizeUnavailableElementorData(array $data): array
+    {
+        if (isset($data['elType'], $data['id'])) {
+            $data['id'] = '';
+        }
+        if (($data['widgetType'] ?? '') === 'button') {
+            unset($data['settings']['link']['url']);
+        }
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $data[$key] = $this->normalizeUnavailableElementorData($value);
+            }
+        }
+        return $data;
+    }
+
+    private function saveUnavailableElementorData(int $id): void
+    {
+        $data = [];
+        foreach (['homlity_unavailable_notice', 'homlity_unavailable_search_context', 'homlity_unavailable_similar_properties'] as $shortcode) {
+            $value = '[' . $shortcode . ']';
+            if ($shortcode === 'homlity_unavailable_notice') {
+                $value = '[homlity_unavailable_notice title="Inmueble no disponible" message="El inmueble que buscas fue retirado o está fuera de publicación. Explora otras opciones disponibles."]';
+            }
+            $data[] = $this->elementorSection([$this->elementorWidget('shortcode', ['shortcode' => $value])]);
+        }
+        $this->saveElementorData($id, $data, 'wp-page', 'unavailable');
+        update_post_meta($id, '_homlity_seeded_template_version', self::UNAVAILABLE_TEMPLATE_VERSION);
+        update_option('homlity_plugin_unavailable_elementor_page_id', $id);
+        if (class_exists('\\Elementor\\Plugin') && isset(\Elementor\Plugin::$instance->files_manager)
+            && method_exists(\Elementor\Plugin::$instance->files_manager, 'clear_cache')) {
+            \Elementor\Plugin::$instance->files_manager->clear_cache();
+        }
+    }
+
+    /** Datos originales; los IDs y la URL del botón se ignoran al comparar. */
+    private function legacyUnavailableElementorData(): array
+    {
         $archivePageId = (int) get_option('homlity_plugin_archive_page_id', 0);
         $archiveUrl = $archivePageId > 0 ? get_permalink($archivePageId) : home_url('/inmuebles/');
         $buttonUrl = $archiveUrl ? $archiveUrl : home_url('/inmuebles/');
 
-        $data = [
+        return [
             $this->elementorSection([
                 $this->elementorWidget('heading', [
                     'title' => __('Inmueble no disponible', 'homlity-real-estate'),
@@ -894,8 +941,6 @@ class DataSeederService
             ]),
         ];
 
-        $this->saveElementorData((int) $pageId, $data, 'wp-page', 'unavailable');
-        update_option('homlity_plugin_unavailable_elementor_page_id', (int) $pageId);
     }
 
     private function seedBuilderPage(int $pageId, string $purpose, string $builder, string $content): void

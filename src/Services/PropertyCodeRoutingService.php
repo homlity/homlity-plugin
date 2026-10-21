@@ -32,8 +32,6 @@ class PropertyCodeRoutingService implements ServiceInterface
     private const META_CODE       = '_property_code';
     private const NEGATIVE_PREFIX = 'homlity_code_miss_';
     private const NEGATIVE_TTL    = 300; // 5 minutes
-    private const OPTION_UNAVAILABLE_TEMPLATE = 'homlity_plugin_unavailable_template_id';
-    private const OPTION_UNAVAILABLE_LAYOUT   = 'homlity_plugin_unavailable_page_layout';
 
     public function register(): void
     {
@@ -87,7 +85,7 @@ class PropertyCodeRoutingService implements ServiceInterface
 
         if (!$post_id) {
             $this->renderNotFoundMessage($syncResult);
-            return;
+            exit;
         }
 
         $url = get_permalink($post_id);
@@ -191,47 +189,17 @@ class PropertyCodeRoutingService implements ServiceInterface
         $hml_unavailable_message = $message;
         $hml_unavailable_reason = $status;
 
-        if ($this->renderElementorUnavailableTemplate()) {
-            exit;
+        if ((new UnavailablePageRenderer())->renderConfiguredTemplate()) {
+            return;
         }
 
         $template = $this->locateTemplate('property-unavailable.php');
         if (file_exists($template)) {
             include $template;
-            exit;
+            return;
         }
 
         wp_die(esc_html($message), esc_html__('Inmueble', 'homlity-real-estate'), ['response' => 404]);
-        exit;
-    }
-
-    private function renderElementorUnavailableTemplate(): bool
-    {
-        $templateId = (int) get_option(self::OPTION_UNAVAILABLE_TEMPLATE, 0);
-        $layout     = (string) get_option(self::OPTION_UNAVAILABLE_LAYOUT, 'default');
-        $isCanvas   = ($layout === 'elementor_canvas');
-
-        if (
-            $templateId <= 0
-            || !get_post_status($templateId)
-            || !class_exists('\Elementor\Plugin')
-        ) {
-            return false;
-        }
-
-        if (!$isCanvas) {
-            get_header();
-        }
-
-        echo wp_kses_post(
-            \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($templateId)
-        );
-
-        if (!$isCanvas) {
-            get_footer();
-        }
-
-        return true;
     }
 
     private function locateTemplate(string $name): string

@@ -38,6 +38,7 @@ class ElementorTemplateSettingsService implements ServiceInterface
 
     public function register(): void
     {
+        add_action('admin_notices', [$this, 'unavailableTemplateNotice']);
         // Prioridad 30, como las subpáginas de Divi y WPBakery: el menú padre
         // 'homlity-real-estate-settings' lo crea AdminMenuService en prioridad 10 y
         // se instancia después que este servicio. Registrando el submenú antes que
@@ -286,6 +287,7 @@ class ElementorTemplateSettingsService implements ServiceInterface
                         </th>
                         <td>
                             <?php $this->renderPageSelect('unavailable_template_id', $unavailableId, $pages); ?>
+                            <?php $this->renderUnavailablePreviewLink(); ?>
                             <p class="description">
                                 <?php esc_html_e(
                                     'Se usa cuando un inmueble deja de estar público. La URL responde 410 (SEO) y muestra esta plantilla Elementor.',
@@ -503,6 +505,53 @@ class ElementorTemplateSettingsService implements ServiceInterface
             <?php endif; ?>
         </div>
         <?php
+    }
+
+    /** Vista previa autenticada con el mismo diseño público. @since 2.9.17 */
+    private function renderUnavailablePreviewLink(): void
+    {
+        $properties = get_posts([
+            'post_type' => PropertyPostType::POST_TYPE,
+            'post_status' => ['draft', 'pending', 'private', 'trash'],
+            'posts_per_page' => 1, 'fields' => 'ids',
+        ]);
+        if (!$properties) {
+            $properties = get_posts([
+                'post_type' => PropertyPostType::POST_TYPE, 'post_status' => 'publish',
+                'meta_query' => ['relation' => 'OR',
+                    ['key' => '_property_status', 'value' => ['active', ''], 'compare' => 'NOT IN'],
+                    ['key' => '_property_available', 'value' => ['1', 'true', 'yes', 'active', ''], 'compare' => 'NOT IN'],
+                ],
+                'posts_per_page' => 1, 'fields' => 'ids',
+            ]);
+        }
+        echo '<p class="description">';
+        if ($properties) {
+            $url = add_query_arg('homlity_preview_unavailable', (int) $properties[0], home_url('/'));
+            echo '<a href="' . esc_url($url) . '" target="_blank">' . esc_html__('Ver cómo lo ve un visitante', 'homlity-real-estate') . '</a>';
+        } else {
+            esc_html_e('No hay inmuebles retirados o inactivos para previsualizar.', 'homlity-real-estate');
+        }
+        echo '</p>';
+    }
+
+    /** Aviso descartable para diseños personalizados sin similares. @since 2.9.17 */
+    public function unavailableTemplateNotice(): void
+    {
+        if (!current_user_can('edit_posts')) {
+            return;
+        }
+        $id = (int) get_option(self::OPTION_UNAVAILABLE, 0);
+        if ($id <= 0 || TemplateService::detectTemplateBuilder($id) !== 'elementor') {
+            return;
+        }
+        $data = (string) get_post_meta($id, '_elementor_data', true);
+        if (strpos($data, 'homlity_unavailable_similar_properties') !== false) {
+            return;
+        }
+        echo '<div class="notice notice-warning is-dismissible"><p>';
+        esc_html_e('Tu plantilla de inmueble no disponible no incluye inmuebles similares; añade el shortcode [homlity_unavailable_similar_properties].', 'homlity-real-estate');
+        echo '</p></div>';
     }
 
     /**

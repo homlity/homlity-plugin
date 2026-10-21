@@ -13,11 +13,65 @@ La Developer API se versiona por separado. Ver
 
 ## [Sin publicar]
 
+---
+
+## [2.9.17] - 2026-10-21
+
+### Fixed
+
+- Renderizador único de la página «Inmueble no disponible» para recuperación, modo legado y búsqueda por código. Selecciona el constructor por los metadatos de la plantilla publicada y usa la plantilla PHP si no se puede renderizar.
+- Elementor carga sus estilos, fuentes y CSS del documento antes de imprimir la cabecera; se conserva el HTML del constructor, incluidos estilos en línea e iconos SVG. Se adelanta el registro de ubicaciones de Elementor Pro para sus cabeceras y pies.
+- El modo canvas imprime el documento HTML completo, con `wp_head`, `wp_body_open` y `wp_footer`, tanto en páginas retiradas como en fichas de inmueble.
+
+### Added
+
+- Vista previa para editores mediante `?homlity_preview_unavailable={id}`, con HTTP 200 y noindex, enlazada junto al selector de plantilla. Las respuestas públicas conservan su política HTTP y robots; no cambia `RetiredPropertyRecoveryService`.
+- Semilla Elementor con aviso, contexto de búsqueda e inmuebles similares. Al actualizar, solo se reemplaza la semilla original intacta (ignorando identificadores aleatorios y la URL del botón, que puede cambiar con el dominio o la página de archivo); los diseños editados se conservan y muestran un aviso descartable si faltan similares.
+- Migración única de canvas a diseño del tema únicamente para la semilla original sin editar. Las plantillas nuevas usan el diseño del tema.
+
+### Después del despliegue (manual)
+
+1. Abrir la URL de un inmueble retirado en una ventana privada y comprobar cabecera, estilos e inmuebles similares, también si la cabecera y el pie usan Elementor Pro.
+2. Si la plantilla fue editada, añadir `[homlity_unavailable_similar_properties]` y comprobar los shortcodes de aviso y contexto.
+3. Purgar la caché de página si se utiliza LiteSpeed, WP Rocket o Cloudflare.
+
+---
+
+## [2.9.16] - 2026-10-21
+
+### Added
+
+- Detector de descripciones duplicadas con una consulta del inventario, normalización del texto y caché de 12 horas (`homlity_dup_groups`), invalidada al guardar un inmueble. Distingue `same_listing` de `copied_text` por dirección o distancia inferior a 30 m y coincidencia de área, habitaciones y baños; los campos físicos ausentes no demuestran equivalencia.
+- Detección de conflictos entre el tipo asignado y el extracto/contenido, con sinónimos ajustables mediante `homlity_property_type_keywords`.
+- Comando `wp homlity duplicates --format=table|json|csv` y columna «Calidad del texto» con avisos y enlaces a las fichas hermanas en administración. No modifica datos ni consolida inmuebles.
+- Resúmenes factuales en `llms.txt`, configurables con `ai_llms_structured_summary` (activo por defecto) en SEO & GEO. Incluyen referencia, datos disponibles y hasta 20 palabras del extracto; omiten el extracto si contradice el tipo estructurado. Cuando falta código, la referencia usa el ID.
+- `/llms-full.txt` enlaza a los hermanos de grupos `same_listing` y omite la descripción si hay conflicto de tipo. Las meta descriptions automáticas de fichas duplicadas usan el resumen, respetando las descripciones manuales de Rank Math y la recuperación de inmuebles no disponibles.
+
+### Fixed
+
+- La detección física descarta direcciones normalizadas distintas aunque coincidan las coordenadas y las medidas (por ejemplo, AP 1102 y AP 1002 del mismo edificio). Las coordenadas solo sirven de respaldo si falta alguna dirección y no hay dos códigos distintos; una dirección coincidente sigue permitiendo publicaciones de venta y arriendo con códigos diferentes.
+- Los conflictos de tipo se buscan solo en extracto y contenido: un título generado como «Oficina en Pie de la Popa» ya no oculta el texto «Casa amplia». Sin extracto ni contenido no se informa un conflicto.
+- Los resúmenes omiten área, habitaciones y baños cuando su valor es cero o negativo.
+- La caché de duplicados se invalida también después de eliminar un `property` y en los eventos finales de creación/actualización, con metas y taxonomías ya persistidas por el upsert del CRM. Borrar otros tipos de contenido no invalida esta caché.
+
+### Comprobación en producción (manual)
+
+- Ejecutar `wp homlity duplicates` para comprobar los pares y el caso Pie de la Popa; ese inventario no existe en la base local. Revisar las líneas de `/llms.txt` y `/llms-full.txt` después de regenerar cualquier caché externa.
+- Corregir los duplicados y los textos contradictorios también en el CRM de origen. La consolidación asistida corresponde a la Fase 4.
+
+---
+
+## [2.9.15] - 2026-10-21
+
 ### Fixed
 
 - Las etiquetas de precios respetan los nombres configurados de gestión (por ejemplo, «Alquiler»); las cards y el componente de gestión/precios reconocen también alquiler y renta sin mostrar precios de venta residuales.
 - Fix: las cards de inmuebles en Arriendo/Venta muestran ambos precios y la administración asociada al arriendo.
 - Las galerías, fichas técnicas y lectores compartidos respetan el modo CDN de Homlity Sync y sus URLs separadas de los IDs de adjuntos.
+- La detección de búsquedas vacías consulta los inmuebles con los criterios del listado cuando el archivo usa una página configurada; la decisión de robots se calcula una sola vez por petición.
+- Sitemap único: Homlity deja de generar e insertar sitemaps propios; delega en Rank Math, Yoast o el sitemap core de WordPress. Las URLs antiguas `homlity-search-sitemap.xml` y `homlity-properties-sitemap[-N].xml` redirigen con 301 al índice activo, incluso antes de regenerar rewrites.
+- Los resultados de inmuebles aplican `noindex,follow` y la cabecera `X-Robots-Tag` según los ajustes de filtros y resultados vacíos. Las combinaciones de dos o más segmentos SEO solo son indexables si se activa `seo_index_search`; el archivo y las rutas de un segmento siguen indexables por defecto.
+- Se retiran los filtros de sitemap inexistentes y el checkbox `seo_enable_sitemap`, que no tenía efecto. Las opciones antiguas siguen siendo compatibles.
 
 ### Added
 
@@ -42,6 +96,13 @@ La Developer API se versiona por separado. Ver
   enlace del inmueble con un mensaje propio, y `advisorPhoneForProperty()` para
   resolver el teléfono del asesor asignado. `buildPropertyLink()` se comporta
   igual que siempre; su tercer parámetro sigue sin usarse y ahora lo dice.
+
+### Después del despliegue (manual)
+
+- Guardar los enlaces permanentes. En Search Console, quitar `homlity-search-sitemap.xml` y `homlity-properties-sitemap.xml` (también sus variantes paginadas si se enviaron).
+- En Rank Math → Sitemap, comprobar que el CPT `property` está activo (`pt_property_sitemap`). Entre las taxonomías inmobiliarias conviene dejar solo `property_city`, `property_neighborhood`, `property_type` y `property_operation`; desactivar características, etiquetas, cercanos, país y estado, cuyos archivos aportan poco valor.
+- Comprobar que `/sitemap_index.xml` no contiene entradas `homlity-*` y que, para inmuebles, solo incluye `property-sitemap.xml` y las taxonomías elegidas. Sin plugin SEO, revisar `/wp-sitemap.xml`.
+- Verificar los 301 de las URLs antiguas, `noindex,follow` en `/inmuebles/gestion/venta/tipo/casa/` y la indexabilidad de `/inmuebles/ciudad/bogota/` con resultados.
 
 ---
 

@@ -4,7 +4,7 @@ Tags: real estate, property, listings, agents, property management
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 2.9.14
+Stable tag: 2.10.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,18 @@ Developed and maintained by **Ecosistema Inmobiliario Homlity**, a team speciali
 5. Public property listing on the WordPress site.
 
 == Changelog ==
+
+= 2.9.17 =
+* Renderizado compartido de páginas retiradas con estilos del constructor, documento canvas completo y vista previa para editores.
+* Semillas Elementor con contexto y similares; reparación segura de plantillas originales al actualizar.
+
+= 2.9.16 =
+* Diagnóstico de descripciones duplicadas y conflictos de tipo en WP-CLI y el listado administrativo.
+* Resúmenes estructurados configurables en llms.txt, enlaces entre fichas equivalentes en llms-full.txt y meta descriptions diferenciadas.
+
+= 2.9.15 =
+* Sitemap único del proveedor SEO, redirecciones 301 de sitemaps heredados y robots configurables en resultados de inmuebles.
+* Después de actualizar: guardar enlaces permanentes y retirar los sitemaps homlity-* de Search Console. Ver CHANGELOG.md para la configuración recomendada.
 
 = 2.8.5 =
 * Corregido: al subir en el mismo mes imágenes con igual nombre base pero extensiones diferentes —por ejemplo `1.webp` y `1.jpg`—, los optimizadores WebP/AVIF podían generar la misma ruta y sobrescribir la foto de otro inmueble. Los nombres ahora son únicos entre todos los formatos de imagen.

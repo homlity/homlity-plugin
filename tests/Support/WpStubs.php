@@ -15,6 +15,9 @@ final class WpStubs
     /** @var array<string,mixed> */
     public static array $options = [];
 
+    /** @var array<string,int> TTL solicitado al guardar cada transient. */
+    public static array $transientExpirations = [];
+
     /** @var array<int,\WP_User> user id => usuario */
     public static array $users = [];
 
@@ -163,6 +166,9 @@ final class WpStubs
     /** @var array<string,array<string,mixed>> Lo que se pasó a wp_enqueue_script(). */
     public static array $enqueuedScripts = [];
 
+    /** @var array<string,array<string,array>> Datos localizados de scripts. */
+    public static array $localizedScripts = [];
+
     /** @var array<string,array<string,mixed>> Scripts registrados antes de encolarlos. */
     public static array $registeredScripts = [];
 
@@ -253,6 +259,7 @@ final class WpStubs
     public static function reset(): void
     {
         self::$options = [];
+        self::$transientExpirations = [];
         self::$users = [];
         self::$userMeta = [];
         self::$isAuthor = false;
@@ -299,6 +306,7 @@ final class WpStubs
         self::$is404 = false;
         self::$statusHeaders = [];
         self::$enqueuedScripts = [];
+        self::$localizedScripts = [];
         self::$registeredScripts = [];
         self::$registeredStyles = [];
         self::$enqueuedStyles = [];

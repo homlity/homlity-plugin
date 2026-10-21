@@ -23,6 +23,24 @@ final class SeoGeoSettingsServiceTest extends TestCase
         WpStubs::setOption(SeoGeoSettingsService::OPTION_NAME, $saved);
     }
 
+    public function testLaOpcionHeredadaDeSitemapNoRompeLosAjustesYSeDescartaAlGuardar(): void
+    {
+        $this->save(['seo_enable_sitemap' => '1', 'company_name' => 'Royal']);
+        self::assertSame('Royal', SeoGeoSettingsService::get('company_name'));
+        $saved = $this->submit(['seo_enable_sitemap' => '1', 'company_name' => 'Royal']);
+        self::assertArrayNotHasKey('seo_enable_sitemap', $saved);
+        self::assertSame('Royal', $saved['company_name']);
+    }
+
+    public function testResumenEstructuradoActivoPorDefectoYConfigurable(): void
+    {
+        self::assertSame('1', SeoGeoSettingsService::get('ai_llms_structured_summary'));
+        $saved = $this->submit(['ai_llms_structured_summary' => '1']);
+        self::assertSame('1', $saved['ai_llms_structured_summary']);
+        $saved = $this->submit([]);
+        self::assertSame('', $saved['ai_llms_structured_summary']);
+    }
+
     // ── Lectura ──────────────────────────────────────────────────────────────
 
     /** Un sitio recién instalado tiene que leer sin que nada falte. */

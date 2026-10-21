@@ -72,6 +72,8 @@ if (!class_exists('WP_Query')) {
         /** @var array<int,mixed> */
         public array $posts = [];
 
+        public bool $is_404;
+
         public int $found_posts = 0;
 
         /** Igual que en WordPress: cuántos posts trae ESTA página. */
@@ -1229,6 +1231,7 @@ if (!function_exists('set_transient')) {
     function set_transient(string $key, $value, int $expiration = 0): bool
     {
         WpStubs::$options['_transient_' . $key] = $value;
+        WpStubs::$transientExpirations[$key] = $expiration;
 
         return true;
     }
@@ -2095,7 +2098,7 @@ if (!function_exists('delete_transient')) {
     function delete_transient(string $key): bool
     {
         $existed = isset(WpStubs::$options['_transient_' . $key]);
-        unset(WpStubs::$options['_transient_' . $key]);
+        unset(WpStubs::$options['_transient_' . $key], WpStubs::$transientExpirations[$key]);
 
         return $existed;
     }
@@ -2318,5 +2321,56 @@ if (!function_exists('disabled')) {
             echo $result;
         }
         return $result;
+    }
+}
+
+// Documento completo usado por las plantillas canvas y los constructores.
+if (!function_exists('get_header')) {
+    function get_header(): void { do_action('get_header'); wp_head(); }
+}
+if (!function_exists('get_footer')) {
+    function get_footer(): void { do_action('get_footer'); wp_footer(); }
+}
+if (!function_exists('wp_head')) {
+    function wp_head(): void { do_action('wp_enqueue_scripts'); do_action('wp_head'); }
+}
+if (!function_exists('wp_footer')) {
+    function wp_footer(): void { do_action('wp_footer'); }
+}
+if (!function_exists('wp_body_open')) {
+    function wp_body_open(): void { do_action('wp_body_open'); }
+}
+if (!function_exists('language_attributes')) {
+    function language_attributes(): void { echo 'lang="es"'; }
+}
+if (!function_exists('body_class')) {
+    function body_class(): void { echo 'class="test"'; }
+}
+if (!function_exists('bloginfo')) {
+    function bloginfo(string $key): void { echo esc_html(get_bloginfo($key)); }
+}
+if (!function_exists('setup_postdata')) {
+    function setup_postdata($post): bool { WpStubs::$currentPostId = $post->ID; return true; }
+}
+if (!function_exists('has_action')) {
+    function has_action(string $hook, $callback = false): bool {
+        return $callback === false ? !empty(WpStubs::$filters[$hook]) : in_array($callback, WpStubs::$filters[$hook] ?? [], true);
+    }
+}
+if (!function_exists('wp_slash')) {
+    function wp_slash($value) { return is_array($value) ? array_map('wp_slash', $value) : addslashes($value); }
+}
+
+if (!function_exists('delete_post_meta')) {
+    function delete_post_meta(int $id, string $key, $value = ''): bool {
+        unset(WpStubs::$postMeta[$id][$key]);
+        return true;
+    }
+}
+
+if (!function_exists('wp_localize_script')) {
+    function wp_localize_script(string $handle, string $name, array $data): bool {
+        WpStubs::$localizedScripts[$handle][$name] = $data;
+        return true;
     }
 }

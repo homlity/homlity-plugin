@@ -200,13 +200,13 @@ class SeoGeoSettingsService implements ServiceInterface
             'seo_enable_canonical'     => '1',
             'seo_enable_breadcrumbs'   => '1',
             'seo_enable_schema'        => '1',
-            'seo_enable_sitemap'       => '',
             'seo_index_properties'     => '1',
             'seo_index_agents'         => '1',
             'seo_index_zones'          => '1',
             'seo_index_search'         => '',
             'seo_noindex_filtered'     => '1',
             'seo_noindex_empty'        => '1',
+            'ai_llms_structured_summary' => '1',
 
             // F. SEO para inmuebles
             'prop_title_tpl'           => '{tipo_inmueble} en {operacion} en {barrio}, {ciudad} | {inmobiliaria}',
@@ -369,9 +369,10 @@ class SeoGeoSettingsService implements ServiceInterface
     {
         return [
             'seo_enable_og', 'seo_enable_twitter', 'seo_enable_canonical',
-            'seo_enable_breadcrumbs', 'seo_enable_schema', 'seo_enable_sitemap',
+            'seo_enable_breadcrumbs', 'seo_enable_schema',
             'seo_index_properties', 'seo_index_agents', 'seo_index_zones',
             'seo_index_search', 'seo_noindex_filtered', 'seo_noindex_empty',
+            'ai_llms_structured_summary',
             'schema_on_home', 'schema_on_properties', 'schema_on_agents',
             'schema_on_zones', 'schema_faq_active',
             'adv_canonical', 'adv_redirect_slug', 'adv_schema_per_property',

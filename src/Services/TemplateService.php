@@ -14,6 +14,22 @@ if (!defined('ABSPATH')) {
 
 class TemplateService implements ServiceInterface
 {
+    /** Detecta el constructor por los metadatos del documento. @since 2.9.17 */
+    public static function detectTemplateBuilder(int $id): string
+    {
+        foreach ([
+            'elementor' => ['_elementor_edit_mode', 'builder'],
+            'divi' => ['_et_pb_use_builder', 'on'],
+            'wpbakery' => ['_wpb_vc_js_status', 'true'],
+        ] as $builder => [$key, $value]) {
+            if (get_post_meta($id, $key, true) === $value
+                || get_post_meta($id, '_homlity_seeded_builder', true) === $builder) {
+                return $builder;
+            }
+        }
+        return 'native';
+    }
+
     private bool $isArchivePage = false;
 
     public function register(): void

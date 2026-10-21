@@ -287,13 +287,14 @@ function hsg_section(string $title): void
                 <?php hsg_checkbox($settings, 'seo_enable_canonical', __('Activar canonical URLs', 'homlity-real-estate'), __('Ayuda a evitar contenido duplicado.', 'homlity-real-estate')); ?>
                 <?php hsg_checkbox($settings, 'seo_enable_breadcrumbs', __('Activar breadcrumbs', 'homlity-real-estate')); ?>
                 <?php hsg_checkbox($settings, 'seo_enable_schema', __('Activar Schema JSON-LD', 'homlity-real-estate'), __('Habilita los datos estructurados para Google Rich Results.', 'homlity-real-estate')); ?>
-                <?php hsg_checkbox($settings, 'seo_enable_sitemap', __('Activar sitemap de inmuebles', 'homlity-real-estate'), __('Requiere soporte del plugin o tema de sitemap.', 'homlity-real-estate')); ?>
+
+                <?php hsg_checkbox($settings, 'ai_llms_structured_summary', __('Resúmenes estructurados en llms.txt', 'homlity-real-estate'), __('Anteponer tipo, ubicación, características, precio y referencia a cada inmueble. No modifica el texto del CRM.', 'homlity-real-estate')); ?>
 
                 <?php hsg_section(__('Indexación', 'homlity-real-estate')); ?>
                 <?php hsg_checkbox($settings, 'seo_index_properties', __('Indexar páginas de inmuebles', 'homlity-real-estate')); ?>
                 <?php hsg_checkbox($settings, 'seo_index_agents', __('Indexar páginas de asesores', 'homlity-real-estate')); ?>
                 <?php hsg_checkbox($settings, 'seo_index_zones', __('Indexar páginas de barrios/zonas', 'homlity-real-estate')); ?>
-                <?php hsg_checkbox($settings, 'seo_index_search', __('Indexar páginas de búsqueda', 'homlity-real-estate')); ?>
+                <?php hsg_checkbox($settings, 'seo_index_search', __('Indexar búsquedas combinadas', 'homlity-real-estate'), __('Permite indexar búsquedas que combinan gestión, tipo, ciudad o barrio. Los ajustes de filtros y resultados vacíos siguen aplicándose.', 'homlity-real-estate')); ?>
                 <?php hsg_checkbox($settings, 'seo_noindex_filtered', __('Noindex en resultados con filtros activos', 'homlity-real-estate'), __('Evita que URLs con parámetros de filtro ?operacion=arriendo sean indexadas.', 'homlity-real-estate')); ?>
                 <?php hsg_checkbox($settings, 'seo_noindex_empty', __('Noindex en resultados vacíos', 'homlity-real-estate'), __('Noindex cuando no se encuentran inmuebles en el listado.', 'homlity-real-estate')); ?>
             </table>

@@ -7,7 +7,6 @@ namespace Homlity\PluginInmobiliario\Tests\Unit\Services;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\PropertySearchService;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
-use Homlity\PluginInmobiliario\Services\SeoIntegrationService;
 use Homlity\PluginInmobiliario\Services\TemplateService;
 use Homlity\PluginInmobiliario\Tests\Support\TestCase;
 use Homlity\PluginInmobiliario\Tests\Support\WpStubs;
@@ -88,24 +87,6 @@ final class OperationArchitectureTest extends TestCase
         (new PropertyPostType())->renderAdminColumn('property_operation_value', 501);
         $html = (string) ob_get_clean();
         self::assertSame('Alquiler: CRC 2200<br>Venta: USD 350000', $html);
-    }
-
-    public function testSitemapDeBusquedasSoloPublicaLasVariantesPreferidas(): void
-    {
-        WpStubs::$sqlResults = [
-            'SELECT DISTINCT t.slug' => [['slug' => 'arriendo'], ['slug' => 'alquiler']],
-            'SELECT DISTINCT tA.slug' => [['slug_a' => 'arriendo-venta', 'slug_b' => 'casa'], ['slug_a' => 'alquiler-venta', 'slug_b' => 'casa']],
-            'SELECT DISTINCT tOp.slug' => [['g' => 'arriendo', 't' => 'casa', 'c' => 'liberia'], ['g' => 'alquiler', 't' => 'casa', 'c' => 'liberia']],
-        ];
-        $method = new \ReflectionMethod(SeoIntegrationService::class, 'buildSearchResultUrls');
-        $urls = $method->invoke(new SeoIntegrationService());
-        self::assertContains(home_url('/inmuebles/gestion/alquiler/'), $urls);
-        self::assertContains(home_url('/inmuebles/gestion/alquiler-venta/tipo/casa/'), $urls);
-        self::assertContains(home_url('/inmuebles/gestion/alquiler/tipo/casa/ciudad/liberia/'), $urls);
-        foreach ($urls as $url) {
-            self::assertStringNotContainsString('/gestion/arriendo', $url);
-        }
-        self::assertSame(array_unique($urls), $urls);
     }
 
     private function property(): void

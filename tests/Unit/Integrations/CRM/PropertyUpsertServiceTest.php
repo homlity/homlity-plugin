@@ -7,6 +7,9 @@ namespace Homlity\PluginInmobiliario\Tests\Unit\Integrations\CRM;
 use Homlity\PluginInmobiliario\Integrations\CRM\PropertyUpsertService;
 use Homlity\PluginInmobiliario\Integrations\CRM\Repository\SyncIndexRepository;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\PropertyDuplicateDetector;
+use Homlity\PluginInmobiliario\Services\PropertyDuplicateService;
+use Homlity\Developer\Support\Hooks;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 use Homlity\PluginInmobiliario\Tests\Support\TestCase;
 use Homlity\PluginInmobiliario\Tests\Support\WpStubs;
@@ -40,6 +43,28 @@ final class PropertyUpsertServiceTest extends TestCase
             PropertyTaxonomies::TAXONOMY_TAG,
         ];
         $this->service = new PropertyUpsertService();
+    }
+
+    public function testCrearYActualizarDesdeCrmInvalidanDuplicadosConLasMetasYaGuardadas(): void
+    {
+        (new PropertyDuplicateService())->register();
+        $notifications = 0;
+        $expectedArea = '85';
+        $check = function ($property) use (&$notifications, &$expectedArea): void {
+            self::assertSame($expectedArea, (string) get_post_meta($property->getId(), '_property_area', true));
+            self::assertFalse(get_transient(PropertyDuplicateDetector::TRANSIENT));
+            $notifications++;
+        };
+        add_action(Hooks::PROPERTY_CREATED, $check);
+        add_action(Hooks::PROPERTY_UPDATED, $check);
+        foreach (['85', '90'] as $area) {
+            $expectedArea = $area;
+            set_transient(PropertyDuplicateDetector::TRANSIENT, ['grupo obsoleto'], 12 * HOUR_IN_SECONDS);
+            $result = $this->service->upsert($this->normalized(['metrics' => ['area' => $area]]));
+            self::assertTrue($result['ok']);
+            self::assertFalse(get_transient(PropertyDuplicateDetector::TRANSIENT));
+        }
+        self::assertSame(2, $notifications);
     }
 
     /** La carga normalizada mínima que acepta el servicio. */
