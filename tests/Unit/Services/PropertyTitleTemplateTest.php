@@ -24,16 +24,45 @@ final class PropertyTitleTemplateTest extends TestCase
         ]);
     }
 
-    private function render(bool $showCode = false, bool $showOperation = false): string
+    private function render(bool $showCode = false, bool $showOperation = false, array $settings = []): string
     {
         ob_start();
-        TemplateService::includeComponent('property-title.php', [
+        TemplateService::includeComponent('property-title.php', array_merge([
             'post_id' => self::POST_ID,
             'show_code' => $showCode,
             'show_operation' => $showOperation,
-        ]);
+        ], $settings));
 
         return (string) ob_get_clean();
+    }
+
+    public function testUsaH1PorDefecto(): void
+    {
+        $html = trim($this->render());
+
+        self::assertStringStartsWith('<h1 class="property-title-widget">', $html);
+        self::assertStringEndsWith('</h1>', $html);
+    }
+
+    public function testRespetaTodasLasEtiquetasConfigurables(): void
+    {
+        foreach (['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'div'] as $tag) {
+            $html = trim($this->render(true, true, ['title_tag' => $tag]));
+
+            self::assertStringStartsWith('<' . $tag . ' class="property-title-widget">', $html);
+            self::assertStringEndsWith('</' . $tag . '>', $html);
+            self::assertStringContainsString('Código: 718-5526', $html);
+        }
+    }
+
+    public function testRechazaEtiquetasNoPermitidas(): void
+    {
+        foreach (['script', 'h1 onclick="alert(1)"', '', null, []] as $tag) {
+            $html = trim($this->render(false, false, ['title_tag' => $tag]));
+
+            self::assertStringStartsWith('<h1 class="property-title-widget">', $html);
+            self::assertStringEndsWith('</h1>', $html);
+        }
     }
 
     public function testOcultaElCodigoPorDefecto(): void

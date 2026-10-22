@@ -4,6 +4,10 @@ if (!isset($post_id)) {
     $post_id = get_the_ID();
 }
 
+$titleTag = in_array($title_tag ?? 'h1', ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'div'], true)
+    ? ($title_tag ?? 'h1')
+    : 'h1';
+
 $propertyCode = !empty($show_code)
     ? \Homlity\PluginInmobiliario\Services\PropertyCodeResolver::forDisplay((int) $post_id)
     : '';
@@ -23,11 +27,11 @@ if (!empty($show_operation)) {
     $operations
 );
 ?>
-<div class="property-title-widget">
+<<?php echo esc_attr($titleTag); ?> class="property-title-widget">
     <?php echo esc_html($titleBefore); ?><?php if ($operationPhrase !== '') : ?><span class="property-title-widget__operation"><?php echo esc_html($operationPhrase); ?></span><?php endif; ?><?php echo esc_html($titleAfter); ?>
     <?php if ($propertyCode !== '') : ?>
         <span class="property-title-widget__code">
             <?php echo esc_html(sprintf(__('Código: %s', 'homlity-real-estate'), $propertyCode)); ?>
         </span>
     <?php endif; ?>
-</div>
+</<?php echo esc_attr($titleTag); ?>>
