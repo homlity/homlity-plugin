@@ -181,6 +181,8 @@ $cardOptions = isset($card_options) && is_array($card_options) ? $card_options :
 $cardOptions = array_merge([
     'media_mode' => 'single',
     'show_title' => true,
+    'title_code' => true,
+    'title_operation' => false,
     'show_excerpt' => true,
     'show_operation' => true,
     'show_price' => true,
@@ -233,6 +235,7 @@ $neighborhood   = wp_get_object_terms($post_id, PropertyTaxonomies::TAXONOMY_NEI
 $tagTerms       = wp_get_object_terms($post_id, PropertyTaxonomies::TAXONOMY_TAG, ['fields' => 'names']);
 
 $operationLabel = (!is_wp_error($operationTerms) && $operationTerms) ? $operationTerms[0] : '';
+$cardTitle = \Homlity\PluginInmobiliario\Services\CardTitleResolver::forDisplay((int) $post_id, $cardOptions, $code, $operationTerms);
 $typeLabel      = (!is_wp_error($typeTerms)      && $typeTerms)      ? $typeTerms[0]      : '';
 $cityLabel      = (!is_wp_error($cityTerms)      && $cityTerms)      ? $cityTerms[0]      : '';
 $neighborLabel  = (!is_wp_error($neighborhood)   && $neighborhood)   ? $neighborhood[0]   : '';
@@ -313,7 +316,7 @@ $hoverClass = ' property-card--hover-' . sanitize_html_class($hoverEffect);
                         <?php foreach ($galleryImages as $img): ?>
                             <div class="swiper-slide">
                                 <img src="<?php echo esc_url($img); ?>"
-                                     alt="<?php echo esc_attr(get_the_title($post_id)); ?>"
+                                     alt="<?php echo esc_attr($cardTitle); ?>"
                                      itemprop="image"
                                      class="card-img-top"
                                      style="height:var(--hpl-card-image-height,220px);object-fit:cover;">
@@ -326,7 +329,7 @@ $hoverClass = ' property-card--hover-' . sanitize_html_class($hoverEffect);
                 </div>
             <?php else: ?>
                 <img src="<?php echo esc_url($galleryImages[0] ?? $coverImg); ?>"
-                     alt="<?php echo esc_attr(get_the_title($post_id)); ?>"
+                     alt="<?php echo esc_attr($cardTitle); ?>"
                      itemprop="image"
                      class="card-img-top"
                      style="height:var(--hpl-card-image-height,220px);object-fit:cover;"
@@ -354,7 +357,7 @@ $hoverClass = ' property-card--hover-' . sanitize_html_class($hoverEffect);
                         </p>
                     <?php endif; ?>
                     <?php if (!empty($cardOptions['show_title'])) : ?>
-                        <p class="property-card__overlay-title"><?php echo esc_html(get_the_title($post_id)); ?></p>
+                        <p class="property-card__overlay-title"><?php echo esc_html($cardTitle); ?></p>
                     <?php endif; ?>
                     <?php if (!empty($cardOptions['show_features'])) : ?>
                         <div class="property-card__overlay-features">
@@ -393,7 +396,7 @@ $hoverClass = ' property-card--hover-' . sanitize_html_class($hoverEffect);
             <?php if (!$isCoverOverlayPreset && !empty($cardOptions['show_title'])) : ?>
                 <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="text-decoration-none text-dark"<?php if (!empty($cardOptions['link_new_tab'])): ?> target="_blank" rel="noopener noreferrer"<?php endif; ?>>
                     <p class="card-title fs-6 mb-0 fw-semibold" itemprop="name">
-                        <?php echo esc_html(get_the_title($post_id)); ?>
+                        <?php echo esc_html($cardTitle); ?>
                     </p>
                 </a>
             <?php endif; ?>

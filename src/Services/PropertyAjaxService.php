@@ -67,6 +67,8 @@ class PropertyAjaxService implements ServiceInterface
             'card_visual_preset' => sanitize_key($_POST['card_visual_preset'] ?? 'default'),
             'card_hover_effect' => sanitize_key($_POST['card_hover_effect'] ?? 'lift'),
             'card_show_title'  => !empty($_POST['card_show_title']),
+            'card_title_code' => !isset($_POST['card_title_code']) || !empty($_POST['card_title_code']),
+            'card_title_operation' => !empty($_POST['card_title_operation']),
             'card_show_excerpt' => !empty($_POST['card_show_excerpt']),
             'card_show_operation' => !empty($_POST['card_show_operation']),
             'card_show_price'  => !empty($_POST['card_show_price']),

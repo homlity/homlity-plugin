@@ -65,6 +65,8 @@
         this.cardVisualPreset = el.dataset.cardVisualPreset || 'default';
         this.cardHoverEffect  = el.dataset.cardHoverEffect || 'lift';
         this.cardShowTitle    = el.dataset.cardShowTitle || '1';
+        this.cardTitleCode = el.dataset.cardTitleCode ?? '1';
+        this.cardTitleOperation = el.dataset.cardTitleOperation ?? '0';
         this.cardShowExcerpt  = el.dataset.cardShowExcerpt || '1';
         this.cardShowOperation = el.dataset.cardShowOperation || '1';
         this.cardShowPrice    = el.dataset.cardShowPrice || '1';
@@ -357,6 +359,8 @@
             card_visual_preset: this.cardVisualPreset,
             card_hover_effect: this.cardHoverEffect,
             card_show_title:   this.cardShowTitle,
+            card_title_code: this.cardTitleCode,
+            card_title_operation: this.cardTitleOperation,
             card_show_excerpt: this.cardShowExcerpt,
             card_show_operation: this.cardShowOperation,
             card_show_price:   this.cardShowPrice,

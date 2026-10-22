@@ -69,6 +69,18 @@ trait PropertyCardStylesTrait
             ]);
         }
 
+        foreach ([
+            'card_title_code' => __('Incluir código en el título', 'homlity-real-estate'),
+            'card_title_operation' => __('Incluir gestión en el título', 'homlity-real-estate'),
+        ] as $key => $label) {
+            $this->add_control($key, [
+                'label' => $label,
+                'type' => 'switcher',
+                'default' => $key === 'card_title_code' ? 'yes' : '',
+                'condition' => ['card_show_title' => 'yes'],
+            ]);
+        }
+
         $this->add_control('card_link_new_tab', [
             'label'   => __('Abrir inmueble en nueva pestaña', 'homlity-real-estate'),
             'type'    => 'switcher',

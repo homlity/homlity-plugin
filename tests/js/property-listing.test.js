@@ -38,3 +38,18 @@ test('actual map size changes invalidate the Leaflet map', () => {
     onResize();
     expect(map.invalidateSize).toHaveBeenCalledTimes(1);
 });
+
+test.each([['0', '1'], ['1', '0']])('AJAX retains title code=%s and operation=%s', async (code, operation) => {
+    const win = setup();
+    const listing = win.document.querySelector('.property-listing');
+    listing.dataset.cardTitleCode = code;
+    listing.dataset.cardTitleOperation = operation;
+    win.fetch = jest.fn().mockResolvedValue({ json: async () => ({ success: true, data: { html: '', total: 0, pages: 0, map_data: [] } }) });
+    win.eval(script);
+    win.document.dispatchEvent(new win.Event('DOMContentLoaded'));
+    win.document.querySelector('select').dispatchEvent(new win.Event('change'));
+    await new Promise(resolve => setTimeout(resolve, 0));
+    const body = new URLSearchParams(win.fetch.mock.calls[0][1].body);
+    expect(body.get('card_title_code')).toBe(code);
+    expect(body.get('card_title_operation')).toBe(operation);
+});

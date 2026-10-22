@@ -195,6 +195,8 @@ $cardOptions = array_merge([
     'visual_preset' => 'default',
     'hover_effect' => 'lift',
     'show_title' => true,
+    'title_code' => true,
+    'title_operation' => false,
     'show_excerpt' => true,
     'show_operation' => true,
     'show_price' => true,
@@ -245,6 +247,7 @@ $code = PropertyCodeResolver::forDisplay((int) $post_id);
 $featured = (bool) get_post_meta($post_id, $meta['featured'], true);
 $operationTerms = wp_get_post_terms($post_id, \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_OPERATION, ['fields' => 'names']);
 $operationLabel = (!is_wp_error($operationTerms) && !empty($operationTerms)) ? (string) $operationTerms[0] : '';
+$cardTitle = \Homlity\PluginInmobiliario\Services\CardTitleResolver::forDisplay((int) $post_id, $cardOptions, $code, $operationTerms);
 $tagTerms = wp_get_post_terms($post_id, \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_TAG, ['fields' => 'names']);
 $tagTerms = (!is_wp_error($tagTerms) && is_array($tagTerms)) ? array_slice($tagTerms, 0, 4) : [];
 
@@ -345,7 +348,7 @@ $priceLines = $showPrice ? CardPriceResolver::forPost((int) $post_id) : [];
                     <div class="swiper-wrapper">
                         <?php foreach ($images as $img): ?>
                             <div class="swiper-slide">
-                                <img src="<?php echo esc_url($img); ?>" alt="<?php echo esc_attr(get_the_title($post_id)); ?>">
+                                <img src="<?php echo esc_url($img); ?>" alt="<?php echo esc_attr($cardTitle); ?>">
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -354,7 +357,7 @@ $priceLines = $showPrice ? CardPriceResolver::forPost((int) $post_id) : [];
                     <div class="swiper-button-next"></div>
                 </div>
             <?php elseif (!empty($images[0])): ?>
-                <img src="<?php echo esc_url($images[0]); ?>" alt="<?php echo esc_attr(get_the_title($post_id)); ?>">
+                <img src="<?php echo esc_url($images[0]); ?>" alt="<?php echo esc_attr($cardTitle); ?>">
             <?php endif; ?>
 
             <?php if ($isCoverOverlayPreset): ?>
@@ -375,7 +378,7 @@ $priceLines = $showPrice ? CardPriceResolver::forPost((int) $post_id) : [];
                         </p>
                     <?php endif; ?>
                     <?php if (!empty($cardOptions['show_title'])): ?>
-                        <p class="property-card__overlay-title"><?php echo esc_html(get_the_title($post_id)); ?></p>
+                        <p class="property-card__overlay-title"><?php echo esc_html($cardTitle); ?></p>
                     <?php endif; ?>
 
                     <?php if (!empty($cardOptions['show_features'])): ?>
@@ -412,7 +415,7 @@ $priceLines = $showPrice ? CardPriceResolver::forPost((int) $post_id) : [];
         <?php if (!$isCoverOverlayPreset): ?>
         <div class="property-card__content">
         <?php if (!empty($cardOptions['show_title'])): ?>
-            <p class="property-card__title"><?php echo esc_html(get_the_title($post_id)); ?></p>
+            <p class="property-card__title"><?php echo esc_html($cardTitle); ?></p>
         <?php endif; ?>
         <?php if ((!empty($cardOptions['show_operation']) && $operationLabel) || !empty($priceLines)): ?>
             <p class="property-card__operation">
