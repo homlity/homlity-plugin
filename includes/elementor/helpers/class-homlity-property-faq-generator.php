@@ -291,7 +291,7 @@ class Homlity_Property_FAQ_Generator
                 if ($currency) {
                     $formatted .= ' ' . $currency;
                 }
-                $included = (bool) $data['admin_included'];
+                $included = in_array(strtolower(trim((string) $data['admin_included'])), ['1', 'true', 'yes', 'si', 'sí', 'on'], true);
                 $suffix   = $included ? ' ' . __('(incluida en el precio).', 'homlity-real-estate') : '.';
                 $faqs[]   = [
                     'key'      => 'admin',

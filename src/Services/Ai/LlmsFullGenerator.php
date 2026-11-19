@@ -198,7 +198,7 @@ class LlmsFullGenerator
         $currRent     = (string) get_post_meta($id, '_property_currency_rent', true);
         $priceAdmin   = (string) get_post_meta($id, '_property_price_admin', true);
         $currAdmin    = (string) get_post_meta($id, '_property_currency_admin', true);
-        $adminIncl    = (bool) get_post_meta($id, '_property_admin_included', true);
+        $adminIncl    = in_array(strtolower(trim((string) get_post_meta($id, '_property_admin_included', true))), ['1', 'true', 'yes', 'si', 'sí', 'on'], true);
         $area         = (string) get_post_meta($id, '_property_area', true);
         $areaBuilt    = (string) get_post_meta($id, '_property_area_built', true);
         $areaPrivate  = (string) get_post_meta($id, '_property_area_private', true);

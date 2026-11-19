@@ -483,9 +483,7 @@ function hsg_section(string $title): void
 
                 <?php hsg_section(__('Noindex automático', 'homlity-real-estate')); ?>
                 <?php hsg_checkbox($settings, 'adv_noindex_inactive', __('Noindex a inmuebles inactivos', 'homlity-real-estate')); ?>
-                <?php hsg_checkbox($settings, 'adv_noindex_no_photos', __('Noindex a inmuebles sin fotos', 'homlity-real-estate')); ?>
-                <?php hsg_checkbox($settings, 'adv_noindex_no_desc', __('Noindex a inmuebles sin descripción', 'homlity-real-estate')); ?>
-                <?php hsg_text($settings, 'adv_min_desc_length', __('Longitud mínima de descripción (caracteres)', 'homlity-real-estate'), __('Si la descripción tiene menos caracteres que este valor, el inmueble puede quedar con noindex.', 'homlity-real-estate'), 'number'); ?>
+                <tr><th scope="row"><?php esc_html_e('Criterio de noindex', 'homlity-real-estate'); ?></th><td><p class="description"><?php esc_html_e('Solo las fichas inactivas se marcan como noindex,follow. Las fichas activas no se desindexan por falta de fotos o descripción.', 'homlity-real-estate'); ?></p></td></tr>
                 <?php hsg_checkbox($settings, 'adv_alert_missing', __('Alertar en el editor cuando falta barrio, ciudad o precio', 'homlity-real-estate')); ?>
             </table>
             <?php submit_button(__('Guardar cambios', 'homlity-real-estate')); ?>

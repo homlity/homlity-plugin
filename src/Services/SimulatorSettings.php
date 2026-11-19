@@ -20,6 +20,11 @@ final class SimulatorSettings
                 'comisionActiva' => '1',
                 'comisionModalidad' => 'porcentaje_con_minimo',
                 'comisionAplicaIva' => '1',
+                'comercializacionActiva' => '0',
+                'comercializacionModalidad' => 'porcentaje',
+                'comercializacionPorcentaje' => '0',
+                'comercializacionValorFijo' => '0',
+                'comercializacionLabel' => 'Comercialización del inmueble',
                 'incluirAdministracionEnBaseComision' => '1',
                 'incluirAdministracionEnBaseSeguro' => '1',
                 'seguroCanonArrendamiento' => '2.5',
@@ -186,6 +191,29 @@ final class SimulatorSettings
                         'type' => 'checkbox',
                         'checkboxLabel' => __('Aplicar IVA sobre el valor de la comisión', 'homlity-real-estate'),
                         'help' => __('Se calcula sobre la comisión resultante, incluido el mínimo o valor fijo, usando el IVA (%) configurado. No depende del IVA del canon.', 'homlity-real-estate'),
+                    ],
+                    'comercializacionActiva' => [
+                        'label' => __('Comercialización del inmueble', 'homlity-real-estate'),
+                        'type' => 'checkbox',
+                        'checkboxLabel' => __('Activar este descuento en el simulador de arriendo', 'homlity-real-estate'),
+                        'help' => __('Es opcional: déjalo desactivado para inmobiliarias que no cobran este concepto.', 'homlity-real-estate'),
+                    ],
+                    'comercializacionModalidad' => [
+                        'label' => __('Modalidad de comercialización', 'homlity-real-estate'),
+                        'type' => 'select',
+                        'options' => [
+                            'porcentaje' => __('Porcentaje sobre el canon', 'homlity-real-estate'),
+                            'valor_fijo' => __('Valor fijo', 'homlity-real-estate'),
+                        ],
+                    ],
+                    'comercializacionPorcentaje' => [
+                        'label' => __('Porcentaje de comercialización (%)', 'homlity-real-estate'),
+                    ],
+                    'comercializacionValorFijo' => [
+                        'label' => __('Valor fijo de comercialización', 'homlity-real-estate'),
+                    ],
+                    'comercializacionLabel' => [
+                        'label' => __('Etiqueta del descuento de comercialización', 'homlity-real-estate'),
                     ],
                     'incluirAdministracionEnBaseComision' => [
                         'label' => __('Administración en base de comisión', 'homlity-real-estate'),

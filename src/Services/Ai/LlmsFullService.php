@@ -81,11 +81,13 @@ class LlmsFullService implements ServiceInterface
     // ── /robots.txt integration ───────────────────────────────────────────────
 
     /**
-     * Appends an Allow directive and a Llms-Full reference to WordPress's
-     * virtual robots.txt so AI crawlers can discover the extended context file.
+     * Appends a standard Allow directive to WordPress's virtual robots.txt so
+     * crawlers can access the extended context file.
      *
-     * No-op when the site is not public, the feature is disabled, or the
-     * reference is already present (e.g. added by the SEO plugin).
+     * No-op when the site is not public or the feature is disabled. The
+     * dedicated OAI-SearchBot group makes the site's AI-search policy
+     * explicit, even when another robots.txt provider emits a restrictive
+     * wildcard group.
      *
      * @param string     $output Current robots.txt content built by WordPress.
      * @param string|int $public Value of the blog_public option (truthy = public).
@@ -96,15 +98,16 @@ class LlmsFullService implements ServiceInterface
             return $output;
         }
 
-        if (strpos($output, 'llms-full.txt') !== false) {
-            return $output;
+        if (strpos($output, 'llms-full.txt') === false) {
+            $output .= "\n# Archivo de contexto extendido para modelos de IA\n";
+            $output .= "Allow: /llms-full.txt\n";
         }
 
-        $url = esc_url_raw(home_url('/llms-full.txt'));
-
-        $output .= "\n# Archivo de contexto extendido para modelos de IA\n";
-        $output .= "Allow: /llms-full.txt\n";
-        $output .= "Llms-Full: {$url}\n";
+        if (stripos($output, 'User-agent: OAI-SearchBot') === false) {
+            $output .= "\n# Acceso de ChatGPT Search al contenido público\n";
+            $output .= "User-agent: OAI-SearchBot\n";
+            $output .= "Allow: /\n";
+        }
 
         return $output;
     }

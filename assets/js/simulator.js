@@ -8027,19 +8027,19 @@
   };
   const _hoisted_74$1 = { class: "proteccion-bloque" };
   const _hoisted_75$1 = { class: "form-group" };
-  const _hoisted_76 = { class: "radio-group" };
-  const _hoisted_77 = {
+  const _hoisted_76$1 = { class: "radio-group" };
+  const _hoisted_77$1 = {
     key: 0,
     class: "sub-bloque"
   };
-  const _hoisted_78 = { class: "form-group" };
-  const _hoisted_79 = { class: "radio-group" };
-  const _hoisted_80 = { class: "form-group" };
-  const _hoisted_81 = {
+  const _hoisted_78$1 = { class: "form-group" };
+  const _hoisted_79$1 = { class: "radio-group" };
+  const _hoisted_80$1 = { class: "form-group" };
+  const _hoisted_81$1 = {
     key: 0,
     class: "alerta alerta--info"
   };
-  const _hoisted_82 = { class: "form-group" };
+  const _hoisted_82$1 = { class: "form-group" };
   const _hoisted_83 = { class: "radio-group" };
   const _hoisted_84 = {
     key: 1,
@@ -8785,7 +8785,7 @@
               _cache[140] || (_cache[140] = createBaseVNode("label", null, [
                 createBaseVNode("strong", null, "¿El comprador adquiere el inmueble para vivienda familiar?")
               ], -1)),
-              createBaseVNode("div", _hoisted_76, [
+              createBaseVNode("div", _hoisted_76$1, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
                     type: "radio",
@@ -8818,10 +8818,10 @@
                 ])
               ])
             ]),
-            $data.pf.comprador.compraParaViviendaFamiliar === "si" ? (openBlock(), createElementBlock("div", _hoisted_77, [
-              createBaseVNode("div", _hoisted_78, [
+            $data.pf.comprador.compraParaViviendaFamiliar === "si" ? (openBlock(), createElementBlock("div", _hoisted_77$1, [
+              createBaseVNode("div", _hoisted_78$1, [
                 _cache[145] || (_cache[145] = createBaseVNode("label", null, "¿Situación familiar del comprador?", -1)),
-                createBaseVNode("div", _hoisted_79, [
+                createBaseVNode("div", _hoisted_79$1, [
                   createBaseVNode("label", null, [
                     withDirectives(createBaseVNode("input", {
                       type: "radio",
@@ -8864,7 +8864,7 @@
                   ])
                 ])
               ]),
-              createBaseVNode("div", _hoisted_80, [
+              createBaseVNode("div", _hoisted_80$1, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
                     type: "checkbox",
@@ -8875,10 +8875,10 @@
                   _cache[146] || (_cache[146] = createTextVNode(" ¿Desea incluir la afectación a vivienda familiar en la escritura? ", -1))
                 ])
               ]),
-              $data.pf.comprador.situacionFamiliar === "no_sabe" && $data.pf.comprador.afectacionViviendaFamiliar.constituir ? (openBlock(), createElementBlock("div", _hoisted_81, " Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría. ")) : createCommentVNode("", true)
+              $data.pf.comprador.situacionFamiliar === "no_sabe" && $data.pf.comprador.afectacionViviendaFamiliar.constituir ? (openBlock(), createElementBlock("div", _hoisted_81$1, " Información pendiente de validación. El valor mostrado no debe usarse como liquidación definitiva hasta verificar el certificado de tradición, la escritura antecedente y los requisitos de la notaría. ")) : createCommentVNode("", true)
             ])) : createCommentVNode("", true),
             _cache[175] || (_cache[175] = createBaseVNode("hr", { class: "sep-bloque" }, null, -1)),
-            createBaseVNode("div", _hoisted_82, [
+            createBaseVNode("div", _hoisted_82$1, [
               _cache[151] || (_cache[151] = createBaseVNode("label", null, [
                 createBaseVNode("strong", null, "¿El comprador desea constituir patrimonio de familia?")
               ], -1)),
@@ -9238,7 +9238,7 @@
     ]);
   }
   const SimuladorVenta = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["render", _sfc_render$1], ["styles", [_style_0$1]], ["__scopeId", "data-v-627a44c0"]]);
-  const _style_0 = '\n.simulador-arriendo[data-v-ef9d639b] {\n  color: #111827;\n  font-size: 14px;\n  line-height: 1.5;\n}\n.sim-layout[data-v-ef9d639b] {\n  display: grid;\n  gap: 18px;\n}\n.card[data-v-ef9d639b] {\n  background: #ffffff;\n  border: 1px solid #e5e7eb;\n  border-radius: 14px;\n  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);\n}\n.sim-form-strip[data-v-ef9d639b],\n.sim-results .card[data-v-ef9d639b] {\n  padding: 18px;\n}\n.strip-grid[data-v-ef9d639b] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 16px;\n}\n.strip-block[data-v-ef9d639b] {\n  flex: 1 1 240px;\n  min-width: 0;\n}\n.strip-block-wide[data-v-ef9d639b] {\n  flex: 2 1 440px;\n  min-width: 0;\n}\n.strip-label[data-v-ef9d639b] {\n  margin: 0 0 10px;\n  color: #6b7280;\n  font-size: 11px;\n  font-weight: 700;\n  letter-spacing: 0.08em;\n  text-transform: uppercase;\n}\n.grid[data-v-ef9d639b] {\n  display: grid;\n  gap: 14px;\n}\n.grid-2[data-v-ef9d639b] {\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n}\n.grid-3[data-v-ef9d639b] {\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n}\n.field[data-v-ef9d639b] {\n  min-width: 0;\n}\n.field label[data-v-ef9d639b] {\n  display: block;\n  margin-bottom: 6px;\n  color: #111827;\n  font-size: 12px;\n  font-weight: 600;\n}\n.field input[data-v-ef9d639b],\n.field select[data-v-ef9d639b] {\n  width: 100%;\n  min-width: 0;\n  padding: 10px 12px;\n  border: 1px solid #cbd5e1;\n  border-radius: 10px;\n  background: #ffffff;\n  color: #111827;\n  font-size: 14px;\n  transition: border-color 0.2s ease, box-shadow 0.2s ease;\n  box-sizing: border-box;\n}\n.strip-block[data-v-ef9d639b] {\n  padding: 14px;\n  background: #f8fafc;\n  border: 1px solid #dbe3ee;\n  border-radius: 12px;\n}\n.strip-block-wide[data-v-ef9d639b] {\n  background: linear-gradient(180deg, #ffffff, #f8fafc);\n}\n.field input[data-v-ef9d639b]:focus,\n.field select[data-v-ef9d639b]:focus {\n  outline: none;\n  border-color: #2563eb;\n  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);\n}\n.checkbox-field label[data-v-ef9d639b] {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  margin-bottom: 0;\n  font-size: 13px;\n}\n.checkbox-field input[type="checkbox"][data-v-ef9d639b] {\n  width: 16px;\n  height: 16px;\n  margin: 0;\n  accent-color: #2563eb;\n}\n.label-hint[data-v-ef9d639b] {\n  margin-left: 4px;\n  color: #6b7280;\n  font-size: 10px;\n}\n.inline-badges[data-v-ef9d639b] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 6px;\n}\n.badge[data-v-ef9d639b] {\n  display: inline-block;\n  padding: 3px 9px;\n  border-radius: 9999px;\n  font-size: 10px;\n  font-weight: 700;\n}\n.badge-warning[data-v-ef9d639b] {\n  background: #fef3c7;\n  color: #92400e;\n}\n.table-wrapper[data-v-ef9d639b] {\n  width: 100%;\n  overflow-x: auto;\n}\n.results-table[data-v-ef9d639b] {\n  width: 100%;\n  min-width: 640px;\n  border-collapse: collapse;\n  table-layout: fixed;\n}\n.results-table th[data-v-ef9d639b],\n.results-table td[data-v-ef9d639b] {\n  padding: 12px 10px;\n  border-bottom: 1px solid #e5e7eb;\n  text-align: left;\n  vertical-align: top;\n}\n.results-table th[data-v-ef9d639b] {\n  background: #f8fafc;\n  color: #334155;\n  font-size: 12px;\n  font-weight: 700;\n}\n.results-table td[data-v-ef9d639b] {\n  font-size: 13px;\n}\n.row-total[data-v-ef9d639b] {\n  background: #f8fafc;\n}\n.row-subtotal[data-v-ef9d639b] {\n  background: #eef4ff;\n}\n.row-grand-total[data-v-ef9d639b] {\n  background: #1f2937;\n  color: #ffffff;\n}\n.summary-strip[data-v-ef9d639b] {\n  display: grid;\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n  gap: 12px;\n  margin-top: 16px;\n}\n.summary-item[data-v-ef9d639b] {\n  padding: 14px;\n  border: 1px solid #e5e7eb;\n  border-radius: 12px;\n  background: linear-gradient(180deg, #ffffff, #f8fafc);\n  text-align: center;\n}\n.summary-item span[data-v-ef9d639b] {\n  display: block;\n  color: #64748b;\n  font-size: 12px;\n  font-weight: 600;\n}\n.summary-item-highlight[data-v-ef9d639b] {\n  background: linear-gradient(135deg, #1f2937, #334155);\n  color: #ffffff;\n  border-color: transparent;\n}\n.summary-item-highlight span[data-v-ef9d639b] {\n  color: rgba(255, 255, 255, 0.78);\n}\n.summary-item-value[data-v-ef9d639b] {\n  margin-top: 6px;\n  font-size: 20px;\n  font-weight: 700;\n}\n.sim-actions-bottom[data-v-ef9d639b] {\n  margin-top: 18px;\n  display: flex;\n  align-items: flex-start;\n  justify-content: space-between;\n  gap: 18px;\n}\n.sim-actions-bottom button[data-v-ef9d639b] {\n  padding: 11px 18px;\n  border: 0;\n  border-radius: 10px;\n  background: linear-gradient(135deg, #0f172a, #334155);\n  color: #ffffff;\n  font-size: 13px;\n  font-weight: 700;\n  cursor: pointer;\n  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);\n}\n.sim-actions-bottom button[data-v-ef9d639b]:disabled {\n  opacity: 0.55;\n  cursor: not-allowed;\n}\n.sim-nota-pie[data-v-ef9d639b] {\n  flex: 1 1 auto;\n  margin: 0;\n  color: #6b7280;\n  font-size: 12px;\n}\n.sim-nota-pie[data-v-ef9d639b] p,\n.sim-nota-pie[data-v-ef9d639b] ul,\n.sim-nota-pie[data-v-ef9d639b] ol {\n  margin: 0 0 0.85em;\n}\n.sim-nota-pie[data-v-ef9d639b] ul,\n.sim-nota-pie[data-v-ef9d639b] ol {\n  padding-left: 18px;\n}\n@media (max-width: 900px) {\n.grid-3[data-v-ef9d639b],\n  .grid-2[data-v-ef9d639b],\n  .summary-strip[data-v-ef9d639b] {\n    grid-template-columns: 1fr;\n}\n}\n@media (max-width: 640px) {\n.sim-form-strip[data-v-ef9d639b],\n  .sim-results .card[data-v-ef9d639b] {\n    padding: 14px;\n}\n.strip-grid[data-v-ef9d639b] {\n    gap: 12px;\n}\n.sim-actions-bottom[data-v-ef9d639b] {\n    flex-direction: column;\n    align-items: stretch;\n}\n.sim-actions-bottom button[data-v-ef9d639b] {\n    width: 100%;\n}\n}\n';
+  const _style_0 = '\n.simulador-arriendo[data-v-572f0cba] {\n  color: #111827;\n  font-size: 14px;\n  line-height: 1.5;\n}\n.sim-layout[data-v-572f0cba] {\n  display: grid;\n  gap: 18px;\n}\n.card[data-v-572f0cba] {\n  background: #ffffff;\n  border: 1px solid #e5e7eb;\n  border-radius: 14px;\n  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);\n}\n.sim-form-strip[data-v-572f0cba],\n.sim-results .card[data-v-572f0cba] {\n  padding: 18px;\n}\n.strip-grid[data-v-572f0cba] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 16px;\n}\n.strip-block[data-v-572f0cba] {\n  flex: 1 1 240px;\n  min-width: 0;\n}\n.strip-block-wide[data-v-572f0cba] {\n  flex: 2 1 440px;\n  min-width: 0;\n}\n.strip-label[data-v-572f0cba] {\n  margin: 0 0 10px;\n  color: #6b7280;\n  font-size: 11px;\n  font-weight: 700;\n  letter-spacing: 0.08em;\n  text-transform: uppercase;\n}\n.grid[data-v-572f0cba] {\n  display: grid;\n  gap: 14px;\n}\n.grid-2[data-v-572f0cba] {\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n}\n.grid-3[data-v-572f0cba] {\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n}\n.field[data-v-572f0cba] {\n  min-width: 0;\n}\n.field label[data-v-572f0cba] {\n  display: block;\n  margin-bottom: 6px;\n  color: #111827;\n  font-size: 12px;\n  font-weight: 600;\n}\n.field input[data-v-572f0cba],\n.field select[data-v-572f0cba] {\n  width: 100%;\n  min-width: 0;\n  padding: 10px 12px;\n  border: 1px solid #cbd5e1;\n  border-radius: 10px;\n  background: #ffffff;\n  color: #111827;\n  font-size: 14px;\n  transition: border-color 0.2s ease, box-shadow 0.2s ease;\n  box-sizing: border-box;\n}\n.strip-block[data-v-572f0cba] {\n  padding: 14px;\n  background: #f8fafc;\n  border: 1px solid #dbe3ee;\n  border-radius: 12px;\n}\n.strip-block-wide[data-v-572f0cba] {\n  background: linear-gradient(180deg, #ffffff, #f8fafc);\n}\n.field input[data-v-572f0cba]:focus,\n.field select[data-v-572f0cba]:focus {\n  outline: none;\n  border-color: #2563eb;\n  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);\n}\n.checkbox-field label[data-v-572f0cba] {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  margin-bottom: 0;\n  font-size: 13px;\n}\n.checkbox-field input[type="checkbox"][data-v-572f0cba] {\n  width: 16px;\n  height: 16px;\n  margin: 0;\n  accent-color: #2563eb;\n}\n.label-hint[data-v-572f0cba] {\n  margin-left: 4px;\n  color: #6b7280;\n  font-size: 10px;\n}\n.inline-badges[data-v-572f0cba] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 6px;\n}\n.badge[data-v-572f0cba] {\n  display: inline-block;\n  padding: 3px 9px;\n  border-radius: 9999px;\n  font-size: 10px;\n  font-weight: 700;\n}\n.badge-warning[data-v-572f0cba] {\n  background: #fef3c7;\n  color: #92400e;\n}\n.table-wrapper[data-v-572f0cba] {\n  width: 100%;\n  overflow-x: auto;\n}\n.results-table[data-v-572f0cba] {\n  width: 100%;\n  min-width: 640px;\n  border-collapse: collapse;\n  table-layout: fixed;\n}\n.results-table th[data-v-572f0cba],\n.results-table td[data-v-572f0cba] {\n  padding: 12px 10px;\n  border-bottom: 1px solid #e5e7eb;\n  text-align: left;\n  vertical-align: top;\n}\n.results-table th[data-v-572f0cba] {\n  background: #f8fafc;\n  color: #334155;\n  font-size: 12px;\n  font-weight: 700;\n}\n.results-table td[data-v-572f0cba] {\n  font-size: 13px;\n}\n.row-total[data-v-572f0cba] {\n  background: #f8fafc;\n}\n.row-subtotal[data-v-572f0cba] {\n  background: #eef4ff;\n}\n.row-grand-total[data-v-572f0cba] {\n  background: #1f2937;\n  color: #ffffff;\n}\n.summary-strip[data-v-572f0cba] {\n  display: grid;\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n  gap: 12px;\n  margin-top: 16px;\n}\n.summary-item[data-v-572f0cba] {\n  padding: 14px;\n  border: 1px solid #e5e7eb;\n  border-radius: 12px;\n  background: linear-gradient(180deg, #ffffff, #f8fafc);\n  text-align: center;\n}\n.summary-item span[data-v-572f0cba] {\n  display: block;\n  color: #64748b;\n  font-size: 12px;\n  font-weight: 600;\n}\n.summary-item-highlight[data-v-572f0cba] {\n  background: linear-gradient(135deg, #1f2937, #334155);\n  color: #ffffff;\n  border-color: transparent;\n}\n.summary-item-highlight span[data-v-572f0cba] {\n  color: rgba(255, 255, 255, 0.78);\n}\n.summary-item-value[data-v-572f0cba] {\n  margin-top: 6px;\n  font-size: 20px;\n  font-weight: 700;\n}\n.sim-actions-bottom[data-v-572f0cba] {\n  margin-top: 18px;\n  display: flex;\n  align-items: flex-start;\n  justify-content: space-between;\n  gap: 18px;\n}\n.sim-actions-bottom button[data-v-572f0cba] {\n  padding: 11px 18px;\n  border: 0;\n  border-radius: 10px;\n  background: linear-gradient(135deg, #0f172a, #334155);\n  color: #ffffff;\n  font-size: 13px;\n  font-weight: 700;\n  cursor: pointer;\n  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);\n}\n.sim-actions-bottom button[data-v-572f0cba]:disabled {\n  opacity: 0.55;\n  cursor: not-allowed;\n}\n.sim-nota-pie[data-v-572f0cba] {\n  flex: 1 1 auto;\n  margin: 0;\n  color: #6b7280;\n  font-size: 12px;\n}\n.sim-nota-pie[data-v-572f0cba] p,\n.sim-nota-pie[data-v-572f0cba] ul,\n.sim-nota-pie[data-v-572f0cba] ol {\n  margin: 0 0 0.85em;\n}\n.sim-nota-pie[data-v-572f0cba] ul,\n.sim-nota-pie[data-v-572f0cba] ol {\n  padding-left: 18px;\n}\n@media (max-width: 900px) {\n.grid-3[data-v-572f0cba],\n  .grid-2[data-v-572f0cba],\n  .summary-strip[data-v-572f0cba] {\n    grid-template-columns: 1fr;\n}\n}\n@media (max-width: 640px) {\n.sim-form-strip[data-v-572f0cba],\n  .sim-results .card[data-v-572f0cba] {\n    padding: 14px;\n}\n.strip-grid[data-v-572f0cba] {\n    gap: 12px;\n}\n.sim-actions-bottom[data-v-572f0cba] {\n    flex-direction: column;\n    align-items: stretch;\n}\n.sim-actions-bottom button[data-v-572f0cba] {\n    width: 100%;\n}\n}\n';
   const _sfc_main = {
     name: "SimuladorArriendo",
     props: {
@@ -9305,10 +9305,11 @@
         const retencionFuente = this.calcularRetencionFuente();
         const retencionIca = this.calcularReteIca();
         const retencionIva = this.calcularReteIva(ivaCanon);
+        const comercializacion = this.calcularComercializacion();
         const otrosDescuentos = this.calcularOtrosDescuentos();
         const administracion = this.form.tieneAdministracion ? safeMoney(this.form.valorAdministracion) : 0;
         const totalIngresos = safeMoney(this.form.canon + administracion + ivaCanon);
-        const descuentosSinBancarios = administracion + comision + ivaComision + seguro + retencionFuente + retencionIca + retencionIva + otrosDescuentos;
+        const descuentosSinBancarios = administracion + comision + ivaComision + seguro + comercializacion + retencionFuente + retencionIca + retencionIva + otrosDescuentos;
         const subtotalAntesGastosBancarios = Math.max(0, safeMoney(totalIngresos - descuentosSinBancarios));
         const gastosBancarios = this.calcularGastosBancarios(subtotalAntesGastosBancarios);
         const totalDescuentos = safeMoney(descuentosSinBancarios);
@@ -9330,6 +9331,7 @@
           valorComision: comision,
           ivaComision,
           valorSeguro: seguro,
+          comercializacion,
           gastosBancarios,
           gastosBancariosLabel,
           retencionFuente,
@@ -9365,6 +9367,9 @@
         }
         if (this.form.aplicarSeguro && this.calc.valorSeguro > 0) {
           rows.push({ label: "Seguro / póliza de arrendamiento", value: this.calc.valorSeguro });
+        }
+        if (this.form.comercializacion.activa && this.calc.comercializacion > 0) {
+          rows.push({ label: this.form.comercializacion.etiqueta, value: this.calc.comercializacion });
         }
         if (this.form.condicionesTributarias.aplicarRetencionFuente && this.calc.retencionFuente > 0) {
           rows.push({ label: `Retención en la fuente (${this.form.retenciones.fuente.porcentaje}%) sobre arrendamiento`, value: this.calc.retencionFuente });
@@ -9467,6 +9472,8 @@
         const comisionPct = this.normalizarNumero(c.comision?.porcentaje ?? c.comisionTotalInmobiliaria, 9.5);
         const comisionMin = this.normalizarNumero(c.comision?.valorMinimo ?? c.comisionMinimaInmobiliaria, 0);
         const seguroPct = this.normalizarNumero(c.seguro?.porcentaje ?? c.seguroCanonArrendamiento, 2.5);
+        const comercializacionPct = this.normalizarNumero(c.comercializacion?.porcentaje ?? c.comercializacionPorcentaje, 0);
+        const comercializacionFija = this.normalizarNumero(c.comercializacion?.valorFijo ?? c.comercializacionValorFijo, 0);
         const gastosFijo = this.normalizarNumero(c.gastosBancarios?.valorFijo ?? c.costoBancarioFijo, 0);
         const retFuentePct = this.normalizarNumero(c.retenciones?.fuente?.porcentaje ?? c.porcentajeRetencionFuente, 0);
         const retIcaMil = this.normalizarNumero(c.retenciones?.ica?.tarifaPorMil ?? c.porcentajeRetencionIca, 0);
@@ -9493,6 +9500,14 @@
             porcentaje: seguroPct,
             valorFijo: this.normalizarNumero(c.seguro?.valorFijo ?? c.seguroValorFijo, 0),
             base: c.seguro?.base || c.seguroBase || "canon_mas_administracion_mas_iva"
+          },
+          comercializacion: {
+            configurada: bool("comercializacionActiva", c.comercializacion?.activa, false),
+            activa: bool("comercializacionActiva", c.comercializacion?.activa, false),
+            modalidad: c.comercializacion?.modalidad || c.comercializacionModalidad || "porcentaje",
+            porcentaje: comercializacionPct,
+            valorFijo: comercializacionFija,
+            etiqueta: c.comercializacion?.etiqueta || c.comercializacionLabel || "Comercialización del inmueble"
           },
           gastosBancarios: {
             activosPorDefecto: bool("gastosBancariosActivos", c.gastosBancarios?.activosPorDefecto, true),
@@ -9553,6 +9568,14 @@
             valorFijo: this.normalizarNumero(cfg.seguro.valorFijo),
             base: cfg.seguro.base || "canon_mas_administracion_mas_iva"
           },
+          comercializacion: {
+            configurada: !!cfg.comercializacion.configurada,
+            activa: !!cfg.comercializacion.activa,
+            modalidad: cfg.comercializacion.modalidad || "porcentaje",
+            porcentaje: this.normalizarNumero(cfg.comercializacion.porcentaje),
+            valorFijo: this.normalizarNumero(cfg.comercializacion.valorFijo),
+            etiqueta: cfg.comercializacion.etiqueta || "Comercialización del inmueble"
+          },
           aplicarGastosBancarios: !!cfg.gastosBancarios.activosPorDefecto,
           gastosBancarios: {
             modalidad: cfg.gastosBancarios.modalidad || "cuatro_por_mil",
@@ -9571,6 +9594,7 @@
           "incluirAdministracionEnBaseSeguro",
           "comision",
           "seguro",
+          "comercializacion",
           "aplicarSeguro",
           "gastosBancarios",
           "aplicarGastosBancarios",
@@ -9644,6 +9668,13 @@
         if (base <= 0) return 0;
         if (this.form.seguro.modalidad === "valor_fijo") return safeMoney(this.form.seguro.valorFijo);
         return safeMoney(base * this.form.seguro.porcentaje / 100);
+      },
+      calcularComercializacion() {
+        if (!this.form.comercializacion.activa || this.form.canon <= 0) return 0;
+        if (this.form.comercializacion.modalidad === "valor_fijo") {
+          return safeMoney(this.form.comercializacion.valorFijo);
+        }
+        return safeMoney(this.form.canon * this.form.comercializacion.porcentaje / 100);
       },
       calcularGastosBancarios(baseValorAGirar) {
         if (!this.form.aplicarGastosBancarios) return 0;
@@ -9867,9 +9898,12 @@
     key: 3,
     class: "field checkbox-field"
   };
-  const _hoisted_35 = { class: "strip-block" };
-  const _hoisted_36 = { class: "field checkbox-field" };
-  const _hoisted_37 = { key: 0 };
+  const _hoisted_35 = {
+    key: 0,
+    class: "strip-block"
+  };
+  const _hoisted_36 = { class: "strip-label" };
+  const _hoisted_37 = { class: "field checkbox-field" };
   const _hoisted_38 = { class: "field" };
   const _hoisted_39 = {
     key: 0,
@@ -9880,58 +9914,71 @@
     class: "field"
   };
   const _hoisted_41 = ["value"];
-  const _hoisted_42 = { class: "field" };
-  const _hoisted_43 = ["value"];
-  const _hoisted_44 = { class: "strip-block" };
-  const _hoisted_45 = { class: "field checkbox-field" };
-  const _hoisted_46 = { key: 0 };
-  const _hoisted_47 = { class: "field" };
-  const _hoisted_48 = {
+  const _hoisted_42 = { class: "strip-block" };
+  const _hoisted_43 = { class: "field checkbox-field" };
+  const _hoisted_44 = { key: 0 };
+  const _hoisted_45 = { class: "field" };
+  const _hoisted_46 = {
     key: 0,
     class: "field"
   };
-  const _hoisted_49 = {
+  const _hoisted_47 = {
     key: 1,
     class: "field"
   };
+  const _hoisted_48 = ["value"];
+  const _hoisted_49 = { class: "field" };
   const _hoisted_50 = ["value"];
   const _hoisted_51 = { class: "strip-block" };
   const _hoisted_52 = { class: "field checkbox-field" };
-  const _hoisted_53 = {
-    key: 0,
-    class: "field"
-  };
-  const _hoisted_54 = { class: "field checkbox-field" };
+  const _hoisted_53 = { key: 0 };
+  const _hoisted_54 = { class: "field" };
   const _hoisted_55 = {
-    key: 1,
+    key: 0,
     class: "field"
   };
   const _hoisted_56 = {
+    key: 1,
+    class: "field"
+  };
+  const _hoisted_57 = ["value"];
+  const _hoisted_58 = { class: "strip-block" };
+  const _hoisted_59 = { class: "field checkbox-field" };
+  const _hoisted_60 = {
+    key: 0,
+    class: "field"
+  };
+  const _hoisted_61 = { class: "field checkbox-field" };
+  const _hoisted_62 = {
+    key: 1,
+    class: "field"
+  };
+  const _hoisted_63 = {
     key: 2,
     class: "field checkbox-field"
   };
-  const _hoisted_57 = { class: "sim-results" };
-  const _hoisted_58 = { class: "card" };
-  const _hoisted_59 = { class: "table-wrapper results-table-wrapper" };
-  const _hoisted_60 = { class: "results-table" };
-  const _hoisted_61 = { class: "row-total" };
-  const _hoisted_62 = { class: "row-subtotal" };
-  const _hoisted_63 = {
+  const _hoisted_64 = { class: "sim-results" };
+  const _hoisted_65 = { class: "card" };
+  const _hoisted_66 = { class: "table-wrapper results-table-wrapper" };
+  const _hoisted_67 = { class: "results-table" };
+  const _hoisted_68 = { class: "row-total" };
+  const _hoisted_69 = { class: "row-subtotal" };
+  const _hoisted_70 = {
     key: 0,
     class: "row-subtotal"
   };
-  const _hoisted_64 = { colspan: "3" };
-  const _hoisted_65 = { class: "row-grand-total" };
-  const _hoisted_66 = { class: "summary-strip" };
-  const _hoisted_67 = { class: "summary-item" };
-  const _hoisted_68 = { class: "summary-item-value" };
-  const _hoisted_69 = { class: "summary-item" };
-  const _hoisted_70 = { class: "summary-item-value" };
-  const _hoisted_71 = { class: "summary-item summary-item-highlight" };
-  const _hoisted_72 = { class: "summary-item-value" };
-  const _hoisted_73 = { class: "sim-actions-bottom" };
-  const _hoisted_74 = ["innerHTML"];
-  const _hoisted_75 = ["disabled"];
+  const _hoisted_71 = { colspan: "3" };
+  const _hoisted_72 = { class: "row-grand-total" };
+  const _hoisted_73 = { class: "summary-strip" };
+  const _hoisted_74 = { class: "summary-item" };
+  const _hoisted_75 = { class: "summary-item-value" };
+  const _hoisted_76 = { class: "summary-item" };
+  const _hoisted_77 = { class: "summary-item-value" };
+  const _hoisted_78 = { class: "summary-item summary-item-highlight" };
+  const _hoisted_79 = { class: "summary-item-value" };
+  const _hoisted_80 = { class: "sim-actions-bottom" };
+  const _hoisted_81 = ["innerHTML"];
+  const _hoisted_82 = ["disabled"];
   function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     return openBlock(), createElementBlock("div", _hoisted_1, [
       createBaseVNode("div", _hoisted_2, [
@@ -9940,7 +9987,7 @@
             createBaseVNode("section", _hoisted_5, [
               createBaseVNode("div", _hoisted_6, [
                 createBaseVNode("div", _hoisted_7, [
-                  _cache[29] || (_cache[29] = createBaseVNode("label", { for: "canon" }, "Canon mensual", -1)),
+                  _cache[33] || (_cache[33] = createBaseVNode("label", { for: "canon" }, "Canon mensual", -1)),
                   createBaseVNode("input", {
                     id: "canon",
                     value: $options.formatInputMoney($data.form.canon),
@@ -9952,7 +9999,7 @@
                 ]),
                 $data.form.comision.activa && $data.form.comision.modalidad !== "valor_fijo" ? (openBlock(), createElementBlock("div", _hoisted_9, [
                   createBaseVNode("label", _hoisted_10, [
-                    _cache[30] || (_cache[30] = createTextVNode(" Comisión (%) ", -1)),
+                    _cache[34] || (_cache[34] = createTextVNode(" Comisión (%) ", -1)),
                     $data.form.comision.modalidad === "porcentaje_con_minimo" && $options.calc.valorComision > 0 ? (openBlock(), createElementBlock("span", _hoisted_11, toDisplayString($options.calc.valorComision <= $data.form.comision.valorMinimo ? "→ aplica mínimo" : `→ ${$options.fmtMoney($options.calc.valorComision)}`), 1)) : $data.form.comision.modalidad === "porcentaje" && $options.calc.valorComision > 0 ? (openBlock(), createElementBlock("span", _hoisted_12, " = " + toDisplayString($options.fmtMoney($options.calc.valorComision)), 1)) : createCommentVNode("", true)
                   ]),
                   withDirectives(createBaseVNode("input", {
@@ -9972,7 +10019,7 @@
                   ])
                 ])) : createCommentVNode("", true),
                 createBaseVNode("div", _hoisted_13, [
-                  _cache[31] || (_cache[31] = createBaseVNode("label", { for: "tipoInmueble" }, "Tipo de inmueble", -1)),
+                  _cache[35] || (_cache[35] = createBaseVNode("label", { for: "tipoInmueble" }, "Tipo de inmueble", -1)),
                   withDirectives(createBaseVNode("select", {
                     id: "tipoInmueble",
                     "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => $data.form.tipoInmueble = $event)
@@ -9988,7 +10035,7 @@
                   ])
                 ])
               ]),
-              $options.grupoTributarioInmueble === "validar" ? (openBlock(), createElementBlock("div", _hoisted_15, [..._cache[32] || (_cache[32] = [
+              $options.grupoTributarioInmueble === "validar" ? (openBlock(), createElementBlock("div", _hoisted_15, [..._cache[36] || (_cache[36] = [
                 createBaseVNode("span", { class: "badge badge-warning" }, "IVA requiere validación manual", -1)
               ])])) : createCommentVNode("", true),
               createBaseVNode("div", _hoisted_16, [
@@ -9999,11 +10046,11 @@
                   }, null, 512), [
                     [vModelCheckbox, $data.form.tieneAdministracion]
                   ]),
-                  _cache[33] || (_cache[33] = createTextVNode(" ¿El inmueble tiene cuota de administración? ", -1))
+                  _cache[37] || (_cache[37] = createTextVNode(" ¿El inmueble tiene cuota de administración? ", -1))
                 ])
               ]),
               $data.form.tieneAdministracion ? (openBlock(), createElementBlock("div", _hoisted_17, [
-                _cache[34] || (_cache[34] = createBaseVNode("label", { for: "valorAdministracion" }, "Valor de la cuota de administración", -1)),
+                _cache[38] || (_cache[38] = createBaseVNode("label", { for: "valorAdministracion" }, "Valor de la cuota de administración", -1)),
                 createBaseVNode("input", {
                   id: "valorAdministracion",
                   value: $options.formatInputMoney($data.form.valorAdministracion),
@@ -10015,11 +10062,11 @@
               ])) : createCommentVNode("", true),
               createBaseVNode("div", _hoisted_19, [
                 createBaseVNode("div", _hoisted_20, [
-                  _cache[36] || (_cache[36] = createBaseVNode("label", { for: "regimenPropietario" }, "Régimen tributario del propietario", -1)),
+                  _cache[40] || (_cache[40] = createBaseVNode("label", { for: "regimenPropietario" }, "Régimen tributario del propietario", -1)),
                   withDirectives(createBaseVNode("select", {
                     id: "regimenPropietario",
                     "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => $data.form.regimenPropietario = $event)
-                  }, [..._cache[35] || (_cache[35] = [
+                  }, [..._cache[39] || (_cache[39] = [
                     createBaseVNode("option", { value: "" }, "— Sin seleccionar —", -1),
                     createBaseVNode("option", { value: "no_responsable" }, "Persona natural / No responsable de IVA", -1),
                     createBaseVNode("option", { value: "responsable_iva" }, "Responsable de IVA (régimen común)", -1)
@@ -10028,11 +10075,11 @@
                   ])
                 ]),
                 createBaseVNode("div", _hoisted_21, [
-                  _cache[38] || (_cache[38] = createBaseVNode("label", { for: "regimenArrendatario" }, "Régimen tributario del arrendatario", -1)),
+                  _cache[42] || (_cache[42] = createBaseVNode("label", { for: "regimenArrendatario" }, "Régimen tributario del arrendatario", -1)),
                   withDirectives(createBaseVNode("select", {
                     id: "regimenArrendatario",
                     "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => $data.form.regimenArrendatario = $event)
-                  }, [..._cache[37] || (_cache[37] = [
+                  }, [..._cache[41] || (_cache[41] = [
                     createBaseVNode("option", { value: "" }, "— Sin seleccionar —", -1),
                     createBaseVNode("option", { value: "no_responsable" }, "Persona natural / No responsable", -1),
                     createBaseVNode("option", { value: "responsable_iva" }, "Empresa / Agente de retención", -1)
@@ -10043,7 +10090,7 @@
               ])
             ]),
             $options.mostrarBloqueIvaCanon ? (openBlock(), createElementBlock("section", _hoisted_22, [
-              _cache[41] || (_cache[41] = createBaseVNode("h4", { class: "strip-label" }, "IVA sobre canon", -1)),
+              _cache[45] || (_cache[45] = createBaseVNode("h4", { class: "strip-label" }, "IVA sobre canon", -1)),
               createBaseVNode("div", _hoisted_23, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
@@ -10052,7 +10099,7 @@
                   }, null, 512), [
                     [vModelCheckbox, $data.form.propietarioResponsableIva]
                   ]),
-                  _cache[39] || (_cache[39] = createTextVNode(" El propietario es responsable de IVA ", -1))
+                  _cache[43] || (_cache[43] = createTextVNode(" El propietario es responsable de IVA ", -1))
                 ])
               ]),
               $options.grupoTributarioInmueble === "validar" ? (openBlock(), createElementBlock("div", _hoisted_24, [
@@ -10063,7 +10110,7 @@
                   }, null, 512), [
                     [vModelCheckbox, $data.form.aplicaIvaCanonManual]
                   ]),
-                  _cache[40] || (_cache[40] = createTextVNode(" Aplicar IVA sobre canon (confirmado) ", -1))
+                  _cache[44] || (_cache[44] = createTextVNode(" Aplicar IVA sobre canon (confirmado) ", -1))
                 ])
               ])) : createCommentVNode("", true)
             ])) : createCommentVNode("", true)
@@ -10072,7 +10119,7 @@
         $options.showRestrictedRentOptions ? (openBlock(), createElementBlock("section", _hoisted_25, [
           createBaseVNode("div", _hoisted_26, [
             createBaseVNode("div", _hoisted_27, [
-              _cache[48] || (_cache[48] = createBaseVNode("h4", { class: "strip-label" }, "Comisión inmobiliaria", -1)),
+              _cache[52] || (_cache[52] = createBaseVNode("h4", { class: "strip-label" }, "Comisión inmobiliaria", -1)),
               createBaseVNode("div", _hoisted_28, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
@@ -10081,14 +10128,14 @@
                   }, null, 512), [
                     [vModelCheckbox, $data.form.comision.activa]
                   ]),
-                  _cache[42] || (_cache[42] = createTextVNode(" Aplicar comisión", -1))
+                  _cache[46] || (_cache[46] = createTextVNode(" Aplicar comisión", -1))
                 ])
               ]),
               $data.form.comision.activa ? (openBlock(), createElementBlock("div", _hoisted_29, [
-                _cache[44] || (_cache[44] = createBaseVNode("label", null, "Modalidad", -1)),
+                _cache[48] || (_cache[48] = createBaseVNode("label", null, "Modalidad", -1)),
                 withDirectives(createBaseVNode("select", {
                   "onUpdate:modelValue": _cache[10] || (_cache[10] = ($event) => $data.form.comision.modalidad = $event)
-                }, [..._cache[43] || (_cache[43] = [
+                }, [..._cache[47] || (_cache[47] = [
                   createBaseVNode("option", { value: "porcentaje" }, "Porcentaje", -1),
                   createBaseVNode("option", { value: "porcentaje_con_minimo" }, "Porcentaje con mínimo", -1),
                   createBaseVNode("option", { value: "valor_fijo" }, "Valor fijo", -1)
@@ -10097,7 +10144,7 @@
                 ])
               ])) : createCommentVNode("", true),
               $data.form.comision.activa && $data.form.comision.modalidad === "valor_fijo" ? (openBlock(), createElementBlock("div", _hoisted_30, [
-                _cache[45] || (_cache[45] = createBaseVNode("label", null, "Valor fijo comisión", -1)),
+                _cache[49] || (_cache[49] = createBaseVNode("label", null, "Valor fijo comisión", -1)),
                 createBaseVNode("input", {
                   value: $options.formatInputMoney($data.form.comision.valorMinimo),
                   type: "text",
@@ -10106,7 +10153,7 @@
                 }, null, 40, _hoisted_31)
               ])) : createCommentVNode("", true),
               $data.form.comision.activa && $data.form.comision.modalidad === "porcentaje_con_minimo" ? (openBlock(), createElementBlock("div", _hoisted_32, [
-                _cache[46] || (_cache[46] = createBaseVNode("label", null, "Valor mínimo comisión", -1)),
+                _cache[50] || (_cache[50] = createBaseVNode("label", null, "Valor mínimo comisión", -1)),
                 createBaseVNode("input", {
                   value: $options.formatInputMoney($data.form.comision.valorMinimo),
                   type: "text",
@@ -10122,39 +10169,88 @@
                   }, null, 512), [
                     [vModelCheckbox, $data.form.comision.aplicaIva]
                   ]),
-                  _cache[47] || (_cache[47] = createTextVNode(" IVA sobre comisión", -1))
+                  _cache[51] || (_cache[51] = createTextVNode(" IVA sobre comisión", -1))
                 ])
               ])) : createCommentVNode("", true)
             ]),
-            createBaseVNode("div", _hoisted_35, [
-              _cache[55] || (_cache[55] = createBaseVNode("h4", { class: "strip-label" }, "Seguro / póliza", -1)),
-              createBaseVNode("div", _hoisted_36, [
+            $data.form.comercializacion.configurada ? (openBlock(), createElementBlock("div", _hoisted_35, [
+              createBaseVNode("h4", _hoisted_36, toDisplayString($data.form.comercializacion.etiqueta), 1),
+              createBaseVNode("div", _hoisted_37, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
-                    "onUpdate:modelValue": _cache[14] || (_cache[14] = ($event) => $data.form.aplicarSeguro = $event),
+                    "onUpdate:modelValue": _cache[14] || (_cache[14] = ($event) => $data.form.comercializacion.activa = $event),
+                    type: "checkbox"
+                  }, null, 512), [
+                    [vModelCheckbox, $data.form.comercializacion.activa]
+                  ]),
+                  _cache[53] || (_cache[53] = createTextVNode(" Aplicar comercialización", -1))
+                ])
+              ]),
+              createBaseVNode("div", _hoisted_38, [
+                _cache[55] || (_cache[55] = createBaseVNode("label", null, "Modalidad", -1)),
+                withDirectives(createBaseVNode("select", {
+                  "onUpdate:modelValue": _cache[15] || (_cache[15] = ($event) => $data.form.comercializacion.modalidad = $event)
+                }, [..._cache[54] || (_cache[54] = [
+                  createBaseVNode("option", { value: "porcentaje" }, "Porcentaje sobre el canon", -1),
+                  createBaseVNode("option", { value: "valor_fijo" }, "Valor fijo", -1)
+                ])], 512), [
+                  [vModelSelect, $data.form.comercializacion.modalidad]
+                ])
+              ]),
+              $data.form.comercializacion.modalidad === "porcentaje" ? (openBlock(), createElementBlock("div", _hoisted_39, [
+                _cache[56] || (_cache[56] = createBaseVNode("label", null, "% comercialización", -1)),
+                withDirectives(createBaseVNode("input", {
+                  "onUpdate:modelValue": _cache[16] || (_cache[16] = ($event) => $data.form.comercializacion.porcentaje = $event),
+                  type: "number",
+                  min: "0",
+                  step: "0.01"
+                }, null, 512), [
+                  [
+                    vModelText,
+                    $data.form.comercializacion.porcentaje,
+                    void 0,
+                    { number: true }
+                  ]
+                ])
+              ])) : (openBlock(), createElementBlock("div", _hoisted_40, [
+                _cache[57] || (_cache[57] = createBaseVNode("label", null, "Valor fijo comercialización", -1)),
+                createBaseVNode("input", {
+                  value: $options.formatInputMoney($data.form.comercializacion.valorFijo),
+                  type: "text",
+                  inputmode: "numeric",
+                  onInput: _cache[17] || (_cache[17] = ($event) => $options.updateMoneyField("comercializacion.valorFijo", $event.target.value))
+                }, null, 40, _hoisted_41)
+              ]))
+            ])) : createCommentVNode("", true),
+            createBaseVNode("div", _hoisted_42, [
+              _cache[64] || (_cache[64] = createBaseVNode("h4", { class: "strip-label" }, "Seguro / póliza", -1)),
+              createBaseVNode("div", _hoisted_43, [
+                createBaseVNode("label", null, [
+                  withDirectives(createBaseVNode("input", {
+                    "onUpdate:modelValue": _cache[18] || (_cache[18] = ($event) => $data.form.aplicarSeguro = $event),
                     type: "checkbox"
                   }, null, 512), [
                     [vModelCheckbox, $data.form.aplicarSeguro]
                   ]),
-                  _cache[49] || (_cache[49] = createTextVNode(" Aplicar seguro / póliza", -1))
+                  _cache[58] || (_cache[58] = createTextVNode(" Aplicar seguro / póliza", -1))
                 ])
               ]),
-              $data.form.aplicarSeguro ? (openBlock(), createElementBlock("div", _hoisted_37, [
-                createBaseVNode("div", _hoisted_38, [
-                  _cache[51] || (_cache[51] = createBaseVNode("label", null, "Modalidad", -1)),
+              $data.form.aplicarSeguro ? (openBlock(), createElementBlock("div", _hoisted_44, [
+                createBaseVNode("div", _hoisted_45, [
+                  _cache[60] || (_cache[60] = createBaseVNode("label", null, "Modalidad", -1)),
                   withDirectives(createBaseVNode("select", {
-                    "onUpdate:modelValue": _cache[15] || (_cache[15] = ($event) => $data.form.seguro.modalidad = $event)
-                  }, [..._cache[50] || (_cache[50] = [
+                    "onUpdate:modelValue": _cache[19] || (_cache[19] = ($event) => $data.form.seguro.modalidad = $event)
+                  }, [..._cache[59] || (_cache[59] = [
                     createBaseVNode("option", { value: "porcentaje" }, "Porcentaje", -1),
                     createBaseVNode("option", { value: "valor_fijo" }, "Valor fijo", -1)
                   ])], 512), [
                     [vModelSelect, $data.form.seguro.modalidad]
                   ])
                 ]),
-                $data.form.seguro.modalidad === "porcentaje" ? (openBlock(), createElementBlock("div", _hoisted_39, [
-                  _cache[52] || (_cache[52] = createBaseVNode("label", null, "% seguro", -1)),
+                $data.form.seguro.modalidad === "porcentaje" ? (openBlock(), createElementBlock("div", _hoisted_46, [
+                  _cache[61] || (_cache[61] = createBaseVNode("label", null, "% seguro", -1)),
                   withDirectives(createBaseVNode("input", {
-                    "onUpdate:modelValue": _cache[16] || (_cache[16] = ($event) => $data.form.seguro.porcentaje = $event),
+                    "onUpdate:modelValue": _cache[20] || (_cache[20] = ($event) => $data.form.seguro.porcentaje = $event),
                     type: "number",
                     min: "0",
                     step: "0.01"
@@ -10167,25 +10263,25 @@
                     ]
                   ])
                 ])) : createCommentVNode("", true),
-                $data.form.seguro.modalidad === "valor_fijo" ? (openBlock(), createElementBlock("div", _hoisted_40, [
-                  _cache[53] || (_cache[53] = createBaseVNode("label", null, "Valor fijo seguro", -1)),
+                $data.form.seguro.modalidad === "valor_fijo" ? (openBlock(), createElementBlock("div", _hoisted_47, [
+                  _cache[62] || (_cache[62] = createBaseVNode("label", null, "Valor fijo seguro", -1)),
                   createBaseVNode("input", {
                     value: $options.formatInputMoney($data.form.seguro.valorFijo),
                     type: "text",
                     inputmode: "numeric",
-                    onInput: _cache[17] || (_cache[17] = ($event) => $options.updateMoneyField("seguro.valorFijo", $event.target.value))
-                  }, null, 40, _hoisted_41)
+                    onInput: _cache[21] || (_cache[21] = ($event) => $options.updateMoneyField("seguro.valorFijo", $event.target.value))
+                  }, null, 40, _hoisted_48)
                 ])) : createCommentVNode("", true),
-                createBaseVNode("div", _hoisted_42, [
-                  _cache[54] || (_cache[54] = createBaseVNode("label", null, "Base de cálculo", -1)),
+                createBaseVNode("div", _hoisted_49, [
+                  _cache[63] || (_cache[63] = createBaseVNode("label", null, "Base de cálculo", -1)),
                   withDirectives(createBaseVNode("select", {
-                    "onUpdate:modelValue": _cache[18] || (_cache[18] = ($event) => $data.form.seguro.base = $event)
+                    "onUpdate:modelValue": _cache[22] || (_cache[22] = ($event) => $data.form.seguro.base = $event)
                   }, [
                     (openBlock(true), createElementBlock(Fragment, null, renderList($data.seguroBaseOpciones, (op) => {
                       return openBlock(), createElementBlock("option", {
                         key: op,
                         value: op
-                      }, toDisplayString($options.seguroBaseLabel(op)), 9, _hoisted_43);
+                      }, toDisplayString($options.seguroBaseLabel(op)), 9, _hoisted_50);
                     }), 128))
                   ], 512), [
                     [vModelSelect, $data.form.seguro.base]
@@ -10193,25 +10289,25 @@
                 ])
               ])) : createCommentVNode("", true)
             ]),
-            createBaseVNode("div", _hoisted_44, [
-              _cache[61] || (_cache[61] = createBaseVNode("h4", { class: "strip-label" }, "Gastos bancarios", -1)),
-              createBaseVNode("div", _hoisted_45, [
+            createBaseVNode("div", _hoisted_51, [
+              _cache[70] || (_cache[70] = createBaseVNode("h4", { class: "strip-label" }, "Gastos bancarios", -1)),
+              createBaseVNode("div", _hoisted_52, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
-                    "onUpdate:modelValue": _cache[19] || (_cache[19] = ($event) => $data.form.aplicarGastosBancarios = $event),
+                    "onUpdate:modelValue": _cache[23] || (_cache[23] = ($event) => $data.form.aplicarGastosBancarios = $event),
                     type: "checkbox"
                   }, null, 512), [
                     [vModelCheckbox, $data.form.aplicarGastosBancarios]
                   ]),
-                  _cache[56] || (_cache[56] = createTextVNode(" Aplicar gastos bancarios", -1))
+                  _cache[65] || (_cache[65] = createTextVNode(" Aplicar gastos bancarios", -1))
                 ])
               ]),
-              $data.form.aplicarGastosBancarios ? (openBlock(), createElementBlock("div", _hoisted_46, [
-                createBaseVNode("div", _hoisted_47, [
-                  _cache[58] || (_cache[58] = createBaseVNode("label", null, "Modalidad", -1)),
+              $data.form.aplicarGastosBancarios ? (openBlock(), createElementBlock("div", _hoisted_53, [
+                createBaseVNode("div", _hoisted_54, [
+                  _cache[67] || (_cache[67] = createBaseVNode("label", null, "Modalidad", -1)),
                   withDirectives(createBaseVNode("select", {
-                    "onUpdate:modelValue": _cache[20] || (_cache[20] = ($event) => $data.form.gastosBancarios.modalidad = $event)
-                  }, [..._cache[57] || (_cache[57] = [
+                    "onUpdate:modelValue": _cache[24] || (_cache[24] = ($event) => $data.form.gastosBancarios.modalidad = $event)
+                  }, [..._cache[66] || (_cache[66] = [
                     createBaseVNode("option", { value: "cuatro_por_mil" }, "Cuatro por mil", -1),
                     createBaseVNode("option", { value: "porcentaje" }, "Porcentaje personalizado", -1),
                     createBaseVNode("option", { value: "valor_fijo" }, "Valor fijo", -1)
@@ -10219,10 +10315,10 @@
                     [vModelSelect, $data.form.gastosBancarios.modalidad]
                   ])
                 ]),
-                $data.form.gastosBancarios.modalidad === "porcentaje" ? (openBlock(), createElementBlock("div", _hoisted_48, [
-                  _cache[59] || (_cache[59] = createBaseVNode("label", null, "% gastos bancarios", -1)),
+                $data.form.gastosBancarios.modalidad === "porcentaje" ? (openBlock(), createElementBlock("div", _hoisted_55, [
+                  _cache[68] || (_cache[68] = createBaseVNode("label", null, "% gastos bancarios", -1)),
                   withDirectives(createBaseVNode("input", {
-                    "onUpdate:modelValue": _cache[21] || (_cache[21] = ($event) => $data.form.gastosBancarios.porcentaje = $event),
+                    "onUpdate:modelValue": _cache[25] || (_cache[25] = ($event) => $data.form.gastosBancarios.porcentaje = $event),
                     type: "number",
                     min: "0",
                     step: "0.001"
@@ -10235,34 +10331,34 @@
                     ]
                   ])
                 ])) : createCommentVNode("", true),
-                $data.form.gastosBancarios.modalidad === "valor_fijo" ? (openBlock(), createElementBlock("div", _hoisted_49, [
-                  _cache[60] || (_cache[60] = createBaseVNode("label", null, "Valor fijo", -1)),
+                $data.form.gastosBancarios.modalidad === "valor_fijo" ? (openBlock(), createElementBlock("div", _hoisted_56, [
+                  _cache[69] || (_cache[69] = createBaseVNode("label", null, "Valor fijo", -1)),
                   createBaseVNode("input", {
                     value: $options.formatInputMoney($data.form.gastosBancarios.valorFijo),
                     type: "text",
                     inputmode: "numeric",
-                    onInput: _cache[22] || (_cache[22] = ($event) => $options.updateMoneyField("gastosBancarios.valorFijo", $event.target.value))
-                  }, null, 40, _hoisted_50)
+                    onInput: _cache[26] || (_cache[26] = ($event) => $options.updateMoneyField("gastosBancarios.valorFijo", $event.target.value))
+                  }, null, 40, _hoisted_57)
                 ])) : createCommentVNode("", true)
               ])) : createCommentVNode("", true)
             ]),
-            createBaseVNode("div", _hoisted_51, [
-              _cache[67] || (_cache[67] = createBaseVNode("h4", { class: "strip-label" }, "Retenciones", -1)),
-              createBaseVNode("div", _hoisted_52, [
+            createBaseVNode("div", _hoisted_58, [
+              _cache[76] || (_cache[76] = createBaseVNode("h4", { class: "strip-label" }, "Retenciones", -1)),
+              createBaseVNode("div", _hoisted_59, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
-                    "onUpdate:modelValue": _cache[23] || (_cache[23] = ($event) => $data.form.condicionesTributarias.aplicarRetencionFuente = $event),
+                    "onUpdate:modelValue": _cache[27] || (_cache[27] = ($event) => $data.form.condicionesTributarias.aplicarRetencionFuente = $event),
                     type: "checkbox"
                   }, null, 512), [
                     [vModelCheckbox, $data.form.condicionesTributarias.aplicarRetencionFuente]
                   ]),
-                  _cache[62] || (_cache[62] = createTextVNode(" Retención en la fuente", -1))
+                  _cache[71] || (_cache[71] = createTextVNode(" Retención en la fuente", -1))
                 ])
               ]),
-              $data.form.condicionesTributarias.aplicarRetencionFuente ? (openBlock(), createElementBlock("div", _hoisted_53, [
-                _cache[63] || (_cache[63] = createBaseVNode("label", null, "% retención fuente", -1)),
+              $data.form.condicionesTributarias.aplicarRetencionFuente ? (openBlock(), createElementBlock("div", _hoisted_60, [
+                _cache[72] || (_cache[72] = createBaseVNode("label", null, "% retención fuente", -1)),
                 withDirectives(createBaseVNode("input", {
-                  "onUpdate:modelValue": _cache[24] || (_cache[24] = ($event) => $data.form.retenciones.fuente.porcentaje = $event),
+                  "onUpdate:modelValue": _cache[28] || (_cache[28] = ($event) => $data.form.retenciones.fuente.porcentaje = $event),
                   type: "number",
                   min: "0",
                   step: "0.01"
@@ -10275,21 +10371,21 @@
                   ]
                 ])
               ])) : createCommentVNode("", true),
-              createBaseVNode("div", _hoisted_54, [
+              createBaseVNode("div", _hoisted_61, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
-                    "onUpdate:modelValue": _cache[25] || (_cache[25] = ($event) => $data.form.condicionesTributarias.aplicarRetencionIca = $event),
+                    "onUpdate:modelValue": _cache[29] || (_cache[29] = ($event) => $data.form.condicionesTributarias.aplicarRetencionIca = $event),
                     type: "checkbox"
                   }, null, 512), [
                     [vModelCheckbox, $data.form.condicionesTributarias.aplicarRetencionIca]
                   ]),
-                  _cache[64] || (_cache[64] = createTextVNode(" ReteICA", -1))
+                  _cache[73] || (_cache[73] = createTextVNode(" ReteICA", -1))
                 ])
               ]),
-              $data.form.condicionesTributarias.aplicarRetencionIca ? (openBlock(), createElementBlock("div", _hoisted_55, [
-                _cache[65] || (_cache[65] = createBaseVNode("label", null, "Tarifa ICA (por mil)", -1)),
+              $data.form.condicionesTributarias.aplicarRetencionIca ? (openBlock(), createElementBlock("div", _hoisted_62, [
+                _cache[74] || (_cache[74] = createBaseVNode("label", null, "Tarifa ICA (por mil)", -1)),
                 withDirectives(createBaseVNode("input", {
-                  "onUpdate:modelValue": _cache[26] || (_cache[26] = ($event) => $data.form.retenciones.ica.tarifaPorMil = $event),
+                  "onUpdate:modelValue": _cache[30] || (_cache[30] = ($event) => $data.form.retenciones.ica.tarifaPorMil = $event),
                   type: "number",
                   min: "0",
                   step: "0.01"
@@ -10302,25 +10398,25 @@
                   ]
                 ])
               ])) : createCommentVNode("", true),
-              $options.ivaCanonActivo ? (openBlock(), createElementBlock("div", _hoisted_56, [
+              $options.ivaCanonActivo ? (openBlock(), createElementBlock("div", _hoisted_63, [
                 createBaseVNode("label", null, [
                   withDirectives(createBaseVNode("input", {
-                    "onUpdate:modelValue": _cache[27] || (_cache[27] = ($event) => $data.form.condicionesTributarias.aplicarRetencionIva = $event),
+                    "onUpdate:modelValue": _cache[31] || (_cache[31] = ($event) => $data.form.condicionesTributarias.aplicarRetencionIva = $event),
                     type: "checkbox"
                   }, null, 512), [
                     [vModelCheckbox, $data.form.condicionesTributarias.aplicarRetencionIva]
                   ]),
-                  _cache[66] || (_cache[66] = createTextVNode(" Retención de IVA", -1))
+                  _cache[75] || (_cache[75] = createTextVNode(" Retención de IVA", -1))
                 ])
               ])) : createCommentVNode("", true)
             ])
           ])
         ])) : createCommentVNode("", true),
-        createBaseVNode("div", _hoisted_57, [
-          createBaseVNode("div", _hoisted_58, [
-            createBaseVNode("div", _hoisted_59, [
-              createBaseVNode("table", _hoisted_60, [
-                _cache[72] || (_cache[72] = createBaseVNode("thead", null, [
+        createBaseVNode("div", _hoisted_64, [
+          createBaseVNode("div", _hoisted_65, [
+            createBaseVNode("div", _hoisted_66, [
+              createBaseVNode("table", _hoisted_67, [
+                _cache[81] || (_cache[81] = createBaseVNode("thead", null, [
                   createBaseVNode("tr", null, [
                     createBaseVNode("th", null, "Ingresos"),
                     createBaseVNode("th", null, "Valor"),
@@ -10337,38 +10433,38 @@
                       createBaseVNode("td", null, toDisplayString(fila.descuento ? $options.fmtMoney(fila.descuento.value) : ""), 1)
                     ]);
                   }), 128)),
-                  createBaseVNode("tr", _hoisted_61, [
-                    _cache[68] || (_cache[68] = createBaseVNode("td", null, [
+                  createBaseVNode("tr", _hoisted_68, [
+                    _cache[77] || (_cache[77] = createBaseVNode("td", null, [
                       createBaseVNode("strong", null, "TOTAL INGRESOS")
                     ], -1)),
                     createBaseVNode("td", null, [
                       createBaseVNode("strong", null, toDisplayString($options.fmtMoney($options.calc.totalIngresos)), 1)
                     ]),
-                    _cache[69] || (_cache[69] = createBaseVNode("td", null, [
+                    _cache[78] || (_cache[78] = createBaseVNode("td", null, [
                       createBaseVNode("strong", null, "TOTAL DESCUENTOS")
                     ], -1)),
                     createBaseVNode("td", null, [
                       createBaseVNode("strong", null, toDisplayString($options.fmtMoney($options.calc.totalDescuentos)), 1)
                     ])
                   ]),
-                  createBaseVNode("tr", _hoisted_62, [
-                    _cache[70] || (_cache[70] = createBaseVNode("td", { colspan: "3" }, [
+                  createBaseVNode("tr", _hoisted_69, [
+                    _cache[79] || (_cache[79] = createBaseVNode("td", { colspan: "3" }, [
                       createBaseVNode("strong", null, "SUBTOTAL RENTA A RECIBIR ANTES DE GASTOS BANCARIOS")
                     ], -1)),
                     createBaseVNode("td", null, [
                       createBaseVNode("strong", null, toDisplayString($options.fmtMoney($options.calc.subtotalAntesGastosBancarios)), 1)
                     ])
                   ]),
-                  $data.form.aplicarGastosBancarios && $options.calc.gastosBancarios > 0 ? (openBlock(), createElementBlock("tr", _hoisted_63, [
-                    createBaseVNode("td", _hoisted_64, [
+                  $data.form.aplicarGastosBancarios && $options.calc.gastosBancarios > 0 ? (openBlock(), createElementBlock("tr", _hoisted_70, [
+                    createBaseVNode("td", _hoisted_71, [
                       createBaseVNode("strong", null, toDisplayString($options.calc.gastosBancariosLabel), 1)
                     ]),
                     createBaseVNode("td", null, [
                       createBaseVNode("strong", null, toDisplayString($options.fmtMoney($options.calc.gastosBancarios)), 1)
                     ])
                   ])) : createCommentVNode("", true),
-                  createBaseVNode("tr", _hoisted_65, [
-                    _cache[71] || (_cache[71] = createBaseVNode("td", { colspan: "3" }, [
+                  createBaseVNode("tr", _hoisted_72, [
+                    _cache[80] || (_cache[80] = createBaseVNode("td", { colspan: "3" }, [
                       createBaseVNode("strong", null, "VALOR TOTAL RENTA A RECIBIR POR EL PROPIETARIO")
                     ], -1)),
                     createBaseVNode("td", null, [
@@ -10379,37 +10475,37 @@
               ])
             ])
           ]),
-          createBaseVNode("div", _hoisted_66, [
-            createBaseVNode("div", _hoisted_67, [
-              _cache[73] || (_cache[73] = createBaseVNode("span", null, "Canon mensual", -1)),
-              createBaseVNode("div", _hoisted_68, toDisplayString($options.fmtMoney($options.calc.canon)), 1)
+          createBaseVNode("div", _hoisted_73, [
+            createBaseVNode("div", _hoisted_74, [
+              _cache[82] || (_cache[82] = createBaseVNode("span", null, "Canon mensual", -1)),
+              createBaseVNode("div", _hoisted_75, toDisplayString($options.fmtMoney($options.calc.canon)), 1)
             ]),
-            createBaseVNode("div", _hoisted_69, [
-              _cache[74] || (_cache[74] = createBaseVNode("span", null, "Total descuentos", -1)),
-              createBaseVNode("div", _hoisted_70, toDisplayString($options.fmtMoney($options.calc.totalDescuentos)), 1)
+            createBaseVNode("div", _hoisted_76, [
+              _cache[83] || (_cache[83] = createBaseVNode("span", null, "Total descuentos", -1)),
+              createBaseVNode("div", _hoisted_77, toDisplayString($options.fmtMoney($options.calc.totalDescuentos)), 1)
             ]),
-            createBaseVNode("div", _hoisted_71, [
-              _cache[75] || (_cache[75] = createBaseVNode("span", null, "Valor neto a recibir", -1)),
-              createBaseVNode("div", _hoisted_72, toDisplayString($options.fmtMoney($options.calc.valorRentaRecibir)), 1)
+            createBaseVNode("div", _hoisted_78, [
+              _cache[84] || (_cache[84] = createBaseVNode("span", null, "Valor neto a recibir", -1)),
+              createBaseVNode("div", _hoisted_79, toDisplayString($options.fmtMoney($options.calc.valorRentaRecibir)), 1)
             ])
           ])
         ]),
-        createBaseVNode("div", _hoisted_73, [
+        createBaseVNode("div", _hoisted_80, [
           $options.notaPieHtml ? (openBlock(), createElementBlock("div", {
             key: 0,
             class: "sim-nota-pie",
             innerHTML: $options.notaPieHtml
-          }, null, 8, _hoisted_74)) : createCommentVNode("", true),
+          }, null, 8, _hoisted_81)) : createCommentVNode("", true),
           createBaseVNode("button", {
             type: "button",
             disabled: !$options.canPrint,
-            onClick: _cache[28] || (_cache[28] = (...args) => $options.imprimir && $options.imprimir(...args))
-          }, "Imprimir / PDF", 8, _hoisted_75)
+            onClick: _cache[32] || (_cache[32] = (...args) => $options.imprimir && $options.imprimir(...args))
+          }, "Imprimir / PDF", 8, _hoisted_82)
         ])
       ])
     ]);
   }
-  const SimuladorArriendo = /* @__PURE__ */ _export_sfc(_sfc_main, [["render", _sfc_render], ["styles", [_style_0]], ["__scopeId", "data-v-ef9d639b"]]);
+  const SimuladorArriendo = /* @__PURE__ */ _export_sfc(_sfc_main, [["render", _sfc_render], ["styles", [_style_0]], ["__scopeId", "data-v-572f0cba"]]);
   const shadowBaseStyles = `
   :host {
     display: block;

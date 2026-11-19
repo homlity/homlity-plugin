@@ -343,7 +343,7 @@ class PropertyPostType implements ServiceInterface
                 <?php if ($key === 'rent'): ?>
                     <p>
                         <label>
-                            <input type="checkbox" name="property_admin_included" value="1" <?php checked((bool) get_post_meta($post->ID, $this->metaKeys['admin_included'], true)); ?>>
+                            <input type="checkbox" name="property_admin_included" value="1" <?php checked(in_array(strtolower(trim((string) get_post_meta($post->ID, $this->metaKeys['admin_included'], true)), ['1', 'true', 'yes', 'si', 'sí', 'on'], true))); ?>>
                             <?php esc_html_e('Administración incluida en el arriendo', 'homlity-real-estate'); ?>
                         </label>
                     </p>
@@ -1402,7 +1402,7 @@ class PropertyPostType implements ServiceInterface
                 return sanitize_text_field($value);
             },
             'admin_included' => static function ($value) {
-                return (bool) $value;
+                return in_array(strtolower(trim((string) $value)), ['1', 'true', 'yes', 'si', 'sí', 'on'], true);
             },
             'gallery' => static function ($value) {
                 if (is_array($value)) {

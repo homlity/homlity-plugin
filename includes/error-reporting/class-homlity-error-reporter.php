@@ -58,7 +58,7 @@ if (!class_exists('Homlity_Error_Reporter', false)) {
                 return;
             }
             $directory = strtok(substr($file, strlen($root)), '/');
-            $official = ['homlity-real-estate', 'homlity-sync', 'plugin-wasi-sync', 'homlity-wasi', 'plugin-simi-sync', 'homlity-simi', 'plugin-softinm-sync', 'homlity-softinm'];
+        $official = ['homlity-real-estate', 'homlity-sync', 'plugin-domus-sync', 'homlity-domus', 'plugin-wasi-sync', 'homlity-wasi', 'plugin-simi-sync', 'homlity-simi', 'plugin-softinm-sync', 'homlity-softinm'];
             if (!in_array($directory, $official, true)) {
                 return;
             }

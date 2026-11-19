@@ -71,7 +71,7 @@ class WebHomlityAdapter implements CrmAdapterInterface
                 'rent_currency' => (string) ($record['currency_rent'] ?? $record['rent_currency'] ?? $record['moneda_arriendo'] ?? ''),
                 'admin_price'   => (string) ($record['price_admin'] ?? $record['admin_price'] ?? $record['precio_administracion'] ?? ''),
                 'admin_currency'=> (string) ($record['currency_admin'] ?? $record['admin_currency'] ?? $record['moneda_administracion'] ?? ''),
-                'admin_included'=> (bool) ($record['admin_included'] ?? $record['administracion_incluida'] ?? false),
+                'admin_included'=> self::isTruthyBoolean($record['admin_included'] ?? $record['administracion_incluida'] ?? false),
             ],
             'metrics' => [
                 'area'        => (string) ($record['area'] ?? ''),
@@ -273,5 +273,14 @@ class WebHomlityAdapter implements CrmAdapterInterface
         }
 
         return $urls;
+    }
+
+    private static function isTruthyBoolean($value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        return in_array(strtolower(trim((string) $value)), ['1', 'true', 'yes', 'si', 'sí', 'on'], true);
     }
 }

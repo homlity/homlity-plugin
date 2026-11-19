@@ -128,19 +128,16 @@ final class RetiredPropertyRecoveryServiceTest extends TestCase
 
     // ── Código HTTP y robots ─────────────────────────────────────────────────
 
-    /**
-     * Con alternativas de sobra la página tiene contenido propio y merece
-     * indexarse: es la que va a posicionar por "apartamentos en El Poblado".
-     */
-    public function testConSuficientesParecidosLaPaginaSeIndexa(): void
+    /** Las alternativas se muestran para ayudar al usuario, pero la ficha retirada no se indexa. */
+    public function testConSuficientesParecidosLaPaginaSeMantieneNoindex(): void
     {
         $this->parecidos(5);
 
         $contexto = $this->service->buildRecoveryContext(self::INMUEBLE);
 
         self::assertSame(200, $contexto['status_code']);
-        self::assertSame('index,follow', $contexto['robots']);
-        self::assertSame('self', $contexto['canonical']);
+        self::assertSame('noindex,follow', $contexto['robots']);
+        self::assertSame('', $contexto['canonical']);
         self::assertTrue($contexto['has_enough_results']);
     }
 
@@ -178,8 +175,8 @@ final class RetiredPropertyRecoveryServiceTest extends TestCase
         ];
     }
 
-    /** El umbral es configurable y decide de verdad qué se indexa. */
-    public function testElMinimoConfiguradoDecideSiLaPaginaSeIndexa(): void
+    /** El umbral solo cambia la cantidad de alternativas mostradas, no la indexación. */
+    public function testElMinimoConfiguradoNoConvierteLaPaginaEnIndexable(): void
     {
         $this->parecidos(2);
         self::assertSame('noindex,follow', $this->service->buildRecoveryContext(self::INMUEBLE)['robots']);
@@ -187,7 +184,7 @@ final class RetiredPropertyRecoveryServiceTest extends TestCase
         RetiredPropertyRecoveryService::invalidateCache(self::INMUEBLE);
         WpStubs::setOption('homlity_recovery_min_results', 2);
 
-        self::assertSame('index,follow', $this->service->buildRecoveryContext(self::INMUEBLE)['robots']);
+        self::assertSame('noindex,follow', $this->service->buildRecoveryContext(self::INMUEBLE)['robots']);
     }
 
     /** Un mínimo de 0 haría que cualquier página vacía se indexara. */

@@ -264,3 +264,36 @@ describe('ajustes de administración e IVA', () => {
     expect(vm.calc.ivaComision).toBe(0);
   });
 });
+
+describe('comercialización opcional', () => {
+  it('no altera el resultado cuando la inmobiliaria no la activa', () => {
+    const vm = desdeAjustes();
+
+    expect(vm.form.comercializacion.activa).toBe(false);
+    expect(vm.calc.comercializacion).toBe(0);
+  });
+
+  it('calcula un porcentaje sobre el canon y lo muestra como descuento', () => {
+    const vm = desdeAjustes({
+      comercializacionActiva: '1',
+      comercializacionModalidad: 'porcentaje',
+      comercializacionPorcentaje: '2.5',
+      comercializacionLabel: 'Comercialización',
+    });
+
+    expect(vm.calc.comercializacion).toBe(25000);
+    expect(valorDe(vm.descuentosRows, 'Comercialización')).toBe(25000);
+    expect(vm.calc.totalDescuentos).toBeGreaterThan(25000);
+  });
+
+  it('calcula el valor fijo configurado como descuento', () => {
+    const vm = desdeAjustes({
+      comercializacionActiva: '1',
+      comercializacionModalidad: 'valor_fijo',
+      comercializacionValorFijo: '85000',
+    });
+
+    expect(vm.calc.comercializacion).toBe(85000);
+    expect(valorDe(vm.descuentosRows, 'Comercialización')).toBe(85000);
+  });
+});

@@ -761,7 +761,7 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
 
     // ── Contenido ─────────────────────────────────────────────────────────
 
-    /** Las secciones del original tienen que estar todas. */
+    /** Las secciones públicas del PDF tienen que estar todas. */
     public function testEstanTodasLasSeccionesDelDiseno(): void
     {
         $this->givenProperty();
@@ -771,7 +771,6 @@ final class TechnicalSheetPdfLayoutTest extends TestCase
 
         foreach ([
             'FICHA',
-            'INFORMACI',
             'FINANZAS',
             'DIMENSIONES',
             'DETALLES CLAVE',

@@ -17,8 +17,8 @@
  *
  * Decision logic
  * ──────────────
- * CASE A (has data + enough similar results) → 200 index,follow  + recovery landing
- * CASE B (has data but few/no similar results) → 200 noindex,follow  or 404/410 (per option)
+ * CASE A (has data + enough similar results) → 200 noindex,follow + recovery landing
+ * CASE B (has data but few/no similar results) → 200 noindex,follow or 404/410 (per option)
  * CASE C (post doesn't exist at all) → 404
  * CASE D (explicit replacement property set) → 301 to new property
  *
@@ -250,7 +250,10 @@ class RetiredPropertyRecoveryService
     private function resolveStatus(bool $hasEnough, string $noResultsAction): array
     {
         if ($hasEnough) {
-            return [200, 'index,follow', 'self'];
+            // A retired property URL is never an indexable property page.
+            // Similar properties are useful for visitors and internal links,
+            // but the inactive ficha itself must remain noindex,follow.
+            return [200, 'noindex,follow', ''];
         }
 
         return match ($noResultsAction) {

@@ -25,6 +25,12 @@ class SeoService implements ServiceInterface
         add_action('wp_head', [$this, 'renderOpenGraphTags'], 4);
         add_action('wp_head', [$this, 'renderStructuredData'], 5);
 
+        // Keep property canonicals stable when Yoast or Rank Math is active.
+        // WordPress core already emits its default canonical when no SEO
+        // plugin owns it; these filters make the same rule explicit there.
+        add_filter('wpseo_canonical', [$this, 'filterPropertyCanonical'], 20);
+        add_filter('rank_math/frontend/canonical', [$this, 'filterPropertyCanonical'], 20);
+
         // Los inmuebles sincronizados desde el CRM no tienen imagen destacada
         // en la biblioteca de medios: sus fotos son URLs externas guardadas en
         // post meta. Sin estos filtros el plugin SEO no encuentra imagen y cae
@@ -34,6 +40,27 @@ class SeoService implements ServiceInterface
         add_filter('rank_math/opengraph/twitter/image', [$this, 'filterSeoPluginImage'], 20);
         add_filter('wpseo_opengraph_image', [$this, 'filterSeoPluginImage'], 20);
         add_filter('wpseo_twitter_image', [$this, 'filterSeoPluginImage'], 20);
+    }
+
+    /**
+     * Return the property's own permalink as canonical for active fichas.
+     * Retired-property recovery pages are intentionally left to their own
+     * noindex/canonical context.
+     *
+     * @param mixed $canonical
+     * @return mixed
+     */
+    public function filterPropertyCanonical($canonical)
+    {
+        if (!SeoGeoSettingsService::get('seo_enable_canonical', '1')
+            || !SeoGeoSettingsService::get('adv_canonical', '1')
+            || !is_singular(PropertyPostType::POST_TYPE)
+            || !empty($GLOBALS['homlity_property_recovery_context'])) {
+            return $canonical;
+        }
+
+        $url = get_permalink((int) get_queried_object_id());
+        return $url ? $url : $canonical;
     }
 
     /**

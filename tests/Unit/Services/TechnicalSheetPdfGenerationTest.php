@@ -237,7 +237,7 @@ final class TechnicalSheetPdfGenerationTest extends TestCase
 
         self::assertStringNotContainsString('Volver al inmueble', $text);
         self::assertStringNotContainsString('Imprimir ficha', $text);
-        self::assertStringContainsString('INFORMACIÓN PÚBLICA DE LA INMOBILIARIA', $text);
+        self::assertStringNotContainsString('INFORMACIÓN PÚBLICA DE LA INMOBILIARIA', $text);
     }
 
     /**

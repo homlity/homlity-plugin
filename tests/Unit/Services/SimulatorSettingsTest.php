@@ -28,6 +28,8 @@ final class SimulatorSettingsTest extends TestCase
         self::assertArrayHasKey('venta', $defaults);
         self::assertSame('19', $defaults['arriendo']['porcentajeIva']);
         self::assertSame('19', $defaults['venta']['porcentajeIva']);
+        self::assertSame('0', $defaults['arriendo']['comercializacionActiva']);
+        self::assertSame('porcentaje', $defaults['arriendo']['comercializacionModalidad']);
     }
 
     /**

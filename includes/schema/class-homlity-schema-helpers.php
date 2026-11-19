@@ -413,7 +413,7 @@ class Homlity_Schema_Helpers
             $cur   = strtoupper(self::get_meta($post_id, 'currency_admin'))
                   ?: (string) get_option('homlity_schema_currency', 'COP');
             $incl  = self::get_meta($post_id, 'admin_included');
-            $label = ($incl === '1' || $incl === 'yes' || (bool) $incl)
+            $label = in_array(strtolower(trim((string) $incl)), ['1', 'true', 'yes', 'si', 'sí', 'on'], true)
                    ? 'Administración (incluida)'
                    : 'Administración';
             $props[] = [

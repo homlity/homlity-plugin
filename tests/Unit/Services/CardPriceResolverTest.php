@@ -79,6 +79,13 @@ final class CardPriceResolverTest extends TestCase
         self::assertNull($lines[1]['admin']);
     }
 
+    public function testLaCadenaCeroNoSeInterpretaComoAdministracionIncluida(): void
+    {
+        $lines = CardPriceResolver::resolve($this->prices(['admin_included' => '0']), 1, '');
+
+        self::assertFalse($lines[0]['admin_included']);
+    }
+
     /** @dataProvider currencies */
     public function testAdministracionUsaSuMonedaLuegoArriendoLuegoBase(string $admin, string $rent, string $expected): void
     {

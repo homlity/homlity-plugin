@@ -40,7 +40,6 @@ $agent    = $sheet['agent'];
 $media    = $sheet['media'];
 $primary  = $sheet['primary_color'];
 $colors   = $sheet['colors'];
-$asText   = static fn($value): string => TechnicalSheetData::text($value);
 
 $headingStyle = 'color:' . $primary . ';';
 // El asesor vive en la cabecera, que se repite en todas las páginas: por eso
@@ -100,11 +99,6 @@ $inThrees = static function (array $items): array {
     return array_chunk($items, 3);
 };
 
-$location = array_values(array_filter([
-    $company['neighborhood'],
-    $company['city'],
-    $company['state'],
-]));
 ?>
 <div class="sheet-header">
     <div class="section-card" style="border-color:<?php echo esc_attr($primary); ?>">
@@ -205,47 +199,6 @@ $location = array_values(array_filter([
             <div class="section-value"><?php echo esc_html($sheet['address']); ?></div>
         <?php endif; ?>
         <div class="font-11 c-gray margin-top-4 break-all"><?php echo esc_html($sheet['permalink']); ?></div>
-    </div>
-
-    <div class="section-card no-break">
-        <div class="section-heading" style="<?php echo esc_attr($headingStyle); ?>"><?php esc_html_e('Información pública de la inmobiliaria', 'homlity-real-estate'); ?></div>
-        <table class="section-table">
-            <tr>
-                <td style="width:50%">
-                    <div class="section-label"><?php esc_html_e('Documento', 'homlity-real-estate'); ?></div>
-                    <div class="section-value"><?php echo esc_html($asText($company['document'])); ?></div>
-                </td>
-                <td style="width:50%">
-                    <div class="section-label"><?php esc_html_e('Sitio web', 'homlity-real-estate'); ?></div>
-                    <div class="section-value break-all c-gray"><?php echo esc_html($asText($company['website'])); ?></div>
-                </td>
-            </tr>
-            <tr>
-                <td style="width:50%">
-                    <div class="section-label"><?php esc_html_e('Correo', 'homlity-real-estate'); ?></div>
-                    <div class="section-value break-all"><?php echo esc_html($asText($company['email'])); ?></div>
-                </td>
-                <td style="width:50%">
-                    <div class="section-label"><?php esc_html_e('Teléfono', 'homlity-real-estate'); ?></div>
-                    <div class="section-value"><?php echo esc_html($asText($company['phone'])); ?></div>
-                </td>
-            </tr>
-            <tr>
-                <?php
-                // La calle y la ciudad de la oficina son un solo dato: en dos
-                // celdas parecía que la ficha decía dos veces dónde está la
-                // inmobiliaria.
-                $officeAddress = array_values(array_filter(array_merge(
-                    [$company['address']],
-                    $location
-                )));
-                ?>
-                <td colspan="2">
-                    <div class="section-label"><?php esc_html_e('Dirección', 'homlity-real-estate'); ?></div>
-                    <div class="section-value"><?php echo esc_html($officeAddress ? implode(' · ', $officeAddress) : 'Sin dato'); ?></div>
-                </td>
-            </tr>
-        </table>
     </div>
 
     <?php if ($show['finance']) : ?>

@@ -162,6 +162,34 @@
             </div>
           </div>
 
+          <!-- Comercialización opcional -->
+          <div v-if="form.comercializacion.configurada" class="strip-block">
+            <h4 class="strip-label">{{ form.comercializacion.etiqueta }}</h4>
+            <div class="field checkbox-field">
+              <label><input v-model="form.comercializacion.activa" type="checkbox" /> Aplicar comercialización</label>
+            </div>
+            <div class="field">
+              <label>Modalidad</label>
+              <select v-model="form.comercializacion.modalidad">
+                <option value="porcentaje">Porcentaje sobre el canon</option>
+                <option value="valor_fijo">Valor fijo</option>
+              </select>
+            </div>
+            <div v-if="form.comercializacion.modalidad === 'porcentaje'" class="field">
+              <label>% comercialización</label>
+              <input v-model.number="form.comercializacion.porcentaje" type="number" min="0" step="0.01" />
+            </div>
+            <div v-else class="field">
+              <label>Valor fijo comercialización</label>
+              <input
+                :value="formatInputMoney(form.comercializacion.valorFijo)"
+                type="text"
+                inputmode="numeric"
+                @input="updateMoneyField('comercializacion.valorFijo', $event.target.value)"
+              />
+            </div>
+          </div>
+
           <!-- Seguro / póliza -->
           <div class="strip-block">
             <h4 class="strip-label">Seguro / póliza</h4>
@@ -407,6 +435,7 @@ export default {
       const retencionFuente = this.calcularRetencionFuente();
       const retencionIca = this.calcularReteIca();
       const retencionIva = this.calcularReteIva(ivaCanon);
+      const comercializacion = this.calcularComercializacion();
       const otrosDescuentos = this.calcularOtrosDescuentos();
 
       // La administración la recauda la inmobiliaria junto con el canon y se la
@@ -417,7 +446,7 @@ export default {
       // salía corto por la comisión y el seguro de la administración.
       const administracion = this.form.tieneAdministracion ? safeMoney(this.form.valorAdministracion) : 0;
       const totalIngresos = safeMoney(this.form.canon + administracion + ivaCanon);
-      const descuentosSinBancarios = administracion + comision + ivaComision + seguro + retencionFuente + retencionIca + retencionIva + otrosDescuentos;
+      const descuentosSinBancarios = administracion + comision + ivaComision + seguro + comercializacion + retencionFuente + retencionIca + retencionIva + otrosDescuentos;
       const subtotalAntesGastosBancarios = Math.max(0, safeMoney(totalIngresos - descuentosSinBancarios));
       const gastosBancarios = this.calcularGastosBancarios(subtotalAntesGastosBancarios);
       const totalDescuentos = safeMoney(descuentosSinBancarios);
@@ -441,6 +470,7 @@ export default {
         valorComision: comision,
         ivaComision,
         valorSeguro: seguro,
+        comercializacion,
         gastosBancarios,
         gastosBancariosLabel,
         retencionFuente,
@@ -478,6 +508,9 @@ export default {
       }
       if (this.form.aplicarSeguro && this.calc.valorSeguro > 0) {
         rows.push({ label: 'Seguro / póliza de arrendamiento', value: this.calc.valorSeguro });
+      }
+      if (this.form.comercializacion.activa && this.calc.comercializacion > 0) {
+        rows.push({ label: this.form.comercializacion.etiqueta, value: this.calc.comercializacion });
       }
       if (this.form.condicionesTributarias.aplicarRetencionFuente && this.calc.retencionFuente > 0) {
         rows.push({ label: `Retención en la fuente (${this.form.retenciones.fuente.porcentaje}%) sobre arrendamiento`, value: this.calc.retencionFuente });
@@ -575,6 +608,8 @@ export default {
       const comisionPct = this.normalizarNumero(c.comision?.porcentaje ?? c.comisionTotalInmobiliaria, 9.5);
       const comisionMin = this.normalizarNumero(c.comision?.valorMinimo ?? c.comisionMinimaInmobiliaria, 0);
       const seguroPct = this.normalizarNumero(c.seguro?.porcentaje ?? c.seguroCanonArrendamiento, 2.5);
+      const comercializacionPct = this.normalizarNumero(c.comercializacion?.porcentaje ?? c.comercializacionPorcentaje, 0);
+      const comercializacionFija = this.normalizarNumero(c.comercializacion?.valorFijo ?? c.comercializacionValorFijo, 0);
       const gastosFijo = this.normalizarNumero(c.gastosBancarios?.valorFijo ?? c.costoBancarioFijo, 0);
       const retFuentePct = this.normalizarNumero(c.retenciones?.fuente?.porcentaje ?? c.porcentajeRetencionFuente, 0);
       const retIcaMil = this.normalizarNumero(c.retenciones?.ica?.tarifaPorMil ?? c.porcentajeRetencionIca, 0);
@@ -602,6 +637,14 @@ export default {
           porcentaje: seguroPct,
           valorFijo: this.normalizarNumero(c.seguro?.valorFijo ?? c.seguroValorFijo, 0),
           base: c.seguro?.base || c.seguroBase || 'canon_mas_administracion_mas_iva',
+        },
+        comercializacion: {
+          configurada: bool('comercializacionActiva', c.comercializacion?.activa, false),
+          activa: bool('comercializacionActiva', c.comercializacion?.activa, false),
+          modalidad: c.comercializacion?.modalidad || c.comercializacionModalidad || 'porcentaje',
+          porcentaje: comercializacionPct,
+          valorFijo: comercializacionFija,
+          etiqueta: c.comercializacion?.etiqueta || c.comercializacionLabel || 'Comercialización del inmueble',
         },
         gastosBancarios: {
           activosPorDefecto: bool('gastosBancariosActivos', c.gastosBancarios?.activosPorDefecto, true),
@@ -663,6 +706,14 @@ export default {
           valorFijo: this.normalizarNumero(cfg.seguro.valorFijo),
           base: cfg.seguro.base || 'canon_mas_administracion_mas_iva',
         },
+        comercializacion: {
+          configurada: !!cfg.comercializacion.configurada,
+          activa: !!cfg.comercializacion.activa,
+          modalidad: cfg.comercializacion.modalidad || 'porcentaje',
+          porcentaje: this.normalizarNumero(cfg.comercializacion.porcentaje),
+          valorFijo: this.normalizarNumero(cfg.comercializacion.valorFijo),
+          etiqueta: cfg.comercializacion.etiqueta || 'Comercialización del inmueble',
+        },
         aplicarGastosBancarios: !!cfg.gastosBancarios.activosPorDefecto,
         gastosBancarios: {
           modalidad: cfg.gastosBancarios.modalidad || 'cuatro_por_mil',
@@ -682,7 +733,7 @@ export default {
       // las condiciones del inmueble introducidas por el visitante.
       for (const key of [
         'incluirAdministracionEnBaseComision', 'incluirAdministracionEnBaseSeguro',
-        'comision', 'seguro', 'aplicarSeguro', 'gastosBancarios', 'aplicarGastosBancarios',
+        'comision', 'seguro', 'comercializacion', 'aplicarSeguro', 'gastosBancarios', 'aplicarGastosBancarios',
         'retenciones',
       ]) {
         this.form[key] = defaults[key];
@@ -763,6 +814,14 @@ export default {
       if (base <= 0) return 0;
       if (this.form.seguro.modalidad === 'valor_fijo') return safeMoney(this.form.seguro.valorFijo);
       return safeMoney(base * this.form.seguro.porcentaje / 100);
+    },
+
+    calcularComercializacion() {
+      if (!this.form.comercializacion.activa || this.form.canon <= 0) return 0;
+      if (this.form.comercializacion.modalidad === 'valor_fijo') {
+        return safeMoney(this.form.comercializacion.valorFijo);
+      }
+      return safeMoney(this.form.canon * this.form.comercializacion.porcentaje / 100);
     },
 
     calcularGastosBancarios(baseValorAGirar) {

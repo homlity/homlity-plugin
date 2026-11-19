@@ -121,10 +121,20 @@ final class CardPriceResolver
                 'label' => $labels[$type] ?? ($type === 'rent' ? __('Arriendo', 'homlity-real-estate') : __('Venta', 'homlity-real-estate')),
                 'amount' => (string) homlity_plugin_apply_filters('homlity_plugin_format_price', null, $amount, $currency),
                 'admin' => $admin,
-                'admin_included' => $type === 'rent' && (bool) ($raw['admin_included'] ?? false),
+                'admin_included' => $type === 'rent' && self::isTruthyBoolean($raw['admin_included'] ?? false),
             ];
         }
 
         return $lines;
+    }
+
+    /** WordPress meta commonly stores booleans as the strings "1" and "0". */
+    private static function isTruthyBoolean($value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        return in_array(strtolower(trim((string) $value)), ['1', 'true', 'yes', 'si', 'sí', 'on'], true);
     }
 }
