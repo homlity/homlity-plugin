@@ -221,7 +221,7 @@ final class PropertyIndexQuery implements ServiceInterface
             echo '<div class="notice notice-warning"><p>' . esc_html((string) $this->comparisonReport['error']) . '</p></div>';
             return;
         }
-        printf('<div class="notice notice-info"><p>%s</p></div>', esc_html(sprintf(
+        $summary = sprintf(
             __('Comparación índice: %d diferencias esperadas por normalización, %d no explicadas. Orden igual: %s; totales iguales: %s. Índice %.2f ms / postmeta %.2f ms.', 'homlity-real-estate'),
             (int) $this->comparisonReport['expected'],
             (int) $this->comparisonReport['unexplained'],
@@ -229,6 +229,16 @@ final class PropertyIndexQuery implements ServiceInterface
             $this->comparisonReport['found_equal'] ? 'sí' : 'no',
             (float) $this->comparisonReport['index_time_ms'],
             (float) $this->comparisonReport['postmeta_time_ms']
-        )));
+        );
+        $details = '';
+        foreach ((array) ($this->comparisonReport['details'] ?? []) as $detail) {
+            $details .= '<li>post_id ' . esc_html((string) ($detail['post_id'] ?? ''))
+                . ': meta «' . esc_html((string) ($detail['meta'] ?? ''))
+                . '»; postmeta=' . esc_html((string) ($detail['postmeta'] ?? ''))
+                . '; índice=' . esc_html((string) ($detail['index'] ?? '')) . '</li>';
+        }
+        echo '<div class="notice notice-info"><p>' . esc_html($summary) . '</p>'
+            . ($details !== '' ? '<details><summary>' . esc_html__('Detalle de diferencias', 'homlity-real-estate') . '</summary><ul>' . $details . '</ul></details>' : '')
+            . '</div>';
     }
 }
