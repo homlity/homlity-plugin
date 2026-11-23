@@ -317,7 +317,7 @@ class ElementorIntegrationService implements ServiceInterface
             '1.9.4'
         );
 
-        wp_enqueue_script(
+        wp_register_script(
             'homlity-real-estate-leaflet',
             HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.js',
             [],

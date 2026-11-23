@@ -87,7 +87,7 @@ class PluginBootstrap
     {
         // La tabla se crea antes de registrar los hooks que pueden encolar
         // cambios; la búsqueda todavía no usa este índice en la Fase 2A.
-        PropertyIndexSchema::ensure();
+        add_action('admin_init', [PropertyIndexSchema::class, 'ensure'], 1);
         $this->services = [
             // Public Developer API: lifecycle hooks and the extension registry.
             // First in the list so `homlity/loaded` is the only public signal

@@ -31,6 +31,7 @@ final class PropertyIndexSync implements ServiceInterface
         add_action('updated_post_meta', [$this, 'queueMeta'], 99, 4);
         add_action('deleted_post_meta', [$this, 'queueMeta'], 99, 4);
         add_action('set_object_terms', [$this, 'queueTerms'], 99, 4);
+        add_action('edited_term', [$this, 'queueEditedTerm'], 99, 3);
         add_action(Hooks::PROPERTY_CREATED, [$this, 'queueLifecycle'], 99, 2);
         add_action(Hooks::PROPERTY_UPDATED, [$this, 'queueLifecycle'], 99, 3);
         add_action(Hooks::PROPERTY_SYNCHRONIZED, [$this, 'queueLifecycle'], 99, 3);
@@ -85,7 +86,7 @@ final class PropertyIndexSync implements ServiceInterface
         }
     }
 
-    public function queueLifecycle($property): void
+    public function queueLifecycle($property, $changes = null, $context = null): void
     {
         $postId = is_object($property) && method_exists($property, 'getId')
             ? (int) $property->getId()
@@ -93,6 +94,17 @@ final class PropertyIndexSync implements ServiceInterface
         if ($postId > 0) {
             $this->queue($postId);
         }
+    }
+
+    public function queueEditedTerm(int $termId, int $ttId, string $taxonomy): void
+    {
+        if (!in_array($taxonomy, [PropertyTaxonomies::TAXONOMY_FEATURE, PropertyTaxonomies::TAXONOMY_CITY, PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD], true)) return;
+        $ids = array_map('absint', (array) get_objects_in_term($termId, $taxonomy));
+        if (count($ids) > 200) {
+            (new PropertyIndexRebuilder())->scheduleIds($ids);
+            return;
+        }
+        foreach ($ids as $id) $this->queue($id);
     }
 
     public function flush(): void

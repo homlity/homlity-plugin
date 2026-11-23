@@ -536,7 +536,14 @@
         });
         this.mapLoadPromise = new Promise(function (resolve, reject) {
             if (existing) {
-                existing.addEventListener('load', resolve, { once: true });
+                if (existing.dataset && existing.dataset.homlityLoaded === '1') {
+                    resolve();
+                    return;
+                }
+                existing.addEventListener('load', function () {
+                    if (existing.dataset) existing.dataset.homlityLoaded = '1';
+                    resolve();
+                }, { once: true });
                 existing.addEventListener('error', reject, { once: true });
                 if (typeof L !== 'undefined') resolve();
                 return;
@@ -544,11 +551,17 @@
             var script = document.createElement('script');
             script.src = absoluteSrc;
             script.async = true;
-            script.onload = resolve;
+            script.onload = function () {
+                if (script.dataset) script.dataset.homlityLoaded = '1';
+                resolve();
+            };
             script.onerror = reject;
             document.head.appendChild(script);
         });
-        return this.mapLoadPromise;
+        return this.mapLoadPromise.catch(function (error) {
+            this.mapLoadPromise = null;
+            throw error;
+        }.bind(this));
     };
 
     PropertyListing.prototype._initMap = function (properties) {

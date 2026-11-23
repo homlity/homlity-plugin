@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Homlity\PluginInmobiliario\Tests\Support;
 
 use Homlity\PluginInmobiliario\Services\AgentProfileService;
+use Homlity\PluginInmobiliario\Search\PropertyIndexSchema;
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 
 /**
@@ -20,6 +21,7 @@ abstract class TestCase extends PHPUnitTestCase
         // El asesor de la petición se memoiza para toda la vida del proceso;
         // sin esto una prueba heredaría el asesor resuelto por la anterior.
         AgentProfileService::resetRequestCache();
+        PropertyIndexSchema::resetMemo();
         $GLOBALS['wpdb'] = new \HomlityTestWpdb();
     }
 
@@ -27,6 +29,7 @@ abstract class TestCase extends PHPUnitTestCase
     {
         WpStubs::reset();
         AgentProfileService::resetRequestCache();
+        PropertyIndexSchema::resetMemo();
         parent::tearDown();
     }
 }

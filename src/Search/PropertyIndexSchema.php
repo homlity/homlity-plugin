@@ -13,6 +13,7 @@ final class PropertyIndexSchema
     public const SCHEMA_VERSION_OPTION = 'homlity_property_index_schema_version';
     public const READY_OPTION = 'homlity_property_index_ready';
     public const SCHEMA_VERSION = 1;
+    private static ?bool $readyMemo = null;
 
     public static function tableName(): string
     {
@@ -22,13 +23,9 @@ final class PropertyIndexSchema
 
     public static function ensure(): void
     {
-        if (!function_exists('dbDelta')) {
-            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        }
-        if ((int) get_option(self::SCHEMA_VERSION_OPTION, 0) === self::SCHEMA_VERSION && self::tableExists()) {
+        if ((int) get_option(self::SCHEMA_VERSION_OPTION, 0) === self::SCHEMA_VERSION) {
             return;
         }
-
         self::createTable();
     }
 
@@ -72,7 +69,9 @@ final class PropertyIndexSchema
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
-        update_option(self::SCHEMA_VERSION_OPTION, self::SCHEMA_VERSION, false);
+        update_option(self::SCHEMA_VERSION_OPTION, self::SCHEMA_VERSION, true);
+        delete_option(self::READY_OPTION);
+        self::$readyMemo = null;
     }
 
     public static function tableExists(): bool
@@ -84,7 +83,16 @@ final class PropertyIndexSchema
 
     public static function isReady(): bool
     {
-        return self::tableExists() && (int) get_option(self::SCHEMA_VERSION_OPTION, 0) === self::SCHEMA_VERSION
+        if (self::$readyMemo !== null) {
+            return self::$readyMemo;
+        }
+        self::$readyMemo = (int) get_option(self::SCHEMA_VERSION_OPTION, 0) === self::SCHEMA_VERSION
             && (int) get_option(self::READY_OPTION, 0) === self::SCHEMA_VERSION;
+        return self::$readyMemo;
+    }
+
+    public static function resetMemo(): void
+    {
+        self::$readyMemo = null;
     }
 }

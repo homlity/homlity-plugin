@@ -66,6 +66,50 @@ final class PropertyIndexerTest extends TestCase
         self::assertSame(850000.0, $row['display_price']);
     }
 
+    public function testBuildRowReplicaLaVisibilidadDeMetaQueryConDuplicados(): void
+    {
+        $this->property(14, ['_property_status' => 'Active', '_property_available' => 'Active']);
+        self::assertSame(1, (new PropertyIndexer())->buildRow(14)['is_visible']);
+
+        $this->property(15, ['_property_status' => '', '_property_available' => 'yes']);
+        self::assertSame(0, (new PropertyIndexer())->buildRow(15)['is_visible']);
+
+        $this->property(16, ['_property_status' => ['inactive', 'active'], '_property_available' => ['no', 'active']]);
+        self::assertSame(1, (new PropertyIndexer())->buildRow(16)['is_visible']);
+
+        $this->property(17, ['_property_featured' => 'yes']);
+        self::assertSame(0, (new PropertyIndexer())->buildRow(17)['featured']);
+    }
+
+    public function testNumberOrNullInterpretaFormatosCopYDecimales(): void
+    {
+        $cases = [
+            '1.200' => 1200.0,
+            '1.200.000' => 1200000.0,
+            '350.000.000' => 350000000.0,
+            '120,5' => 120.5,
+            '120.5' => 120.5,
+            '120 m²' => 120.0,
+            '$ 1.500.000 COP' => 1500000.0,
+        ];
+        $id = 100;
+        foreach ($cases as $value => $expected) {
+            $this->property(++$id, ['_property_area' => $value]);
+            self::assertSame($expected, (new PropertyIndexer())->buildRow($id)['area'], $value);
+        }
+    }
+
+    public function testEnsureEIsReadyNoConsultanLaBaseConVersionAlDia(): void
+    {
+        update_option(PropertyIndexSchema::SCHEMA_VERSION_OPTION, PropertyIndexSchema::SCHEMA_VERSION, true);
+        update_option(PropertyIndexSchema::READY_OPTION, PropertyIndexSchema::SCHEMA_VERSION, true);
+        PropertyIndexSchema::resetMemo();
+
+        PropertyIndexSchema::ensure();
+        self::assertTrue(PropertyIndexSchema::isReady());
+        self::assertSame([], $GLOBALS['wpdb']->rawQueries);
+    }
+
     public function testLaColaDeShutdownAgrupaEscriturasDelMismoPost(): void
     {
         $this->property(20, ['_property_code' => 'A-20']);

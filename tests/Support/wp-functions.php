@@ -594,6 +594,20 @@ if (!function_exists('get_post_meta')) {
     }
 }
 
+if (!function_exists('metadata_exists')) {
+    function metadata_exists(string $metaType, int $objectId, string $metaKey): bool
+    {
+        return array_key_exists($metaKey, WpStubs::$postMeta[$objectId] ?? []);
+    }
+}
+
+if (!function_exists('get_objects_in_term')) {
+    function get_objects_in_term(int $termId, string $taxonomy): array
+    {
+        return [];
+    }
+}
+
 if (!function_exists('update_post_meta')) {
     /** @param mixed $value */
     function update_post_meta(int $postId, string $key, $value): bool

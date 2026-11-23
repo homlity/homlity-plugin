@@ -61,7 +61,7 @@ final class PropertyIndexAdminPage implements ServiceInterface
                 <?php wp_nonce_field('homlity_property_index_settings'); ?>
                 <label><input type="checkbox" name="use_index" value="1" <?php checked((bool) get_option(self::USE_OPTION, false)); ?>> <?php esc_html_e('Permitir que el buscador use el índice cuando esté listo', 'homlity-real-estate'); ?></label>
                 <p><button class="button button-primary" type="submit"><?php esc_html_e('Guardar', 'homlity-real-estate'); ?></button>
-                <button class="button" type="button" id="homlity-property-index-rebuild"><?php esc_html_e('Reconstruir índice', 'homlity-real-estate'); ?></button></p>
+                <button class="button" type="button" id="homlity-property-index-rebuild" <?php disabled(!$status['ready']); ?>><?php esc_html_e('Reconstruir índice', 'homlity-real-estate'); ?></button></p>
             </form>
             <p id="homlity-property-index-progress" aria-live="polite"></p>
         </div>
@@ -80,17 +80,19 @@ final class PropertyIndexAdminPage implements ServiceInterface
                             var query = new URLSearchParams({action: 'homlity_property_index_rebuild_status', nonce: <?php echo wp_json_encode($nonce); ?>});
                             fetch(ajaxurl, {method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: query.toString()})
                                 .then(function (response) { return response.json(); })
-                                .then(function (payload) {
+                        .then(function (payload) {
                                     var data = payload && payload.data ? payload.data : {};
-                                    status.textContent = (data.indexed || 0) + ' / ' + (data.published || 0) + ' inmuebles indexados';
+                            var published = data.published || 0;
+                            var indexed = data.indexed || 0;
+                            var percent = published ? Math.min(100, Math.round(indexed * 100 / published)) : (data.ready ? 100 : 0);
+                            status.textContent = percent + '% — ' + indexed + ' / ' + published + ' inmuebles indexados';
                                     if (!data.ready) window.setTimeout(poll, 1500);
                                     else button.disabled = false;
-                                }).catch(function () { button.disabled = false; });
+                                }).catch(function () { status.textContent = <?php echo wp_json_encode(__('No se pudo consultar el progreso.', 'homlity-real-estate')); ?>; button.disabled = false; });
                         };
                         poll();
                     })
-                    .catch(function () { status.textContent = <?php echo wp_json_encode(__('No se pudo iniciar la reconstrucción.', 'homlity-real-estate')); ?>; })
-                    .finally(function () { button.disabled = false; });
+                    .catch(function () { status.textContent = <?php echo wp_json_encode(__('No se pudo iniciar la reconstrucción.', 'homlity-real-estate')); ?>; button.disabled = false; });
             });
         }());
         </script>

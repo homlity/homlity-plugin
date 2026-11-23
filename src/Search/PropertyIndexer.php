@@ -28,10 +28,12 @@ final class PropertyIndexer
         $priceSale = $this->numberOrNull($meta('_property_price_sale'));
         $priceRent = $this->numberOrNull($meta('_property_price_rent'));
         $displayPrice = $priceSale !== null && $priceSale > 0 ? $priceSale : $priceRent;
-        $status = strtolower($meta('_property_status'));
-        $available = strtolower($meta('_property_available'));
-        $statusVisible = $status === '' || $status === 'active';
-        $availableVisible = $available === '' || in_array($available, ['1', 'true', 'yes', 'active'], true);
+        $statusValues = get_post_meta($postId, '_property_status', false);
+        $availableValues = get_post_meta($postId, '_property_available', false);
+        $statusVisible = !metadata_exists('post', $postId, '_property_status')
+            || $this->containsMetaValue($statusValues, ['active']);
+        $availableVisible = !metadata_exists('post', $postId, '_property_available')
+            || $this->containsMetaValue($availableValues, ['1', 'true', 'yes', 'active']);
 
         $code = substr($meta('_property_code'), 0, 100);
         $syncId = substr($meta('_homlity_sync_id'), 0, 100);
@@ -66,7 +68,7 @@ final class PropertyIndexer
             'area' => $this->numberOrNull($meta('_property_area')),
             'latitude' => $this->numberOrNull($meta('_property_latitude')),
             'longitude' => $this->numberOrNull($meta('_property_longitude')),
-            'featured' => in_array(strtolower($meta('_property_featured')), ['1', 'true', 'yes', 'active'], true) ? 1 : 0,
+            'featured' => $this->containsExactMetaValue(get_post_meta($postId, '_property_featured', false), '1') ? 1 : 0,
             'agent_id' => $this->integerOrNull($meta('_property_agent_id')),
             'code' => $code !== '' ? $code : null,
             'sync_id' => $syncId !== '' ? $syncId : null,
@@ -80,8 +82,14 @@ final class PropertyIndexer
     public function indexMany(array $ids): int
     {
         global $wpdb;
+        $ids = array_values(array_unique(array_filter(array_map('absint', $ids))));
+        if ($ids !== []) {
+            if (function_exists('_prime_post_caches')) _prime_post_caches($ids, false, true);
+            if (function_exists('update_postmeta_cache')) update_postmeta_cache($ids);
+            if (function_exists('update_object_term_cache')) update_object_term_cache($ids, PropertyPostType::POST_TYPE);
+        }
         $rows = [];
-        foreach (array_values(array_unique(array_filter(array_map('absint', $ids)))) as $postId) {
+        foreach ($ids as $postId) {
             $row = $this->buildRow($postId);
             if ($row !== null) {
                 $rows[] = $row;
@@ -144,6 +152,9 @@ final class PropertyIndexer
         if ($value === '') {
             return null;
         }
+        if (!str_contains($value, ',') && substr_count($value, '.') === 1 && preg_match('/\.\d{3}$/', $value)) {
+            $value = str_replace('.', '', $value);
+        }
         if (str_contains($value, ',') && str_contains($value, '.')) {
             $value = strrpos($value, ',') > strrpos($value, '.')
                 ? str_replace('.', '', str_replace(',', '.', $value))
@@ -154,6 +165,35 @@ final class PropertyIndexer
             $value = str_replace([',', '.'], '', $value);
         }
         return is_numeric($value) ? (float) $value : null;
+    }
+
+    /** @param mixed $values */
+    private function containsMetaValue($values, array $allowed): bool
+    {
+        foreach ($this->flattenMetaValues($values) as $value) {
+            if (in_array(strtolower(trim((string) $value)), $allowed, true)) return true;
+        }
+        return false;
+    }
+
+    /** @param mixed $values */
+    private function containsExactMetaValue($values, string $expected): bool
+    {
+        foreach ($this->flattenMetaValues($values) as $value) {
+            if ((string) $value === $expected) return true;
+        }
+        return false;
+    }
+
+    /** @param mixed $values */
+    private function flattenMetaValues($values): array
+    {
+        $result = [];
+        foreach ((array) $values as $value) {
+            if (is_array($value)) $result = array_merge($result, $this->flattenMetaValues($value));
+            else $result[] = $value;
+        }
+        return $result;
     }
 
     private function integerOrNull(string $value): ?int
