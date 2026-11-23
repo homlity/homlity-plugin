@@ -13,6 +13,7 @@ namespace Homlity\PluginInmobiliario\Services;
 
 use Homlity\Developer\Support\Hooks;
 use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
+use Homlity\PluginInmobiliario\Search\PropertyIndexSchema;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -118,7 +119,7 @@ class PropertySearchService implements ServiceInterface
 
         // Mostrar únicamente inmuebles activos/disponibles.
         // Si el meta no existe (carga manual o integraciones antiguas), se permite.
-        $args['meta_query'][] = [
+        $args['meta_query']['homlity_status'] = [
             'relation' => 'OR',
             [
                 'key' => '_property_status',
@@ -130,7 +131,7 @@ class PropertySearchService implements ServiceInterface
                 'compare' => '=',
             ],
         ];
-        $args['meta_query'][] = [
+        $args['meta_query']['homlity_available'] = [
             'relation' => 'OR',
             [
                 'key' => '_property_available',
@@ -254,7 +255,7 @@ class PropertySearchService implements ServiceInterface
         // Advisor (asesor) filter
         $agentId = absint($params['preset_agent'] ?? 0);
         if ($agentId > 0) {
-            $args['meta_query'][] = [
+            $args['meta_query']['homlity_agent'] = [
                 'key'     => '_property_agent_id',
                 'value'   => $agentId,
                 'compare' => '=',
@@ -264,7 +265,7 @@ class PropertySearchService implements ServiceInterface
 
         // Featured only
         if (!empty($params['featured'])) {
-            $args['meta_query'][] = [
+            $args['meta_query']['homlity_featured'] = [
                 'key'     => '_property_featured',
                 'value'   => '1',
                 'compare' => '=',
@@ -287,13 +288,13 @@ class PropertySearchService implements ServiceInterface
                 $priceQuery['compare'] = '<=';
                 $priceQuery['value']   = $priceMax;
             }
-            $args['meta_query'][] = $priceQuery;
+            $args['meta_query']['homlity_price'] = $priceQuery;
         }
 
         // Bedrooms / bathrooms (minimum)
         $bedrooms = absint($params['bedrooms'] ?? 0);
         if ($bedrooms) {
-            $args['meta_query'][] = [
+            $args['meta_query']['homlity_bedrooms'] = [
                 'key'     => '_property_bedrooms',
                 'value'   => $bedrooms,
                 'type'    => 'NUMERIC',
@@ -303,7 +304,7 @@ class PropertySearchService implements ServiceInterface
 
         $bathrooms = absint($params['bathrooms'] ?? 0);
         if ($bathrooms) {
-            $args['meta_query'][] = [
+            $args['meta_query']['homlity_bathrooms'] = [
                 'key'     => '_property_bathrooms',
                 'value'   => $bathrooms,
                 'type'    => 'NUMERIC',
@@ -313,7 +314,7 @@ class PropertySearchService implements ServiceInterface
 
         $parking = absint($params['parking'] ?? 0);
         if ($parking) {
-            $args['meta_query'][] = [
+            $args['meta_query']['homlity_parking'] = [
                 'key'     => '_property_parking',
                 'value'   => $parking,
                 'type'    => 'NUMERIC',
@@ -335,7 +336,7 @@ class PropertySearchService implements ServiceInterface
                 $areaQuery['compare'] = '<=';
                 $areaQuery['value'] = $areaMax;
             }
-            $args['meta_query'][] = $areaQuery;
+            $args['meta_query']['homlity_area'] = $areaQuery;
         }
 
         $lat = is_numeric($params['geo_latitude'] ?? null) ? (float) $params['geo_latitude'] : null;
@@ -344,13 +345,13 @@ class PropertySearchService implements ServiceInterface
         if ($lat !== null && $lng !== null && $radiusKm > 0) {
             $latDelta = $radiusKm / 111.045;
             $lngDelta = $radiusKm / max(1, 111.045 * cos(deg2rad($lat)));
-            $args['meta_query'][] = [
+            $args['meta_query']['homlity_lat'] = [
                 'key' => '_property_latitude',
                 'value' => [$lat - $latDelta, $lat + $latDelta],
                 'type' => 'DECIMAL(10,6)',
                 'compare' => 'BETWEEN',
             ];
-            $args['meta_query'][] = [
+            $args['meta_query']['homlity_lng'] = [
                 'key' => '_property_longitude',
                 'value' => [$lng - $lngDelta, $lng + $lngDelta],
                 'type' => 'DECIMAL(10,6)',
@@ -391,6 +392,27 @@ class PropertySearchService implements ServiceInterface
                 $args['order']   = 'DESC';
         }
 
+        $indexFilters = [
+            'price_column' => $this->resolvePriceMetaKey($params),
+            'price_min' => $priceMin,
+            'price_max' => $priceMax,
+            'bedrooms' => $bedrooms,
+            'bathrooms' => $bathrooms,
+            'parking' => $parking,
+            'area_min' => $areaMin,
+            'area_max' => $areaMax,
+            'featured' => !empty($params['featured']),
+            'agent_id' => $agentId,
+            'orderby' => $orderby,
+            'order' => $order,
+            'keyword' => isset($args['homlity_keyword_search']) ? (string) $args['homlity_keyword_search'] : '',
+        ];
+        if (isset($latDelta, $lngDelta, $lat, $lng)) {
+            $indexFilters['lat'] = [$lat - $latDelta, $lat + $latDelta];
+            $indexFilters['lng'] = [$lng - $lngDelta, $lng + $lngDelta];
+        }
+        $args['homlity_index_filters'] = $indexFilters;
+
         /**
          * Filters the `WP_Query` arguments used to list and search properties.
          *
@@ -424,6 +446,9 @@ class PropertySearchService implements ServiceInterface
      */
     public function applyPriceOrder(array $clauses, \WP_Query $query): array
     {
+        if (\Homlity\PluginInmobiliario\Search\PropertyIndexQuery::isActive($query)) {
+            return $clauses;
+        }
         $direction = strtoupper((string) $query->get(self::PRICE_ORDER_QUERY_VAR));
         if ($direction !== 'ASC' && $direction !== 'DESC') {
             return $clauses;
@@ -485,6 +510,9 @@ class PropertySearchService implements ServiceInterface
 
     public function applyPriorityKeywordSearch(array $clauses, \WP_Query $query): array
     {
+        if (\Homlity\PluginInmobiliario\Search\PropertyIndexQuery::isActive($query)) {
+            return $clauses;
+        }
         $rawTerm = $query->get('homlity_keyword_search');
         if (!is_string($rawTerm) || $rawTerm === '') {
             return $clauses;
@@ -862,6 +890,19 @@ class PropertySearchService implements ServiceInterface
         $code = sanitize_text_field($code);
         if ($code === '') {
             return 0;
+        }
+
+        if (get_option(\Homlity\PluginInmobiliario\Search\PropertyIndexAdminPage::USE_OPTION, false)
+            && PropertyIndexSchema::isReady()) {
+            global $wpdb;
+            $indexedId = $wpdb->get_var($wpdb->prepare(
+                'SELECT hpi.post_id FROM ' . PropertyIndexSchema::tableName() . ' AS hpi WHERE hpi.code = %s OR hpi.sync_id = %s LIMIT 1',
+                $code,
+                $code
+            ));
+            if ($indexedId) {
+                return (int) $indexedId;
+            }
         }
 
         $posts = get_posts([

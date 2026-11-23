@@ -77,7 +77,7 @@ final class OperationArchitectureTest extends TestCase
         self::assertSame('rentar', PropertyTaxonomies::canonicalOperationSlug('alquiler'));
         self::assertSame($term, PropertyTaxonomies::canonicalOperationTerm($term));
         $args = (new PropertySearchService())->buildQueryArgs(['operation' => 1, 'price_min' => 1000]);
-        self::assertSame('_property_price_rent', $args['meta_query'][2]['key']);
+        self::assertSame('_property_price_rent', $args['meta_query']['homlity_price']['key']);
     }
 
     public function testColumnaAdministrativaMuestraAmbosPreciosConSusMonedas(): void

@@ -73,6 +73,7 @@ use Homlity\PluginInmobiliario\Search\PropertyIndexAdminPage;
 use Homlity\PluginInmobiliario\Search\PropertyIndexRebuilder;
 use Homlity\PluginInmobiliario\Search\PropertyIndexSchema;
 use Homlity\PluginInmobiliario\Search\PropertyIndexSync;
+use Homlity\PluginInmobiliario\Search\PropertyIndexQuery;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -128,6 +129,7 @@ class PluginBootstrap
             new AgentProfileService(),
             new TechnicalSheetService(),
             new PropertySearchService(),
+            new PropertyIndexQuery(),
             new PropertyIndexSync(),
             new PropertyIndexRebuilder(),
             new PropertyIndexAdminPage(),

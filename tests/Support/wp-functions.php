@@ -99,6 +99,11 @@ if (!class_exists('WP_Query')) {
             return $this->query_vars[$var] ?? $default;
         }
 
+        public function set(string $var, mixed $value): void
+        {
+            $this->query_vars[$var] = $value;
+        }
+
         /** Posición dentro del bucle, como la de WP_Query. */
         public int $current_post = -1;
 
