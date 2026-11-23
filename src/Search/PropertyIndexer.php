@@ -66,8 +66,8 @@ final class PropertyIndexer
             'bathrooms' => $this->integerOrNull($meta('_property_bathrooms')),
             'parking' => $this->integerOrNull($meta('_property_parking')),
             'area' => $this->numberOrNull($meta('_property_area')),
-            'latitude' => $this->numberOrNull($meta('_property_latitude')),
-            'longitude' => $this->numberOrNull($meta('_property_longitude')),
+            'latitude' => $this->coordinateOrNull($meta('_property_latitude'), 90.0),
+            'longitude' => $this->coordinateOrNull($meta('_property_longitude'), 180.0),
             'featured' => $this->containsExactMetaValue(get_post_meta($postId, '_property_featured', false), '1') ? 1 : 0,
             'agent_id' => $this->integerOrNull($meta('_property_agent_id')),
             'code' => $code !== '' ? $code : null,
@@ -165,6 +165,16 @@ final class PropertyIndexer
             $value = str_replace([',', '.'], '', $value);
         }
         return is_numeric($value) ? (float) $value : null;
+    }
+
+    private function coordinateOrNull(string $value, float $limit): ?float
+    {
+        $value = trim((string) preg_replace('/\s+/', '', $value));
+        if ($value === '' || !preg_match('/^-?\d+(?:[.,]\d+)?$/', $value)) {
+            return null;
+        }
+        $coordinate = (float) str_replace(',', '.', $value);
+        return abs($coordinate) <= $limit ? $coordinate : null;
     }
 
     /** @param mixed $values */

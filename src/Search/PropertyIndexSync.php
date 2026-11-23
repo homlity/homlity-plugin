@@ -116,6 +116,12 @@ final class PropertyIndexSync implements ServiceInterface
         $ids = array_map('intval', array_keys($this->queued));
         $this->queued = [];
         $this->deleted = [];
+        if ((int) get_option(PropertyIndexSchema::SCHEMA_VERSION_OPTION, 0) !== PropertyIndexSchema::SCHEMA_VERSION) {
+            if ($ids !== []) {
+                (new PropertyIndexRebuilder())->scheduleIds($ids);
+            }
+            return;
+        }
         $indexer = new PropertyIndexer();
         $indexer->delete($deleted);
         $indexer->indexMany(array_diff($ids, $deleted));

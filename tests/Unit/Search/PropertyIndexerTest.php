@@ -99,6 +99,31 @@ final class PropertyIndexerTest extends TestCase
         }
     }
 
+    public function testLasCoordenadasUsanDecimalesSimplesYRechazanFueraDeRango(): void
+    {
+        $this->property(120, ['_property_latitude' => '4.711', '_property_longitude' => '-74.072']);
+        self::assertSame(4.711, (new PropertyIndexer())->buildRow(120)['latitude']);
+        self::assertSame(-74.072, (new PropertyIndexer())->buildRow(120)['longitude']);
+
+        $this->property(121, ['_property_latitude' => '4,711', '_property_longitude' => '-74.0721456']);
+        self::assertSame(4.711, (new PropertyIndexer())->buildRow(121)['latitude']);
+        self::assertSame(-74.0721456, (new PropertyIndexer())->buildRow(121)['longitude']);
+
+        $this->property(122, ['_property_latitude' => '200']);
+        self::assertNull((new PropertyIndexer())->buildRow(122)['latitude']);
+    }
+
+    public function testFlushSinEsquemaNoEjecutaSqlYConservaIdsPendientes(): void
+    {
+        $this->property(123);
+        $sync = new PropertyIndexSync();
+        $sync->queuePost(123);
+        $sync->flush();
+
+        self::assertSame([], $GLOBALS['wpdb']->rawQueries);
+        self::assertContains(123, (array) get_option(PropertyIndexRebuilder::PENDING_IDS_OPTION, []));
+    }
+
     public function testEnsureEIsReadyNoConsultanLaBaseConVersionAlDia(): void
     {
         update_option(PropertyIndexSchema::SCHEMA_VERSION_OPTION, PropertyIndexSchema::SCHEMA_VERSION, true);
@@ -112,6 +137,7 @@ final class PropertyIndexerTest extends TestCase
 
     public function testLaColaDeShutdownAgrupaEscriturasDelMismoPost(): void
     {
+        update_option(PropertyIndexSchema::SCHEMA_VERSION_OPTION, PropertyIndexSchema::SCHEMA_VERSION, true);
         $this->property(20, ['_property_code' => 'A-20']);
         $sync = new PropertyIndexSync();
         $sync->queuePost(20);
@@ -125,6 +151,7 @@ final class PropertyIndexerTest extends TestCase
 
     public function testElRebuilderContinuaDesdeElCursorGuardado(): void
     {
+        update_option(PropertyIndexSchema::SCHEMA_VERSION_OPTION, PropertyIndexSchema::SCHEMA_VERSION, true);
         $this->property(31);
         $this->property(32);
         WpStubs::$sqlResults['SELECT ID FROM wp_posts'] = [['ID' => 31], ['ID' => 32]];

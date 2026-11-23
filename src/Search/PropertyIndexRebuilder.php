@@ -17,7 +17,7 @@ final class PropertyIndexRebuilder implements ServiceInterface
     public const CURSOR_OPTION = 'homlity_property_index_rebuild_cursor';
     public const LAST_REBUILD_OPTION = 'homlity_property_index_last_rebuild';
     private const LOCK_OPTION = 'homlity_property_index_rebuild_lock';
-    private const PENDING_IDS_OPTION = 'homlity_property_index_pending_ids';
+    public const PENDING_IDS_OPTION = 'homlity_property_index_pending_ids';
     private const BATCH_SIZE = 200;
 
     public function register(): void
@@ -49,7 +49,7 @@ final class PropertyIndexRebuilder implements ServiceInterface
     /** Reindexes imports that wrote directly to the database without hooks. */
     public function reconcile(): int
     {
-        if (!PropertyIndexSchema::tableExists()) {
+        if (!$this->schemaVersionMatches() || !PropertyIndexSchema::tableExists()) {
             return 0;
         }
         global $wpdb;
@@ -80,6 +80,9 @@ final class PropertyIndexRebuilder implements ServiceInterface
     /** @return array{processed:int,remaining:bool,cursor:int} */
     public function runBatch(int $batchSize = self::BATCH_SIZE): array
     {
+        if (!$this->schemaVersionMatches()) {
+            return ['processed' => 0, 'remaining' => true, 'cursor' => (int) get_option(self::CURSOR_OPTION, 0)];
+        }
         $lockValue = (int) get_option(self::LOCK_OPTION, 0);
         if ($lockValue > 0 && time() - $lockValue < 60) {
             return ['processed' => 0, 'remaining' => true, 'cursor' => (int) get_option(self::CURSOR_OPTION, 0)];
@@ -189,6 +192,11 @@ final class PropertyIndexRebuilder implements ServiceInterface
         $pending = array_values(array_unique(array_merge((array) get_option(self::PENDING_IDS_OPTION, []), $ids)));
         update_option(self::PENDING_IDS_OPTION, $pending, false);
         $this->scheduleNextBatch(1);
+    }
+
+    private function schemaVersionMatches(): bool
+    {
+        return (int) get_option(PropertyIndexSchema::SCHEMA_VERSION_OPTION, 0) === PropertyIndexSchema::SCHEMA_VERSION;
     }
 
     private function scheduleOnce(string $hook, int $delay): void
