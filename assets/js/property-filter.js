@@ -1,6 +1,19 @@
 (function () {
     'use strict';
 
+    var searchableWrappers = [];
+    var globalClickBound = false;
+
+    function bindGlobalClick() {
+        if (globalClickBound) return;
+        globalClickBound = true;
+        document.addEventListener('click', function (e) {
+            searchableWrappers.forEach(function (entry) {
+                if (!entry.wrapper.contains(e.target)) entry.closeMenu();
+            });
+        });
+    }
+
     function createSearchableSelect(select) {
         if (!select || select.dataset.enhanced === '1') return;
         select.dataset.enhanced = '1';
@@ -53,12 +66,17 @@
         search.setAttribute('aria-label', search.placeholder + ' ' + label);
         search.setAttribute('aria-controls', menuId);
         search.autocomplete = 'off';
-        search.addEventListener('input', renderMenu);
+        var renderTimer = null;
+        search.addEventListener('input', function () {
+            clearTimeout(renderTimer);
+            renderTimer = setTimeout(renderMenu, 120);
+        });
         search.addEventListener('keydown', function (e) {
             // Enter must not submit the property search while filtering options.
             if (e.key === 'Enter') e.preventDefault();
             if (e.key === 'ArrowDown') {
-                var first = list.querySelector('button:not(:disabled)');
+                var first = Array.prototype.slice.call(list.querySelectorAll('button:not(:disabled)'))
+                    .find(function (button) { return !button.hidden; });
                 if (first) {
                     e.preventDefault();
                     first.focus();
@@ -101,42 +119,52 @@
             chips.appendChild(summary);
         }
 
+        var itemEntries = options.map(function (opt) {
+            var item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'hpf-multi__item';
+            item.setAttribute('role', 'option');
+            item.textContent = opt.text;
+            list.appendChild(item);
+            return { opt: opt, item: item, text: normalize(opt.text) };
+        });
+        var menuDirty = true;
+
         function renderMenu() {
-            list.innerHTML = '';
             var query = search ? normalize(search.value) : '';
-            options.forEach(function (opt) {
-                if (opt.hidden || (query && normalize(opt.text).indexOf(query) === -1)) return;
-                var item = document.createElement('button');
-                item.type = 'button';
-                item.className = 'hpf-multi__item' + (opt.selected ? ' is-selected' : '');
-                item.setAttribute('role', 'option');
-                item.setAttribute('aria-selected', opt.selected ? 'true' : 'false');
-                item.textContent = opt.text;
-                item.disabled = select.disabled || opt.disabled || (opt.parentElement.tagName === 'OPTGROUP' && opt.parentElement.disabled);
-                item.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    opt.selected = multiple ? !opt.selected : true;
-                    notifyChange();
-                    if (multiple) {
-                        search.focus();
-                    } else {
-                        closeMenu();
-                        trigger.focus();
-                    }
-                });
-                list.appendChild(item);
+            var visibleCount = 0;
+            itemEntries.forEach(function (entry) {
+                var opt = entry.opt;
+                var disabled = select.disabled || opt.disabled || (opt.parentElement.tagName === 'OPTGROUP' && opt.parentElement.disabled);
+                entry.item.hidden = !!opt.hidden || !!(query && entry.text.indexOf(query) === -1);
+                if (!entry.item.hidden) visibleCount++;
+                entry.item.disabled = disabled;
+                entry.item.classList.toggle('is-selected', opt.selected);
+                entry.item.setAttribute('aria-selected', opt.selected ? 'true' : 'false');
             });
             if (empty) {
-                empty.hidden = list.children.length > 0;
+                empty.hidden = visibleCount > 0;
                 empty.textContent = empty.hidden ? '' : (select.dataset.searchEmpty || messages.searchEmpty || 'No se encontraron opciones');
             }
+            menuDirty = false;
         }
+
+        list.addEventListener('click', function (e) {
+            var item = e.target.closest('button[role="option"]');
+            if (!item || item.disabled) return;
+            var entry = itemEntries.find(function (candidate) { return candidate.item === item; });
+            if (!entry) return;
+            e.preventDefault();
+            entry.opt.selected = multiple ? !entry.opt.selected : true;
+            notifyChange();
+            if (multiple) search.focus(); else { closeMenu(); trigger.focus(); }
+        });
 
         function openMenu() {
             if (select.disabled) return;
-            renderMenu();
             wrapper.classList.add('is-open');
             trigger.setAttribute('aria-expanded', 'true');
+            if (menuDirty) renderMenu();
             if (search) search.focus();
         }
 
@@ -145,7 +173,7 @@
             trigger.setAttribute('aria-expanded', 'false');
             if (search && search.value) {
                 search.value = '';
-                renderMenu();
+                menuDirty = true;
             }
         }
 
@@ -154,12 +182,6 @@
                 closeMenu();
             } else {
                 openMenu();
-            }
-        });
-
-        document.addEventListener('click', function (e) {
-            if (!wrapper.contains(e.target)) {
-                closeMenu();
             }
         });
 
@@ -177,12 +199,14 @@
 
         select.addEventListener('change', function () {
             renderSelection();
-            renderMenu();
+            menuDirty = true;
+            if (wrapper.classList.contains('is-open')) renderMenu();
         });
 
         select.addEventListener('hpf:refresh', function () {
             renderSelection();
-            renderMenu();
+            menuDirty = true;
+            if (wrapper.classList.contains('is-open')) renderMenu();
         });
 
         trigger.disabled = select.disabled;
@@ -194,6 +218,8 @@
 
         renderSelection();
         renderMenu();
+        bindGlobalClick();
+        searchableWrappers.push({ wrapper: wrapper, closeMenu: closeMenu });
     }
 
     function bindGeoDependencies(widget) {
@@ -213,7 +239,10 @@
                 .filter(Boolean);
         }
 
+        var updating = false;
         function update() {
+            if (updating) return;
+            updating = true;
             var cities = selectedValues(city);
             var localityChanged = false;
 
@@ -250,6 +279,7 @@
             if (neighborhood) neighborhood.dispatchEvent(new Event('hpf:refresh'));
             if (localityChanged) locality.dispatchEvent(new Event('change', { bubbles: true }));
             if (neighborhoodChanged) neighborhood.dispatchEvent(new Event('change', { bubbles: true }));
+            updating = false;
         }
 
         if (city) city.addEventListener('change', update);

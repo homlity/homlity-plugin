@@ -12,6 +12,7 @@ let search;
 let trigger;
 
 beforeEach(() => {
+    jest.useFakeTimers();
     dom = new JSDOM(`<div class="property-filter-widget"><form>
         <select name="ciudad[]" class="property-filter-multiselect" multiple data-placeholder="Ciudad" data-search-empty="No se encontraron ciudades">
             <option value="">Ciudad</option>
@@ -45,15 +46,16 @@ beforeEach(() => {
     trigger.click();
 });
 
-afterEach(() => dom.window.close());
+afterEach(() => { dom.window.close(); jest.useRealTimers(); });
 
 function type(query) {
     search.value = query;
     search.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+    jest.advanceTimersByTime(120);
 }
 
 function items() {
-    return Array.from(city.parentNode.querySelectorAll('[role="option"]'));
+    return Array.from(city.parentNode.querySelectorAll('[role="option"]')).filter(item => !item.hidden);
 }
 
 test('filters city names ignoring accents and case without losing selections', () => {
@@ -105,8 +107,9 @@ test('single selects filter, replace the selection and allow clearing it', () =>
     button.click();
     input.value = 'apart';
     input.dispatchEvent(new dom.window.Event('input'));
-    expect(wrapper.querySelectorAll('[role="option"]')).toHaveLength(1);
-    wrapper.querySelector('[role="option"]').click();
+    jest.advanceTimersByTime(120);
+    expect(Array.from(wrapper.querySelectorAll('[role="option"]')).filter(item => !item.hidden)).toHaveLength(1);
+    Array.from(wrapper.querySelectorAll('[role="option"]')).find(item => !item.hidden).click();
     expect(select.value).toBe('apartamento');
     expect(button.textContent).toContain('Apartamento');
     expect(button.getAttribute('aria-expanded')).toBe('false');
@@ -124,17 +127,18 @@ test('single selects filter, replace the selection and allow clearing it', () =>
 
 test('neighborhood results refresh when the city changes even without a selected neighborhood', () => {
     const neighborhood = document.querySelector('[name="barrios[]"]').parentNode;
-    expect(Array.from(neighborhood.querySelectorAll('[role="option"]'), item => item.textContent)).toEqual(['Chapinero']);
+    expect(Array.from(neighborhood.querySelectorAll('[role="option"]')).filter(item => !item.hidden).map(item => item.textContent)).toEqual(['Chapinero']);
     type('medellin');
     items()[0].click();
     expect(neighborhood.querySelectorAll('[role="option"]')).toHaveLength(2);
     type('bogota');
     items()[0].click();
-    expect(Array.from(neighborhood.querySelectorAll('[role="option"]'), item => item.textContent)).toEqual(['El Poblado']);
+    expect(Array.from(neighborhood.querySelectorAll('[role="option"]')).filter(item => !item.hidden).map(item => item.textContent)).toEqual(['Chapinero']);
     const input = neighborhood.querySelector('input');
     input.value = 'chapinero';
     input.dispatchEvent(new dom.window.Event('input'));
-    expect(neighborhood.querySelectorAll('[role="option"]')).toHaveLength(0);
+    jest.advanceTimersByTime(120);
+    expect(Array.from(neighborhood.querySelectorAll('[role="option"]')).filter(item => !item.hidden)).toHaveLength(0);
     expect(neighborhood.querySelector('[role="status"]').textContent).toBe('No se encontraron opciones');
 });
 

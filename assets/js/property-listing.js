@@ -102,6 +102,8 @@
         this.view             = el.dataset.view || 'grid';
         this.mapInstance      = null;
         this.mapMarkers       = [];
+        this.mapLoadPromise   = null;
+        this.fetchController  = null;
 
         try {
             this.mapData = JSON.parse(el.dataset.mapData || '[]');
@@ -128,7 +130,8 @@
         this._initCardSwipers();
 
         if (this.view === 'map') {
-            this._initMap(this.mapData);
+            if (typeof L !== 'undefined') this._initMap(this.mapData);
+            else this._ensureLeaflet().then(function () { this._initMap(this.mapData); }.bind(this));
         }
     }
 
@@ -286,7 +289,8 @@
             if (mapBtn)  mapBtn.classList.add('is-active');
 
             if (!this.mapInstance) {
-                this._initMap(this.mapData);
+                if (typeof L !== 'undefined') this._initMap(this.mapData);
+                else this._ensureLeaflet().then(function () { this._initMap(this.mapData); }.bind(this));
             } else {
                 var self = this;
                 setTimeout(function () { self.mapInstance.invalidateSize(); }, 100);
@@ -308,6 +312,9 @@
 
     PropertyListing.prototype._fetch = function () {
         var self = this;
+        if (this.fetchController) this.fetchController.abort();
+        this.fetchController = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        var requestController = this.fetchController;
         var formParams = this._getFormParams();
         var orderby = this.sortSelect ? this.sortSelect.value : 'date';
 
@@ -398,6 +405,7 @@
             method:  'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body:    body.toString(),
+            signal:  requestController ? requestController.signal : undefined,
         })
             .then(function (r) { return r.json(); })
             .then(function (res) {
@@ -424,9 +432,11 @@
                 self._updatePagination(d.pages);
                 self._syncBrowserUrl(orderby);
             })
-            .catch(function () {})
+            .catch(function (error) {
+                if (error && error.name === 'AbortError') return;
+            })
             .finally(function () {
-                self._setLoading(false);
+                if (self.fetchController === requestController) self._setLoading(false);
             });
     };
 
@@ -515,6 +525,20 @@
         this.pagination.innerHTML = html;
     };
 
+    PropertyListing.prototype._ensureLeaflet = function () {
+        if (typeof L !== 'undefined') return Promise.resolve();
+        if (this.mapLoadPromise) return this.mapLoadPromise;
+        this.mapLoadPromise = new Promise(function (resolve, reject) {
+            var script = document.createElement('script');
+            script.src = i18n.leafletUrl || '';
+            script.async = true;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+        return this.mapLoadPromise;
+    };
+
     PropertyListing.prototype._initMap = function (properties) {
         if (!this.mapEl || typeof L === 'undefined') return;
 
@@ -575,7 +599,8 @@
     PropertyListing.prototype._updateMap = function (properties) {
         if (!this.mapInstance) {
             if (this.view === 'map') {
-                this._initMap(properties);
+                if (typeof L !== 'undefined') this._initMap(properties);
+                else this._ensureLeaflet().then(function () { this._initMap(properties); }.bind(this));
             }
             return;
         }
