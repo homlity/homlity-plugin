@@ -155,6 +155,7 @@ class PropertyResultsTitleWidget extends Widget_Base
                 $countQuery = new \WP_Query($args);
                 wp_reset_postdata();
                 $total = (int) $countQuery->found_posts;
+                PropertySearchService::rememberQueryTotal($args, $total);
             }
             $suffix = ' (' . number_format_i18n($total) . ')';
         }

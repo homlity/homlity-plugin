@@ -131,7 +131,7 @@
 
         if (this.view === 'map') {
             if (typeof L !== 'undefined') this._initMap(this.mapData);
-            else this._ensureLeaflet().then(function () { this._initMap(this.mapData); }.bind(this));
+            else this._ensureLeaflet().then(function () { this._initMap(this.mapData); }.bind(this)).catch(function () {});
         }
     }
 
@@ -290,7 +290,7 @@
 
             if (!this.mapInstance) {
                 if (typeof L !== 'undefined') this._initMap(this.mapData);
-                else this._ensureLeaflet().then(function () { this._initMap(this.mapData); }.bind(this));
+                else this._ensureLeaflet().then(function () { this._initMap(this.mapData); }.bind(this)).catch(function () {});
             } else {
                 var self = this;
                 setTimeout(function () { self.mapInstance.invalidateSize(); }, 100);
@@ -528,9 +528,21 @@
     PropertyListing.prototype._ensureLeaflet = function () {
         if (typeof L !== 'undefined') return Promise.resolve();
         if (this.mapLoadPromise) return this.mapLoadPromise;
+        var src = i18n.leafletUrl || '';
+        if (!src) return Promise.reject(new Error('Leaflet URL is not configured'));
+        var absoluteSrc = new URL(src, document.baseURI).href;
+        var existing = Array.prototype.slice.call(document.scripts).find(function (node) {
+            return node.src === absoluteSrc;
+        });
         this.mapLoadPromise = new Promise(function (resolve, reject) {
+            if (existing) {
+                existing.addEventListener('load', resolve, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+                if (typeof L !== 'undefined') resolve();
+                return;
+            }
             var script = document.createElement('script');
-            script.src = i18n.leafletUrl || '';
+            script.src = absoluteSrc;
             script.async = true;
             script.onload = resolve;
             script.onerror = reject;
@@ -600,7 +612,7 @@
         if (!this.mapInstance) {
             if (this.view === 'map') {
                 if (typeof L !== 'undefined') this._initMap(properties);
-                else this._ensureLeaflet().then(function () { this._initMap(properties); }.bind(this));
+                else this._ensureLeaflet().then(function () { this._initMap(properties); }.bind(this)).catch(function () {});
             }
             return;
         }

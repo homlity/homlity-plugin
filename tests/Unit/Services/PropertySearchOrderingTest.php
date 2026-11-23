@@ -319,7 +319,7 @@ final class PropertySearchOrderingTest extends TestCase
         $clauses = $service->applyPriceOrder($clauses, $query);
         $clauses = $service->applyPriorityKeywordSearch($clauses, $query);
 
-        self::assertStringStartsWith('CASE', trim($clauses['orderby']));
+        self::assertStringStartsWith('MIN(', trim($clauses['orderby']));
         self::assertStringContainsString('homlity_pm_sale', $clauses['orderby']);
     }
 
@@ -340,18 +340,21 @@ final class PropertySearchOrderingTest extends TestCase
     // ── Keyword ranking SQL ──────────────────────────────────────────────────
 
     /**
-     * Feature matching uses a correlated EXISTS, so it does not multiply rows
-     * and does not require DISTINCT/GROUP BY for keyword searches.
+     * The ranking is aggregated because WP_Query groups meta queries by post ID
+     * under ONLY_FULL_GROUP_BY.
      */
     public function testElRankingDeBusquedaEsAgregadoParaSobrevivirOnlyFullGroupBy(): void
     {
         $clauses = $this->keywordClauses('AW-1045');
 
-        self::assertStringStartsWith('CASE', trim($clauses['orderby']));
+        self::assertStringStartsWith('MIN(', trim($clauses['orderby']));
         self::assertStringContainsString('EXISTS (SELECT 1', $clauses['orderby']);
         self::assertStringNotContainsString('homlity_terms.name', $clauses['orderby']);
         self::assertSame('', $clauses['distinct']);
-        self::assertSame('', $clauses['groupby']);
+        self::assertStringContainsString('ID', $clauses['groupby']);
+
+        $clauses = $this->keywordClauses('AW-1045', 'wp_posts.ID');
+        self::assertSame('wp_posts.ID', $clauses['groupby']);
     }
 
     /** The code is matched exactly first, then by prefix, then anywhere. */
@@ -370,6 +373,60 @@ final class PropertySearchOrderingTest extends TestCase
         );
     }
 
+    public function testElWherePreparaCadaFragmentoConContenidoOpcionalYTerminoConParentesis(): void
+    {
+        $withoutContent = $this->keywordClauses('casa)');
+        self::assertStringContainsString("post_title LIKE '%casa)%'", $withoutContent['where']);
+        self::assertStringNotContainsString('post_content', $withoutContent['where']);
+
+        add_filter('homlity/search/include_content', static fn (): bool => true);
+        $clauses = $this->keywordClauses('casa)');
+
+        self::assertStringContainsString("post_content LIKE '%casa)%'", $clauses['where']);
+        self::assertStringContainsString("post_title LIKE '%casa)%'", $clauses['where']);
+        self::assertStringContainsString('EXISTS (SELECT 1', $clauses['where']);
+    }
+
+    public function testElMemoDeTotalesIgnoraArgumentosDePaginacionPeroNoLaCiudad(): void
+    {
+        $base = [
+            'post_type' => 'property',
+            'paged' => 1,
+            'posts_per_page' => 12,
+            'orderby' => ['date' => 'DESC'],
+            'order' => 'DESC',
+            'tax_query' => ['relation' => 'AND', ['taxonomy' => 'property_city', 'terms' => [10]]],
+            'meta_query' => ['relation' => 'AND'],
+        ];
+        PropertySearchService::rememberQueryTotal($base, 23);
+
+        $sameCount = $base;
+        $sameCount['paged'] = 3;
+        $sameCount['posts_per_page'] = 24;
+        $sameCount['orderby'] = ['title' => 'ASC'];
+        $sameCount['no_found_rows'] = true;
+        self::assertSame(23, PropertySearchService::rememberedQueryTotal($sameCount));
+
+        $otherCity = $base;
+        $otherCity['tax_query'][1]['terms'] = [11];
+        self::assertNull(PropertySearchService::rememberedQueryTotal($otherCity));
+    }
+
+    public function testElMemoComparteElTotalSiElTituloVaAntesODespuesDelListado(): void
+    {
+        $listingArgs = ['post_type' => 'property', 'tax_query' => [['taxonomy' => 'property_city', 'terms' => [10]]], 'paged' => 2];
+        $titleArgs = $listingArgs + ['posts_per_page' => 1, 'fields' => 'ids', 'no_found_rows' => false];
+
+        // Título antes del listado: su consulta de una fila deja el total para
+        // que el listado pueda evitar el COUNT(*) posterior.
+        PropertySearchService::rememberQueryTotal($titleArgs, 17);
+        self::assertSame(17, PropertySearchService::rememberedQueryTotal($listingArgs));
+
+        // Listado antes del título: ambos leen exactamente el mismo memo.
+        PropertySearchService::rememberQueryTotal($listingArgs, 19);
+        self::assertSame(19, PropertySearchService::rememberedQueryTotal($titleArgs));
+    }
+
     public function testSinPalabraClaveNoSeTocaLaConsulta(): void
     {
         $original = ['join' => '', 'where' => '', 'orderby' => 'post_date DESC', 'distinct' => '', 'groupby' => ''];
@@ -381,9 +438,9 @@ final class PropertySearchOrderingTest extends TestCase
     /**
      * @return array<string,string>
      */
-    private function keywordClauses(string $term): array
+    private function keywordClauses(string $term, string $groupby = ''): array
     {
-        $clauses = ['join' => '', 'where' => '', 'orderby' => '', 'distinct' => '', 'groupby' => ''];
+        $clauses = ['join' => '', 'where' => '', 'orderby' => '', 'distinct' => '', 'groupby' => $groupby];
         $query = new \WP_Query(['post_type' => 'property', 'homlity_keyword_search' => $term]);
 
         return (new PropertySearchService())->applyPriorityKeywordSearch($clauses, $query);

@@ -37,12 +37,12 @@ class ListingRenderer
     {
         // ── Related-properties mode: fully independent query path ─────────────
         if ($config->queryMode() === 'related_current') {
-            self::enqueueAssets();
+            self::enqueueAssets($config);
             $this->renderRelated($config);
             return;
         }
 
-        self::enqueueAssets();
+        self::enqueueAssets($config);
 
         $params = $config->toQueryParams();
 
@@ -224,8 +224,17 @@ class ListingRenderer
         }
 
         $args   = $this->search->buildQueryArgs($params);
+        $rememberedTotal = PropertySearchService::rememberedQueryTotal($args);
+        if ($rememberedTotal !== null) {
+            $args['no_found_rows'] = true;
+        }
         $query  = new \WP_Query($args);
-        PropertySearchService::rememberQueryTotal($args, (int) $query->found_posts);
+        if ($rememberedTotal !== null) {
+            $query->found_posts = $rememberedTotal;
+            $query->max_num_pages = (int) ceil($rememberedTotal / max(1, (int) ($args['posts_per_page'] ?? 1)));
+        } else {
+            PropertySearchService::rememberQueryTotal($args, (int) $query->found_posts);
+        }
         self::primeQueryCaches($query);
 
         TemplateService::includeComponent($config->listingTemplate(), [
@@ -450,7 +459,7 @@ class ListingRenderer
      * Register and enqueue all scripts/styles required by the listing.
      * Safe to call multiple times – WordPress deduplicates by handle.
      */
-    public static function enqueueAssets(): void
+    public static function enqueueAssets(?ListingConfig $config = null): void
     {
         wp_enqueue_style(
             'homlity-real-estate-front-components',
@@ -480,15 +489,15 @@ class ListingRenderer
             '1.9.4'
         );
 
-        wp_enqueue_script(
+        wp_register_script(
             'homlity-real-estate-leaflet',
             HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.js',
             [],
             '1.9.4',
             true
         );
-        if (function_exists('wp_dequeue_script')) {
-            wp_dequeue_script('homlity-real-estate-leaflet');
+        if ($config !== null && $config->defaultView() === 'map') {
+            wp_enqueue_script('homlity-real-estate-leaflet');
         }
 
         wp_enqueue_script(

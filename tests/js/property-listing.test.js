@@ -39,6 +39,35 @@ test('actual map size changes invalidate the Leaflet map', () => {
     expect(map.invalidateSize).toHaveBeenCalledTimes(1);
 });
 
+test('no inyecta Leaflet si L ya existe', () => {
+    const win = setup('grid');
+    win.L = {};
+    win.homlityListingI18n = { leafletUrl: 'https://example.test/leaflet.js' };
+    win.eval(script);
+    win.document.dispatchEvent(new win.Event('DOMContentLoaded'));
+    expect(win.document.querySelectorAll('script[src*="leaflet.js"]')).toHaveLength(0);
+});
+
+test('inyecta Leaflet una sola vez cuando el mapa lo necesita', () => {
+    const win = setup('map');
+    win.homlityListingI18n = { leafletUrl: 'https://example.test/leaflet.js' };
+    win.eval(script);
+    win.document.dispatchEvent(new win.Event('DOMContentLoaded'));
+    expect(win.document.querySelectorAll('script[src="https://example.test/leaflet.js"]')).toHaveLength(1);
+});
+
+test('espera un script Leaflet ya presente en el DOM', () => {
+    const win = setup('map');
+    win.homlityListingI18n = { leafletUrl: 'https://example.test/leaflet.js' };
+    const existing = win.document.createElement('script');
+    existing.src = 'https://example.test/leaflet.js';
+    win.document.head.appendChild(existing);
+    win.eval(script);
+    win.document.dispatchEvent(new win.Event('DOMContentLoaded'));
+    expect(win.document.querySelectorAll('script[src="https://example.test/leaflet.js"]')).toHaveLength(1);
+    existing.dispatchEvent(new win.Event('load'));
+});
+
 test.each([['0', '1'], ['1', '0']])('AJAX retains title code=%s and operation=%s', async (code, operation) => {
     const win = setup();
     const listing = win.document.querySelector('.property-listing');

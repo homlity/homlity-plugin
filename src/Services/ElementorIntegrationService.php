@@ -328,7 +328,7 @@ class ElementorIntegrationService implements ServiceInterface
         wp_enqueue_script(
             'homlity-real-estate-listing',
             HOMLITY_PLUGIN_URL . 'assets/js/property-listing.js',
-            ['homlity-real-estate-leaflet'],
+            [],
             HOMLITY_PLUGIN_VERSION,
             true
         );

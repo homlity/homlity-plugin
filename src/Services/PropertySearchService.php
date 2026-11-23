@@ -526,24 +526,19 @@ class PropertySearchService implements ServiceInterface
             $likeAny
         );
 
+        // Cada fragmento se prepara por separado. Así un término que contenga
+        // paréntesis o porcentajes no altera el conteo de placeholders del OR.
         $whereParts = [
-            'homlity_pm_code.meta_value LIKE %s',
-            'OR homlity_pm_sync.meta_value LIKE %s',
-            "OR {$wpdb->posts}.post_title LIKE %s",
-            "OR {$wpdb->posts}.post_excerpt LIKE %s",
-            "OR {$featureMatch}",
+            $wpdb->prepare('homlity_pm_code.meta_value LIKE %s', $likeAny),
+            $wpdb->prepare('homlity_pm_sync.meta_value LIKE %s', $likeAny),
+            $wpdb->prepare("{$wpdb->posts}.post_title LIKE %s", $likeAny),
+            $wpdb->prepare("{$wpdb->posts}.post_excerpt LIKE %s", $likeAny),
+            $featureMatch,
         ];
-        $whereArgs = [$likeAny, $likeAny, $likeAny, $likeAny];
         if ($includeContent) {
-            $whereParts[] = "OR {$wpdb->posts}.post_content LIKE %s";
-            $whereArgs[] = $likeAny;
+            $whereParts[] = $wpdb->prepare("{$wpdb->posts}.post_content LIKE %s", $likeAny);
         }
-        $whereSearch = $wpdb->prepare('(' . implode(' ', array_slice($whereParts, 0, 4)) . ')', ...$whereArgs);
-        $whereSearch = rtrim($whereSearch, ')') . " OR {$featureMatch}";
-        if ($includeContent) {
-            $whereSearch .= ' OR ' . $wpdb->prepare("{$wpdb->posts}.post_content LIKE %s", $likeAny);
-        }
-        $whereSearch .= ')';
+        $whereSearch = '(' . implode(' OR ', $whereParts) . ')';
         $clauses['where'] .= " AND {$whereSearch}";
 
         $rankSql = $wpdb->prepare(
@@ -571,8 +566,22 @@ class PropertySearchService implements ServiceInterface
         );
         $rankSql = str_replace('__HOMLITY_FEATURE_MATCH__', $featureMatch, $rankSql);
 
+        // The meta joins can expose more than one row for a property. MIN()
+        // keeps the best relevance score and makes ORDER BY valid with the
+        // GROUP BY wp_posts.ID that WP_Query adds for our non-empty meta_query
+        // under MySQL's ONLY_FULL_GROUP_BY mode.
+        $rankSql = 'MIN(' . $rankSql . ')';
+
         $existingOrderby = trim((string) ($clauses['orderby'] ?? ''));
         $clauses['orderby'] = $rankSql . ($existingOrderby !== '' ? ', ' . $existingOrderby : '');
+
+        $postIdField = "{$wpdb->posts}.ID";
+        $groupBy = trim((string) ($clauses['groupby'] ?? ''));
+        if ($groupBy === '') {
+            $clauses['groupby'] = $postIdField;
+        } elseif (stripos($groupBy, $postIdField) === false) {
+            $clauses['groupby'] .= ', ' . $postIdField;
+        }
 
         return $clauses;
     }
@@ -801,13 +810,41 @@ class PropertySearchService implements ServiceInterface
 
     public static function rememberQueryTotal(array $args, int $total): void
     {
-        self::$queryTotals[md5(serialize($args))] = max(0, $total);
+        self::$queryTotals[self::queryTotalKey($args)] = max(0, $total);
     }
 
     public static function rememberedQueryTotal(array $args): ?int
     {
-        $key = md5(serialize($args));
+        $key = self::queryTotalKey($args);
         return array_key_exists($key, self::$queryTotals) ? self::$queryTotals[$key] : null;
+    }
+
+    private static function queryTotalKey(array $args): string
+    {
+        foreach (['paged', 'posts_per_page', 'orderby', 'order', 'fields', 'no_found_rows', self::PRICE_ORDER_QUERY_VAR] as $key) {
+            unset($args[$key]);
+        }
+
+        self::sortQueryArgs($args);
+
+        return md5(serialize($args));
+    }
+
+    /** @param mixed $value */
+    private static function sortQueryArgs(&$value): void
+    {
+        if (!is_array($value)) {
+            return;
+        }
+
+        foreach ($value as &$child) {
+            self::sortQueryArgs($child);
+        }
+        unset($child);
+
+        if (array_keys($value) !== range(0, count($value) - 1)) {
+            ksort($value);
+        }
     }
 
     private function looksLikePropertyCode(string $value): bool
