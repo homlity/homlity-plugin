@@ -69,6 +69,10 @@ use Homlity\PluginInmobiliario\Services\TemplateService;
 use Homlity\PluginInmobiliario\Services\UnavailablePropertyShortcodesService;
 use Homlity\PluginInmobiliario\Services\UserMetaService;
 use Homlity\PluginInmobiliario\Services\VersionService;
+use Homlity\PluginInmobiliario\Search\PropertyIndexAdminPage;
+use Homlity\PluginInmobiliario\Search\PropertyIndexRebuilder;
+use Homlity\PluginInmobiliario\Search\PropertyIndexSchema;
+use Homlity\PluginInmobiliario\Search\PropertyIndexSync;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -81,6 +85,9 @@ class PluginBootstrap
 
     public function init(): void
     {
+        // La tabla se crea antes de registrar los hooks que pueden encolar
+        // cambios; la búsqueda todavía no usa este índice en la Fase 2A.
+        PropertyIndexSchema::ensure();
         $this->services = [
             // Public Developer API: lifecycle hooks and the extension registry.
             // First in the list so `homlity/loaded` is the only public signal
@@ -121,6 +128,9 @@ class PluginBootstrap
             new AgentProfileService(),
             new TechnicalSheetService(),
             new PropertySearchService(),
+            new PropertyIndexSync(),
+            new PropertyIndexRebuilder(),
+            new PropertyIndexAdminPage(),
 
             // Homologation: canonical data mapping across all CRM integrations
             new HomologationRestController(),

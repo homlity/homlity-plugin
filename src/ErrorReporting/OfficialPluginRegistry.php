@@ -15,7 +15,7 @@ final class OfficialPluginRegistry
     private const PLUGINS = [
         'homlity-real-estate' => [
             'directories' => ['homlity-real-estate'],
-            'hook_prefixes' => ['homlity_plugin_', 'homlity_error_reporter_', 'homlity_purge_'],
+            'hook_prefixes' => ['homlity_plugin_', 'homlity_error_reporter_', 'homlity_purge_', 'homlity_property_index_'],
             'action_groups' => ['homlity-real-estate'],
             'main_file' => 'homlity-real-estate/plugin-inmobiliario.php',
             'license_option' => 'homlity_license_key',

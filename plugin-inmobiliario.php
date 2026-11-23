@@ -248,6 +248,7 @@ register_activation_hook(__FILE__, static function () {
 
     // Create homologation table (safe: uses IF NOT EXISTS via dbDelta).
     Homlity\PluginInmobiliario\Homologation\HomologationRepository::createTable();
+    Homlity\PluginInmobiliario\Search\PropertyIndexSchema::createTable();
 
     // Register /llms-full.txt rewrite rule before flushing.
     Homlity\PluginInmobiliario\Services\Ai\LlmsFullService::activate();

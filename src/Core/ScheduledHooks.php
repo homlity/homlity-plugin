@@ -7,6 +7,7 @@ namespace Homlity\PluginInmobiliario\Core;
 use Homlity\PluginInmobiliario\ErrorReporting\ErrorReporterService;
 use Homlity\PluginInmobiliario\Integrations\CRM\CrmConfig;
 use Homlity\PluginInmobiliario\Services\PropertyAnalyticsCleanupService;
+use Homlity\PluginInmobiliario\Search\PropertyIndexRebuilder;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -28,6 +29,8 @@ final class ScheduledHooks
             CrmConfig::CRON_HOOK,
             ErrorReporterService::CRON_HOOK,
             PropertyAnalyticsCleanupService::CRON_HOOK,
+            PropertyIndexRebuilder::CRON_HOOK,
+            PropertyIndexRebuilder::RECONCILE_CRON_HOOK,
         ];
     }
 
