@@ -245,10 +245,16 @@ $condition = get_post_meta($post_id, $meta['condition'], true);
 $age = get_post_meta($post_id, $meta['age'], true);
 $code = PropertyCodeResolver::forDisplay((int) $post_id);
 $featured = (bool) get_post_meta($post_id, $meta['featured'], true);
-$operationTerms = wp_get_post_terms($post_id, \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_OPERATION, ['fields' => 'names']);
+$operationObjects = get_the_terms($post_id, \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_OPERATION);
+$operationTerms = (!is_wp_error($operationObjects) && is_array($operationObjects))
+    ? array_map(static fn ($term) => (string) $term->name, $operationObjects)
+    : [];
 $operationLabel = (!is_wp_error($operationTerms) && !empty($operationTerms)) ? (string) $operationTerms[0] : '';
 $cardTitle = \Homlity\PluginInmobiliario\Services\CardTitleResolver::forDisplay((int) $post_id, $cardOptions, $code, $operationTerms);
-$tagTerms = wp_get_post_terms($post_id, \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_TAG, ['fields' => 'names']);
+$tagObjects = get_the_terms($post_id, \Homlity\PluginInmobiliario\Services\PropertyTaxonomies::TAXONOMY_TAG);
+$tagTerms = (!is_wp_error($tagObjects) && is_array($tagObjects))
+    ? array_map(static fn ($term) => (string) $term->name, $tagObjects)
+    : [];
 $tagTerms = (!is_wp_error($tagTerms) && is_array($tagTerms)) ? array_slice($tagTerms, 0, 4) : [];
 
 $images = [];

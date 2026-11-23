@@ -20,6 +20,9 @@ if (!defined('ABSPATH')) {
 
 class PropertySearchService implements ServiceInterface
 {
+    /** @var array<string,int> Totales de búsquedas ya ejecutadas en esta petición. */
+    private static array $queryTotals = [];
+
     /**
      * Query var que lleva el sentido del orden cuando se ordena por precio.
      *
@@ -70,9 +73,18 @@ class PropertySearchService implements ServiceInterface
         $postId = $this->findPropertyByExactCode($code);
         $syncResult = null;
 
-        if ($postId <= 0 && $this->looksLikePropertyCode($code)) {
+        // q/s siguen resolviendo códigos locales, pero nunca deben bloquear la
+        // búsqueda con una llamada remota: también parecen códigos años y
+        // números corrientes. La sincronización queda reservada a los
+        // parámetros explícitos de código.
+        $explicitCode = $this->hasExplicitPropertyCodeRequest();
+        $missKey = 'homlity_code_miss_' . md5($code);
+        if ($postId <= 0 && $explicitCode && $this->looksLikePropertyCode($code) && get_transient($missKey) === false) {
             $syncResult = SyncRegistry::syncByCodeDetailed($code);
             $postId = (int) ($syncResult['post_id'] ?? 0);
+            if ($postId <= 0) {
+                set_transient($missKey, 1, HOUR_IN_SECONDS);
+            }
         }
 
         if ($postId <= 0) {
@@ -500,30 +512,38 @@ class PropertySearchService implements ServiceInterface
             ON {$wpdb->posts}.ID = homlity_pm_sync.post_id
             AND homlity_pm_sync.meta_key = '_homlity_sync_id'";
 
-        $clauses['join'] .= " LEFT JOIN {$wpdb->term_relationships} AS homlity_tr
-            ON {$wpdb->posts}.ID = homlity_tr.object_id
-            LEFT JOIN {$wpdb->term_taxonomy} AS homlity_tt
-            ON homlity_tr.term_taxonomy_id = homlity_tt.term_taxonomy_id
-            AND homlity_tt.taxonomy = '" . esc_sql(PropertyTaxonomies::TAXONOMY_FEATURE) . "'
-            LEFT JOIN {$wpdb->terms} AS homlity_terms
-            ON homlity_tt.term_id = homlity_terms.term_id";
-
-        $whereSearch = $wpdb->prepare(
-            "(
-                homlity_pm_code.meta_value LIKE %s
-                OR homlity_pm_sync.meta_value LIKE %s
-                OR {$wpdb->posts}.post_title LIKE %s
-                OR {$wpdb->posts}.post_excerpt LIKE %s
-                OR {$wpdb->posts}.post_content LIKE %s
-                OR homlity_terms.name LIKE %s
-            )",
-            $likeAny,
-            $likeAny,
-            $likeAny,
-            $likeAny,
-            $likeAny,
+        $includeContent = (bool) apply_filters('homlity/search/include_content', false, $term);
+        $featureMatch = $wpdb->prepare(
+            "EXISTS (SELECT 1 FROM {$wpdb->term_relationships} AS homlity_feature_tr
+                INNER JOIN {$wpdb->term_taxonomy} AS homlity_feature_tt
+                    ON homlity_feature_tr.term_taxonomy_id = homlity_feature_tt.term_taxonomy_id
+                INNER JOIN {$wpdb->terms} AS homlity_feature_terms
+                    ON homlity_feature_tt.term_id = homlity_feature_terms.term_id
+                WHERE homlity_feature_tr.object_id = {$wpdb->posts}.ID
+                    AND homlity_feature_tt.taxonomy = %s
+                    AND homlity_feature_terms.name LIKE %s)",
+            PropertyTaxonomies::TAXONOMY_FEATURE,
             $likeAny
         );
+
+        $whereParts = [
+            'homlity_pm_code.meta_value LIKE %s',
+            'OR homlity_pm_sync.meta_value LIKE %s',
+            "OR {$wpdb->posts}.post_title LIKE %s",
+            "OR {$wpdb->posts}.post_excerpt LIKE %s",
+            "OR {$featureMatch}",
+        ];
+        $whereArgs = [$likeAny, $likeAny, $likeAny, $likeAny];
+        if ($includeContent) {
+            $whereParts[] = "OR {$wpdb->posts}.post_content LIKE %s";
+            $whereArgs[] = $likeAny;
+        }
+        $whereSearch = $wpdb->prepare('(' . implode(' ', array_slice($whereParts, 0, 4)) . ')', ...$whereArgs);
+        $whereSearch = rtrim($whereSearch, ')') . " OR {$featureMatch}";
+        if ($includeContent) {
+            $whereSearch .= ' OR ' . $wpdb->prepare("{$wpdb->posts}.post_content LIKE %s", $likeAny);
+        }
+        $whereSearch .= ')';
         $clauses['where'] .= " AND {$whereSearch}";
 
         $rankSql = $wpdb->prepare(
@@ -534,9 +554,9 @@ class PropertySearchService implements ServiceInterface
                 WHEN homlity_pm_sync.meta_value LIKE %s THEN 1
                 WHEN {$wpdb->posts}.post_title LIKE %s THEN 2
                 WHEN {$wpdb->posts}.post_title LIKE %s THEN 3
-                WHEN homlity_terms.name LIKE %s THEN 4
+                WHEN __HOMLITY_FEATURE_MATCH__ THEN 4
                 WHEN {$wpdb->posts}.post_excerpt LIKE %s THEN 5
-                WHEN {$wpdb->posts}.post_content LIKE %s THEN 6
+                " . ($includeContent ? "WHEN {$wpdb->posts}.post_content LIKE %s THEN 6" : '') . "
                 ELSE 9
             END",
             $term,
@@ -547,27 +567,12 @@ class PropertySearchService implements ServiceInterface
             $likeAny,
             $likeAny,
             $likeAny,
-            $likeAny
+            ...($includeContent ? [$likeAny] : [])
         );
-
-        // The rank reads columns from the joined tables while the query groups
-        // by post ID. Aggregating it keeps the best match per property and,
-        // more importantly, makes the statement valid under MySQL's
-        // ONLY_FULL_GROUP_BY, which is on by default since 5.7 and otherwise
-        // fails the whole query — leaving the search with zero results.
-        $rankSql = 'MIN(' . $rankSql . ')';
+        $rankSql = str_replace('__HOMLITY_FEATURE_MATCH__', $featureMatch, $rankSql);
 
         $existingOrderby = trim((string) ($clauses['orderby'] ?? ''));
         $clauses['orderby'] = $rankSql . ($existingOrderby !== '' ? ', ' . $existingOrderby : '');
-        $clauses['distinct'] = 'DISTINCT';
-
-        $groupBy = trim((string) ($clauses['groupby'] ?? ''));
-        $postIdField = "{$wpdb->posts}.ID";
-        if ($groupBy === '') {
-            $clauses['groupby'] = $postIdField;
-        } elseif (stripos($groupBy, $postIdField) === false) {
-            $clauses['groupby'] .= ', ' . $postIdField;
-        }
 
         return $clauses;
     }
@@ -781,6 +786,28 @@ class PropertySearchService implements ServiceInterface
         }
 
         return '';
+    }
+
+    private function hasExplicitPropertyCodeRequest(): bool
+    {
+        foreach (['codigo', 'property_code', 'code'] as $param) {
+            if (isset($_GET[$param]) && sanitize_text_field(wp_unslash((string) $_GET[$param])) !== '') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function rememberQueryTotal(array $args, int $total): void
+    {
+        self::$queryTotals[md5(serialize($args))] = max(0, $total);
+    }
+
+    public static function rememberedQueryTotal(array $args): ?int
+    {
+        $key = md5(serialize($args));
+        return array_key_exists($key, self::$queryTotals) ? self::$queryTotals[$key] : null;
     }
 
     private function looksLikePropertyCode(string $value): bool

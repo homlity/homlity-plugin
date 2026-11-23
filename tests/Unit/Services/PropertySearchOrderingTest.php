@@ -319,7 +319,7 @@ final class PropertySearchOrderingTest extends TestCase
         $clauses = $service->applyPriceOrder($clauses, $query);
         $clauses = $service->applyPriorityKeywordSearch($clauses, $query);
 
-        self::assertStringStartsWith('MIN(', trim($clauses['orderby']));
+        self::assertStringStartsWith('CASE', trim($clauses['orderby']));
         self::assertStringContainsString('homlity_pm_sale', $clauses['orderby']);
     }
 
@@ -340,20 +340,18 @@ final class PropertySearchOrderingTest extends TestCase
     // ── Keyword ranking SQL ──────────────────────────────────────────────────
 
     /**
-     * The ranking expression reads columns from the joined tables while the
-     * query groups by post ID. MySQL rejects that under ONLY_FULL_GROUP_BY —
-     * on by default since 5.7 — and the whole query fails, which is why a
-     * search by code returned nothing at all. Aggregating the rank keeps the
-     * statement valid.
+     * Feature matching uses a correlated EXISTS, so it does not multiply rows
+     * and does not require DISTINCT/GROUP BY for keyword searches.
      */
     public function testElRankingDeBusquedaEsAgregadoParaSobrevivirOnlyFullGroupBy(): void
     {
         $clauses = $this->keywordClauses('AW-1045');
 
-        self::assertStringStartsWith('MIN(', trim($clauses['orderby']));
-        self::assertStringContainsString('homlity_terms.name', $clauses['orderby']);
-        self::assertSame('DISTINCT', $clauses['distinct']);
-        self::assertStringContainsString('ID', $clauses['groupby']);
+        self::assertStringStartsWith('CASE', trim($clauses['orderby']));
+        self::assertStringContainsString('EXISTS (SELECT 1', $clauses['orderby']);
+        self::assertStringNotContainsString('homlity_terms.name', $clauses['orderby']);
+        self::assertSame('', $clauses['distinct']);
+        self::assertSame('', $clauses['groupby']);
     }
 
     /** The code is matched exactly first, then by prefix, then anywhere. */
@@ -363,9 +361,11 @@ final class PropertySearchOrderingTest extends TestCase
 
         self::assertStringContainsString('homlity_pm_code.meta_value', $clauses['where']);
         self::assertStringContainsString('homlity_pm_sync.meta_value', $clauses['where']);
+        self::assertStringContainsString('EXISTS (SELECT 1', $clauses['where']);
+        self::assertStringNotContainsString('post_content', $clauses['where']);
         // Rank 0 is the exact code match, so it has to appear before the rest.
         self::assertLessThan(
-            strpos($clauses['orderby'], 'post_content'),
+            strpos($clauses['orderby'], 'post_title'),
             strpos($clauses['orderby'], 'homlity_pm_code'),
         );
     }

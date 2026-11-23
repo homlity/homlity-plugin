@@ -19,6 +19,7 @@
  */
 
 use Homlity\PluginInmobiliario\Listing\ListingConfig;
+use Homlity\PluginInmobiliario\Listing\ListingRenderer;
 use Homlity\PluginInmobiliario\Services\IconRenderer;
 use Homlity\PluginInmobiliario\Services\TemplateService;
 
@@ -246,6 +247,7 @@ $paramToAttr = static function ($value): string {
                         <meta itemprop="numberOfItems" content="<?php echo esc_attr($query->found_posts); ?>"/>
                         <meta itemprop="itemListOrder" content="https://schema.org/ItemListOrderDescending"/>
                         <?php
+                        ListingRenderer::primeQueryCaches($query);
                         if ($query->have_posts()) {
                             $cont = 1;
                             while ($query->have_posts()) {

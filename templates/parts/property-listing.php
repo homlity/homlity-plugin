@@ -12,6 +12,7 @@
  */
 
 use Homlity\PluginInmobiliario\Listing\ListingConfig;
+use Homlity\PluginInmobiliario\Listing\ListingRenderer;
 use Homlity\PluginInmobiliario\Services\IconRenderer;
 use Homlity\PluginInmobiliario\Services\TemplateService;
 
@@ -190,6 +191,7 @@ $sortOptions = ListingConfig::sortOptions();
              style="--columns:<?php echo esc_attr($config->columns()); ?>;"
              <?php echo $config->defaultView() === 'map' ? 'hidden' : ''; ?>>
             <?php
+            ListingRenderer::primeQueryCaches($query);
             if ($query->have_posts()) {
                 while ($query->have_posts()) {
                     $query->the_post();

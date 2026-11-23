@@ -225,6 +225,8 @@ class ListingRenderer
 
         $args   = $this->search->buildQueryArgs($params);
         $query  = new \WP_Query($args);
+        PropertySearchService::rememberQueryTotal($args, (int) $query->found_posts);
+        self::primeQueryCaches($query);
 
         TemplateService::includeComponent($config->listingTemplate(), [
             'config' => $config,
@@ -275,6 +277,7 @@ class ListingRenderer
         }
 
         $query = new \WP_Query($result['args']);
+        self::primeQueryCaches($query);
 
         TemplateService::includeComponent($config->listingTemplate(), [
             'config' => $config,
@@ -393,6 +396,7 @@ class ListingRenderer
      */
     public function renderCards(\WP_Query $query, ListingConfig $config): string
     {
+        self::primeQueryCaches($query);
         ob_start();
 
         if ($query->have_posts()) {
@@ -407,6 +411,39 @@ class ListingRenderer
         }
 
         return ob_get_clean() ?: '';
+    }
+
+    /** Prime page metadata and attachment posts before rendering cards. */
+    public static function primeQueryCaches(\WP_Query $query): void
+    {
+        $postIds = [];
+        $attachmentIds = [];
+        foreach ((array) $query->posts as $post) {
+            $postId = is_object($post) ? (int) ($post->ID ?? 0) : (int) $post;
+            if ($postId <= 0) {
+                continue;
+            }
+            $postIds[] = $postId;
+            $thumbnailId = function_exists('get_post_thumbnail_id') ? (int) get_post_thumbnail_id($postId) : 0;
+            if ($thumbnailId > 0) {
+                $attachmentIds[] = $thumbnailId;
+            }
+            $rawGallery = get_post_meta($postId, '_property_gallery', true);
+            $gallery = is_array($rawGallery) ? $rawGallery : explode(',', (string) $rawGallery);
+            foreach ($gallery as $attachmentId) {
+                $attachmentId = absint($attachmentId);
+                if ($attachmentId > 0) {
+                    $attachmentIds[] = $attachmentId;
+                }
+            }
+        }
+        $ids = array_values(array_unique(array_merge($postIds, $attachmentIds)));
+        if ($ids && function_exists('_prime_post_caches')) {
+            _prime_post_caches($ids, false, true);
+        }
+        if ($postIds && function_exists('update_postmeta_cache')) {
+            update_postmeta_cache($postIds);
+        }
     }
 
     /**
@@ -450,6 +487,9 @@ class ListingRenderer
             '1.9.4',
             true
         );
+        if (function_exists('wp_dequeue_script')) {
+            wp_dequeue_script('homlity-real-estate-leaflet');
+        }
 
         wp_enqueue_script(
             'homlity-real-estate-swiper',
@@ -462,7 +502,7 @@ class ListingRenderer
         wp_enqueue_script(
             'homlity-real-estate-listing',
             HOMLITY_PLUGIN_URL . 'assets/js/property-listing.js',
-            ['homlity-real-estate-leaflet', 'homlity-real-estate-swiper'],
+            ['homlity-real-estate-swiper'],
             HOMLITY_PLUGIN_VERSION,
             true
         );
@@ -480,6 +520,7 @@ class ListingRenderer
         ]);
 
         wp_localize_script('homlity-real-estate-listing', 'homlityListingI18n', [
+            'leafletUrl' => HOMLITY_PLUGIN_URL . 'assets/vendor/leaflet/leaflet.min.js',
             'noResults' => __('No se han encontrado inmuebles para esta consulta.', 'homlity-real-estate'),
             'loading'   => __('Cargando...', 'homlity-real-estate'),
             'paginationLabel' => __('Paginación de inmuebles', 'homlity-real-estate'),

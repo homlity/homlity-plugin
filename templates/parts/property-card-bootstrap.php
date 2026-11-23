@@ -228,11 +228,22 @@ $code      = PropertyCodeResolver::forDisplay((int) $post_id);
 $featured      = (bool) get_post_meta($post_id, $meta['featured'], true);
 
 // Taxonomy labels
-$operationTerms = wp_get_object_terms($post_id, PropertyTaxonomies::TAXONOMY_OPERATION, ['fields' => 'names']);
-$typeTerms      = wp_get_object_terms($post_id, PropertyTaxonomies::TAXONOMY_TYPE,      ['fields' => 'names']);
-$cityTerms      = wp_get_object_terms($post_id, PropertyTaxonomies::TAXONOMY_CITY,      ['fields' => 'names']);
-$neighborhood   = wp_get_object_terms($post_id, PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD, ['fields' => 'names']);
-$tagTerms       = wp_get_object_terms($post_id, PropertyTaxonomies::TAXONOMY_TAG, ['fields' => 'names']);
+$operationTerms = get_the_terms($post_id, PropertyTaxonomies::TAXONOMY_OPERATION);
+$typeTerms      = get_the_terms($post_id, PropertyTaxonomies::TAXONOMY_TYPE);
+$cityTerms      = get_the_terms($post_id, PropertyTaxonomies::TAXONOMY_CITY);
+$neighborhood   = get_the_terms($post_id, PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD);
+$tagTerms       = get_the_terms($post_id, PropertyTaxonomies::TAXONOMY_TAG);
+
+$termNames = static function ($terms): array {
+    return (!is_wp_error($terms) && is_array($terms))
+        ? array_map(static fn ($term) => (string) $term->name, $terms)
+        : [];
+};
+$operationTerms = $termNames($operationTerms);
+$typeTerms = $termNames($typeTerms);
+$cityTerms = $termNames($cityTerms);
+$neighborhood = $termNames($neighborhood);
+$tagTerms = $termNames($tagTerms);
 
 $operationLabel = (!is_wp_error($operationTerms) && $operationTerms) ? $operationTerms[0] : '';
 $cardTitle = \Homlity\PluginInmobiliario\Services\CardTitleResolver::forDisplay((int) $post_id, $cardOptions, $code, $operationTerms);

@@ -147,12 +147,15 @@ class PropertyResultsTitleWidget extends Widget_Base
         if (($settings['show_total'] ?? 'yes') === 'yes') {
             $search = new PropertySearchService();
             $args   = $search->buildQueryArgs($search->currentQueryParams());
-            $args['fields']         = 'ids';
-            $args['no_found_rows']  = false;
-            $args['posts_per_page'] = 1;
-            $countQuery = new \WP_Query($args);
-            wp_reset_postdata();
-            $total  = (int) $countQuery->found_posts;
+            $total = PropertySearchService::rememberedQueryTotal($args);
+            if ($total === null) {
+                $args['fields']         = 'ids';
+                $args['no_found_rows']  = false;
+                $args['posts_per_page'] = 1;
+                $countQuery = new \WP_Query($args);
+                wp_reset_postdata();
+                $total = (int) $countQuery->found_posts;
+            }
             $suffix = ' (' . number_format_i18n($total) . ')';
         }
 
