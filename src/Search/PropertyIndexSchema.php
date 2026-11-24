@@ -69,6 +69,11 @@ final class PropertyIndexSchema
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
+        if (!self::tableExists()) {
+            // Leave the version unset so the next admin request retries creation.
+            self::$readyMemo = null;
+            return;
+        }
         update_option(self::SCHEMA_VERSION_OPTION, self::SCHEMA_VERSION, true);
         delete_option(self::READY_OPTION);
         self::$readyMemo = null;

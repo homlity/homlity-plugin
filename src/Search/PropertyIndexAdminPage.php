@@ -61,7 +61,7 @@ final class PropertyIndexAdminPage implements ServiceInterface
                 <?php wp_nonce_field('homlity_property_index_settings'); ?>
                 <label><input type="checkbox" name="use_index" value="1" <?php checked((bool) get_option(self::USE_OPTION, false)); ?>> <?php esc_html_e('Permitir que el buscador use el índice cuando esté listo', 'homlity-real-estate'); ?></label>
                 <p><button class="button button-primary" type="submit"><?php esc_html_e('Guardar', 'homlity-real-estate'); ?></button>
-                <button class="button" type="button" id="homlity-property-index-rebuild" <?php disabled(!$status['ready']); ?>><?php esc_html_e('Reconstruir índice', 'homlity-real-estate'); ?></button></p>
+                <button class="button" type="button" id="homlity-property-index-rebuild" data-running="<?php echo $status['running'] ? '1' : '0'; ?>"><?php esc_html_e('Reconstruir índice', 'homlity-real-estate'); ?></button></p>
             </form>
             <p id="homlity-property-index-progress" aria-live="polite"></p>
         </div>
@@ -70,12 +70,9 @@ final class PropertyIndexAdminPage implements ServiceInterface
             var button = document.getElementById('homlity-property-index-rebuild');
             var status = document.getElementById('homlity-property-index-progress');
             if (!button || !window.fetch) return;
-            button.addEventListener('click', function () {
-                button.disabled = true;
-                var body = new URLSearchParams({action: 'homlity_property_index_rebuild', nonce: <?php echo wp_json_encode($nonce); ?>});
-                fetch(ajaxurl, {method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: body.toString()})
-                    .then(function () {
-                        status.textContent = <?php echo wp_json_encode(__('Reconstrucción programada; consultando progreso…', 'homlity-real-estate')); ?>;
+            var startPolling = function () {
+                        button.disabled = true;
+                        status.textContent = <?php echo wp_json_encode(__('Reconstruyendo; no cierres esta pestaña…', 'homlity-real-estate')); ?>;
                         var poll = function () {
                             var query = new URLSearchParams({action: 'homlity_property_index_rebuild_status', nonce: <?php echo wp_json_encode($nonce); ?>});
                             fetch(ajaxurl, {method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: query.toString()})
@@ -91,8 +88,18 @@ final class PropertyIndexAdminPage implements ServiceInterface
                                 }).catch(function () { status.textContent = <?php echo wp_json_encode(__('No se pudo consultar el progreso.', 'homlity-real-estate')); ?>; button.disabled = false; });
                         };
                         poll();
+            };
+            if (button.getAttribute('data-running') === '1') startPolling();
+            button.addEventListener('click', function () {
+                button.disabled = true;
+                var body = new URLSearchParams({action: 'homlity_property_index_rebuild', nonce: <?php echo wp_json_encode($nonce); ?>});
+                fetch(ajaxurl, {method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: body.toString()})
+                    .then(function (response) { return response.json(); })
+                    .then(function (payload) {
+                        if (!payload || !payload.success) throw new Error('start failed');
+                        startPolling();
                     })
-                    .catch(function () { status.textContent = <?php echo wp_json_encode(__('No se pudo iniciar la reconstrucción.', 'homlity-real-estate')); ?>; button.disabled = false; });
+                    .catch(function () { status.textContent = <?php echo wp_json_encode(__('No se pudo iniciar la reconstrucción. Recarga la página e inténtalo de nuevo.', 'homlity-real-estate')); ?>; button.disabled = false; });
             });
         }());
         </script>

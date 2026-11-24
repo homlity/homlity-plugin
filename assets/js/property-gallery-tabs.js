@@ -44,20 +44,11 @@
         activateLazyMedia(panel);
         initPannellumInPanel(panel);
 
+        // Monta o re-mide los carruseles del panel ahora que tiene ancho visible.
         requestAnimationFrame(function () {
-            panel.querySelectorAll('[data-homlity-swiper-gallery="1"]').forEach(function (gallery) {
-                if (window.updateHomlitySwiperGallery) {
-                    window.updateHomlitySwiperGallery(gallery);
-                } else if (window.initHomlitySwiperGallery) {
-                    window.initHomlitySwiperGallery(gallery);
-                }
-            });
-
-            panel.querySelectorAll('.swiper').forEach(function (swiperEl) {
-                if (swiperEl.swiper && typeof swiperEl.swiper.update === 'function') {
-                    swiperEl.swiper.update();
-                }
-            });
+            if (window.homlityMediaGallery) {
+                window.homlityMediaGallery.boot(panel);
+            }
         });
     }
 

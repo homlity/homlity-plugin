@@ -38,9 +38,9 @@ class PropertyGalleryWidget extends BasePropertyWidget
             'type' => Controls_Manager::SELECT,
             'default' => 'slider_show',
             'options' => [
-                'slider_show' => __('Slider Show (Swiper)', 'homlity-real-estate'),
+                'slider_show' => __('Slider con miniaturas', 'homlity-real-estate'),
                 'light_gallery' => __('Light Gallery (detalle)', 'homlity-real-estate'),
-                'masonry' => __('Masonry (Swiper)', 'homlity-real-estate'),
+                'masonry' => __('Carrusel libre', 'homlity-real-estate'),
             ],
         ]);
         $this->add_control('slides_desktop', [
@@ -142,7 +142,7 @@ class PropertyGalleryWidget extends BasePropertyWidget
             'range' => ['px' => ['min' => 40, 'max' => 220]],
             'default' => ['unit' => 'px', 'size' => 86],
             'selectors' => [
-                '{{WRAPPER}} .property-gallery__thumbs .swiper-slide img' => 'height: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-gallery__thumbs .splide__slide img' => 'height: {{SIZE}}{{UNIT}};',
             ],
         ]);
         $this->add_control('thumb_gap', [
@@ -152,7 +152,7 @@ class PropertyGalleryWidget extends BasePropertyWidget
             'range' => ['px' => ['min' => 0, 'max' => 30]],
             'default' => ['unit' => 'px', 'size' => 10],
             'selectors' => [
-                '{{WRAPPER}} .property-gallery__thumbs .swiper' => '--homlity-thumb-gap: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-gallery__thumbs' => '--homlity-thumb-gap: {{SIZE}}{{UNIT}};',
             ],
         ]);
         $this->add_control('thumb_radius', [
@@ -162,21 +162,21 @@ class PropertyGalleryWidget extends BasePropertyWidget
             'range' => ['px' => ['min' => 0, 'max' => 30]],
             'default' => ['unit' => 'px', 'size' => 12],
             'selectors' => [
-                '{{WRAPPER}} .property-gallery__thumbs .swiper-slide' => 'border-radius: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-gallery__thumbs .splide__slide' => 'border-radius: {{SIZE}}{{UNIT}};',
             ],
         ]);
         $this->add_control('thumb_border_color', [
             'label' => __('Borde miniatura', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-gallery__thumbs .swiper-slide' => 'border-color: {{VALUE}};',
+                '{{WRAPPER}} .property-gallery__thumbs .splide__slide' => 'border-color: {{VALUE}};',
             ],
         ]);
         $this->add_control('thumb_active_border_color', [
             'label' => __('Borde miniatura activa', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-gallery__thumbs .swiper-slide-thumb-active' => 'border-color: {{VALUE}};',
+                '{{WRAPPER}} .property-gallery__thumbs .splide__slide.is-active' => 'border-color: {{VALUE}};',
             ],
         ]);
         $this->add_responsive_control('thumb_padding', [
@@ -184,13 +184,13 @@ class PropertyGalleryWidget extends BasePropertyWidget
             'type' => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%', 'em'],
             'selectors' => [
-                '{{WRAPPER}} .property-gallery__thumbs .swiper-slide' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                '{{WRAPPER}} .property-gallery__thumbs .splide__slide' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
             ],
         ]);
         $this->add_group_control(Group_Control_Box_Shadow::get_type(), [
             'name' => 'thumb_shadow',
             'label' => __('Sombra miniaturas', 'homlity-real-estate'),
-            'selector' => '{{WRAPPER}} .property-gallery__thumbs .swiper-slide',
+            'selector' => '{{WRAPPER}} .property-gallery__thumbs .splide__slide',
         ]);
         $this->end_controls_section();
 
@@ -241,13 +241,13 @@ class PropertyGalleryWidget extends BasePropertyWidget
                 'vh' => ['min' => 20, 'max' => 100],
             ],
             'selectors' => [
-                '{{WRAPPER}} .property-gallery--swiper .swiper-slide img' => 'height: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-gallery .splide__slide img' => 'height: {{SIZE}}{{UNIT}};',
             ],
         ]);
         $this->add_group_control(Group_Control_Box_Shadow::get_type(), [
             'name' => 'gallery_image_shadow',
             'label' => __('Sombra imágenes', 'homlity-real-estate'),
-            'selector' => '{{WRAPPER}} .property-gallery--swiper .swiper-slide, {{WRAPPER}} .property-gallery__item--light',
+            'selector' => '{{WRAPPER}} .property-gallery .splide__slide, {{WRAPPER}} .property-gallery__item--light',
         ]);
         $this->add_responsive_control('slide_gap', [
             'label' => __('Espacio entre slides', 'homlity-real-estate'),
@@ -256,7 +256,7 @@ class PropertyGalleryWidget extends BasePropertyWidget
             'range' => ['px' => ['min' => 0, 'max' => 40]],
             'default' => ['unit' => 'px', 'size' => 12],
             'selectors' => [
-                '{{WRAPPER}} .property-gallery--swiper .swiper' => '--homlity-gallery-gap: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-gallery' => '--homlity-gallery-gap: {{SIZE}}{{UNIT}};',
             ],
         ]);
         $this->end_controls_section();
@@ -274,34 +274,34 @@ class PropertyGalleryWidget extends BasePropertyWidget
             'size_units' => ['px'],
             'range' => ['px' => ['min' => 16, 'max' => 64]],
             'selectors' => [
-                '{{WRAPPER}} .property-gallery--swiper .swiper-button-next, {{WRAPPER}} .property-gallery--swiper .swiper-button-prev' => '--swiper-navigation-size: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .property-gallery' => '--hml-arrow-size: {{SIZE}}{{UNIT}};',
             ],
         ]);
         $this->add_control('nav_color', [
             'label' => __('Color flechas', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-gallery--swiper .swiper-button-next, {{WRAPPER}} .property-gallery--swiper .swiper-button-prev' => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-gallery .splide__arrow' => 'color: {{VALUE}};',
             ],
         ]);
         $this->add_control('pagination_color', [
             'label' => __('Color paginación activa', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-gallery--swiper .swiper-pagination-bullet-active' => 'background: {{VALUE}};',
+                '{{WRAPPER}} .property-gallery .splide__pagination__page.is-active' => 'background: {{VALUE}};',
             ],
         ]);
         $this->add_control('pagination_color_inactive', [
             'label' => __('Color paginación inactiva', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .property-gallery--swiper .swiper-pagination-bullet' => 'background: {{VALUE}};',
+                '{{WRAPPER}} .property-gallery .splide__pagination__page' => 'background: {{VALUE}};',
             ],
         ]);
         $this->add_group_control(Group_Control_Box_Shadow::get_type(), [
             'name' => 'slider_controls_shadow',
             'label' => __('Sombra controles', 'homlity-real-estate'),
-            'selector' => '{{WRAPPER}} .property-gallery--swiper .swiper-button-next, {{WRAPPER}} .property-gallery--swiper .swiper-button-prev',
+            'selector' => '{{WRAPPER}} .property-gallery .splide__arrow',
         ]);
         $this->end_controls_section();
     }
@@ -310,65 +310,8 @@ class PropertyGalleryWidget extends BasePropertyWidget
     {
         $settings = $this->get_settings_for_display();
 
-        wp_enqueue_script(
-            'homlity-real-estate-gallery-tabs',
-            HOMLITY_PLUGIN_URL . 'assets/js/property-gallery-tabs.js',
-            [],
-            HOMLITY_PLUGIN_VERSION,
-            true
-        );
-
         $layout = $settings['gallery_layout'] ?? 'slider_show';
-        if (in_array($layout, ['slider_show', 'masonry'], true)) {
-            wp_enqueue_style(
-                'homlity-real-estate-swiper',
-                HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.css',
-                [],
-                '11.1.4'
-            );
-            wp_enqueue_script(
-                'homlity-real-estate-swiper',
-                HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.js',
-                [],
-                '11.1.4',
-                true
-            );
-            wp_enqueue_script(
-                'homlity-real-estate-gallery-swiper',
-                HOMLITY_PLUGIN_URL . 'assets/js/property-gallery-swiper.js',
-                ['homlity-real-estate-swiper'],
-                HOMLITY_PLUGIN_VERSION,
-                true
-            );
-        }
-
-        if ($layout === 'light_gallery') {
-            wp_enqueue_style(
-                'homlity-real-estate-glightbox',
-                HOMLITY_PLUGIN_URL . 'assets/vendor/glightbox/glightbox.min.css',
-                [],
-                '3.3.1'
-            );
-            wp_enqueue_script(
-                'homlity-real-estate-glightbox',
-                HOMLITY_PLUGIN_URL . 'assets/vendor/glightbox/glightbox.min.js',
-                [],
-                '3.3.1',
-                true
-            );
-            wp_enqueue_script(
-                'homlity-real-estate-front-gallery',
-                HOMLITY_PLUGIN_URL . 'assets/js/front-gallery.js',
-                ['homlity-real-estate-glightbox'],
-                HOMLITY_PLUGIN_VERSION,
-                true
-            );
-            wp_add_inline_script(
-                'homlity-real-estate-front-gallery',
-                'window.homlityPluginFrontGallery = Object.assign({}, window.homlityPluginFrontGallery || {}, { mode: "light_gallery" });',
-                'before'
-            );
-        }
+        \Homlity\PluginInmobiliario\Services\MediaGalleryAssets::enqueue();
 
         TemplateService::includeComponent('property-gallery.php', [
             'post_id' => $this->current_property_id(),

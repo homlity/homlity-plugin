@@ -190,20 +190,20 @@ class PropertyMediaTabsWidget extends BasePropertyWidget
             'size_units' => ['px'],
             'range'      => ['px' => ['min' => 10, 'max' => 80]],
             'default'    => ['unit' => 'px', 'size' => 44],
-            'selectors'  => ['{{WRAPPER}} .property-gallery--swiper' => '--swiper-navigation-size: {{SIZE}}{{UNIT}};'],
+            'selectors'  => ['{{WRAPPER}} .property-gallery' => '--hml-arrow-size: {{SIZE}}{{UNIT}};'],
             'condition'  => ['show_arrows' => 'yes'],
         ]);
         $this->add_control('arrow_color', [
             'label'     => __('Color flechas', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-gallery--swiper' => '--swiper-navigation-color: {{VALUE}};'],
+            'selectors' => ['{{WRAPPER}} .property-gallery' => '--hml-arrow-color: {{VALUE}};'],
             'condition' => ['show_arrows' => 'yes'],
         ]);
         $this->add_control('arrow_color_hover', [
             'label'     => __('Color flechas (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .swiper-button-prev:hover, {{WRAPPER}} .swiper-button-next:hover' => 'color: {{VALUE}};',
+                '{{WRAPPER}} .property-gallery .splide__arrow:hover' => 'color: {{VALUE}};',
             ],
             'condition' => ['show_arrows' => 'yes'],
         ]);
@@ -211,7 +211,7 @@ class PropertyMediaTabsWidget extends BasePropertyWidget
             'label'     => __('Fondo flechas', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .swiper-button-prev, {{WRAPPER}} .swiper-button-next' => 'background-color: {{VALUE}};',
+                '{{WRAPPER}} .property-gallery .splide__arrow' => 'background-color: {{VALUE}};',
             ],
             'condition' => ['show_arrows' => 'yes'],
         ]);
@@ -219,7 +219,7 @@ class PropertyMediaTabsWidget extends BasePropertyWidget
             'label'     => __('Fondo flechas (hover)', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .swiper-button-prev:hover, {{WRAPPER}} .swiper-button-next:hover' => 'background-color: {{VALUE}};',
+                '{{WRAPPER}} .property-gallery .splide__arrow:hover' => 'background-color: {{VALUE}};',
             ],
             'condition' => ['show_arrows' => 'yes'],
         ]);
@@ -228,7 +228,7 @@ class PropertyMediaTabsWidget extends BasePropertyWidget
             'type'       => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', 'em'],
             'selectors'  => [
-                '{{WRAPPER}} .swiper-button-prev, {{WRAPPER}} .swiper-button-next' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                '{{WRAPPER}} .property-gallery .splide__arrow' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
             ],
             'condition' => ['show_arrows' => 'yes'],
         ]);
@@ -237,14 +237,14 @@ class PropertyMediaTabsWidget extends BasePropertyWidget
             'type'       => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%'],
             'selectors'  => [
-                '{{WRAPPER}} .swiper-button-prev, {{WRAPPER}} .swiper-button-next' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                '{{WRAPPER}} .property-gallery .splide__arrow' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
             ],
             'condition' => ['show_arrows' => 'yes'],
         ]);
         $this->add_group_control(Group_Control_Box_Shadow::get_type(), [
             'name'      => 'arrow_shadow',
             'label'     => __('Sombra flechas', 'homlity-real-estate'),
-            'selector'  => '{{WRAPPER}} .swiper-button-prev, {{WRAPPER}} .swiper-button-next',
+            'selector'  => '{{WRAPPER}} .property-gallery .splide__arrow',
             'condition' => ['show_arrows' => 'yes'],
         ]);
 
@@ -261,32 +261,32 @@ class PropertyMediaTabsWidget extends BasePropertyWidget
             'size_units' => ['px'],
             'range'      => ['px' => ['min' => 40, 'max' => 200]],
             'default'    => ['unit' => 'px', 'size' => 86],
-            'selectors'  => ['{{WRAPPER}} .property-gallery__thumbs .swiper-slide img' => 'height: {{SIZE}}{{UNIT}};'],
+            'selectors'  => ['{{WRAPPER}} .property-gallery__thumbs .splide__slide img' => 'height: {{SIZE}}{{UNIT}};'],
             'condition'  => ['show_thumbs' => 'yes'],
         ]);
         $this->add_responsive_control('thumbs_radius', [
             'label'      => __('Radio borde miniaturas', 'homlity-real-estate'),
             'type'       => Controls_Manager::DIMENSIONS,
             'size_units' => ['px', '%'],
-            'selectors'  => ['{{WRAPPER}} .property-gallery__thumbs .swiper-slide' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}}; overflow: hidden;'],
+            'selectors'  => ['{{WRAPPER}} .property-gallery__thumbs .splide__slide' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}}; overflow: hidden;'],
             'condition'  => ['show_thumbs' => 'yes'],
         ]);
         $this->add_group_control(Group_Control_Border::get_type(), [
             'name'      => 'thumbs_border',
             'label'     => __('Borde miniaturas', 'homlity-real-estate'),
-            'selector'  => '{{WRAPPER}} .property-gallery__thumbs .swiper-slide',
+            'selector'  => '{{WRAPPER}} .property-gallery__thumbs .splide__slide',
             'condition' => ['show_thumbs' => 'yes'],
         ]);
         $this->add_control('thumbs_border_active', [
             'label'     => __('Color borde miniatura activa', 'homlity-real-estate'),
             'type'      => Controls_Manager::COLOR,
-            'selectors' => ['{{WRAPPER}} .property-gallery__thumbs .swiper-slide-thumb-active' => 'border-color: {{VALUE}};'],
+            'selectors' => ['{{WRAPPER}} .property-gallery__thumbs .splide__slide.is-active' => 'border-color: {{VALUE}};'],
             'condition' => ['show_thumbs' => 'yes'],
         ]);
         $this->add_group_control(Group_Control_Box_Shadow::get_type(), [
             'name'      => 'thumbs_shadow',
             'label'     => __('Sombra miniaturas', 'homlity-real-estate'),
-            'selector'  => '{{WRAPPER}} .property-gallery__thumbs .swiper-slide',
+            'selector'  => '{{WRAPPER}} .property-gallery__thumbs .splide__slide',
             'condition' => ['show_thumbs' => 'yes'],
         ]);
 
@@ -345,10 +345,7 @@ class PropertyMediaTabsWidget extends BasePropertyWidget
         $layout = $photosMode === 'lightbox' ? 'light_gallery' : 'slider_show';
         $photosEnableLightbox = in_array($photosMode, ['lightbox', 'swiper_lightbox'], true);
 
-        wp_enqueue_script('homlity-real-estate-gallery-tabs', HOMLITY_PLUGIN_URL . 'assets/js/property-gallery-tabs.js', [], HOMLITY_PLUGIN_VERSION, true);
-        wp_enqueue_style('homlity-real-estate-swiper', HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.css', [], '11.1.4');
-        wp_enqueue_script('homlity-real-estate-swiper', HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.js', [], '11.1.4', true);
-        wp_enqueue_script('homlity-real-estate-gallery-swiper', HOMLITY_PLUGIN_URL . 'assets/js/property-gallery-swiper.js', ['homlity-real-estate-swiper'], HOMLITY_PLUGIN_VERSION, true);
+        \Homlity\PluginInmobiliario\Services\MediaGalleryAssets::enqueue();
 
         $widgetUid = sanitize_key('hml-widget-' . $this->get_id() . '-' . wp_unique_id());
         $hasPhotos360 = !empty(get_post_meta($this->current_property_id(), '_property_photos_360', true)) || !empty(get_post_meta($this->current_property_id(), '_homlity_sync_media_photos_360', true));

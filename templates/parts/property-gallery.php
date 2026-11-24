@@ -420,8 +420,15 @@ if ($galleryIds) {
         $full = homlity_gallery_attachment_url($attachmentId, 'large');
         $thumb = homlity_gallery_attachment_url($attachmentId, 'medium_large') ?: $full;
         $alt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true) ?: get_the_title($post_id);
+        $source = wp_get_attachment_image_src($attachmentId, 'large');
         if ($full && !isset($images[$full])) {
-            $images[$full] = ['full' => $full, 'thumb' => $thumb, 'alt' => $alt];
+            $images[$full] = [
+                'full' => $full,
+                'thumb' => $thumb,
+                'alt' => $alt,
+                'width' => is_array($source) ? (int) $source[1] : 0,
+                'height' => is_array($source) ? (int) $source[2] : 0,
+            ];
         }
     }
 }
@@ -583,45 +590,58 @@ $render_empty = static function (string $text) use ($show_empty_message, $emptyC
 
     <section id="<?php echo esc_attr($panelIds['photos']); ?>" class="property-gallery-tabs__panel<?php echo $firstId === 'photos' ? ' is-active' : ''; ?>" data-panel="photos" role="tabpanel" <?php echo $firstId === 'photos' ? '' : 'hidden'; ?>>
         <?php if ($images) : ?>
-            <?php if (in_array($layout, ['slider_show', 'masonry'], true)) : ?>
-                <div class="property-gallery property-gallery--swiper <?php echo $layout === 'masonry' ? 'property-gallery--swiper-masonry' : ''; ?> property-gallery--preset-<?php echo esc_attr($style_preset); ?>"
-                    data-homlity-swiper-gallery="1"
-                    <?php if ($photos_enable_lightbox) : ?>data-homlity-gallery="light"<?php endif; ?>
-                    data-layout="<?php echo esc_attr($layout === 'slider_show' ? 'slider' : $layout); ?>"
+            <?php if (in_array($layout, ['slider_show', 'masonry'], true)) :
+                $imageCount = count($images);
+                $carouselLabel = sprintf(__('Fotos del inmueble (%d)', 'homlity-real-estate'), $imageCount);
+                ?>
+                <div class="property-gallery property-gallery--carousel<?php echo $layout === 'masonry' ? ' property-gallery--masonry' : ''; ?> property-gallery--preset-<?php echo esc_attr($style_preset); ?>"
+                    data-hml-carousel="1"
+                    data-kind="<?php echo esc_attr($layout === 'masonry' ? 'masonry' : 'photos'); ?>"
+                    data-lightbox="<?php echo $photos_enable_lightbox ? '1' : '0'; ?>"
                     data-autoplay="<?php echo !empty($autoplay) ? '1' : '0'; ?>"
-                    data-slides-desktop="<?php echo esc_attr((int) ($slides_desktop ?? 1)); ?>"
-                    data-slides-tablet="<?php echo esc_attr((int) ($slides_tablet ?? 1)); ?>"
-                    data-slides-mobile="<?php echo esc_attr((int) ($slides_mobile ?? 1)); ?>"
-                    data-thumbs-per-view="<?php echo esc_attr((int) ($thumbs_per_view ?? 4)); ?>"
+                    data-per-page-desktop="<?php echo esc_attr((int) ($slides_desktop ?? 1)); ?>"
+                    data-per-page-tablet="<?php echo esc_attr((int) ($slides_tablet ?? 1)); ?>"
+                    data-per-page-mobile="<?php echo esc_attr((int) ($slides_mobile ?? 1)); ?>"
+                    data-thumbs-per-view="<?php echo esc_attr((int) ($thumbs_per_view ?? 5)); ?>"
                     data-loop="<?php echo !empty($loop) ? '1' : '0'; ?>"
-                    data-show-arrows="<?php echo !empty($show_arrows) ? '1' : '0'; ?>"
-                    data-show-pagination="<?php echo !empty($show_pagination) ? '1' : '0'; ?>"
+                    data-arrows="<?php echo !empty($show_arrows) ? '1' : '0'; ?>"
+                    data-pagination="<?php echo !empty($show_pagination) ? '1' : '0'; ?>"
                     data-speed="<?php echo esc_attr((int) ($speed ?? 520)); ?>">
-                    <div class="swiper">
-                        <div class="swiper-wrapper">
-                            <?php foreach ($images as $idx => $image) : ?>
-                                <figure class="property-gallery__slide swiper-slide <?php echo esc_attr($layout === 'masonry' ? 'is-masonry-' . ($idx % 6 + 1) : ''); ?>">
-                                    <?php if ($photos_enable_lightbox) : ?>
-                                        <a class="property-gallery__slide-link" href="<?php echo esc_url($image['full']); ?>">
-                                            <img src="<?php echo esc_url($image['thumb']); ?>" alt="<?php echo esc_attr($image['alt']); ?>" loading="lazy">
-                                        </a>
-                                    <?php else : ?>
-                                        <img src="<?php echo esc_url($image['thumb']); ?>" alt="<?php echo esc_attr($image['alt']); ?>" loading="lazy">
-                                    <?php endif; ?>
-                                </figure>
-                            <?php endforeach; ?>
+                    <div class="splide property-gallery__main" aria-label="<?php echo esc_attr($carouselLabel); ?>">
+                        <div class="splide__track">
+                            <ul class="splide__list">
+                                <?php foreach ($images as $idx => $image) : ?>
+                                    <li class="splide__slide property-gallery__slide<?php echo $layout === 'masonry' ? ' is-masonry-' . esc_attr((string) ($idx % 6 + 1)) : ''; ?>">
+                                        <?php if ($photos_enable_lightbox) : ?>
+                                            <a class="property-gallery__slide-link" href="<?php echo esc_url($image['full']); ?>" data-index="<?php echo esc_attr((string) $idx); ?>"
+                                                <?php if (!empty($image['width']) && !empty($image['height'])) : ?>data-pswp-width="<?php echo esc_attr((string) $image['width']); ?>" data-pswp-height="<?php echo esc_attr((string) $image['height']); ?>"<?php endif; ?>
+                                                aria-label="<?php echo esc_attr(sprintf(__('Ampliar foto %1$d de %2$d', 'homlity-real-estate'), $idx + 1, $imageCount)); ?>">
+                                                <img src="<?php echo esc_url($image['thumb']); ?>" alt="<?php echo esc_attr($image['alt']); ?>" <?php echo $idx === 0 ? 'fetchpriority="high"' : 'loading="lazy"'; ?> decoding="async">
+                                            </a>
+                                        <?php else : ?>
+                                            <img src="<?php echo esc_url($image['thumb']); ?>" alt="<?php echo esc_attr($image['alt']); ?>" <?php echo $idx === 0 ? 'fetchpriority="high"' : 'loading="lazy"'; ?> decoding="async">
+                                        <?php endif; ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
                         </div>
-                        <?php if ($layout === 'slider_show' && !empty($show_pagination)) : ?>
-                            <div class="swiper-pagination"></div>
-                            <?php if (!empty($show_arrows)) : ?><div class="swiper-button-prev"></div><div class="swiper-button-next"></div><?php endif; ?>
+                        <?php if ($layout === 'slider_show') : ?>
+                            <span class="property-gallery__counter" aria-hidden="true">1 / <?php echo esc_html((string) $imageCount); ?></span>
+                            <?php if ($photos_enable_lightbox) : ?>
+                                <button type="button" class="property-gallery__expand" aria-label="<?php esc_attr_e('Ver fotos en pantalla completa', 'homlity-real-estate'); ?>">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                                </button>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
-                    <?php if ($layout === 'slider_show' && !empty($show_thumbs)) : ?>
-                        <div class="swiper property-gallery__thumbs">
-                            <div class="swiper-wrapper">
-                                <?php foreach ($images as $image) : ?>
-                                    <div class="swiper-slide"><img src="<?php echo esc_url($image['thumb']); ?>" alt="<?php echo esc_attr($image['alt']); ?>" loading="lazy"></div>
-                                <?php endforeach; ?>
+                    <?php if ($layout === 'slider_show' && !empty($show_thumbs) && $imageCount > 1) : ?>
+                        <div class="splide property-gallery__thumbs" aria-label="<?php esc_attr_e('Miniaturas de las fotos', 'homlity-real-estate'); ?>">
+                            <div class="splide__track">
+                                <ul class="splide__list">
+                                    <?php foreach ($images as $image) : ?>
+                                        <li class="splide__slide"><img src="<?php echo esc_url($image['thumb']); ?>" alt="" loading="lazy" decoding="async"></li>
+                                    <?php endforeach; ?>
+                                </ul>
                             </div>
                         </div>
                     <?php endif; ?>
@@ -629,7 +649,8 @@ $render_empty = static function (string $text) use ($show_empty_message, $emptyC
             <?php else : ?>
                 <div class="property-gallery property-gallery--light property-gallery--preset-<?php echo esc_attr($style_preset); ?>" data-homlity-gallery="light">
                     <?php foreach ($images as $image) : ?>
-                        <a class="property-gallery__item property-gallery__item--light" href="<?php echo esc_url($image['full']); ?>">
+                        <a class="property-gallery__item property-gallery__item--light" href="<?php echo esc_url($image['full']); ?>"
+                            <?php if (!empty($image['width']) && !empty($image['height'])) : ?>data-pswp-width="<?php echo esc_attr((string) $image['width']); ?>" data-pswp-height="<?php echo esc_attr((string) $image['height']); ?>"<?php endif; ?>>
                             <img src="<?php echo esc_url($image['thumb']); ?>" alt="<?php echo esc_attr($image['alt']); ?>" loading="lazy">
                         </a>
                     <?php endforeach; ?>
@@ -667,19 +688,21 @@ $render_empty = static function (string $text) use ($show_empty_message, $emptyC
 
     <section id="<?php echo esc_attr($panelIds['photos360']); ?>" class="property-gallery-tabs__panel<?php echo $firstId === 'photos360' ? ' is-active' : ''; ?>" data-panel="photos360" role="tabpanel" <?php echo $firstId === 'photos360' ? '' : 'hidden'; ?>>
         <?php if ($photos360) : ?>
-            <div class="property-gallery property-gallery--swiper property-gallery--preset-<?php echo esc_attr($style_preset); ?>"
-                data-homlity-swiper-gallery="1"
-                data-layout="slider"
+            <div class="property-gallery property-gallery--carousel property-gallery--embed property-gallery--preset-<?php echo esc_attr($style_preset); ?>"
+                data-hml-carousel="1"
+                data-kind="embed"
+                data-lightbox="0"
                 data-autoplay="0"
-                data-slides-desktop="1"
-                data-slides-tablet="1"
-                data-slides-mobile="1"
+                data-per-page-desktop="1"
+                data-per-page-tablet="1"
+                data-per-page-mobile="1"
                 data-loop="0"
-                data-show-arrows="1"
-                data-show-pagination="1"
+                data-arrows="1"
+                data-pagination="1"
                 data-speed="<?php echo esc_attr((int) ($speed ?? 520)); ?>">
-                <div class="swiper">
-                    <div class="swiper-wrapper">
+                <div class="splide property-gallery__main" aria-label="<?php echo esc_attr(__('Fotos 360°', 'homlity-real-estate')); ?>">
+                    <div class="splide__track">
+                        <ul class="splide__list">
                         <?php foreach ($photos360 as $url) :
                             $isImage = (bool) preg_match('/\.(jpe?g|png|webp)$/i', (string) wp_parse_url($url, PHP_URL_PATH));
                             // Embeddable: explicit allowed domain OR any http/https non-image URL
@@ -687,7 +710,7 @@ $render_empty = static function (string $text) use ($show_empty_message, $emptyC
                             $canEmbed360 = homlity_url_is_allowed_embed_domain($url)
                                 || (!$isImage && in_array(strtolower((string) wp_parse_url($url, PHP_URL_SCHEME)), ['http', 'https'], true));
                             ?>
-                            <div class="property-gallery-tabs__360-item swiper-slide">
+                            <li class="splide__slide property-gallery-tabs__360-item">
                                 <?php if ($photos360_enable_viewer && $isImage) : ?>
                                     <div class="property-gallery-tabs__panorama"
                                         data-homlity-panorama="1"
@@ -703,12 +726,11 @@ $render_empty = static function (string $text) use ($show_empty_message, $emptyC
                                 <?php else : ?>
                                     <a href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e('Ver foto 360°', 'homlity-real-estate'); ?></a>
                                 <?php endif; ?>
-                            </div>
+                            </li>
                         <?php endforeach; ?>
+                        </ul>
                     </div>
-                    <div class="swiper-pagination"></div>
-                    <div class="swiper-button-prev"></div>
-                    <div class="swiper-button-next"></div>
+                    <span class="property-gallery__counter" aria-hidden="true">1 / <?php echo esc_html((string) count($photos360)); ?></span>
                 </div>
             </div>
         <?php else :
@@ -718,19 +740,21 @@ $render_empty = static function (string $text) use ($show_empty_message, $emptyC
 
     <section id="<?php echo esc_attr($panelIds['tours360']); ?>" class="property-gallery-tabs__panel<?php echo $firstId === 'tours360' ? ' is-active' : ''; ?>" data-panel="tours360" role="tabpanel" <?php echo $firstId === 'tours360' ? '' : 'hidden'; ?>>
         <?php if ($tours360) : ?>
-            <div class="property-gallery property-gallery--swiper property-gallery--preset-<?php echo esc_attr($style_preset); ?>"
-                data-homlity-swiper-gallery="1"
-                data-layout="slider"
+            <div class="property-gallery property-gallery--carousel property-gallery--embed property-gallery--preset-<?php echo esc_attr($style_preset); ?>"
+                data-hml-carousel="1"
+                data-kind="embed"
+                data-lightbox="0"
                 data-autoplay="0"
-                data-slides-desktop="1"
-                data-slides-tablet="1"
-                data-slides-mobile="1"
+                data-per-page-desktop="1"
+                data-per-page-tablet="1"
+                data-per-page-mobile="1"
                 data-loop="0"
-                data-show-arrows="1"
-                data-show-pagination="1"
+                data-arrows="1"
+                data-pagination="1"
                 data-speed="<?php echo esc_attr((int) ($speed ?? 520)); ?>">
-                <div class="swiper">
-                    <div class="swiper-wrapper">
+                <div class="splide property-gallery__main" aria-label="<?php echo esc_attr(__('Recorridos 360°', 'homlity-real-estate')); ?>">
+                    <div class="splide__track">
+                        <ul class="splide__list">
                         <?php foreach ($tours360 as $url) :
                             // Embeddable: explicit allowed domain OR any http/https URL in embed mode
                             // (admin-stored tour URLs are safe to iframe regardless of hosting domain)
@@ -739,7 +763,7 @@ $render_empty = static function (string $text) use ($show_empty_message, $emptyC
                                 || in_array(strtolower((string) wp_parse_url($url, PHP_URL_SCHEME)), ['http', 'https'], true)
                             );
                             ?>
-                            <div class="property-gallery-tabs__tour-wrap swiper-slide">
+                            <li class="splide__slide property-gallery-tabs__tour-wrap">
                                 <?php if ($canEmbedTour) : ?>
                                     <iframe <?php echo $tour_lazy ? 'data-src' : 'src'; ?>="<?php echo esc_url($url); ?>"
                                             title="<?php esc_attr_e('Recorrido 360°', 'homlity-real-estate'); ?>"
@@ -749,12 +773,11 @@ $render_empty = static function (string $text) use ($show_empty_message, $emptyC
                                 <?php else : ?>
                                     <a class="property-gallery-tabs__tour-link" href="<?php echo esc_url($url); ?>" <?php echo $tour_new_tab ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>><?php echo esc_html($tour_button_label); ?></a>
                                 <?php endif; ?>
-                            </div>
+                            </li>
                         <?php endforeach; ?>
+                        </ul>
                     </div>
-                    <div class="swiper-pagination"></div>
-                    <div class="swiper-button-prev"></div>
-                    <div class="swiper-button-next"></div>
+                    <span class="property-gallery__counter" aria-hidden="true">1 / <?php echo esc_html((string) count($tours360)); ?></span>
                 </div>
             </div>
         <?php else :

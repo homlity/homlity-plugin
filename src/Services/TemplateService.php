@@ -873,20 +873,8 @@ class TemplateService implements ServiceInterface
             ]);
         }
 
-        // Required by legacy "Tabs multimedia inmueble" photos slider.
-        wp_enqueue_style(
-            'homlity-real-estate-swiper',
-            HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.css',
-            [],
-            '11.0.0'
-        );
-        wp_enqueue_script(
-            'homlity-real-estate-swiper',
-            HOMLITY_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.js',
-            [],
-            '11.0.0',
-            true
-        );
+        // Fotos del inmueble (widgets y plantilla): carrusel Splide + lightbox PhotoSwipe.
+        MediaGalleryAssets::enqueue();
 
         $galleryDeps = [];
         if ($settings['detail_gallery_mode'] === 'owl_gallery') {
@@ -914,22 +902,7 @@ class TemplateService implements ServiceInterface
 
             $galleryDeps = ['jquery', 'homlity-real-estate-owl-carousel'];
         } else {
-            wp_enqueue_style(
-                'homlity-real-estate-glightbox',
-                HOMLITY_PLUGIN_URL . 'assets/vendor/glightbox/glightbox.min.css',
-                [],
-                '3.3.1'
-            );
-
-            wp_enqueue_script(
-                'homlity-real-estate-glightbox',
-                HOMLITY_PLUGIN_URL . 'assets/vendor/glightbox/glightbox.min.js',
-                [],
-                '3.3.1',
-                true
-            );
-
-            $galleryDeps = ['homlity-real-estate-glightbox'];
+            return;
         }
 
         wp_enqueue_script(

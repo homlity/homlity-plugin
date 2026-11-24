@@ -73,6 +73,7 @@ final class PropertyIndexRebuilder implements ServiceInterface
     public function start(): void
     {
         delete_option(PropertyIndexSchema::READY_OPTION);
+        PropertyIndexSchema::resetMemo();
         update_option(self::CURSOR_OPTION, 0, false);
         $this->scheduleNextBatch(1);
     }
@@ -112,6 +113,7 @@ final class PropertyIndexRebuilder implements ServiceInterface
         $ids = array_map('absint', $ids);
         if ($ids === []) {
             update_option(PropertyIndexSchema::READY_OPTION, PropertyIndexSchema::SCHEMA_VERSION, true);
+            PropertyIndexSchema::resetMemo();
             update_option(self::LAST_REBUILD_OPTION, gmdate('Y-m-d H:i:s'), false);
             delete_option(self::CURSOR_OPTION);
             return ['processed' => 0, 'remaining' => false, 'cursor' => $cursor];
@@ -134,6 +136,12 @@ final class PropertyIndexRebuilder implements ServiceInterface
         if (!current_user_can('manage_options')) {
             wp_send_json_error(['message' => __('No autorizado.', 'homlity-real-estate')], 403);
         }
+        if (!PropertyIndexSchema::tableExists()) {
+            PropertyIndexSchema::createTable();
+            if (!PropertyIndexSchema::tableExists()) {
+                wp_send_json_error(['message' => __('No se pudo crear la tabla del índice.', 'homlity-real-estate')], 500);
+            }
+        }
         $this->start();
         wp_send_json_success($this->status());
     }
@@ -144,7 +152,7 @@ final class PropertyIndexRebuilder implements ServiceInterface
         if (!current_user_can('manage_options')) {
             wp_send_json_error(['message' => __('No autorizado.', 'homlity-real-estate')], 403);
         }
-        if (!PropertyIndexSchema::isReady() && get_option(self::CURSOR_OPTION, null) !== null) {
+        if (!PropertyIndexSchema::isReady() && PropertyIndexSchema::tableExists()) {
             $this->runBatch(100);
         }
         wp_send_json_success($this->status());
@@ -163,6 +171,7 @@ final class PropertyIndexRebuilder implements ServiceInterface
             'indexed' => $indexed,
             'difference' => $published - $indexed,
             'ready' => PropertyIndexSchema::isReady(),
+            'running' => !PropertyIndexSchema::isReady() && get_option(self::CURSOR_OPTION, null) !== null,
             'cursor' => (int) get_option(self::CURSOR_OPTION, 0),
             'last_rebuild' => (string) get_option(self::LAST_REBUILD_OPTION, ''),
         ];
