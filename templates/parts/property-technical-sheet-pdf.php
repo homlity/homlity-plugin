@@ -164,7 +164,7 @@ $inThrees = static function (array $items): array {
                         ? 'sheet-header__portrait-img--tall'
                         : 'sheet-header__portrait-img--wide';
                     ?>
-                    <td style="width:84px">
+                    <td style="width:120px" class="sheet-header__portrait-cell">
                         <div class="sheet-header__portrait" style="border-color:<?php echo esc_attr($primary); ?>">
                             <img src="<?php echo esc_url($agent['photo']); ?>"
                                 alt="<?php echo esc_attr($agent['name']); ?>"
