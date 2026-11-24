@@ -602,19 +602,36 @@
     PropertyListing.prototype._addMarkers = function (properties) {
         var self = this;
 
-        properties.forEach(function (p) {
-            var featuresHtml = '';
-            if (p.bedrooms)  featuresHtml += '<span>' + p.bedrooms + ' hab.</span>';
-            if (p.bathrooms) featuresHtml += '<span>' + p.bathrooms + ' ba&#241;.</span>';
-            if (p.area)      featuresHtml += '<span>' + p.area + ' m&#178;</span>';
+        function escapeHtml(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) {
+                return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'}[character];
+            });
+        }
 
-            var popup =
-                '<div class="homlity-map-popup">' +
-                    (p.thumbnail ? '<img src="' + p.thumbnail + '" alt="" class="homlity-map-popup__img">' : '') +
-                    '<a href="' + p.permalink + '" class="homlity-map-popup__title">' + p.title + '</a>' +
-                    (p.price ? '<span class="homlity-map-popup__price">' + p.price + '</span>' : '') +
-                    (featuresHtml ? '<div class="homlity-map-popup__features">' + featuresHtml + '</div>' : '') +
-                '</div>';
+        function popupFor(property) {
+            var operations = Array.isArray(property.operations) ? property.operations : [];
+            var prices = Array.isArray(property.prices) ? property.prices : [];
+            var location = Array.isArray(property.location) ? property.location : [];
+            var priceHtml = prices.map(function (price) {
+                return '<span class="homlity-map-popup__price-line">' + escapeHtml(price.label || '') + ': ' + escapeHtml(price.amount || '') + '</span>';
+            }).join('');
+            var features = [['bedrooms', 'hab.'], ['bathrooms', 'baños'], ['parking', 'parq.']]
+                .filter(function (feature) { return property[feature[0]] !== '' && property[feature[0]] != null; })
+                .map(function (feature) { return '<span><b>' + escapeHtml(property[feature[0]]) + '</b> ' + feature[1] + '</span>'; })
+                .join('');
+
+            return '<div class="homlity-map-popup">' +
+                (property.thumbnail ? '<img src="' + escapeHtml(property.thumbnail) + '" alt="" class="homlity-map-popup__img">' : '') +
+                '<a href="' + escapeHtml(property.permalink || '#') + '" class="homlity-map-popup__title">' + escapeHtml(property.title || '') + '</a>' +
+                (operations.length ? '<span class="homlity-map-popup__operation">' + escapeHtml(operations.join(' · ')) + '</span>' : '') +
+                (priceHtml || property.price ? '<div class="homlity-map-popup__prices">' + (priceHtml || '<span class="homlity-map-popup__price-line">' + escapeHtml(property.price) + '</span>') + '</div>' : '') +
+                (features ? '<div class="homlity-map-popup__features">' + features + '</div>' : '') +
+                (location.length ? '<span class="homlity-map-popup__location">' + escapeHtml(location.join(' · ')) + '</span>' : '') +
+            '</div>';
+        }
+
+        properties.forEach(function (p) {
+            var popup = popupFor(p);
 
             var marker = L.marker([p.lat, p.lng])
                 .addTo(self.mapInstance)

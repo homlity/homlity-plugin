@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
 
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
+use Homlity\PluginInmobiliario\Services\CardPriceResolver;
 
 if (!function_exists('homlity_property_map_is_valid_coord')) {
     function homlity_property_map_is_valid_coord($lat, $lng): bool
@@ -86,6 +87,44 @@ $tabStreetIcon = isset($map_tab_icon_street) && is_array($map_tab_icon_street) ?
 
 $relatedEnabled = !isset($widgetSettings['show_related_markers']) || $widgetSettings['show_related_markers'] === 'yes';
 $relatedLimit = isset($widgetSettings['related_markers_limit']) ? max(0, min(10, (int) $widgetSettings['related_markers_limit'])) : 10;
+
+$buildMarkerData = static function (int $propertyId) use ($meta): array {
+    $termNames = static function (string $taxonomy) use ($propertyId): array {
+        $terms = wp_get_post_terms($propertyId, $taxonomy);
+        if (is_wp_error($terms)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map(static function ($term): string {
+            return $term instanceof WP_Term ? trim((string) $term->name) : '';
+        }, $terms)));
+    };
+
+    $priceLines = array_map(static function (array $line): array {
+        return [
+            'label' => (string) ($line['label'] ?? ''),
+            'amount' => (string) ($line['amount'] ?? ''),
+        ];
+    }, CardPriceResolver::forPost($propertyId));
+
+    return [
+        'id' => $propertyId,
+        'title' => get_the_title($propertyId),
+        'url' => get_permalink($propertyId),
+        'thumbnail' => get_the_post_thumbnail_url($propertyId, 'medium') ?: '',
+        'operations' => $termNames(PropertyTaxonomies::TAXONOMY_OPERATION),
+        'prices' => $priceLines,
+        'bedrooms' => get_post_meta($propertyId, $meta['bedrooms'], true),
+        'bathrooms' => get_post_meta($propertyId, $meta['bathrooms'], true),
+        'parking' => get_post_meta($propertyId, $meta['parking'], true),
+        'location' => array_values(array_unique(array_merge(
+            $termNames(PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD),
+            $termNames(PropertyTaxonomies::TAXONOMY_CITY)
+        ))),
+    ];
+};
+
+$markerData = $buildMarkerData((int) $post_id);
 $relatedMarkers = [];
 
 if ($relatedEnabled && $relatedLimit > 0) {
@@ -127,8 +166,7 @@ if ($relatedEnabled && $relatedLimit > 0) {
                 $relatedMarkers[] = [
                     'lat' => $rLat,
                     'lng' => $rLng,
-                    'title' => get_the_title((int) $relatedId),
-                    'url' => get_permalink((int) $relatedId),
+                    ...$buildMarkerData((int) $relatedId),
                 ];
             }
         }
@@ -216,6 +254,7 @@ wp_enqueue_script(
                     data-marker-icon="<?php echo esc_attr($markerIconUrl); ?>"
                     data-marker-icon-fallback="<?php echo esc_attr($fallbackIconUrl); ?>"
                     data-marker-bg-color="<?php echo esc_attr(sanitize_hex_color((string) ($widgetSettings['marker_bg_color'] ?? '')) ?: '#ffffff'); ?>"
+                    data-marker-popup="<?php echo esc_attr(wp_json_encode($markerData)); ?>"
                     data-related-markers="<?php echo esc_attr(wp_json_encode($relatedMarkers)); ?>"
                 ></div>
             <?php endif; ?>

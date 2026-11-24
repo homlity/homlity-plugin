@@ -37,6 +37,38 @@
         });
     }
 
+    function escapeHtml(value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) {
+            return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'}[character];
+        });
+    }
+
+    function markerPopup(data) {
+        data = data || {};
+        var title = escapeHtml(data.title || '');
+        var prices = Array.isArray(data.prices) ? data.prices : [];
+        var operations = Array.isArray(data.operations) ? data.operations : [];
+        var location = Array.isArray(data.location) ? data.location : [];
+        var pricesHtml = prices.map(function (price) {
+            var label = escapeHtml(price && price.label ? price.label : '');
+            var amount = escapeHtml(price && price.amount ? price.amount : '');
+            return '<span class="homlity-map-popup__price-line">' + (label ? '<small>' + label + '</small>' : '') + amount + '</span>';
+        }).join('');
+        var features = [['bedrooms', 'hab.'], ['bathrooms', 'baños'], ['parking', 'parq.']]
+            .filter(function (feature) { return data[feature[0]] !== '' && data[feature[0]] != null; })
+            .map(function (feature) { return '<span><b>' + escapeHtml(data[feature[0]]) + '</b> ' + feature[1] + '</span>'; })
+            .join('');
+
+        return '<div class="homlity-map-popup">' +
+            (data.thumbnail ? '<img src="' + escapeHtml(data.thumbnail) + '" alt="" class="homlity-map-popup__img">' : '') +
+            (title ? '<a href="' + escapeHtml(data.url || '#') + '" class="homlity-map-popup__title">' + title + '</a>' : '') +
+            (operations.length ? '<span class="homlity-map-popup__operation">' + escapeHtml(operations.join(' · ')) + '</span>' : '') +
+            (pricesHtml ? '<div class="homlity-map-popup__prices">' + pricesHtml + '</div>' : '') +
+            (features ? '<div class="homlity-map-popup__features">' + features + '</div>' : '') +
+            (location.length ? '<span class="homlity-map-popup__location">' + escapeHtml(location.join(' · ')) + '</span>' : '') +
+        '</div>';
+    }
+
     function initMap(node) {
         if (!window.L) {
             return;
@@ -46,6 +78,7 @@
         const lng = parseFloat(node.dataset.lng || '');
         const zoom = parseInt(node.dataset.zoom || '16', 10);
         const title = node.dataset.title || '';
+        let markerData = {};
         let relatedMarkers = [];
 
         if (Number.isNaN(lat) || Number.isNaN(lng)) {
@@ -60,6 +93,12 @@
         } catch (e) {
             relatedMarkers = [];
         }
+        try {
+            markerData = JSON.parse(node.dataset.markerPopup || '{}') || {};
+        } catch (e) {
+            markerData = {};
+        }
+        if (!markerData.title && title) markerData.title = title;
 
         const map = window.L.map(node, {
             scrollWheelZoom: false,
@@ -78,8 +117,8 @@
             const marker = icon
                 ? window.L.marker([lat, lng], { icon }).addTo(map)
                 : window.L.marker([lat, lng]).addTo(map);
-            if (title) {
-                marker.bindPopup(title);
+            if (markerData.title) {
+                marker.bindPopup(markerPopup(markerData));
             }
             return marker;
         }
@@ -97,10 +136,8 @@
                 const marker = window.L.marker([rLat, rLng], { icon: makeRelatedIcon() }).addTo(map);
                 const rTitle = (item && item.title) ? String(item.title) : '';
                 const rUrl = (item && item.url) ? String(item.url) : '';
-                if (rTitle && rUrl) {
-                    marker.bindPopup('<a href="' + rUrl + '">' + rTitle + '</a>');
-                } else if (rTitle) {
-                    marker.bindPopup(rTitle);
+                if (rTitle) {
+                    marker.bindPopup(markerPopup(item));
                 }
                 boundsPoints.push([rLat, rLng]);
             });

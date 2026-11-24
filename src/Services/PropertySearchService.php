@@ -1000,6 +1000,27 @@ class PropertySearchService implements ServiceInterface
 
             $price    = get_post_meta($post->ID, '_property_price_sale', true);
             $currency = get_post_meta($post->ID, '_property_currency_sale', true) ?: $currencyService->baseCurrency();
+            $operations = wp_get_post_terms($post->ID, PropertyTaxonomies::TAXONOMY_OPERATION);
+            $operationNames = !is_wp_error($operations) ? array_values(array_filter(array_map(static function ($term): string {
+                return $term instanceof \WP_Term ? trim((string) $term->name) : '';
+            }, $operations))) : [];
+            $priceLines = array_map(static function (array $line): array {
+                return [
+                    'label' => (string) ($line['label'] ?? ''),
+                    'amount' => (string) ($line['amount'] ?? ''),
+                ];
+            }, CardPriceResolver::forPost((int) $post->ID));
+            $location = [];
+            foreach ([PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD, PropertyTaxonomies::TAXONOMY_CITY] as $taxonomy) {
+                $terms = wp_get_post_terms($post->ID, $taxonomy);
+                if (!is_wp_error($terms)) {
+                    foreach ($terms as $term) {
+                        if ($term instanceof \WP_Term && trim((string) $term->name) !== '') {
+                            $location[] = trim((string) $term->name);
+                        }
+                    }
+                }
+            }
 
             $data[] = [
                 'id'        => $post->ID,
@@ -1009,9 +1030,13 @@ class PropertySearchService implements ServiceInterface
                 'lat'       => (float) $lat,
                 'lng'       => (float) $lng,
                 'price'     => $price ? homlity_plugin_apply_filters('homlity_plugin_format_price', null, $price, $currency) : '',
+                'operations' => $operationNames,
+                'prices'    => $priceLines,
                 'bedrooms'  => get_post_meta($post->ID, '_property_bedrooms', true),
                 'bathrooms' => get_post_meta($post->ID, '_property_bathrooms', true),
+                'parking'   => get_post_meta($post->ID, '_property_parking', true),
                 'area'      => get_post_meta($post->ID, '_property_area', true),
+                'location'  => array_values(array_unique($location)),
             ];
         }
 
