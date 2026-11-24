@@ -458,9 +458,15 @@ class ListingRenderer
     /**
      * Register and enqueue all scripts/styles required by the listing.
      * Safe to call multiple times – WordPress deduplicates by handle.
+     *
+     * @param mixed $config ListingConfig cuando lo invoca un listado; WordPress
+     *                     puede entregar argumentos del hook cuando se registra
+     *                     como callback de wp_enqueue_scripts.
      */
-    public static function enqueueAssets(?ListingConfig $config = null): void
+    public static function enqueueAssets(mixed $config = null): void
     {
+        $listingConfig = $config instanceof ListingConfig ? $config : null;
+
         wp_enqueue_style(
             'homlity-real-estate-front-components',
             HOMLITY_PLUGIN_URL . 'assets/css/front-components.css',
@@ -496,7 +502,7 @@ class ListingRenderer
             '1.9.4',
             true
         );
-        if ($config !== null && $config->defaultView() === 'map') {
+        if ($listingConfig !== null && $listingConfig->defaultView() === 'map') {
             wp_enqueue_script('homlity-real-estate-leaflet');
         }
 
