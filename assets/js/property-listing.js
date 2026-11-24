@@ -615,9 +615,12 @@
             var priceHtml = prices.map(function (price) {
                 return '<span class="homlity-map-popup__price-line">' + escapeHtml(price.label || '') + ': ' + escapeHtml(price.amount || '') + '</span>';
             }).join('');
-            var features = [['bedrooms', 'hab.'], ['bathrooms', 'baños'], ['parking', 'parq.']]
+            var features = [['bedrooms', 'fa-bed', 'Habitaciones'], ['bathrooms', 'fa-bath', 'Baños'], ['parking', 'fa-car', 'Parqueaderos']]
                 .filter(function (feature) { return property[feature[0]] !== '' && property[feature[0]] != null; })
-                .map(function (feature) { return '<span><b>' + escapeHtml(property[feature[0]]) + '</b> ' + feature[1] + '</span>'; })
+                .map(function (feature) {
+                    return '<span class="homlity-map-popup__feature" aria-label="' + feature[2] + ': ' + escapeHtml(property[feature[0]]) + '" title="' + feature[2] + '">' +
+                        '<i class="fas ' + feature[1] + '" aria-hidden="true"></i><b>' + escapeHtml(property[feature[0]]) + '</b></span>';
+                })
                 .join('');
 
             return '<div class="homlity-map-popup">' +

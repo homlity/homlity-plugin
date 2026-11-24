@@ -1026,7 +1026,7 @@ class PropertySearchService implements ServiceInterface
                 'id'        => $post->ID,
                 'title'     => get_the_title($post->ID),
                 'permalink' => get_permalink($post->ID),
-                'thumbnail' => get_the_post_thumbnail_url($post->ID, 'thumbnail') ?: '',
+                'thumbnail' => PropertyMedia::mainImageUrl((int) $post->ID),
                 'lat'       => (float) $lat,
                 'lng'       => (float) $lng,
                 'price'     => $price ? homlity_plugin_apply_filters('homlity_plugin_format_price', null, $price, $currency) : '',

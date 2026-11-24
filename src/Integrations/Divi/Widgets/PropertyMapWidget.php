@@ -150,6 +150,11 @@ class PropertyMapWidget extends BasePropertyWidget
             'type' => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-map' => 'background-color: {{VALUE}};'],
         ]);
+        $this->add_control('map_popup_price_color', [
+            'label' => __('Color precio del popup', 'homlity-real-estate'),
+            'type' => Controls_Manager::COLOR,
+            'selectors' => ['{{WRAPPER}} .homlity-map-popup__prices' => 'color: {{VALUE}};'],
+        ]);
 
         $this->add_control('marker_heading', [
             'label'     => __('Marcador', 'homlity-real-estate'),

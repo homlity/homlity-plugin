@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 use Homlity\PluginInmobiliario\Services\CardPriceResolver;
+use Homlity\PluginInmobiliario\Services\PropertyMedia;
 
 if (!function_exists('homlity_property_map_is_valid_coord')) {
     function homlity_property_map_is_valid_coord($lat, $lng): bool
@@ -111,7 +112,9 @@ $buildMarkerData = static function (int $propertyId) use ($meta): array {
         'id' => $propertyId,
         'title' => get_the_title($propertyId),
         'url' => get_permalink($propertyId),
-        'thumbnail' => get_the_post_thumbnail_url($propertyId, 'medium') ?: '',
+        // PropertyMedia also covers the featured URL/gallery used by CRM-synced
+        // properties when WordPress has no attachment thumbnail.
+        'thumbnail' => PropertyMedia::mainImageUrl($propertyId),
         'operations' => $termNames(PropertyTaxonomies::TAXONOMY_OPERATION),
         'prices' => $priceLines,
         'bedrooms' => get_post_meta($propertyId, $meta['bedrooms'], true),

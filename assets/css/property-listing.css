@@ -384,11 +384,19 @@
 }
 
 .homlity-map-popup__features span {
+    align-items: center;
     background: #f7f8fa;
     border-radius: 4px;
     color: var(--homlity-text-soft);
+    display: inline-flex;
     font-size: 0.78rem;
+    gap: 5px;
     padding: 2px 7px;
+}
+
+.homlity-map-popup__features .homlity-map-popup__feature i {
+    color: var(--homlity-primary-color);
+    font-size: 0.9em;
 }
 
 /* ─── Pagination ──────────────────────────────────────────────────────────── */
