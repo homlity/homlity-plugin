@@ -144,6 +144,7 @@ class WPBakeryIntegrationService implements ServiceInterface
             [],
             HOMLITY_PLUGIN_VERSION
         );
+        (new TemplateService())->enqueueBrandColorStyle();
         wp_enqueue_style(
             'homlity-real-estate-listing',
             HOMLITY_PLUGIN_URL . 'assets/css/property-listing.css',

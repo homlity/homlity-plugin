@@ -5,6 +5,7 @@
 
 namespace Homlity\PluginInmobiliario\Integrations\Elementor\Widgets;
 
+use Homlity\PluginInmobiliario\Services\TemplateService;
 use Elementor\Controls_Manager;
 use Elementor\Widget_Base;
 
@@ -34,6 +35,7 @@ abstract class BasePropertyWidget extends Widget_Base
             [],
             HOMLITY_PLUGIN_VERSION
         );
+        (new TemplateService())->enqueueBrandColorStyle();
 
         return [self::FRONT_COMPONENTS_STYLE_HANDLE];
     }

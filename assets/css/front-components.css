@@ -2,10 +2,10 @@
 .property-map,
 .property-gallery,
 .property-single__terms {
-    --homlity-primary-color: #ff6752;
-    --homlity-primary-color-rgb: 255, 103, 82;
-    --homlity-primary-color-soft: rgba(255, 103, 82, 0.12);
-    --homlity-primary-color-strong: rgba(255, 103, 82, 0.18);
+    --homlity-primary-color: var(--homlity-site-primary-color, #ff6752);
+    --homlity-primary-color-rgb: var(--homlity-site-primary-rgb, 255, 103, 82);
+    --homlity-primary-color-soft: rgba(var(--homlity-site-primary-rgb, 255, 103, 82), 0.12);
+    --homlity-primary-color-strong: rgba(var(--homlity-site-primary-rgb, 255, 103, 82), 0.18);
     --homlity-secondary-color: #37384a;
 }
 

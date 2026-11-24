@@ -1,7 +1,7 @@
 /* ─── Property Listing – CSS variables ────────────────────────────────────── */
 .property-listing {
-    --homlity-primary-color: #ff6752;
-    --homlity-primary-rgb: 255, 103, 82;
+    --homlity-primary-color: var(--homlity-site-primary-color, #ff6752);
+    --homlity-primary-rgb: var(--homlity-site-primary-rgb, 255, 103, 82);
     --homlity-secondary-color: #37384a;
     --homlity-radius: 12px;
     --homlity-border: rgba(55, 56, 74, 0.10);

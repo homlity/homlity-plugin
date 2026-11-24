@@ -819,10 +819,7 @@ class TemplateService implements ServiceInterface
             HOMLITY_PLUGIN_VERSION
         );
 
-        $inlineCss = $this->buildPrimaryColorCss($settings['primary_color']);
-        if ($inlineCss !== '') {
-            wp_add_inline_style('homlity-real-estate-front-components', $inlineCss);
-        }
+        $this->enqueueBrandColorStyle();
 
         wp_enqueue_script(
             'homlity-real-estate-contact-tracking',
@@ -1130,6 +1127,19 @@ class TemplateService implements ServiceInterface
         ]);
     }
 
+    /**
+     * Makes the configured agency brand color available to every builder
+     * stylesheet. Widget-level color controls still override this variable.
+     */
+    public function enqueueBrandColorStyle(): void
+    {
+        $settings = $this->publicSettings();
+        $inlineCss = $this->buildPrimaryColorCss($settings['primary_color']);
+        if ($inlineCss !== '') {
+            wp_add_inline_style('homlity-real-estate-front-components', $inlineCss);
+        }
+    }
+
     private function publicSettings(): array
     {
         $defaults = [
@@ -1166,7 +1176,7 @@ class TemplateService implements ServiceInterface
         }
 
         return sprintf(
-            'body{--homlity-primary-color:%1$s;--homlity-primary-color-rgb:%2$d,%3$d,%4$d;--homlity-primary-color-soft:rgba(%2$d,%3$d,%4$d,0.12);--homlity-primary-color-strong:rgba(%2$d,%3$d,%4$d,0.18);}',
+            'body{--homlity-site-primary-color:%1$s;--homlity-site-primary-rgb:%2$d,%3$d,%4$d;--homlity-primary-color:%1$s;--homlity-primary-color-rgb:%2$d,%3$d,%4$d;--homlity-primary-color-soft:rgba(%2$d,%3$d,%4$d,0.12);--homlity-primary-color-strong:rgba(%2$d,%3$d,%4$d,0.18);}',
             $color,
             $rgb[0],
             $rgb[1],
