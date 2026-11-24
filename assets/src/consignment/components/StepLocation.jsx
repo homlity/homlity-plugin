@@ -366,37 +366,6 @@ export default function StepLocation({ data, updateField, updateStep, errors, co
         <div ref={mapNodeRef} className="hcf-location-map" />
       </div>
 
-      <div className="hcf-row">
-        <InputField
-          label="Latitud"
-          id="latitude"
-          type="text"
-          inputMode="decimal"
-          value={data.latitude}
-          onChange={(value) => updateField('latitude', value)}
-          error={errors.latitude}
-          placeholder="4.710989"
-        />
-        <InputField
-          label="Longitud"
-          id="longitude"
-          type="text"
-          inputMode="decimal"
-          value={data.longitude}
-          onChange={(value) => updateField('longitude', value)}
-          error={errors.longitude}
-          placeholder="-74.072090"
-        />
-      </div>
-
-      <InputField
-        label="Referencia de ubicación"
-        id="location_reference"
-        value={data.location_reference}
-        onChange={(value) => updateField('location_reference', value)}
-        placeholder="Frente al parque, cerca al centro comercial…"
-      />
-
       <InputField
         label="URL de Google Maps"
         id="maps_url"
