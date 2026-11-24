@@ -237,7 +237,7 @@ class CF7IntegrationService implements ServiceInterface
                 <legend><?php esc_html_e('Nombre del campo', 'homlity-real-estate'); ?></legend>
                 <label>
                     <input type="text"
-                           name="name"
+                           data-tag-part="name"
                            class="tg-name oneline"
                            id="<?php echo esc_attr($panel_id); ?>-name"
                            value="property_code" />
@@ -248,10 +248,9 @@ class CF7IntegrationService implements ServiceInterface
                 <legend><?php esc_html_e('ID de propiedad (opcional)', 'homlity-real-estate'); ?></legend>
                 <label>
                     <input type="number"
-                           name="values"
                            class="tg-value oneline option"
                            data-tag-part="option"
-                           data-option-name="post_id"
+                           data-tag-option="post_id:"
                            placeholder="<?php esc_attr_e('Dejar vacío para detectar automáticamente', 'homlity-real-estate'); ?>"
                     />
                 </label>
@@ -263,14 +262,14 @@ class CF7IntegrationService implements ServiceInterface
 
         <div class="insert-box">
             <input type="text"
-                   name="<?php echo esc_attr($panel_id); ?>"
                    class="tag code"
                    readonly="readonly"
-                   onfocus="this.select()" />
+                   onfocus="this.select()"
+                   data-tag-part="tag" />
             <div class="submitbox">
                 <input type="button"
-                       class="button button-primary insert-tag"
-                       value="<?php esc_attr_e('Insertar tag', 'homlity-real-estate'); ?>" />
+                       class="button button-primary"
+                       data-taggen="insert-tag"><?php esc_html_e('Insertar tag', 'homlity-real-estate'); ?></button>
             </div>
             <br class="clear" />
             <p class="description mail-tag">
@@ -306,7 +305,7 @@ class CF7IntegrationService implements ServiceInterface
                 <legend><?php esc_html_e('Nombre del campo', 'homlity-real-estate'); ?></legend>
                 <label>
                     <input type="text"
-                           name="name"
+                           data-tag-part="name"
                            class="tg-name oneline"
                            id="<?php echo esc_attr($panel_id); ?>-name"
                            value="property_code_display" />
@@ -317,10 +316,9 @@ class CF7IntegrationService implements ServiceInterface
                 <legend><?php esc_html_e('Etiqueta visible', 'homlity-real-estate'); ?></legend>
                 <label>
                     <input type="text"
-                           name="values"
                            class="tg-value oneline option"
                            data-tag-part="option"
-                           data-option-name="label"
+                           data-tag-option="label:"
                            placeholder="<?php esc_attr_e('Código del inmueble:', 'homlity-real-estate'); ?>" />
                 </label>
             </fieldset>
@@ -329,10 +327,9 @@ class CF7IntegrationService implements ServiceInterface
                 <legend><?php esc_html_e('ID de propiedad (opcional)', 'homlity-real-estate'); ?></legend>
                 <label>
                     <input type="number"
-                           name="values"
                            class="tg-value oneline option"
                            data-tag-part="option"
-                           data-option-name="post_id"
+                           data-tag-option="post_id:"
                            placeholder="<?php esc_attr_e('Dejar vacío para detectar automáticamente', 'homlity-real-estate'); ?>" />
                 </label>
             </fieldset>
@@ -340,14 +337,14 @@ class CF7IntegrationService implements ServiceInterface
 
         <div class="insert-box">
             <input type="text"
-                   name="<?php echo esc_attr($panel_id); ?>"
                    class="tag code"
                    readonly="readonly"
-                   onfocus="this.select()" />
+                   onfocus="this.select()"
+                   data-tag-part="tag" />
             <div class="submitbox">
                 <input type="button"
-                       class="button button-primary insert-tag"
-                       value="<?php esc_attr_e('Insertar tag', 'homlity-real-estate'); ?>" />
+                       class="button button-primary"
+                       data-taggen="insert-tag"><?php esc_html_e('Insertar tag', 'homlity-real-estate'); ?></button>
             </div>
             <br class="clear" />
             <p class="description mail-tag">
