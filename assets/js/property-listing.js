@@ -317,10 +317,12 @@
         var requestController = this.fetchController;
         var formParams = this._getFormParams();
         var orderby = this.sortSelect ? this.sortSelect.value : 'date';
+        var compareMode = new URLSearchParams(window.location.search).get('homlity_index_compare') || '';
 
         var body = new URLSearchParams(Object.assign({
             action:            'homlity_listing',
             nonce:             this.nonce,
+            homlity_index_compare: compareMode,
             per_page:          this.perPage,
             page:              this.currentPage,
             orderby:           orderby,

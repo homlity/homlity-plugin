@@ -13,9 +13,13 @@ if (!defined('ABSPATH')) {
 /** Translates the plugin's named filters to the denormalized search index. */
 final class PropertyIndexQuery implements ServiceInterface
 {
-    /** @var array<int,array<string,mixed>> */
-    private static array $comparisonReports = [];
+    private static ?\WeakMap $comparisonReports = null;
     private static bool $comparisonInProgress = false;
+
+    private static function reports(): \WeakMap
+    {
+        return self::$comparisonReports ??= new \WeakMap();
+    }
 
     public function register(): void
     {
@@ -163,7 +167,7 @@ final class PropertyIndexQuery implements ServiceInterface
 
     public static function shouldCompare(?\WP_Query $query = null): bool
     {
-        return !empty($_GET['homlity_index_compare'])
+        return (!empty($_GET['homlity_index_compare']) || !empty($_POST['homlity_index_compare']))
             && current_user_can('manage_options')
             && ($query === null || is_array($query->get('homlity_index_filters')));
     }
@@ -172,14 +176,16 @@ final class PropertyIndexQuery implements ServiceInterface
     public function compareQuery(\WP_Query $query): ?array
     {
         $key = spl_object_id($query);
-        if (!self::shouldCompare($query) || isset(self::$comparisonReports[$key])) {
-            return self::$comparisonReports[$key] ?? null;
+        $reports = self::reports();
+        if (!self::shouldCompare($query) || $reports->offsetExists($query)) {
+            return $reports->offsetExists($query) ? $reports[$query] : null;
         }
         if (self::$comparisonInProgress) {
             return null;
         }
         if (!PropertyIndexSchema::isReady()) {
-            return self::$comparisonReports[$key] = ['query_id' => $key, 'error' => __('El índice no está listo.', 'homlity-real-estate')];
+            $reports[$query] = ['query_id' => $key, 'error' => __('El índice no está listo.', 'homlity-real-estate')];
+            return $reports[$query];
         }
         if (function_exists('nocache_headers')) nocache_headers();
         do_action('litespeed_control_set_nocache');
@@ -241,7 +247,7 @@ final class PropertyIndexQuery implements ServiceInterface
                 'unexplained' => count($classified['unexplained']),
                 'details' => array_merge($classified['expected'], $classified['unexplained']),
             ];
-            self::$comparisonReports[$key] = $report;
+            $reports[$query] = $report;
             error_log('[homlity index compare] ' . wp_json_encode($report));
             return $report;
         } finally {
@@ -309,9 +315,9 @@ final class PropertyIndexQuery implements ServiceInterface
 
     public function renderComparisonNotice(): void
     {
-        if (!current_user_can('manage_options') || self::$comparisonReports === []) return;
+        if (!current_user_can('manage_options') || count(self::reports()) === 0) return;
         echo '<div class="notice notice-info"><ul>';
-        foreach (self::$comparisonReports as $report) {
+        foreach (self::reports() as $report) {
             if (!empty($report['error'])) {
                 echo '<li>' . esc_html((string) $report['error']) . '</li>';
                 continue;
@@ -334,6 +340,7 @@ final class PropertyIndexQuery implements ServiceInterface
     /** @return array<string,mixed>|null */
     public static function reportForQuery(\WP_Query $query): ?array
     {
-        return self::$comparisonReports[spl_object_id($query)] ?? null;
+        $reports = self::reports();
+        return $reports->offsetExists($query) ? $reports[$query] : null;
     }
 }

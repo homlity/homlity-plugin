@@ -5,13 +5,23 @@ const { JSDOM } = require('jsdom');
 const script = fs.readFileSync(path.join(__dirname, '../../assets/js/property-listing.js'), 'utf8');
 let dom;
 afterEach(() => dom.window.close());
-function setup(view = 'grid') {
+function setup(view = 'grid', query = '') {
     dom = new JSDOM(`<div class="property-listing" data-view="${view}" data-empty-message="Sin resultados &lt;seguros&gt;" data-preset-tag="7" data-preset-tag-ids="[7]">
       <select class="property-listing__sort"><option value="date">Fecha</option><option value="price_asc">Precio</option></select>
       <div class="property-listing__grid"></div><div class="property-listing__map-container"><div class="property-listing__map" id="listing-map"></div></div>
-    </div>`, { runScripts: 'outside-only', url: 'https://example.test/' });
+    </div>`, { runScripts: 'outside-only', url: 'https://example.test/' + query });
     return dom.window;
 }
+
+test('propaga el modo de comparación a las peticiones AJAX', async () => {
+    const win = setup('grid', '?homlity_index_compare=1');
+    win.fetch = jest.fn().mockResolvedValue({ json: async () => ({ success: true, data: { html: '', total: 0, pages: 0, map_data: [] } }) });
+    win.eval(script);
+    win.document.dispatchEvent(new win.Event('DOMContentLoaded'));
+    win.document.querySelector('select').dispatchEvent(new win.Event('change'));
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(new URLSearchParams(win.fetch.mock.calls[0][1].body).get('homlity_index_compare')).toBe('1');
+});
 test('AJAX empty results use configured text safely and retain legacy tag data', async () => {
     const win = setup();
     win.fetch = jest.fn().mockResolvedValue({ json: async () => ({ success: true, data: { html: '', total: 0, pages: 0, map_data: [] } }) });
