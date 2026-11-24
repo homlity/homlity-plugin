@@ -64,6 +64,20 @@ class PropertyTechnicalSheetButtonWidget extends BasePropertyWidget
             'name' => 'button_typography',
             'selector' => '{{WRAPPER}} .property-tech-sheet-btn',
         ]);
+        $this->add_responsive_control('button_width', [
+            'label'   => __('Ancho', 'homlity-real-estate'),
+            'type'    => Controls_Manager::CHOOSE,
+            'options' => [
+                'auto' => ['title' => __('Automático', 'homlity-real-estate'), 'icon' => 'eicon-h-align-left'],
+                'full' => ['title' => __('Ancho completo', 'homlity-real-estate'), 'icon' => 'eicon-h-align-stretch'],
+            ],
+            'toggle'    => false,
+            'selectors' => ['{{WRAPPER}} .property-tech-sheet-btn' => 'width: {{VALUE}};'],
+            'selectors_dictionary' => [
+                'auto' => 'auto',
+                'full' => '100%',
+            ],
+        ]);
         $this->add_control('button_color', [
             'label' => __('Color texto', 'homlity-real-estate'),
             'type' => Controls_Manager::COLOR,
