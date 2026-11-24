@@ -237,10 +237,11 @@
 .property-map__tabs {
     display: inline-flex;
     align-items: center;
+    bottom: 38px;
     gap: 8px;
-    left: 38px;
+    left: auto;
     position: absolute;
-    top: 38px;
+    right: 38px;
     z-index: 1000;
 }
 
@@ -1028,8 +1029,9 @@
     }
 
     .property-map__tabs {
-        left: 24px;
-        top: 24px;
+        bottom: 24px;
+        left: auto;
+        right: 24px;
     }
 
     .property-map__tab {
