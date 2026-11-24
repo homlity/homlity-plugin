@@ -66,6 +66,7 @@
   line-height: 1.4;
   padding: 18px 20px;
   text-align: left;
+  white-space: normal !important;
   width: 100%;
 }
 
@@ -83,7 +84,11 @@
 }
 
 .homlity-property-faq-question-text {
+  display: block;
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal !important;
 }
 
 /* ── Icons ──────────────────────────────────────────────────────────────── */
