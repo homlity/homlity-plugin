@@ -28,6 +28,7 @@ test('reutiliza una única instancia de GLightbox por galería', () => {
     const links = node.querySelectorAll('a');
 
     expect(dom.window.GLightbox).toHaveBeenCalledTimes(1);
+    expect(instances[0].options.closeOnOutsideClick).toBe(false);
     links[1].click();
 
     expect(dom.window.GLightbox).toHaveBeenCalledTimes(1);

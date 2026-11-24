@@ -25,6 +25,7 @@
                 touchNavigation: true,
                 loop: false,
                 closeButton: true,
+                closeOnOutsideClick: false,
                 openEffect: 'fade',
                 closeEffect: 'fade',
             });
