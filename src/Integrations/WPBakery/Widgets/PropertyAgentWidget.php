@@ -363,6 +363,16 @@ class PropertyAgentWidget extends BasePropertyWidget
             'type'      => Controls_Manager::COLOR,
             'selectors' => ['{{WRAPPER}} .property-agent-block__role' => 'color: {{VALUE}};'],
         ]);
+        $this->add_responsive_control('role_align', [
+            'label'   => __('Alineación', 'homlity-real-estate'),
+            'type'    => Controls_Manager::CHOOSE,
+            'options' => [
+                'left' => ['title' => __('Izquierda', 'homlity-real-estate'), 'icon' => 'eicon-text-align-left'],
+                'center' => ['title' => __('Centro', 'homlity-real-estate'), 'icon' => 'eicon-text-align-center'],
+                'right' => ['title' => __('Derecha', 'homlity-real-estate'), 'icon' => 'eicon-text-align-right'],
+            ],
+            'selectors' => ['{{WRAPPER}} .property-agent-block__role' => 'text-align: {{VALUE}};'],
+        ]);
 
         // — Contacto (teléfono y correo) —
         $this->add_control('contact_heading', [

@@ -199,6 +199,17 @@ final class PropertyAgentWidgetStylesTest extends TestCase
         );
     }
 
+    public function testSePuedeAlinearElCargo(): void
+    {
+        $control = $this->controls()['role_align'];
+
+        self::assertArrayHasKey('center', $control['options']);
+        self::assertStringContainsString(
+            'text-align',
+            $control['selectors']['{{WRAPPER}} .property-agent-block__role']
+        );
+    }
+
     public function testSePuedeAlinearLaFoto(): void
     {
         $control = $this->controls()['photo_align'];
@@ -229,7 +240,7 @@ final class PropertyAgentWidgetStylesTest extends TestCase
     {
         $controls = $this->controls();
 
-        foreach (['name_align', 'actions_align'] as $control) {
+        foreach (['name_align', 'role_align', 'actions_align'] as $control) {
             self::assertArrayNotHasKey('default', $controls[$control]);
         }
     }
