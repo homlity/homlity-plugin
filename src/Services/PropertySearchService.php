@@ -875,7 +875,7 @@ class PropertySearchService implements ServiceInterface
         }
     }
 
-    private function looksLikePropertyCode(string $value): bool
+    public static function looksLikePropertyCode(string $value): bool
     {
         $value = trim($value);
         if ($value === '' || strpos($value, ' ') !== false) {

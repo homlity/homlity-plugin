@@ -113,11 +113,31 @@ final class PropertyIndexQueryTest extends TestCase
         return [
             'frase' => ['casa campestre', '+casa* +campestre*', 'AGAINST(\'casa campestre\''],
             'codigo' => ['AW-1045', "hpi.code = 'aw-1045'", 'MATCH('],
+            'numero codigo' => ['2024', "hpi.code = '2024'", 'MATCH('],
+            'codigo largo' => ['12345', "hpi.code = '12345'", 'MATCH('],
             'comilla' => ['"piscina', '+piscina*', '"piscina'],
             'correo' => ['correo@dominio.com', '+correo* +dominio.com*', '@'],
             'corto' => ['ab', "hpi.search_text LIKE '%ab%'", 'MATCH('],
             'ciudad' => ['chapinero', '+chapinero*', '"chapinero'],
+            'texto con numero' => ['apartamento 3 habitaciones', "LIKE '%apartamento 3 habitaciones%'"],
+            'calle con numero' => ['calle 100', "LIKE '%calle 100%'"],
+            'guion sin numero' => ['semi-amoblado', '+semi* +amoblado*', "hpi.code = 'semi-amoblado'"] ,
         ];
+    }
+
+    public function testElRankingConservaElOrdenDeRelevancia(): void
+    {
+        $query = $this->activeQuery((new PropertySearchService())->buildQueryArgs(['search' => 'AW-1045']));
+        $clauses = (new PropertyIndexQuery())->applyClauses(['join' => '', 'where' => '', 'orderby' => '', 'groupby' => ''], $query);
+        $orderby = $clauses['orderby'];
+        $positions = array_map(static fn(string $needle): int => strpos($orderby, $needle), [
+            'THEN 0', 'THEN 1', 'THEN 2', 'THEN 3', 'THEN 4', 'THEN 5', 'ELSE 9',
+        ]);
+        self::assertNotContains(false, $positions);
+        for ($i = 1; $i < count($positions); $i++) {
+            self::assertLessThan($positions[$i], $positions[$i - 1]);
+        }
+        self::assertNotFalse(strpos($orderby, 'MIN(CASE'));
     }
 
     public function testConIndiceActivoUnaConsultaSinFiltrosDeIndiceNoSeModifica(): void

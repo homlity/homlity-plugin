@@ -4,6 +4,7 @@ namespace Homlity\PluginInmobiliario\Search;
 
 use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\PropertySearchService;
 use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 
 if (!defined('ABSPATH')) {
@@ -106,32 +107,35 @@ final class PropertyIndexQuery implements ServiceInterface
             $keyword = trim((string) preg_replace('/\s+/', ' ', $keyword));
             $likeAny = '%' . $wpdb->esc_like($keyword) . '%';
             $likePrefix = $wpdb->esc_like($keyword) . '%';
-            if (str_contains($keyword, '-') || preg_match('/\d/', $keyword) === 1) {
-                $where[] = '(' . $wpdb->prepare('hpi.code = %s', $keyword)
+            $looksLikeCode = !str_contains($keyword, ' ') && PropertySearchService::looksLikePropertyCode($keyword);
+            $textParts = $looksLikeCode ? [] : $this->safeBooleanWords($keyword);
+            if ($looksLikeCode) {
+                $textSearchSql = $wpdb->prepare('hpi.search_text LIKE %s', $likeAny);
+            } elseif ($textParts !== []) {
+                $boolean = implode(' ', array_map(static fn(string $part): string => '+' . $part . '*', $textParts));
+                $textSearch = [$wpdb->prepare('MATCH(hpi.search_text) AGAINST(%s IN BOOLEAN MODE)', $boolean)];
+                if (str_contains($keyword, ' ')) {
+                    $textSearch[] = $wpdb->prepare('hpi.search_text LIKE %s', $likeAny);
+                }
+                $textSearchSql = '(' . implode(' AND ', $textSearch) . ')';
+            } else {
+                $textSearchSql = $wpdb->prepare('hpi.search_text LIKE %s', $likeAny);
+            }
+            $where[] = $looksLikeCode
+                ? '(' . $wpdb->prepare('hpi.code = %s', $keyword)
                     . ' OR ' . $wpdb->prepare('hpi.sync_id = %s', $keyword)
                     . ' OR ' . $wpdb->prepare('hpi.code LIKE %s', $likePrefix)
-                    . ' OR ' . $wpdb->prepare('hpi.sync_id LIKE %s', $likePrefix) . ')';
-                $rank = 'MIN(CASE WHEN hpi.code = ' . $wpdb->prepare('%s', $keyword)
+                    . ' OR ' . $wpdb->prepare('hpi.sync_id LIKE %s', $likePrefix)
+                    . ' OR ' . $textSearchSql . ')'
+                : $textSearchSql;
+            $rank = 'MIN(CASE ' . ($looksLikeCode ? 'WHEN hpi.code = ' . $wpdb->prepare('%s', $keyword)
                     . ' OR hpi.sync_id = ' . $wpdb->prepare('%s', $keyword)
                     . ' THEN 0 WHEN hpi.code LIKE ' . $wpdb->prepare('%s', $likePrefix)
-                    . ' OR hpi.sync_id LIKE ' . $wpdb->prepare('%s', $likePrefix) . ' THEN 1 ELSE 9 END), ';
-            } else {
-                $parts = $this->safeBooleanWords($keyword);
-                $search = [];
-                if ($parts !== []) {
-                    $boolean = implode(' ', array_map(static fn(string $part): string => '+' . $part . '*', $parts));
-                    $match = $wpdb->prepare('MATCH(hpi.search_text) AGAINST(%s IN BOOLEAN MODE)', $boolean);
-                    if (count($parts) > 1) {
-                        $search[] = '(' . $match . ' AND ' . $wpdb->prepare('hpi.search_text LIKE %s', '%' . $wpdb->esc_like(implode(' ', $parts)) . '%') . ')';
-                    } else {
-                        $search[] = $match;
-                    }
-                } else {
-                    $search[] = $wpdb->prepare('hpi.search_text LIKE %s', $likeAny);
-                }
-                $where[] = '(' . implode(' OR ', $search) . ')';
-                $rank = 'MIN(CASE WHEN ' . $wpdb->prepare('hpi.search_text LIKE %s', $likeAny) . ' THEN 4 ELSE 9 END), ';
-            }
+                    . ' OR hpi.sync_id LIKE ' . $wpdb->prepare('%s', $likePrefix) . ' THEN 1 ' : '')
+                . 'WHEN ' . $wpdb->prepare("{$wpdb->posts}.post_title LIKE %s", $likePrefix) . ' THEN 2 '
+                . 'WHEN ' . $wpdb->prepare("{$wpdb->posts}.post_title LIKE %s", $likeAny) . ' THEN 3 '
+                . 'WHEN ' . $wpdb->prepare('hpi.search_text LIKE %s', $likeAny) . ' THEN 4 '
+                . 'WHEN ' . $wpdb->prepare("{$wpdb->posts}.post_excerpt LIKE %s", $likeAny) . ' THEN 5 ELSE 9 END), ';
         }
 
         $clauses['where'] .= ' AND ' . implode(' AND ', $where);
