@@ -322,7 +322,6 @@
         var body = new URLSearchParams(Object.assign({
             action:            'homlity_listing',
             nonce:             this.nonce,
-            homlity_index_compare: compareMode,
             per_page:          this.perPage,
             page:              this.currentPage,
             orderby:           orderby,
@@ -403,7 +402,9 @@
 
         this._setLoading(true);
 
-        fetch(this.ajaxUrl, {
+        var requestUrl = this.ajaxUrl || window.location.href;
+        if (compareMode) requestUrl += (requestUrl.indexOf('?') === -1 ? '?' : '&') + 'homlity_index_compare=' + encodeURIComponent(compareMode);
+        fetch(requestUrl, {
             method:  'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body:    body.toString(),

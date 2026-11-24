@@ -20,7 +20,7 @@ test('propaga el modo de comparación a las peticiones AJAX', async () => {
     win.document.dispatchEvent(new win.Event('DOMContentLoaded'));
     win.document.querySelector('select').dispatchEvent(new win.Event('change'));
     await new Promise(resolve => setTimeout(resolve, 0));
-    expect(new URLSearchParams(win.fetch.mock.calls[0][1].body).get('homlity_index_compare')).toBe('1');
+    expect(new URL(win.fetch.mock.calls[0][0]).searchParams.get('homlity_index_compare')).toBe('1');
 });
 test('AJAX empty results use configured text safely and retain legacy tag data', async () => {
     const win = setup();
