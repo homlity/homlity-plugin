@@ -7,6 +7,7 @@ use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\AgentImageTag;
 use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\AgentTextTag;
 use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\AgentUrlTag;
 use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\PropertyCodeTag;
+use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\PropertyCodeUrlTag;
 use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\PropertyGalleryTag;
 use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\PropertyImageTag;
 use Homlity\PluginInmobiliario\Integrations\Elementor\DynamicTags\PropertyTextTag;
@@ -60,6 +61,7 @@ class ElementorProFormsIntegrationService implements ServiceInterface
         // la que estén. Data_Tag solo existe en Elementor 3, de ahí la
         // comprobación aparte.
         if (class_exists('\Elementor\Core\DynamicTags\Data_Tag')) {
+            $dynamicTags->register(new PropertyCodeUrlTag());
             $dynamicTags->register(new AgentTextTag());
             $dynamicTags->register(new AgentUrlTag());
             $dynamicTags->register(new AgentImageTag());

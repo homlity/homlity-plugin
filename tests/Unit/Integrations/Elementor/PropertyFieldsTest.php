@@ -147,6 +147,28 @@ final class PropertyFieldsTest extends TestCase
         self::assertSame('350000000', PropertyFields::text($postId, 'price_sale', PropertyFields::FORMAT_RAW));
     }
 
+    public function testConstruyeUnEnlaceBaseConElCodigoDelInmueble(): void
+    {
+        $postId = $this->givenProperty(['_property_code' => 'AW-1045']);
+
+        self::assertSame(
+            'https://wa.me/573001234567?text=Hola%20-%20Codigo%20AW-1045',
+            PropertyFields::codeUrl($postId, 'https://wa.me/573001234567?text=Hola%20-%20Codigo%20', '')
+        );
+        self::assertSame(
+            'https://example.test/inmueble?codigo=AW-1045',
+            PropertyFields::codeUrl($postId, 'https://example.test/inmueble', '?codigo=')
+        );
+    }
+
+    public function testElEnlaceConCodigoQuedaVacioSinBaseOcodigo(): void
+    {
+        $postId = $this->givenProperty();
+
+        self::assertSame('', PropertyFields::codeUrl($postId, 'https://example.test/'));
+        self::assertSame('', PropertyFields::codeUrl($postId, ''));
+    }
+
     public function testElPrecioPrincipalCaeEnElArriendoCuandoNoHayVenta(): void
     {
         $postId = $this->givenProperty([

@@ -311,6 +311,18 @@ final class PropertyFields
         };
     }
 
+    /** Build a URL from a caller-provided base and the property's raw code. */
+    public static function codeUrl(int $postId, string $baseUrl, string $separator = ''): string
+    {
+        $baseUrl = trim($baseUrl);
+        $code = self::text($postId, 'code', self::FORMAT_RAW);
+        if ($baseUrl === '' || $code === '') {
+            return '';
+        }
+
+        return esc_url_raw($baseUrl . $separator . rawurlencode($code));
+    }
+
     /**
      * Imagen para el widget de imagen.
      *
