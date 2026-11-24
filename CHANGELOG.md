@@ -13,6 +13,11 @@ La Developer API se versiona por separado. Ver
 
 ## [Sin publicar]
 
+### Changed
+
+- La búsqueda por palabra clave del índice incluye ciudad y barrio en `search_text` por defecto; se puede desactivar con el filtro `homlity/search/index_location_terms`.
+- El orden por precio coloca los valores `0` o `NULL` al final, tanto ascendente como descendente, igual que la comparación de la ruta anterior.
+
 ---
 
 ## [2.9.17] - 2026-10-21

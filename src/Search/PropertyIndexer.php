@@ -38,11 +38,15 @@ final class PropertyIndexer
         $code = substr($meta('_property_code'), 0, 100);
         $syncId = substr($meta('_homlity_sync_id'), 0, 100);
         $searchValues = [(string) $post->post_title, (string) $post->post_excerpt, $code, $syncId];
+        $indexLocationTerms = (bool) apply_filters('homlity/search/index_location_terms', true, $postId);
         foreach ([
             PropertyTaxonomies::TAXONOMY_FEATURE,
             PropertyTaxonomies::TAXONOMY_CITY,
             PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD,
         ] as $taxonomy) {
+            if (!$indexLocationTerms && in_array($taxonomy, [PropertyTaxonomies::TAXONOMY_CITY, PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD], true)) {
+                continue;
+            }
             $terms = get_the_terms($postId, $taxonomy);
             if (!is_wp_error($terms) && is_array($terms)) {
                 foreach ($terms as $term) {

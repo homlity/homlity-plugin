@@ -1030,6 +1030,18 @@ if (!function_exists('add_filter')) {
     }
 }
 
+if (!function_exists('remove_filter')) {
+    function remove_filter(string $hook, callable $callback, int $priority = 10): bool
+    {
+        foreach (WpStubs::$filters[$hook] ?? [] as $index => $registered) {
+            if ($registered === $callback) {
+                unset(WpStubs::$filters[$hook][$index]);
+            }
+        }
+        return true;
+    }
+}
+
 if (!function_exists('add_action')) {
     function add_action(string $hook, callable $callback, int $priority = 10, int $acceptedArgs = 1): bool
     {

@@ -4,6 +4,7 @@ namespace Homlity\PluginInmobiliario\Search;
 
 use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 use Homlity\PluginInmobiliario\Services\PropertyPostType;
+use Homlity\PluginInmobiliario\Services\PropertyTaxonomies;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -12,20 +13,21 @@ if (!defined('ABSPATH')) {
 /** Translates the plugin's named filters to the denormalized search index. */
 final class PropertyIndexQuery implements ServiceInterface
 {
-    /** @var array<string,mixed>|null */
-    private ?array $comparisonReport = null;
+    /** @var array<int,array<string,mixed>> */
+    private static array $comparisonReports = [];
+    private static bool $comparisonInProgress = false;
 
     public function register(): void
     {
         add_action('pre_get_posts', [$this, 'prepareQuery'], 20);
         add_filter('posts_clauses', [$this, 'applyClauses'], 30, 2);
-        add_action('wp', [$this, 'compareMainQuery'], 20);
+        add_filter('the_posts', [$this, 'compareQueryResults'], 30, 2);
         add_action('wp_footer', [$this, 'renderComparisonNotice']);
     }
 
-    public static function isActive(\WP_Query $query): bool
+    public static function isActive(?\WP_Query $query = null): bool
     {
-        if ($query->get('post_type') !== PropertyPostType::POST_TYPE) {
+        if ($query !== null && $query->get('post_type') !== PropertyPostType::POST_TYPE) {
             return false;
         }
         $enabled = PropertyIndexAdminPage::useIndex();
@@ -94,35 +96,38 @@ final class PropertyIndexQuery implements ServiceInterface
         }
 
         $rank = '';
-        $keyword = trim((string) ($filters['keyword'] ?? ''));
-        if ($keyword !== '') {
-            $keyword = strtolower(remove_accents($keyword));
+        $rawKeyword = trim((string) ($filters['keyword'] ?? ''));
+        if ($rawKeyword !== '') {
+            $keyword = preg_replace('/[+<>()[\]~*"@]/', ' ', strtolower(remove_accents($rawKeyword))) ?? '';
+            $keyword = trim((string) preg_replace('/\s+/', ' ', $keyword));
             $likeAny = '%' . $wpdb->esc_like($keyword) . '%';
             $likePrefix = $wpdb->esc_like($keyword) . '%';
-            $search = [
-                $wpdb->prepare('hpi.code LIKE %s', $likeAny),
-                $wpdb->prepare('hpi.sync_id LIKE %s', $likeAny),
-                $wpdb->prepare("{$wpdb->posts}.post_title LIKE %s", $likeAny),
-                $wpdb->prepare("{$wpdb->posts}.post_excerpt LIKE %s", $likeAny),
-            ];
-            $rankParts = [
-                'WHEN hpi.code = ' . $wpdb->prepare('%s', $keyword) . ' THEN 0',
-                'WHEN hpi.sync_id = ' . $wpdb->prepare('%s', $keyword) . ' THEN 0',
-                'WHEN hpi.code LIKE ' . $wpdb->prepare('%s', $likePrefix) . ' THEN 1',
-                'WHEN hpi.sync_id LIKE ' . $wpdb->prepare('%s', $likePrefix) . ' THEN 1',
-                'WHEN ' . $wpdb->prepare("{$wpdb->posts}.post_title LIKE %s", $likePrefix) . ' THEN 2',
-                'WHEN ' . $wpdb->prepare("{$wpdb->posts}.post_title LIKE %s", $likeAny) . ' THEN 3',
-                'WHEN ' . $wpdb->prepare("{$wpdb->posts}.post_excerpt LIKE %s", $likeAny) . ' THEN 5',
-            ];
-            if (strlen($keyword) >= 3) {
-                $search[] = $wpdb->prepare('MATCH(hpi.search_text) AGAINST(%s IN BOOLEAN MODE)', $keyword);
-                $rankParts[] = 'WHEN MATCH(hpi.search_text) AGAINST(' . $wpdb->prepare('%s', $keyword) . ' IN BOOLEAN MODE) THEN 4';
+            if (str_contains($keyword, '-') || preg_match('/\d/', $keyword) === 1) {
+                $where[] = '(' . $wpdb->prepare('hpi.code = %s', $keyword)
+                    . ' OR ' . $wpdb->prepare('hpi.sync_id = %s', $keyword)
+                    . ' OR ' . $wpdb->prepare('hpi.code LIKE %s', $likePrefix)
+                    . ' OR ' . $wpdb->prepare('hpi.sync_id LIKE %s', $likePrefix) . ')';
+                $rank = 'MIN(CASE WHEN hpi.code = ' . $wpdb->prepare('%s', $keyword)
+                    . ' OR hpi.sync_id = ' . $wpdb->prepare('%s', $keyword)
+                    . ' THEN 0 WHEN hpi.code LIKE ' . $wpdb->prepare('%s', $likePrefix)
+                    . ' OR hpi.sync_id LIKE ' . $wpdb->prepare('%s', $likePrefix) . ' THEN 1 ELSE 9 END), ';
             } else {
-                $search[] = $wpdb->prepare('hpi.search_text LIKE %s', $likeAny);
-                $rankParts[] = 'WHEN hpi.search_text LIKE ' . $wpdb->prepare('%s', $likeAny) . ' THEN 4';
+                $parts = $this->safeBooleanWords($keyword);
+                $search = [];
+                if ($parts !== []) {
+                    $boolean = implode(' ', array_map(static fn(string $part): string => '+' . $part . '*', $parts));
+                    $match = $wpdb->prepare('MATCH(hpi.search_text) AGAINST(%s IN BOOLEAN MODE)', $boolean);
+                    if (count($parts) > 1) {
+                        $search[] = '(' . $match . ' AND ' . $wpdb->prepare('hpi.search_text LIKE %s', '%' . $wpdb->esc_like(implode(' ', $parts)) . '%') . ')';
+                    } else {
+                        $search[] = $match;
+                    }
+                } else {
+                    $search[] = $wpdb->prepare('hpi.search_text LIKE %s', $likeAny);
+                }
+                $where[] = '(' . implode(' OR ', $search) . ')';
+                $rank = 'MIN(CASE WHEN ' . $wpdb->prepare('hpi.search_text LIKE %s', $likeAny) . ' THEN 4 ELSE 9 END), ';
             }
-            $where[] = '(' . implode(' OR ', $search) . ')';
-            $rank = 'MIN(CASE ' . implode(' ', $rankParts) . ' ELSE 9 END), ';
         }
 
         $clauses['where'] .= ' AND ' . implode(' AND ', $where);
@@ -140,72 +145,155 @@ final class PropertyIndexQuery implements ServiceInterface
         return $clauses;
     }
 
-    public function compareMainQuery(): void
+    /** @return string[] */
+    private function safeBooleanWords(string $keyword): array
     {
-        if (empty($_GET['homlity_index_compare']) || !current_user_can('manage_options')) {
-            return;
+        $clean = preg_replace('/[+\-<>()[\]~*"@]/', ' ', $keyword) ?? '';
+        return array_values(array_filter(preg_split('/\s+/', trim($clean)) ?: [], static fn(string $word): bool => strlen($word) >= 3));
+    }
+
+    public function compareQueryResults(array $posts, \WP_Query $query): array
+    {
+        if (!self::shouldCompare($query)) {
+            return $posts;
         }
-        global $wp_query;
-        if (!$wp_query instanceof \WP_Query || $wp_query->get('post_type') !== PropertyPostType::POST_TYPE) {
-            return;
+        $this->compareQuery($query);
+        return $posts;
+    }
+
+    public static function shouldCompare(?\WP_Query $query = null): bool
+    {
+        return !empty($_GET['homlity_index_compare'])
+            && current_user_can('manage_options')
+            && ($query === null || is_array($query->get('homlity_index_filters')));
+    }
+
+    /** @return array<string,mixed>|null */
+    public function compareQuery(\WP_Query $query): ?array
+    {
+        $key = spl_object_id($query);
+        if (!self::shouldCompare($query) || isset(self::$comparisonReports[$key])) {
+            return self::$comparisonReports[$key] ?? null;
+        }
+        if (self::$comparisonInProgress) {
+            return null;
         }
         if (!PropertyIndexSchema::isReady()) {
-            $this->comparisonReport = ['error' => __('El índice no está listo.', 'homlity-real-estate')];
-            return;
+            return self::$comparisonReports[$key] = ['query_id' => $key, 'error' => __('El índice no está listo.', 'homlity-real-estate')];
         }
         if (function_exists('nocache_headers')) nocache_headers();
         do_action('litespeed_control_set_nocache');
 
-        $args = $wp_query->query_vars;
-        if (is_array($wp_query->get('homlity_compare_meta_query'))) {
-            $args['meta_query'] = $wp_query->get('homlity_compare_meta_query');
+        self::$comparisonInProgress = true;
+        try {
+            $args = $query->query_vars;
+            if (is_array($query->get('homlity_compare_meta_query'))) {
+                $args['meta_query'] = $query->get('homlity_compare_meta_query');
+            }
+            unset($args['homlity_compare_meta_query']);
+            $args['posts_per_page'] = (int) ($args['posts_per_page'] ?? 12);
+            $args['paged'] = (int) ($args['paged'] ?? 1);
+
+            $started = microtime(true);
+            $forceIndex = static fn(bool $enabled): bool => true;
+            $forcePostmeta = static fn(bool $enabled): bool => false;
+            add_filter('homlity/search/use_index', $forceIndex, 9999);
+            $indexQuery = new \WP_Query($args);
+            remove_filter('homlity/search/use_index', $forceIndex, 9999);
+            $indexTime = microtime(true) - $started;
+
+            add_filter('homlity/search/use_index', $forcePostmeta, 9999);
+            $started = microtime(true);
+            $postmetaQuery = new \WP_Query($args);
+            $postmetaTime = microtime(true) - $started;
+            remove_filter('homlity/search/use_index', $forcePostmeta, 9999);
+
+            $indexIds = self::queryIds($indexQuery);
+            $postmetaIds = self::queryIds($postmetaQuery);
+            $comparisonIds = $indexIds;
+            $postmetaComparisonIds = $postmetaIds;
+            if ((int) $indexQuery->found_posts <= 500) {
+                $allArgs = $args;
+                $allArgs['fields'] = 'ids';
+                $allArgs['posts_per_page'] = -1;
+                $allArgs['paged'] = 1;
+                $allArgs['no_found_rows'] = false;
+                add_filter('homlity/search/use_index', $forceIndex, 9999);
+                $allIndex = new \WP_Query($allArgs);
+                remove_filter('homlity/search/use_index', $forceIndex, 9999);
+                add_filter('homlity/search/use_index', $forcePostmeta, 9999);
+                $allPostmeta = new \WP_Query($allArgs);
+                remove_filter('homlity/search/use_index', $forcePostmeta, 9999);
+                $comparisonIds = self::queryIds($allIndex);
+                $postmetaComparisonIds = self::queryIds($allPostmeta);
+            }
+            $different = array_values(array_unique(array_merge(array_diff($comparisonIds, $postmetaComparisonIds), array_diff($postmetaComparisonIds, $comparisonIds))));
+            $classified = $this->classifyDifferences($different, (array) $query->get('homlity_index_filters'));
+            $report = [
+                'query_id' => $key,
+                'index_time_ms' => round($indexTime * 1000, 2),
+                'postmeta_time_ms' => round($postmetaTime * 1000, 2),
+                'index_found_posts' => (int) $indexQuery->found_posts,
+                'postmeta_found_posts' => (int) $postmetaQuery->found_posts,
+                'order_equal' => $comparisonIds === $postmetaComparisonIds,
+                'found_equal' => (int) $indexQuery->found_posts === (int) $postmetaQuery->found_posts,
+                'expected' => count($classified['expected']),
+                'unexplained' => count($classified['unexplained']),
+                'details' => array_merge($classified['expected'], $classified['unexplained']),
+            ];
+            self::$comparisonReports[$key] = $report;
+            error_log('[homlity index compare] ' . wp_json_encode($report));
+            return $report;
+        } finally {
+            self::$comparisonInProgress = false;
         }
-        $args['posts_per_page'] = (int) ($args['posts_per_page'] ?? 12);
-        $args['paged'] = (int) ($args['paged'] ?? 1);
-
-        $started = microtime(true);
-        add_filter('homlity/search/use_index', '__return_true', 9999);
-        $indexQuery = new \WP_Query($args);
-        remove_filter('homlity/search/use_index', '__return_true', 9999);
-        $indexTime = microtime(true) - $started;
-
-        add_filter('homlity/search/use_index', '__return_false', 9999);
-        $started = microtime(true);
-        $postmetaQuery = new \WP_Query($args);
-        $postmetaTime = microtime(true) - $started;
-        remove_filter('homlity/search/use_index', '__return_false', 9999);
-
-        $indexIds = array_map('intval', wp_list_pluck($indexQuery->posts, 'ID'));
-        $postmetaIds = array_map('intval', wp_list_pluck($postmetaQuery->posts, 'ID'));
-        $different = array_values(array_unique(array_merge(array_diff($indexIds, $postmetaIds), array_diff($postmetaIds, $indexIds))));
-        $classified = $this->classifyDifferences($different);
-        $this->comparisonReport = [
-            'index_time_ms' => round($indexTime * 1000, 2),
-            'postmeta_time_ms' => round($postmetaTime * 1000, 2),
-            'order_equal' => $indexIds === $postmetaIds,
-            'found_equal' => (int) $indexQuery->found_posts === (int) $postmetaQuery->found_posts,
-            'expected' => count($classified['expected']),
-            'unexplained' => count($classified['unexplained']),
-            'details' => array_merge($classified['expected'], $classified['unexplained']),
-        ];
-        error_log('[homlity index compare] ' . wp_json_encode($this->comparisonReport));
     }
 
-    /** @param int[] $ids @return array{expected:array<int,mixed>,unexplained:array<int,mixed>} */
-    private function classifyDifferences(array $ids): array
+    /** @return int[] */
+    private static function queryIds(\WP_Query $query): array
+    {
+        return array_values(array_map(static function ($post): int {
+            return is_object($post) ? (int) ($post->ID ?? 0) : (int) $post;
+        }, $query->posts));
+    }
+
+    /** @param int[] $ids @param array<string,mixed> $filters @return array{expected:array<int,mixed>,unexplained:array<int,mixed>} */
+    private function classifyDifferences(array $ids, array $filters): array
     {
         global $wpdb;
         $result = ['expected' => [], 'unexplained' => []];
         foreach ($ids as $id) {
-            $rawSale = (string) get_post_meta($id, '_property_price_sale', true);
-            $rawRent = (string) get_post_meta($id, '_property_price_rent', true);
-            $raw = $rawSale !== '' ? $rawSale : $rawRent;
-            $row = $wpdb->get_row($wpdb->prepare('SELECT price_sale, price_rent FROM ' . PropertyIndexSchema::tableName() . ' WHERE post_id = %d', $id), ARRAY_A);
-            $indexed = $rawSale !== '' ? ($row['price_sale'] ?? null) : ($row['price_rent'] ?? null);
-            $current = is_numeric($raw) ? (float) $raw : (float) preg_replace('/[^0-9.-]/', '', $raw);
-            $isCopThousands = preg_match('/^-?\d{1,3}(?:\.\d{3})+$/', trim($raw)) === 1;
-            $detail = ['post_id' => $id, 'meta' => $raw, 'postmeta' => $current, 'index' => $indexed];
-            if ($isCopThousands && $indexed !== null && (float) $indexed !== $current) {
+            $raws = [
+                'price_sale' => (string) get_post_meta($id, '_property_price_sale', true),
+                'price_rent' => (string) get_post_meta($id, '_property_price_rent', true),
+                'area' => (string) get_post_meta($id, '_property_area', true),
+            ];
+            $row = $wpdb->get_row($wpdb->prepare('SELECT price_sale, price_rent, area, display_price FROM ' . PropertyIndexSchema::tableName() . ' WHERE post_id = %d', $id), ARRAY_A) ?: [];
+            $reason = '';
+            foreach ($raws as $field => $raw) {
+                if ($raw === '') continue;
+                $current = $this->currentSqlNumber($raw);
+                if (isset($row[$field]) && $row[$field] !== null && (float) $row[$field] !== $current && preg_match('/[.,]|[^0-9.\-]/', $raw)) {
+                    $reason = 'normalización de ' . $field;
+                    break;
+                }
+            }
+            $keyword = strtolower(remove_accents((string) ($filters['keyword'] ?? '')));
+            if ($reason === '' && $keyword !== '') {
+                foreach ([PropertyTaxonomies::TAXONOMY_CITY, PropertyTaxonomies::TAXONOMY_NEIGHBORHOOD] as $taxonomy) {
+                    $terms = get_the_terms($id, $taxonomy);
+                    foreach ((array) $terms as $term) {
+                        if (is_object($term) && str_contains(strtolower(remove_accents((string) ($term->name ?? ''))), $keyword)) {
+                            $reason = 'coincidencia de término de ubicación en search_text';
+                        }
+                    }
+                }
+            }
+            if ($reason === '' && ($filters['orderby'] ?? '') === 'price_asc' && (($row['display_price'] ?? null) === null || (float) ($row['display_price'] ?? 0) === 0)) {
+                $reason = 'precio 0/NULL al final en orden ascendente';
+            }
+            $detail = ['post_id' => $id, 'reason' => $reason ?: 'no explicada', 'raw' => $raws, 'indexed' => $row];
+            if ($reason !== '') {
                 $result['expected'][] = $detail;
             } else {
                 $result['unexplained'][] = $detail;
@@ -214,31 +302,38 @@ final class PropertyIndexQuery implements ServiceInterface
         return $result;
     }
 
+    private function currentSqlNumber(string $raw): float
+    {
+        return preg_match('/^-?\d+/', trim($raw), $match) === 1 ? (float) $match[0] : 0.0;
+    }
+
     public function renderComparisonNotice(): void
     {
-        if (!is_array($this->comparisonReport) || !current_user_can('manage_options')) return;
-        if (!empty($this->comparisonReport['error'])) {
-            echo '<div class="notice notice-warning"><p>' . esc_html((string) $this->comparisonReport['error']) . '</p></div>';
-            return;
+        if (!current_user_can('manage_options') || self::$comparisonReports === []) return;
+        echo '<div class="notice notice-info"><ul>';
+        foreach (self::$comparisonReports as $report) {
+            if (!empty($report['error'])) {
+                echo '<li>' . esc_html((string) $report['error']) . '</li>';
+                continue;
+            }
+            printf('<li>%s</li>', esc_html(sprintf(
+                __('Consulta %d: %d esperadas, %d no explicadas; totales %d/%d; orden igual: %s. Índice %.2f ms / postmeta %.2f ms.', 'homlity-real-estate'),
+                (int) $report['query_id'], (int) $report['expected'], (int) $report['unexplained'],
+                (int) $report['index_found_posts'], (int) $report['postmeta_found_posts'],
+                $report['order_equal'] ? 'sí' : 'no', (float) $report['index_time_ms'], (float) $report['postmeta_time_ms']
+            )));
+            foreach ((array) ($report['details'] ?? []) as $detail) {
+                echo '<li>post_id ' . esc_html((string) ($detail['post_id'] ?? '')) . ': ' . esc_html((string) ($detail['reason'] ?? ''))
+                    . '; raw=' . esc_html(wp_json_encode($detail['raw'] ?? []))
+                    . '; índice=' . esc_html(wp_json_encode($detail['indexed'] ?? [])) . '</li>';
+            }
         }
-        $summary = sprintf(
-            __('Comparación índice: %d diferencias esperadas por normalización, %d no explicadas. Orden igual: %s; totales iguales: %s. Índice %.2f ms / postmeta %.2f ms.', 'homlity-real-estate'),
-            (int) $this->comparisonReport['expected'],
-            (int) $this->comparisonReport['unexplained'],
-            $this->comparisonReport['order_equal'] ? 'sí' : 'no',
-            $this->comparisonReport['found_equal'] ? 'sí' : 'no',
-            (float) $this->comparisonReport['index_time_ms'],
-            (float) $this->comparisonReport['postmeta_time_ms']
-        );
-        $details = '';
-        foreach ((array) ($this->comparisonReport['details'] ?? []) as $detail) {
-            $details .= '<li>post_id ' . esc_html((string) ($detail['post_id'] ?? ''))
-                . ': meta «' . esc_html((string) ($detail['meta'] ?? ''))
-                . '»; postmeta=' . esc_html((string) ($detail['postmeta'] ?? ''))
-                . '; índice=' . esc_html((string) ($detail['index'] ?? '')) . '</li>';
-        }
-        echo '<div class="notice notice-info"><p>' . esc_html($summary) . '</p>'
-            . ($details !== '' ? '<details><summary>' . esc_html__('Detalle de diferencias', 'homlity-real-estate') . '</summary><ul>' . $details . '</ul></details>' : '')
-            . '</div>';
+        echo '</ul></div>';
+    }
+
+    /** @return array<string,mixed>|null */
+    public static function reportForQuery(\WP_Query $query): ?array
+    {
+        return self::$comparisonReports[spl_object_id($query)] ?? null;
     }
 }

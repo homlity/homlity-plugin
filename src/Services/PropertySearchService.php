@@ -892,8 +892,7 @@ class PropertySearchService implements ServiceInterface
             return 0;
         }
 
-        if (get_option(\Homlity\PluginInmobiliario\Search\PropertyIndexAdminPage::USE_OPTION, false)
-            && PropertyIndexSchema::isReady()) {
+        if (\Homlity\PluginInmobiliario\Search\PropertyIndexQuery::isActive()) {
             global $wpdb;
             $indexedId = $wpdb->get_var($wpdb->prepare(
                 'SELECT hpi.post_id FROM ' . PropertyIndexSchema::tableName() . ' AS hpi WHERE hpi.code = %s OR hpi.sync_id = %s LIMIT 1',

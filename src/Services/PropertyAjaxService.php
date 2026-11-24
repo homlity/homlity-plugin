@@ -10,6 +10,7 @@ namespace Homlity\PluginInmobiliario\Services;
 use Homlity\PluginInmobiliario\Core\Contracts\ServiceInterface;
 use Homlity\PluginInmobiliario\Listing\ListingConfig;
 use Homlity\PluginInmobiliario\Listing\ListingRenderer;
+use Homlity\PluginInmobiliario\Search\PropertyIndexQuery;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -148,13 +149,20 @@ class PropertyAjaxService implements ServiceInterface
         $args    = $this->search->buildQueryArgs($filterParams);
         $query   = new \WP_Query($args);
         $renderer = new ListingRenderer();
-
-        wp_send_json_success([
+        $response = [
             'html'     => $renderer->renderCards($query, $config),
             'total'    => (int) $query->found_posts,
             'pages'    => (int) $query->max_num_pages,
             'map_data' => $this->search->getMapData($query),
-        ]);
+        ];
+        if (PropertyIndexQuery::shouldCompare($query)) {
+            $comparison = PropertyIndexQuery::reportForQuery($query);
+            if ($comparison === null) {
+                $comparison = (new PropertyIndexQuery())->compareQuery($query);
+            }
+            if ($comparison !== null) $response['compare'] = $comparison;
+        }
+        wp_send_json_success($response);
     }
 
     /**
