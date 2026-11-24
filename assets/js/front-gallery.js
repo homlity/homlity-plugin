@@ -20,7 +20,7 @@
                 return { href: el.getAttribute('href'), type: 'image' };
             });
 
-            window.GLightbox({
+            var lightbox = window.GLightbox({
                 elements: elements,
                 touchNavigation: true,
                 loop: false,
@@ -28,19 +28,14 @@
                 openEffect: 'fade',
                 closeEffect: 'fade',
             });
+            node._homlityLightbox = lightbox;
 
             links.forEach(function (el, idx) {
                 el.addEventListener('click', function (e) {
                     e.preventDefault();
-                    window.GLightbox({
-                        elements: elements,
-                        touchNavigation: true,
-                        loop: false,
-                        closeButton: true,
-                        openEffect: 'fade',
-                        closeEffect: 'fade',
-                        startAt: idx,
-                    }).open();
+                    if (node._homlityLightbox && typeof node._homlityLightbox.openAt === 'function') {
+                        node._homlityLightbox.openAt(idx);
+                    }
                 });
             });
         });
